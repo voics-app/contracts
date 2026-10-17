@@ -6901,7 +6901,7 @@
     },
     "VoiceNodeRegistration": {
       "title": "VoiceNodeRegistration",
-      "description": "etcd value at /discordy/voice/nodes/<region>/<node_id> (10 s lease, refreshed every 3 s).",
+      "description": "etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).",
       "type": "object",
       "required": [
         "node_id",

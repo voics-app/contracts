@@ -323,7 +323,7 @@ SFU control event: periodic load statistics.
 
 ### VoiceNodeRegistration
 
-etcd value at /discordy/voice/nodes/<region>/<node_id> (10 s lease, refreshed every 3 s).
+etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).
 
 | Field | Type | Description |
 | --- | --- | --- |
