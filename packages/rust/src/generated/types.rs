@@ -4846,7 +4846,7 @@ pub struct VoiceIdentifyPayload {
     pub user_id: Snowflake,
     pub video: bool,
 }
-///etcd value at /discordy/voice/nodes/<region>/<node_id> (10 s lease, refreshed every 3 s).
+///etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceNodeRegistration {
     pub cpu_pct: f64,
