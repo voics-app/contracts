@@ -1,0 +1,1 @@
+{ "schema": "gateway/opcodes/hello.json", "data": { "heartbeat_interval": 41250 } }

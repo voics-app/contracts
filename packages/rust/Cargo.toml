@@ -1,0 +1,16 @@
+[package]
+name = "discordy-contracts"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "UNLICENSED"
+publish = false
+description = "Discordy wire contracts: REST, gateway, event-bus and voice types plus permission/intent constants."
+repository = "https://github.com/discordy-voics/contracts"
+
+[dependencies]
+chrono = { version = "0.4", default-features = false, features = ["serde", "std"] }
+regress = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["serde"] }
