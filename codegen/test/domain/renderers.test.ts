@@ -51,6 +51,12 @@ describe("Elixir constants", () => {
     const topics = files.find((f) => f.module === "Discordy.Contracts.Topics");
     expect(topics?.source).toContain('def guild, do: "discordy.guild.v1"');
   });
+  it("separates large integers with underscores and exposes the map as entries/0", () => {
+    const permissionSets = files.find((f) => f.module === "Discordy.Contracts.PermissionSets");
+    expect(permissionSets?.source).toMatch(/def all, do: \d{1,3}(_\d{3})+$/m);
+    expect(permissionSets?.source).toContain("def entries do");
+    expect(permissionSets?.source).not.toContain("def all do");
+  });
 });
 
 describe("event unions", () => {

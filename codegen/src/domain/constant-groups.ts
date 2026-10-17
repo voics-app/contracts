@@ -67,7 +67,7 @@ export function buildConstantGroups({ permissions, intents, protocol }: Registri
     ...Object.entries(protocol.enums).map(([name, entry]) => ({ name, doc: entry.description, type: "u8" as const, entries: enumEntries(entry.values) })),
     { name: "DeliveryModeStrictness", doc: "Delivery-mode strictness; the effective DM mode is the strictest participant setting.", type: "u8", entries: protocol.delivery_modes.map((m) => ({ name: upper(m.name), value: m.strictness })) },
     { name: "DeliveryModeLimits", doc: "Delivery-mode membership limits.", type: "mixed", entries: scalarEntries(protocol.delivery_mode_limits) },
-    { name: "Snowflake", doc: "Snowflake layout and worker ranges.", type: "mixed", entries: [...scalarEntries(protocol.snowflake), ...snowflakeRanges] },
+    { name: "SnowflakeLayout", doc: "Snowflake layout and worker ranges.", type: "mixed", entries: [...scalarEntries(protocol.snowflake), ...snowflakeRanges] },
     { name: "Auth", doc: "Token settings.", type: "mixed", entries: scalarEntries(protocol.auth) },
     { name: "Gateway", doc: "Gateway protocol settings.", type: "mixed", entries: scalarEntries(protocol.gateway) },
     { name: "Voice", doc: "Voice protocol settings.", type: "mixed", entries: scalarEntries(protocol.voice) },
