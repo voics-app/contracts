@@ -23,18 +23,31 @@ security:
   - BotToken: []
 tags:
   - name: Auth
+    description: Registration, login and token rotation.
   - name: Devices
+    description: Device identity keys and MLS key packages.
   - name: Users
+    description: Users, settings, DMs, relationships and per-chat delivery modes.
   - name: Guilds
+    description: Guilds, channels, roles, members, bans, emojis and audit logs.
   - name: Channels
+    description: Channel settings, overwrites, invites, typing and threads.
   - name: Invites
+    description: Resolve, accept and revoke invites.
   - name: Messages
+    description: Standard-mode messages, reactions, pins, read states and attachments (messages service).
   - name: Applications
+    description: Applications and bot users.
   - name: Application Commands
+    description: Global and guild application commands.
   - name: Interactions
+    description: Interaction responses and the original response message.
   - name: Webhooks
+    description: Incoming webhooks and interaction follow-ups.
   - name: OAuth2
+    description: Bot invite authorization.
   - name: Voice
+    description: Voice regions.
 paths:
   /auth/register:
     post:
