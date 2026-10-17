@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/permission-overwrite.json",
+  "title": "PermissionOverwrite",
+  "description": "A channel permission overwrite for a role or member.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "allow",
+    "deny"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "type": {
+      "type": "integer",
+      "description": "OverwriteType: 0 role, 1 member."
+    },
+    "allow": {
+      "$ref": "./permission-bitset.json"
+    },
+    "deny": {
+      "$ref": "./permission-bitset.json"
+    }
+  }
+}

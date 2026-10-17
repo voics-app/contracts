@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/channel-recipient.json",
+  "title": "ChannelRecipientEvent",
+  "description": "CHANNEL_RECIPIENT_ADD / CHANNEL_RECIPIENT_REMOVE dispatch.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "user"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "user": {
+      "$ref": "../../objects/user.json"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/bulk-delete-request.json",
+  "title": "BulkDeleteRequest",
+  "description": "POST /channels/{id}/messages/bulk-delete body.",
+  "type": "object",
+  "required": [
+    "messages"
+  ],
+  "properties": {
+    "messages": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      },
+      "minItems": 2,
+      "maxItems": 100
+    }
+  }
+}

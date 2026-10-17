@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/set-delivery-mode-request.json",
+  "title": "SetDeliveryModeRequest",
+  "description": "PUT /users/@me/channels/{id}/delivery-mode body.",
+  "type": "object",
+  "required": [
+    "mode"
+  ],
+  "properties": {
+    "mode": {
+      "anyOf": [
+        {
+          "$ref": "../objects/delivery-mode.json"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Null clears the per-chat override."
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/invite-delete.json",
+  "title": "InviteDeleteEvent",
+  "description": "INVITE_DELETE dispatch.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "code"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "code": {
+      "type": "string"
+    }
+  }
+}

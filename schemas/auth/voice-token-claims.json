@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/auth/voice-token-claims.json",
+  "title": "VoiceTokenClaims",
+  "description": "Claims of a voice JWT (HS256 with VOICE_TOKEN_SECRET, 60 seconds).",
+  "type": "object",
+  "required": [
+    "sub",
+    "sid",
+    "srv",
+    "chn",
+    "node",
+    "e2ee",
+    "iat",
+    "exp"
+  ],
+  "properties": {
+    "sub": {
+      "$ref": "../objects/snowflake.json",
+      "description": "User ID."
+    },
+    "sid": {
+      "type": "string",
+      "description": "Gateway session ID."
+    },
+    "srv": {
+      "$ref": "../objects/snowflake.json",
+      "description": "guild_id, or the DM channel_id for DM calls."
+    },
+    "chn": {
+      "$ref": "../objects/snowflake.json",
+      "description": "Voice channel ID."
+    },
+    "node": {
+      "type": "string",
+      "description": "Allocated voice node ID."
+    },
+    "e2ee": {
+      "type": "boolean"
+    },
+    "iat": {
+      "type": "integer"
+    },
+    "exp": {
+      "type": "integer"
+    }
+  }
+}

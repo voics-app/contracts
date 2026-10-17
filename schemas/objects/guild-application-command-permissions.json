@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/guild-application-command-permissions.json",
+  "title": "GuildApplicationCommandPermissions",
+  "description": "Permissions of an application's command(s) in a guild.",
+  "type": "object",
+  "required": [
+    "id",
+    "application_id",
+    "guild_id",
+    "permissions"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json",
+      "description": "Command ID, or the application ID for app-wide permissions."
+    },
+    "application_id": {
+      "$ref": "./snowflake.json"
+    },
+    "guild_id": {
+      "$ref": "./snowflake.json"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ApplicationCommandPermission"
+      }
+    }
+  },
+  "$defs": {
+    "ApplicationCommandPermission": {
+      "title": "ApplicationCommandPermission",
+      "description": "A single command permission.",
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "permission"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "type": {
+          "type": "integer",
+          "description": "ApplicationCommandPermissionType."
+        },
+        "permission": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

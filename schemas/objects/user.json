@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/user.json",
+  "title": "User",
+  "description": "A Discordy user (Discord v10 User object).",
+  "type": "object",
+  "required": [
+    "id",
+    "username",
+    "discriminator",
+    "global_name",
+    "avatar"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "username": {
+      "type": "string"
+    },
+    "discriminator": {
+      "type": "string",
+      "description": "Always \"0\" (unique usernames)."
+    },
+    "global_name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "avatar": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Avatar hash."
+    },
+    "bot": {
+      "type": "boolean"
+    },
+    "system": {
+      "type": "boolean"
+    },
+    "mfa_enabled": {
+      "type": "boolean"
+    },
+    "banner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "accent_color": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "locale": {
+      "type": "string"
+    },
+    "verified": {
+      "type": "boolean"
+    },
+    "email": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Only returned for the current user."
+    },
+    "flags": {
+      "type": "integer"
+    },
+    "public_flags": {
+      "type": "integer"
+    }
+  }
+}

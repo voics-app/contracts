@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/events/voice-quality.json",
+  "title": "VoiceQualityEvent",
+  "description": "VOICE_QUALITY telemetry sample (discordy.telemetry.v1).",
+  "type": "object",
+  "required": [
+    "source",
+    "channel_id",
+    "jitter_ms",
+    "loss_pct",
+    "rtt_ms",
+    "bitrate_kbps"
+  ],
+  "properties": {
+    "source": {
+      "type": "string",
+      "enum": [
+        "client",
+        "voice"
+      ]
+    },
+    "user_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "guild_id": {
+      "anyOf": [
+        {
+          "$ref": "../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "channel_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "jitter_ms": {
+      "type": "number"
+    },
+    "loss_pct": {
+      "type": "number"
+    },
+    "rtt_ms": {
+      "type": "number"
+    },
+    "bitrate_kbps": {
+      "type": "number"
+    }
+  }
+}

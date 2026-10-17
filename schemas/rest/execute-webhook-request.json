@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/execute-webhook-request.json",
+  "title": "ExecuteWebhookRequest",
+  "description": "POST /webhooks/{id}/{token} body (execute or interaction follow-up).",
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "username": {
+      "type": "string"
+    },
+    "avatar_url": {
+      "type": "string"
+    },
+    "tts": {
+      "type": "boolean"
+    },
+    "embeds": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/embed.json"
+      },
+      "maxItems": 10
+    },
+    "allowed_mentions": {
+      "$ref": "../objects/allowed-mentions.json"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/message-component.json"
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "./attachment-reference.json"
+      }
+    },
+    "flags": {
+      "type": "integer"
+    },
+    "thread_name": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-emoji-request.json",
+  "title": "ModifyEmojiRequest",
+  "description": "PATCH /guilds/{id}/emojis/{eid} body.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "roles": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      }
+    }
+  }
+}

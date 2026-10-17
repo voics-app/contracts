@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-attachments-response.json",
+  "title": "CreateAttachmentsResponse",
+  "description": "Presigned upload URLs.",
+  "type": "object",
+  "required": [
+    "attachments"
+  ],
+  "properties": {
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AttachmentUpload"
+      }
+    }
+  },
+  "$defs": {
+    "AttachmentUpload": {
+      "title": "AttachmentUpload",
+      "description": "A presigned upload target.",
+      "type": "object",
+      "required": [
+        "upload_url",
+        "upload_filename"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "upload_url": {
+          "type": "string"
+        },
+        "upload_filename": {
+          "type": "string",
+          "description": "Pass back as `uploaded_filename` when creating the message."
+        }
+      }
+    }
+  }
+}

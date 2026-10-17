@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/speaking.json",
+  "title": "SpeakingPayload",
+  "description": "Voice op 5 SPEAKING.",
+  "type": "object",
+  "required": [
+    "speaking",
+    "ssrc"
+  ],
+  "properties": {
+    "speaking": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Bitmask: 1 microphone, 2 soundshare, 4 priority."
+    },
+    "ssrc": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "user_id": {
+      "$ref": "../../objects/snowflake.json"
+    }
+  }
+}

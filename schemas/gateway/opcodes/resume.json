@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/resume.json",
+  "title": "ResumePayload",
+  "description": "Op 6 RESUME.",
+  "type": "object",
+  "required": [
+    "token",
+    "session_id",
+    "seq"
+  ],
+  "properties": {
+    "token": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "seq": {
+      "type": "integer"
+    }
+  }
+}

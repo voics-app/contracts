@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-user-settings-request.json",
+  "title": "ModifyUserSettingsRequest",
+  "description": "PATCH /users/@me/settings body (partial).",
+  "type": "object",
+  "properties": {
+    "locale": {
+      "type": "string"
+    },
+    "theme": {
+      "type": "string",
+      "enum": [
+        "dark",
+        "light",
+        "oled"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "online",
+        "idle",
+        "dnd",
+        "invisible"
+      ]
+    },
+    "custom_status": {
+      "anyOf": [
+        {
+          "$ref": "../objects/user-settings.json#/$defs/CustomStatus"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "default_delivery_mode": {
+      "$ref": "../objects/delivery-mode.json"
+    },
+    "developer_mode": {
+      "type": "boolean"
+    },
+    "message_display_compact": {
+      "type": "boolean"
+    },
+    "accent_color": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  }
+}

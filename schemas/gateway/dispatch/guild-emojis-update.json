@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/guild-emojis-update.json",
+  "title": "GuildEmojisUpdateEvent",
+  "description": "GUILD_EMOJIS_UPDATE dispatch.",
+  "type": "object",
+  "required": [
+    "guild_id",
+    "emojis"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "emojis": {
+      "type": "array",
+      "items": {
+        "$ref": "../../objects/emoji.json"
+      }
+    }
+  }
+}

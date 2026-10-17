@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/guild-role-delete.json",
+  "title": "GuildRoleDeleteEvent",
+  "description": "GUILD_ROLE_DELETE dispatch.",
+  "type": "object",
+  "required": [
+    "guild_id",
+    "role_id"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "role_id": {
+      "$ref": "../../objects/snowflake.json"
+    }
+  }
+}

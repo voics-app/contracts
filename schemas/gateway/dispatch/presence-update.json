@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/presence-update.json",
+  "title": "PresenceUpdateEvent",
+  "description": "PRESENCE_UPDATE dispatch.",
+  "type": "object",
+  "required": [
+    "user",
+    "status",
+    "activities",
+    "client_status"
+  ],
+  "properties": {
+    "user": {
+      "$ref": "../../objects/partial-user.json"
+    },
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "online",
+        "idle",
+        "dnd",
+        "offline"
+      ]
+    },
+    "activities": {
+      "type": "array",
+      "items": {
+        "$ref": "../../objects/activity.json"
+      }
+    },
+    "client_status": {
+      "$ref": "#/$defs/ClientStatus"
+    }
+  },
+  "$defs": {
+    "ClientStatus": {
+      "title": "ClientStatus",
+      "description": "Status per platform.",
+      "type": "object",
+      "properties": {
+        "desktop": {
+          "type": "string"
+        },
+        "mobile": {
+          "type": "string"
+        },
+        "web": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

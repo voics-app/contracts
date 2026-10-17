@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/sfu/close-session.json",
+  "title": "SfuCloseSession",
+  "description": "SFU control command: close a media session.",
+  "type": "object",
+  "required": [
+    "cmd",
+    "session_id"
+  ],
+  "properties": {
+    "cmd": {
+      "const": "close_session"
+    },
+    "session_id": {
+      "type": "string"
+    }
+  }
+}

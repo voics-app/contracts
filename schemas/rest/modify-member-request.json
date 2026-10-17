@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-member-request.json",
+  "title": "ModifyMemberRequest",
+  "description": "PATCH /guilds/{id}/members/{uid} body.",
+  "type": "object",
+  "properties": {
+    "nick": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      }
+    },
+    "mute": {
+      "type": "boolean"
+    },
+    "deaf": {
+      "type": "boolean"
+    },
+    "channel_id": {
+      "anyOf": [
+        {
+          "$ref": "../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Move to a voice channel, or null to disconnect."
+    },
+    "communication_disabled_until": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "flags": {
+      "type": "integer"
+    }
+  }
+}

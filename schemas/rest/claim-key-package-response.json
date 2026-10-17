@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/claim-key-package-response.json",
+  "title": "ClaimKeyPackageResponse",
+  "description": "POST /users/{id}/devices/{did}/key-packages/claim response.",
+  "type": "object",
+  "required": [
+    "package_b64"
+  ],
+  "properties": {
+    "package_b64": {
+      "type": "string"
+    }
+  }
+}

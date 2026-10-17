@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/message-event.json",
+  "title": "MessageEvent",
+  "description": "MESSAGE_CREATE / MESSAGE_UPDATE dispatch: a message plus guild context.",
+  "allOf": [
+    {
+      "$ref": "../../objects/message.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "guild_id": {
+          "$ref": "../../objects/snowflake.json"
+        },
+        "member": {
+          "$ref": "../../objects/guild-member.json"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/sfu/set-sink-wants.json",
+  "title": "SfuSetSinkWants",
+  "description": "SFU control command: update simulcast layer preferences.",
+  "type": "object",
+  "required": [
+    "cmd",
+    "session_id",
+    "wants"
+  ],
+  "properties": {
+    "cmd": {
+      "const": "set_sink_wants"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "wants": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      }
+    }
+  }
+}

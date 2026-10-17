@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/allowed-mentions.json",
+  "title": "AllowedMentions",
+  "description": "Controls which mentions in a message notify.",
+  "type": "object",
+  "properties": {
+    "parse": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "roles",
+          "users",
+          "everyone"
+        ]
+      }
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "$ref": "./snowflake.json"
+      }
+    },
+    "users": {
+      "type": "array",
+      "items": {
+        "$ref": "./snowflake.json"
+      }
+    },
+    "replied_user": {
+      "type": "boolean"
+    }
+  }
+}

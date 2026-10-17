@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/session.json",
+  "title": "Session",
+  "description": "An active gateway session of the current user.",
+  "type": "object",
+  "required": [
+    "session_id",
+    "client_info",
+    "status",
+    "activities"
+  ],
+  "properties": {
+    "session_id": {
+      "type": "string"
+    },
+    "client_info": {
+      "$ref": "#/$defs/SessionClientInfo"
+    },
+    "status": {
+      "type": "string"
+    },
+    "activities": {
+      "type": "array",
+      "items": {
+        "$ref": "./activity.json"
+      }
+    }
+  },
+  "$defs": {
+    "SessionClientInfo": {
+      "title": "SessionClientInfo",
+      "description": "The client that opened the session.",
+      "type": "object",
+      "required": [
+        "client",
+        "os",
+        "version"
+      ],
+      "properties": {
+        "client": {
+          "type": "string"
+        },
+        "os": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

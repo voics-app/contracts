@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/attachment-reference.json",
+  "title": "AttachmentReference",
+  "description": "An uploaded attachment referenced when creating or editing a message.",
+  "type": "object",
+  "required": [
+    "id"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Attachment ID from POST /channels/{id}/attachments, or an index for existing ones."
+    },
+    "filename": {
+      "type": "string"
+    },
+    "uploaded_filename": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    }
+  }
+}

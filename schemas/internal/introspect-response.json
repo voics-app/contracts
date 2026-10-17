@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/introspect-response.json",
+  "title": "IntrospectResponse",
+  "description": "Result of token introspection.",
+  "type": "object",
+  "required": [
+    "user_id",
+    "kind",
+    "application_id",
+    "session_id"
+  ],
+  "properties": {
+    "user_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "user",
+        "bot"
+      ]
+    },
+    "application_id": {
+      "anyOf": [
+        {
+          "$ref": "../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "session_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

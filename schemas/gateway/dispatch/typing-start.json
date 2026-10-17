@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/typing-start.json",
+  "title": "TypingStartEvent",
+  "description": "TYPING_START dispatch.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "user_id",
+    "timestamp"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "user_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Unix seconds."
+    },
+    "member": {
+      "$ref": "../../objects/guild-member.json"
+    }
+  }
+}

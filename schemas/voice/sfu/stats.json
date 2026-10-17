@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/sfu/stats.json",
+  "title": "SfuStats",
+  "description": "SFU control event: periodic load statistics.",
+  "type": "object",
+  "required": [
+    "evt",
+    "sessions",
+    "ingress_bps",
+    "egress_bps"
+  ],
+  "properties": {
+    "evt": {
+      "const": "stats"
+    },
+    "sessions": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ingress_bps": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "egress_bps": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "packets_lost": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/message-reaction-remove.json",
+  "title": "MessageReactionRemoveEvent",
+  "description": "MESSAGE_REACTION_REMOVE dispatch.",
+  "type": "object",
+  "required": [
+    "user_id",
+    "channel_id",
+    "message_id",
+    "emoji",
+    "burst",
+    "type"
+  ],
+  "properties": {
+    "user_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "message_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "emoji": {
+      "$ref": "../../objects/emoji.json"
+    },
+    "burst": {
+      "type": "boolean"
+    },
+    "type": {
+      "type": "integer"
+    }
+  }
+}

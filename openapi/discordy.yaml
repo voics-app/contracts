@@ -1,0 +1,3006 @@
+openapi: 3.1.0
+info:
+  title: Discordy REST API
+  version: 0.1.0
+  description: |-
+    Public REST API of Discordy (`/api/v1`). JSON, snake_case, Discord API v10 object shapes plus Discordy extras (Channel.delivery_mode, Channel.voice_region, Guild.voice_region, UserSettings.default_delivery_mode, Device).
+
+    IDs are Snowflakes serialized as decimal strings. Permission sets are decimal strings.
+
+    Operations tagged `x-discordy-service: messages` are served by the messages service (routed for `/api/v1/channels/{id}/messages*`, pins and attachments); everything else by api.
+
+    Every response may carry the rate-limit headers `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `X-RateLimit-Reset-After` and `X-RateLimit-Bucket`.
+  license:
+    name: UNLICENSED
+    identifier: UNLICENSED
+servers:
+  - url: https://discordy-api.voics.nl/api/v1
+    description: Production
+  - url: http://localhost:8000/api/v1
+    description: Local compose ingress
+security:
+  - UserBearer: []
+  - BotToken: []
+tags:
+  - name: Auth
+  - name: Devices
+  - name: Users
+  - name: Guilds
+  - name: Channels
+  - name: Invites
+  - name: Messages
+  - name: Applications
+  - name: Application Commands
+  - name: Interactions
+  - name: Webhooks
+  - name: OAuth2
+  - name: Voice
+paths:
+  /auth/register:
+    post:
+      operationId: register
+      summary: Register a new account
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/register-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/auth-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/login:
+    post:
+      operationId: login
+      summary: Log in with email and password (and TOTP when 2FA is enabled)
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/login-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/auth-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      summary: Rotate a refresh token
+      description: Reusing an already-rotated refresh token revokes the whole session family.
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/refresh-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/auth-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Revoke the current session
+      tags:
+        - Auth
+      x-discordy-service: api
+      responses:
+        "204":
+          description: No content.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /devices:
+    post:
+      operationId: createDevice
+      summary: Register a device and its identity key
+      tags:
+        - Devices
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-device-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/create-device-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /devices/{device_id}/key-packages:
+    post:
+      operationId: uploadKeyPackages
+      summary: Upload MLS key packages for a device
+      tags:
+        - Devices
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/device_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/upload-key-packages-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/{user_id}/devices:
+    get:
+      operationId: listUserDevices
+      summary: List a user's devices and identity keys
+      tags:
+        - Devices
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/rest/public-device.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/{user_id}/devices/{device_id}/key-packages/claim:
+    post:
+      operationId: claimKeyPackage
+      summary: Claim one MLS key package of a device
+      tags:
+        - Devices
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+        - $ref: "#/components/parameters/device_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/claim-key-package-response.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me:
+    get:
+      operationId: getCurrentUser
+      summary: Get the current user
+      tags:
+        - Users
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/user.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyCurrentUser
+      summary: Modify the current user
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-current-user-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/user.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/{user_id}:
+    get:
+      operationId: getUser
+      summary: Get a user
+      tags:
+        - Users
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/user.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/settings:
+    get:
+      operationId: getUserSettings
+      summary: Get the current user's settings
+      tags:
+        - Users
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/user-settings.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyUserSettings
+      summary: Modify the current user's settings (including default_delivery_mode)
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-user-settings-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/user-settings.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/channels:
+    get:
+      operationId: listPrivateChannels
+      summary: List DMs and group DMs
+      tags:
+        - Users
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/channel.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: createDm
+      summary: Open a DM or create a group DM
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-dm-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/channel.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/relationships:
+    get:
+      operationId: listRelationships
+      summary: List relationships
+      tags:
+        - Users
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/relationship.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/relationships/{user_id}:
+    get:
+      operationId: getRelationship
+      summary: Get the relationship with a user
+      tags:
+        - Users
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/relationship.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    put:
+      operationId: putRelationship
+      summary: Send or accept a friend request, or block a user
+      tags:
+        - Users
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/put-relationship-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteRelationship
+      summary: Remove a friend, cancel a request or unblock
+      tags:
+        - Users
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "204":
+          description: No content.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/channels/{channel_id}/delivery-mode:
+    put:
+      operationId: setChannelDeliveryMode
+      summary: Set the caller's per-chat delivery-mode override
+      description: Only for DMs and group DMs. p2p is rejected (400) for group DMs with more than 10 members.
+      tags:
+        - Users
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/set-delivery-mode-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/delivery-mode-override.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds:
+    post:
+      operationId: createGuild
+      summary: Create a guild
+      tags:
+        - Guilds
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-guild-request.json
+      responses:
+        "201":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}:
+    get:
+      operationId: getGuild
+      summary: Get a guild
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - name: with_counts
+          in: query
+          required: false
+          description: Include approximate member and presence counts.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyGuild
+      summary: Modify a guild (including voice_region)
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-guild-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteGuild
+      summary: Delete a guild (owner only)
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/channels:
+    get:
+      operationId: listGuildChannels
+      summary: List a guild's channels
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/channel.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: createGuildChannel
+      summary: Create a guild channel
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-channel-request.json
+      responses:
+        "201":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/channel.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyGuildChannelPositions
+      summary: Reorder guild channels
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: ../schemas/rest/channel-position.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/roles:
+    get:
+      operationId: listGuildRoles
+      summary: List a guild's roles
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/role.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: createGuildRole
+      summary: Create a role
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/role-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/role.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/roles/{role_id}:
+    patch:
+      operationId: modifyGuildRole
+      summary: Modify a role
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/role_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/role-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/role.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteGuildRole
+      summary: Delete a role
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/role_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/members:
+    get:
+      operationId: listGuildMembers
+      summary: List guild members
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - name: limit
+          in: query
+          required: false
+          description: Max number of results (1-1000).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 1
+        - name: after
+          in: query
+          required: false
+          description: Highest user ID in the previous page.
+          schema: &a1
+            $ref: ../schemas/objects/snowflake.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/guild-member.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/members/{user_id}:
+    get:
+      operationId: getGuildMember
+      summary: Get a guild member
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild-member.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyGuildMember
+      summary: Modify a member (nick, roles, mute, deafen, move, timeout)
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/user_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-member-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild-member.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: removeGuildMember
+      summary: Kick a member
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/members/{user_id}/roles/{role_id}:
+    put:
+      operationId: addGuildMemberRole
+      summary: Add a role to a member
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/user_id"
+        - $ref: "#/components/parameters/role_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: removeGuildMemberRole
+      summary: Remove a role from a member
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/user_id"
+        - $ref: "#/components/parameters/role_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/bans:
+    get:
+      operationId: listGuildBans
+      summary: List bans
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - name: limit
+          in: query
+          required: false
+          description: Max number of results (1-1000).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 1000
+        - name: before
+          in: query
+          required: false
+          description: User ID to paginate before.
+          schema: *a1
+        - name: after
+          in: query
+          required: false
+          description: User ID to paginate after.
+          schema: *a1
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/ban.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/bans/{user_id}:
+    get:
+      operationId: getGuildBan
+      summary: Get a ban
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/ban.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    put:
+      operationId: createGuildBan
+      summary: Ban a user
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/user_id"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-ban-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: removeGuildBan
+      summary: Unban a user
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/audit-logs:
+    get:
+      operationId: getGuildAuditLog
+      summary: Get the guild audit log
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - name: user_id
+          in: query
+          required: false
+          description: Filter by acting user.
+          schema: *a1
+        - name: action_type
+          in: query
+          required: false
+          description: Filter by AuditLogEvent.
+          schema:
+            type: integer
+        - name: before
+          in: query
+          required: false
+          description: Entries before this ID.
+          schema: *a1
+        - name: after
+          in: query
+          required: false
+          description: Entries after this ID.
+          schema: *a1
+        - name: limit
+          in: query
+          required: false
+          description: Max number of results (1-100).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/audit-log.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/emojis:
+    get:
+      operationId: listGuildEmojis
+      summary: List custom emojis
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/emoji.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: createGuildEmoji
+      summary: Create a custom emoji
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-emoji-request.json
+      responses:
+        "201":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/emoji.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/emojis/{emoji_id}:
+    get:
+      operationId: getGuildEmoji
+      summary: Get a custom emoji
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/emoji_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/emoji.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyGuildEmoji
+      summary: Modify a custom emoji
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/emoji_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-emoji-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/emoji.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteGuildEmoji
+      summary: Delete a custom emoji
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/emoji_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/invites:
+    get:
+      operationId: listGuildInvites
+      summary: List a guild's invites
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/invite.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/webhooks:
+    get:
+      operationId: listGuildWebhooks
+      summary: List a guild's webhooks
+      tags:
+        - Webhooks
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/webhook.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}:
+    get:
+      operationId: getChannel
+      summary: Get a channel
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/channel.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyChannel
+      summary: Modify a channel (including delivery_mode and voice_region)
+      description: ephemeral is rejected (400) for guild channels viewable by more than 100 members; p2p is rejected for guild channels.
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-channel-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/channel.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteChannel
+      summary: Delete a channel or close a DM
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/channel.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/permissions/{overwrite_id}:
+    put:
+      operationId: editChannelPermissions
+      summary: Create or edit a permission overwrite
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/overwrite_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/edit-overwrite-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteChannelPermission
+      summary: Delete a permission overwrite
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/overwrite_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/invites:
+    post:
+      operationId: createChannelInvite
+      summary: Create an invite
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-invite-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/invite.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/typing:
+    post:
+      operationId: triggerTyping
+      summary: Trigger the typing indicator (publishes TYPING_START)
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/threads:
+    post:
+      operationId: startThread
+      summary: Start a thread (or forum post)
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-thread-request.json
+      responses:
+        "201":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/channel.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/webhooks:
+    post:
+      operationId: createWebhook
+      summary: Create a webhook
+      tags:
+        - Webhooks
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-webhook-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/webhook.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /invites/{code}:
+    get:
+      operationId: getInvite
+      summary: Resolve an invite
+      tags:
+        - Invites
+      x-discordy-service: api
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/code"
+        - name: with_counts
+          in: query
+          required: false
+          description: Include approximate counts.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/invite.json
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: acceptInvite
+      summary: Accept an invite
+      tags:
+        - Invites
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/code"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/invite.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteInvite
+      summary: Revoke an invite
+      tags:
+        - Invites
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/code"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/invite.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/messages:
+    get:
+      operationId: listMessages
+      summary: Get channel message history
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - name: around
+          in: query
+          required: false
+          description: Messages around this ID.
+          schema: *a1
+        - name: before
+          in: query
+          required: false
+          description: Messages before this ID.
+          schema: *a1
+        - name: after
+          in: query
+          required: false
+          description: Messages after this ID.
+          schema: *a1
+        - name: limit
+          in: query
+          required: false
+          description: Max number of results (1-100).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/message.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: createMessage
+      summary: Send a standard-mode message
+      description: Returns 409 with code 50160 when the channel's effective delivery mode is not `standard`; private messages go over gateway op 20 or op 22.
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-message-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/DeliveryModeConflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/messages/{message_id}:
+    get:
+      operationId: getMessage
+      summary: Get a message
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: editMessage
+      summary: Edit a message
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/edit-message-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteMessage
+      summary: Delete a message
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/messages/bulk-delete:
+    post:
+      operationId: bulkDeleteMessages
+      summary: Delete 2-100 messages
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/bulk-delete-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me:
+    put:
+      operationId: createReaction
+      summary: Add a reaction
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+        - $ref: "#/components/parameters/emoji"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteOwnReaction
+      summary: Remove the caller's reaction
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+        - $ref: "#/components/parameters/emoji"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/pins:
+    get:
+      operationId: listPins
+      summary: List pinned messages
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/message.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/pins/{message_id}:
+    put:
+      operationId: pinMessage
+      summary: Pin a message
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: unpinMessage
+      summary: Unpin a message
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/messages/{message_id}/ack:
+    post:
+      operationId: ackMessage
+      summary: Mark a channel read up to a message (publishes MESSAGE_ACK)
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/ack-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/attachments:
+    post:
+      operationId: createAttachments
+      summary: Request presigned attachment upload URLs
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-attachments-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/create-attachments-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /applications:
+    post:
+      operationId: createApplication
+      summary: Create an application and its bot user
+      tags:
+        - Applications
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-application-request.json
+      responses:
+        "201":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/application.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /applications/{application_id}:
+    get:
+      operationId: getApplication
+      summary: Get an application
+      tags:
+        - Applications
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/application.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyApplication
+      summary: Modify an application
+      tags:
+        - Applications
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-application-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/application.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /applications/{application_id}/bot/reset-token:
+    post:
+      operationId: resetBotToken
+      summary: Reset the bot token
+      tags:
+        - Applications
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/reset-bot-token-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /applications/{application_id}/commands:
+    get:
+      operationId: listGlobalCommands
+      summary: List global commands
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/application-command.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    put:
+      operationId: bulkOverwriteGlobalCommands
+      summary: Overwrite all global commands
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: ../schemas/rest/application-command-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/application-command.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: createGlobalCommand
+      summary: Create a global command
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/application-command-request.json
+      responses:
+        "201":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/application-command.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /applications/{application_id}/commands/{command_id}:
+    get:
+      operationId: getGlobalCommand
+      summary: Get a global command
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+        - $ref: "#/components/parameters/command_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/application-command.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: editGlobalCommand
+      summary: Edit a global command
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+        - $ref: "#/components/parameters/command_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/application-command-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/application-command.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteGlobalCommand
+      summary: Delete a global command
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+        - $ref: "#/components/parameters/command_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /applications/{application_id}/guilds/{guild_id}/commands:
+    get:
+      operationId: listGuildCommands
+      summary: List guild commands
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/application-command.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    put:
+      operationId: bulkOverwriteGuildCommands
+      summary: Overwrite all guild commands
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: ../schemas/rest/application-command-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/application-command.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: createGuildCommand
+      summary: Create a guild command
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/application-command-request.json
+      responses:
+        "201":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/application-command.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /applications/{application_id}/guilds/{guild_id}/commands/{command_id}:
+    get:
+      operationId: getGuildCommand
+      summary: Get a guild command
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/command_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/application-command.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: editGuildCommand
+      summary: Edit a guild command
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/command_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/application-command-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/application-command.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteGuildCommand
+      summary: Delete a guild command
+      tags:
+        - Application Commands
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/application_id"
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/command_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /interactions/{interaction_id}/{interaction_token}/callback:
+    post:
+      operationId: createInteractionResponse
+      summary: Respond to an interaction
+      tags:
+        - Interactions
+      x-discordy-service: api
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/interaction_id"
+        - $ref: "#/components/parameters/interaction_token"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/interaction-response.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /webhooks/{webhook_id}/{webhook_token}/messages/@original:
+    patch:
+      operationId: editOriginalInteractionResponse
+      summary: Edit the original interaction response
+      tags:
+        - Interactions
+      x-discordy-service: api
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/webhook_id"
+        - $ref: "#/components/parameters/webhook_token"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/edit-webhook-message-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteOriginalInteractionResponse
+      summary: Delete the original interaction response
+      tags:
+        - Interactions
+      x-discordy-service: api
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/webhook_id"
+        - $ref: "#/components/parameters/webhook_token"
+      responses:
+        "204":
+          description: No content.
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /webhooks/{webhook_id}/{webhook_token}:
+    post:
+      operationId: executeWebhook
+      summary: Execute a webhook or send an interaction follow-up
+      tags:
+        - Webhooks
+      x-discordy-service: api
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/webhook_id"
+        - $ref: "#/components/parameters/webhook_token"
+        - name: wait
+          in: query
+          required: false
+          description: Wait for the message and return it.
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/execute-webhook-request.json
+      responses:
+        "200":
+          description: The created message (with wait=true; otherwise 204).
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /oauth2/authorize:
+    get:
+      operationId: getAuthorizeInfo
+      summary: Get bot invite information
+      tags:
+        - OAuth2
+      x-discordy-service: api
+      parameters:
+        - name: client_id
+          in: query
+          required: true
+          description: Application ID.
+          schema: *a1
+        - name: scope
+          in: query
+          required: false
+          description: Space-separated scopes.
+          schema:
+            type: string
+        - name: permissions
+          in: query
+          required: false
+          description: Requested permissions.
+          schema:
+            $ref: ../schemas/objects/permission-bitset.json
+        - name: guild_id
+          in: query
+          required: false
+          description: Pre-selected guild.
+          schema: *a1
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/oauth2-authorize-info.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: authorizeBot
+      summary: Add a bot to a guild
+      tags:
+        - OAuth2
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/oauth2-authorize-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/oauth2-authorize-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /webhooks/{webhook_id}:
+    get:
+      operationId: getWebhook
+      summary: Get a webhook
+      tags:
+        - Webhooks
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/webhook_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/webhook.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyWebhook
+      summary: Modify a webhook
+      tags:
+        - Webhooks
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/webhook_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-webhook-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/webhook.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteWebhook
+      summary: Delete a webhook
+      tags:
+        - Webhooks
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/webhook_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /voice/regions:
+    get:
+      operationId: listVoiceRegions
+      summary: List voice regions
+      tags:
+        - Voice
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/voice-region.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+components:
+  securitySchemes:
+    UserBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: User access token (EdDSA JWT, 15 minutes).
+    BotToken:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "`Bot <base64url(bot_user_id)>.<secret>`"
+  parameters:
+    user_id:
+      name: user_id
+      in: path
+      required: true
+      description: User ID.
+      schema: *a1
+    device_id:
+      name: device_id
+      in: path
+      required: true
+      description: Device ID.
+      schema: *a1
+    channel_id:
+      name: channel_id
+      in: path
+      required: true
+      description: Channel ID.
+      schema: *a1
+    guild_id:
+      name: guild_id
+      in: path
+      required: true
+      description: Guild ID.
+      schema: *a1
+    role_id:
+      name: role_id
+      in: path
+      required: true
+      description: Role ID.
+      schema: *a1
+    message_id:
+      name: message_id
+      in: path
+      required: true
+      description: Message ID.
+      schema: *a1
+    emoji_id:
+      name: emoji_id
+      in: path
+      required: true
+      description: Emoji ID.
+      schema: *a1
+    overwrite_id:
+      name: overwrite_id
+      in: path
+      required: true
+      description: Role or user ID of the overwrite.
+      schema: *a1
+    application_id:
+      name: application_id
+      in: path
+      required: true
+      description: Application ID.
+      schema: *a1
+    command_id:
+      name: command_id
+      in: path
+      required: true
+      description: Application command ID.
+      schema: *a1
+    interaction_id:
+      name: interaction_id
+      in: path
+      required: true
+      description: Interaction ID.
+      schema: *a1
+    webhook_id:
+      name: webhook_id
+      in: path
+      required: true
+      description: Webhook ID, or the application ID for interaction webhooks.
+      schema: *a1
+    webhook_token:
+      name: webhook_token
+      in: path
+      required: true
+      description: Webhook token, or the interaction token for interaction webhooks.
+      schema:
+        type: string
+    interaction_token:
+      name: interaction_token
+      in: path
+      required: true
+      description: Interaction token.
+      schema:
+        type: string
+    code:
+      name: code
+      in: path
+      required: true
+      description: Invite code.
+      schema:
+        type: string
+    emoji:
+      name: emoji
+      in: path
+      required: true
+      description: URL-encoded unicode emoji, or `name:id` for a custom emoji.
+      schema:
+        type: string
+  headers:
+    X-RateLimit-Limit:
+      description: Requests allowed in the bucket window.
+      schema:
+        type: integer
+    X-RateLimit-Remaining:
+      description: Requests remaining in the window.
+      schema:
+        type: integer
+    X-RateLimit-Reset:
+      description: Unix seconds when the bucket resets.
+      schema:
+        type: number
+    X-RateLimit-Reset-After:
+      description: Seconds until the bucket resets.
+      schema:
+        type: number
+    X-RateLimit-Bucket:
+      description: Bucket identifier.
+      schema:
+        type: string
+  responses:
+    BadRequest:
+      description: Invalid request (code 50035 invalid form body).
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/objects/error.json
+    Unauthorized:
+      description: Missing or invalid token (code 40001).
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/objects/error.json
+    Forbidden:
+      description: Missing access (50001) or permissions (50013).
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/objects/error.json
+    NotFound:
+      description: Unknown resource (10xxx codes).
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/objects/error.json
+    DeliveryModeConflict:
+      description: The channel's effective delivery mode is not standard (code 50160).
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/objects/error.json
+    RateLimited:
+      description: Rate limited (code 429).
+      headers:
+        Retry-After:
+          description: Seconds to wait.
+          schema:
+            type: number
+        X-RateLimit-Limit:
+          $ref: "#/components/headers/X-RateLimit-Limit"
+        X-RateLimit-Remaining:
+          $ref: "#/components/headers/X-RateLimit-Remaining"
+        X-RateLimit-Reset:
+          $ref: "#/components/headers/X-RateLimit-Reset"
+        X-RateLimit-Reset-After:
+          $ref: "#/components/headers/X-RateLimit-Reset-After"
+        X-RateLimit-Bucket:
+          $ref: "#/components/headers/X-RateLimit-Bucket"
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/objects/error.json

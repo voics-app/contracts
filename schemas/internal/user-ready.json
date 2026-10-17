@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/user-ready.json",
+  "title": "UserReadyState",
+  "description": "GET /internal/v1/users/{user_id}/ready: the state used to build READY.",
+  "type": "object",
+  "required": [
+    "user",
+    "guilds",
+    "private_channels",
+    "relationships",
+    "user_settings"
+  ],
+  "properties": {
+    "user": {
+      "$ref": "../objects/user.json"
+    },
+    "guilds": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/guild-full.json"
+      }
+    },
+    "private_channels": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/channel.json"
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/relationship.json"
+      }
+    },
+    "user_settings": {
+      "$ref": "../objects/user-settings.json"
+    }
+  }
+}

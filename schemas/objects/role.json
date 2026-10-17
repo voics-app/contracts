@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/role.json",
+  "title": "Role",
+  "description": "A guild role.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "color",
+    "hoist",
+    "position",
+    "permissions",
+    "managed",
+    "mentionable",
+    "flags"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "name": {
+      "type": "string"
+    },
+    "color": {
+      "type": "integer"
+    },
+    "hoist": {
+      "type": "boolean"
+    },
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "unicode_emoji": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "position": {
+      "type": "integer"
+    },
+    "permissions": {
+      "$ref": "./permission-bitset.json"
+    },
+    "managed": {
+      "type": "boolean"
+    },
+    "mentionable": {
+      "type": "boolean"
+    },
+    "flags": {
+      "type": "integer"
+    },
+    "tags": {
+      "$ref": "#/$defs/RoleTags"
+    }
+  },
+  "$defs": {
+    "RoleTags": {
+      "title": "RoleTags",
+      "description": "Tags of a managed role.",
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "$ref": "./snowflake.json"
+        },
+        "integration_id": {
+          "$ref": "./snowflake.json"
+        }
+      }
+    }
+  }
+}

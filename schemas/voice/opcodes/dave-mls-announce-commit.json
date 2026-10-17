@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/dave-mls-announce-commit.json",
+  "title": "DaveMlsAnnounceCommitPayload",
+  "description": "Voice op 29 DAVE_MLS_ANNOUNCE_COMMIT.",
+  "type": "object",
+  "required": [
+    "transition_id",
+    "commit_b64"
+  ],
+  "properties": {
+    "transition_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "commit_b64": {
+      "type": "string"
+    }
+  }
+}

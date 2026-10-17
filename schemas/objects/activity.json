@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/activity.json",
+  "title": "Activity",
+  "description": "A user activity.",
+  "type": "object",
+  "required": [
+    "name",
+    "type"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "integer",
+      "description": "ActivityType."
+    },
+    "url": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "created_at": {
+      "type": "integer"
+    },
+    "timestamps": {
+      "$ref": "#/$defs/ActivityTimestamps"
+    },
+    "application_id": {
+      "$ref": "./snowflake.json"
+    },
+    "details": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "emoji": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ActivityEmoji"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "ActivityTimestamps": {
+      "title": "ActivityTimestamps",
+      "description": "Unix millisecond start/end times.",
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "integer"
+        },
+        "end": {
+          "type": "integer"
+        }
+      }
+    },
+    "ActivityEmoji": {
+      "title": "ActivityEmoji",
+      "description": "Emoji of a custom status.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "animated": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

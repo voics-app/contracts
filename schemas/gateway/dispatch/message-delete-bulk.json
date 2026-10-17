@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/message-delete-bulk.json",
+  "title": "MessageDeleteBulkEvent",
+  "description": "MESSAGE_DELETE_BULK dispatch.",
+  "type": "object",
+  "required": [
+    "ids",
+    "channel_id"
+  ],
+  "properties": {
+    "ids": {
+      "type": "array",
+      "items": {
+        "$ref": "../../objects/snowflake.json"
+      }
+    },
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    }
+  }
+}

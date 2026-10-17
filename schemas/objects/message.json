@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/message.json",
+  "title": "Message",
+  "description": "A standard-mode message.",
+  "type": "object",
+  "required": [
+    "id",
+    "channel_id",
+    "author",
+    "content",
+    "timestamp",
+    "edited_timestamp",
+    "tts",
+    "mention_everyone",
+    "mentions",
+    "mention_roles",
+    "attachments",
+    "embeds",
+    "pinned",
+    "type"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "channel_id": {
+      "$ref": "./snowflake.json"
+    },
+    "author": {
+      "$ref": "./user.json"
+    },
+    "content": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "edited_timestamp": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "tts": {
+      "type": "boolean"
+    },
+    "mention_everyone": {
+      "type": "boolean"
+    },
+    "mentions": {
+      "type": "array",
+      "items": {
+        "$ref": "./user.json"
+      }
+    },
+    "mention_roles": {
+      "type": "array",
+      "items": {
+        "$ref": "./snowflake.json"
+      }
+    },
+    "mention_channels": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ChannelMention"
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "./attachment.json"
+      }
+    },
+    "embeds": {
+      "type": "array",
+      "items": {
+        "$ref": "./embed.json"
+      }
+    },
+    "reactions": {
+      "type": "array",
+      "items": {
+        "$ref": "./reaction.json"
+      }
+    },
+    "nonce": {
+      "type": "string",
+      "maxLength": 25,
+      "description": "Client nonce used to resolve optimistic sends."
+    },
+    "pinned": {
+      "type": "boolean"
+    },
+    "webhook_id": {
+      "$ref": "./snowflake.json"
+    },
+    "type": {
+      "type": "integer",
+      "description": "MessageType."
+    },
+    "application_id": {
+      "$ref": "./snowflake.json"
+    },
+    "flags": {
+      "type": "integer"
+    },
+    "message_reference": {
+      "$ref": "./message-reference.json"
+    },
+    "referenced_message": {
+      "anyOf": [
+        {
+          "$ref": "./message.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "interaction_metadata": {
+      "$ref": "#/$defs/MessageInteractionMetadata"
+    },
+    "thread": {
+      "$ref": "./channel.json"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "./message-component.json"
+      }
+    },
+    "position": {
+      "type": "integer"
+    }
+  },
+  "$defs": {
+    "ChannelMention": {
+      "title": "ChannelMention",
+      "description": "A channel mentioned in a message.",
+      "type": "object",
+      "required": [
+        "id",
+        "guild_id",
+        "type",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "guild_id": {
+          "$ref": "./snowflake.json"
+        },
+        "type": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "MessageInteractionMetadata": {
+      "title": "MessageInteractionMetadata",
+      "description": "The interaction a message responds to.",
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "user"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "type": {
+          "type": "integer"
+        },
+        "user": {
+          "$ref": "./user.json"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

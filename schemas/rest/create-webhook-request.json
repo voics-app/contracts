@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-webhook-request.json",
+  "title": "CreateWebhookRequest",
+  "description": "POST /channels/{id}/webhooks body.",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "avatar": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

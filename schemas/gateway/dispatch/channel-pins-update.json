@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/channel-pins-update.json",
+  "title": "ChannelPinsUpdateEvent",
+  "description": "CHANNEL_PINS_UPDATE dispatch.",
+  "type": "object",
+  "required": [
+    "channel_id"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "last_pin_timestamp": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  }
+}

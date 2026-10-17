@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/dave-mls-proposals.json",
+  "title": "DaveMlsProposalsPayload",
+  "description": "Voice op 27 DAVE_MLS_PROPOSALS.",
+  "type": "object",
+  "required": [
+    "operation",
+    "proposals_b64"
+  ],
+  "properties": {
+    "operation": {
+      "type": "string",
+      "enum": [
+        "append",
+        "revoke"
+      ]
+    },
+    "proposals_b64": {
+      "type": "string"
+    }
+  }
+}

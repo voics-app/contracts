@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/events/envelope.json",
+  "title": "EventEnvelope",
+  "description": "Redpanda event envelope. `data` is exactly the gateway DISPATCH payload for `type`.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "v",
+    "occurred_at",
+    "guild_id",
+    "channel_id",
+    "target_user_ids",
+    "data"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUIDv7; consumers deduplicate on it."
+    },
+    "type": {
+      "type": "string",
+      "description": "Event type, e.g. MESSAGE_CREATE."
+    },
+    "v": {
+      "const": 1,
+      "description": "Envelope version."
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "guild_id": {
+      "anyOf": [
+        {
+          "$ref": "../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Set for guild fan-out (filtered by VIEW_CHANNEL and intents)."
+    },
+    "channel_id": {
+      "anyOf": [
+        {
+          "$ref": "../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "target_user_ids": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      },
+      "description": "Set for per-user delivery; null for guild fan-out."
+    },
+    "data": {}
+  }
+}

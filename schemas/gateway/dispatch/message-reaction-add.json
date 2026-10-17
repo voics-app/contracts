@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/message-reaction-add.json",
+  "title": "MessageReactionAddEvent",
+  "description": "MESSAGE_REACTION_ADD dispatch.",
+  "type": "object",
+  "required": [
+    "user_id",
+    "channel_id",
+    "message_id",
+    "emoji",
+    "burst",
+    "type"
+  ],
+  "properties": {
+    "user_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "message_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "member": {
+      "$ref": "../../objects/guild-member.json"
+    },
+    "emoji": {
+      "$ref": "../../objects/emoji.json"
+    },
+    "message_author_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "burst": {
+      "type": "boolean"
+    },
+    "type": {
+      "type": "integer",
+      "description": "0 normal, 1 burst."
+    }
+  }
+}

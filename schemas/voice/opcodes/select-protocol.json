@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/select-protocol.json",
+  "title": "SelectProtocolPayload",
+  "description": "Voice op 1 SELECT_PROTOCOL.",
+  "type": "object",
+  "required": [
+    "protocol",
+    "data",
+    "codecs"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "webrtc"
+    },
+    "data": {
+      "$ref": "#/$defs/SelectProtocolData"
+    },
+    "codecs": {
+      "type": "array",
+      "items": {
+        "$ref": "../codec.json"
+      }
+    }
+  },
+  "$defs": {
+    "SelectProtocolData": {
+      "title": "SelectProtocolData",
+      "description": "Client ICE/DTLS parameters.",
+      "type": "object",
+      "required": [
+        "ice_ufrag",
+        "ice_pwd",
+        "fingerprint",
+        "setup"
+      ],
+      "properties": {
+        "ice_ufrag": {
+          "type": "string"
+        },
+        "ice_pwd": {
+          "type": "string"
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "setup": {
+          "const": "actpass"
+        }
+      }
+    }
+  }
+}

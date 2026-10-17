@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/sfu/create-session.json",
+  "title": "SfuCreateSession",
+  "description": "SFU control command (NDJSON line): create or rebuild a media session.",
+  "type": "object",
+  "required": [
+    "cmd",
+    "session_id",
+    "ice_ufrag",
+    "ice_pwd",
+    "remote_fingerprint",
+    "codecs"
+  ],
+  "properties": {
+    "cmd": {
+      "const": "create_session"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "ice_ufrag": {
+      "type": "string"
+    },
+    "ice_pwd": {
+      "type": "string"
+    },
+    "remote_fingerprint": {
+      "type": "string"
+    },
+    "codecs": {
+      "type": "array",
+      "items": {
+        "$ref": "../codec.json"
+      }
+    }
+  }
+}

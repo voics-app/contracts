@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/identify.json",
+  "title": "IdentifyPayload",
+  "description": "Op 2 IDENTIFY.",
+  "type": "object",
+  "required": [
+    "token",
+    "device_id",
+    "intents",
+    "properties"
+  ],
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "User access JWT or `Bot <token>`."
+    },
+    "device_id": {
+      "anyOf": [
+        {
+          "$ref": "../../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The identifying device. Null for bot sessions."
+    },
+    "intents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Intent bitfield (intents.json). User sessions implicitly get all intents."
+    },
+    "properties": {
+      "$ref": "#/$defs/IdentifyProperties"
+    },
+    "presence": {
+      "$ref": "./presence-update.json"
+    }
+  },
+  "$defs": {
+    "IdentifyProperties": {
+      "title": "IdentifyProperties",
+      "description": "Client connection properties.",
+      "type": "object",
+      "required": [
+        "os",
+        "client",
+        "version"
+      ],
+      "properties": {
+        "os": {
+          "type": "string"
+        },
+        "client": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

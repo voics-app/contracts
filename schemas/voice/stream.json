@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/stream.json",
+  "title": "VoiceStream",
+  "description": "A simulcast video stream layer.",
+  "type": "object",
+  "required": [
+    "type",
+    "rid",
+    "quality",
+    "ssrc",
+    "rtx_ssrc"
+  ],
+  "properties": {
+    "type": {
+      "const": "video"
+    },
+    "rid": {
+      "type": "string"
+    },
+    "quality": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "ssrc": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rtx_ssrc": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "active": {
+      "type": "boolean"
+    }
+  }
+}

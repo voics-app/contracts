@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-device-response.json",
+  "title": "CreateDeviceResponse",
+  "description": "POST /devices response.",
+  "type": "object",
+  "required": [
+    "device_id"
+  ],
+  "properties": {
+    "device_id": {
+      "$ref": "../objects/snowflake.json"
+    }
+  }
+}

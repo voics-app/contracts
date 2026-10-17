@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/oauth2-authorize-response.json",
+  "title": "OAuth2AuthorizeResponse",
+  "description": "POST /oauth2/authorize response.",
+  "type": "object",
+  "required": [
+    "location"
+  ],
+  "properties": {
+    "location": {
+      "type": "string",
+      "description": "Where the client should navigate next."
+    }
+  }
+}

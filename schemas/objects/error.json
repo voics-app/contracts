@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/error.json",
+  "title": "Error",
+  "description": "REST error envelope with a Discord-style error code (see protocol.json rest.error_codes).",
+  "type": "object",
+  "required": [
+    "code",
+    "message"
+  ],
+  "properties": {
+    "code": {
+      "type": "integer"
+    },
+    "message": {
+      "type": "string"
+    },
+    "errors": {
+      "type": "object",
+      "description": "Nested field errors for INVALID_FORM_BODY."
+    }
+  }
+}

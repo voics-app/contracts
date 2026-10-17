@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/ban.json",
+  "title": "Ban",
+  "description": "A guild ban.",
+  "type": "object",
+  "required": [
+    "reason",
+    "user"
+  ],
+  "properties": {
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "user": {
+      "$ref": "./user.json"
+    }
+  }
+}
