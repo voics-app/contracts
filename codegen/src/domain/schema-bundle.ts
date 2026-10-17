@@ -27,7 +27,10 @@ export function bundleSchemas(sources: SourceSchema[]): BundleResult {
   const defs: Record<string, JsonSchema> = {};
 
   for (const { path: file, schema } of sources) {
-    const { $schema: _draft, $id: _id, $defs: nested, ...body } = schema;
+    const { $defs: nested, ...rest } = schema;
+    const body: JsonSchema = { ...rest };
+    delete body.$schema;
+    delete body.$id;
     defs[titleOf(titleByPath, file)] = rewriteRefs(body, file, titleByPath);
     for (const def of Object.values(isObject(nested) ? nested : {})) {
       const nestedDef = def as JsonSchema;

@@ -19,8 +19,8 @@ describe("bundleOpenApi", () => {
 
     const result = bundleOpenApi(doc, "openapi/discordy.yaml", bundle, titleByPath);
 
-    const response = (result.paths as Record<string, any>)["/users/@me"].get.responses["200"];
-    expect(response.content["application/json"].schema).toEqual({ $ref: "#/components/schemas/User" });
+    const response = (result.paths as Record<string, { get: { responses: Record<string, { content: Record<string, { schema: unknown }> }> } }>)["/users/@me"]!.get.responses["200"]!;
+    expect(response.content["application/json"]!.schema).toEqual({ $ref: "#/components/schemas/User" });
     expect(result.components).toEqual({
       responses: { NotFound: { description: "x" } },
       schemas: {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bundleSchemas } from "../../src/domain/schema-bundle.ts";
+import { bundleSchemas, type SourceSchema } from "../../src/domain/schema-bundle.ts";
 
 const snowflake = { path: "objects/snowflake.json", schema: { $id: "x", title: "Snowflake", type: "string" } };
 
@@ -41,7 +41,7 @@ describe("bundleSchemas", () => {
 
   it("flattens allOf compositions of objects into a single object", () => {
     const base = { path: "objects/base.json", schema: { title: "Base", type: "object", required: ["id"], properties: { id: { type: "string" } } } };
-    const derived = {
+    const derived: SourceSchema = {
       path: "gateway/derived.json",
       schema: {
         title: "Derived",

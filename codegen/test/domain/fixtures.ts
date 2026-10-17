@@ -35,7 +35,10 @@ export function sampleRegistries(): Registries {
       },
       events: {
         envelope_version: 1,
-        topics: [{ name: "discordy.guild.v1", key: "guild_id", producers: ["api"] }],
+        topics: [
+          { name: "discordy.guild.v1", key: "guild_id", producers: ["api"] },
+          { name: "discordy.telemetry.v1", key: "node_id", producers: ["voice"] },
+        ],
         user_topic_events: [],
         bus_only_events: [{ name: "USAGE_TICK", payload: "events/usage-tick.json", topic: "discordy.telemetry.v1", description: "Tick." }],
       },
