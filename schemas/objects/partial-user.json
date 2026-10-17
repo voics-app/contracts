@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/partial-user.json",
+  "title": "PartialUser",
+  "description": "A user reference that only guarantees the ID (presence updates, audit logs).",
+  "type": "object",
+  "required": [
+    "id"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "username": {
+      "type": "string"
+    },
+    "global_name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "avatar": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "bot": {
+      "type": "boolean"
+    }
+  }
+}

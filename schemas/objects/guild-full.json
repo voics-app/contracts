@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/guild-full.json",
+  "title": "GuildFull",
+  "description": "A guild with its full state (GUILD_CREATE payload and the internal guild state endpoint).",
+  "allOf": [
+    {
+      "$ref": "./guild.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "member_count",
+        "members",
+        "channels",
+        "threads",
+        "voice_states"
+      ],
+      "properties": {
+        "joined_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "large": {
+          "type": "boolean"
+        },
+        "unavailable": {
+          "type": "boolean"
+        },
+        "member_count": {
+          "type": "integer"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "./guild-member.json"
+          }
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "$ref": "./channel.json"
+          }
+        },
+        "threads": {
+          "type": "array",
+          "items": {
+            "$ref": "./channel.json"
+          }
+        },
+        "presences": {
+          "type": "array",
+          "items": {
+            "$ref": "../gateway/dispatch/presence-update.json"
+          }
+        },
+        "voice_states": {
+          "type": "array",
+          "items": {
+            "$ref": "./voice-state.json"
+          }
+        }
+      }
+    }
+  ]
+}

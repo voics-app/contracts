@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/voice-state-update.json",
+  "title": "VoiceStateUpdatePayload",
+  "description": "Op 4 VOICE_STATE_UPDATE. guild_id is null for DM calls; channel_id null disconnects.",
+  "type": "object",
+  "required": [
+    "guild_id",
+    "channel_id",
+    "self_mute",
+    "self_deaf",
+    "self_video",
+    "self_stream"
+  ],
+  "properties": {
+    "guild_id": {
+      "anyOf": [
+        {
+          "$ref": "../../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "channel_id": {
+      "anyOf": [
+        {
+          "$ref": "../../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "self_mute": {
+      "type": "boolean"
+    },
+    "self_deaf": {
+      "type": "boolean"
+    },
+    "self_video": {
+      "type": "boolean"
+    },
+    "self_stream": {
+      "type": "boolean"
+    }
+  }
+}

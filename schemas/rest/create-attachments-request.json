@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-attachments-request.json",
+  "title": "CreateAttachmentsRequest",
+  "description": "POST /channels/{id}/attachments body.",
+  "type": "object",
+  "required": [
+    "files"
+  ],
+  "properties": {
+    "files": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AttachmentUploadFile"
+      },
+      "minItems": 1,
+      "maxItems": 10
+    }
+  },
+  "$defs": {
+    "AttachmentUploadFile": {
+      "title": "AttachmentUploadFile",
+      "description": "A file the client wants to upload.",
+      "type": "object",
+      "required": [
+        "filename",
+        "file_size"
+      ],
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "file_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "id": {
+          "type": "string",
+          "description": "Client-chosen correlation ID."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "$schema": "./schemas/registry/intents.schema.json",
+  "source": "https://discord.com/developers/docs/events/gateway#list-of-intents",
+  "serialization": "Intents are sent in IDENTIFY as an integer bitfield. User sessions implicitly receive every intent.",
+  "intents": [
+    {
+      "name": "GUILDS",
+      "bit": 0,
+      "value": 1,
+      "privileged": false,
+      "scope": "guild",
+      "events": [
+        "GUILD_CREATE",
+        "GUILD_UPDATE",
+        "GUILD_DELETE",
+        "GUILD_ROLE_CREATE",
+        "GUILD_ROLE_UPDATE",
+        "GUILD_ROLE_DELETE",
+        "CHANNEL_CREATE",
+        "CHANNEL_UPDATE",
+        "CHANNEL_DELETE",
+        "CHANNEL_PINS_UPDATE",
+        "THREAD_CREATE",
+        "THREAD_UPDATE",
+        "THREAD_DELETE"
+      ]
+    },
+    {
+      "name": "GUILD_MEMBERS",
+      "bit": 1,
+      "value": 2,
+      "privileged": true,
+      "scope": "guild",
+      "events": [
+        "GUILD_MEMBER_ADD",
+        "GUILD_MEMBER_UPDATE",
+        "GUILD_MEMBER_REMOVE"
+      ]
+    },
+    {
+      "name": "GUILD_MODERATION",
+      "bit": 2,
+      "value": 4,
+      "privileged": false,
+      "scope": "guild",
+      "events": [
+        "AUDIT_LOG_ENTRY_CREATE",
+        "GUILD_BAN_ADD",
+        "GUILD_BAN_REMOVE"
+      ]
+    },
+    {
+      "name": "GUILD_EMOJIS",
+      "bit": 3,
+      "value": 8,
+      "privileged": false,
+      "scope": "guild",
+      "discord_name": "GUILD_EXPRESSIONS",
+      "events": [
+        "GUILD_EMOJIS_UPDATE"
+      ]
+    },
+    {
+      "name": "GUILD_INTEGRATIONS",
+      "bit": 4,
+      "value": 16,
+      "privileged": false,
+      "scope": "guild",
+      "events": []
+    },
+    {
+      "name": "GUILD_WEBHOOKS",
+      "bit": 5,
+      "value": 32,
+      "privileged": false,
+      "scope": "guild",
+      "events": []
+    },
+    {
+      "name": "GUILD_INVITES",
+      "bit": 6,
+      "value": 64,
+      "privileged": false,
+      "scope": "guild",
+      "events": [
+        "INVITE_CREATE",
+        "INVITE_DELETE"
+      ]
+    },
+    {
+      "name": "GUILD_VOICE_STATES",
+      "bit": 7,
+      "value": 128,
+      "privileged": false,
+      "scope": "guild",
+      "events": [
+        "VOICE_STATE_UPDATE"
+      ]
+    },
+    {
+      "name": "GUILD_PRESENCES",
+      "bit": 8,
+      "value": 256,
+      "privileged": true,
+      "scope": "guild",
+      "events": [
+        "PRESENCE_UPDATE"
+      ]
+    },
+    {
+      "name": "GUILD_MESSAGES",
+      "bit": 9,
+      "value": 512,
+      "privileged": false,
+      "scope": "guild",
+      "events": [
+        "MESSAGE_CREATE",
+        "MESSAGE_UPDATE",
+        "MESSAGE_DELETE",
+        "MESSAGE_DELETE_BULK"
+      ]
+    },
+    {
+      "name": "GUILD_MESSAGE_REACTIONS",
+      "bit": 10,
+      "value": 1024,
+      "privileged": false,
+      "scope": "guild",
+      "events": [
+        "MESSAGE_REACTION_ADD",
+        "MESSAGE_REACTION_REMOVE",
+        "MESSAGE_REACTION_REMOVE_ALL"
+      ]
+    },
+    {
+      "name": "GUILD_MESSAGE_TYPING",
+      "bit": 11,
+      "value": 2048,
+      "privileged": false,
+      "scope": "guild",
+      "events": [
+        "TYPING_START"
+      ]
+    },
+    {
+      "name": "DIRECT_MESSAGES",
+      "bit": 12,
+      "value": 4096,
+      "privileged": false,
+      "scope": "direct",
+      "events": [
+        "MESSAGE_CREATE",
+        "MESSAGE_UPDATE",
+        "MESSAGE_DELETE",
+        "CHANNEL_PINS_UPDATE"
+      ]
+    },
+    {
+      "name": "DIRECT_MESSAGE_REACTIONS",
+      "bit": 13,
+      "value": 8192,
+      "privileged": false,
+      "scope": "direct",
+      "events": [
+        "MESSAGE_REACTION_ADD",
+        "MESSAGE_REACTION_REMOVE",
+        "MESSAGE_REACTION_REMOVE_ALL"
+      ]
+    },
+    {
+      "name": "DIRECT_MESSAGE_TYPING",
+      "bit": 14,
+      "value": 16384,
+      "privileged": false,
+      "scope": "direct",
+      "events": [
+        "TYPING_START"
+      ]
+    },
+    {
+      "name": "MESSAGE_CONTENT",
+      "bit": 15,
+      "value": 32768,
+      "privileged": true,
+      "scope": "content",
+      "events": []
+    }
+  ]
+}

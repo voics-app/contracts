@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/codec.json",
+  "title": "VoiceCodec",
+  "description": "A codec offered by the client.",
+  "type": "object",
+  "required": [
+    "name",
+    "type",
+    "priority",
+    "payload_type"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "enum": [
+        "opus",
+        "VP9",
+        "AV1",
+        "H264"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "audio",
+        "video"
+      ]
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "payload_type": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rtx_payload_type": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

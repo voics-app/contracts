@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/interaction.json",
+  "title": "Interaction",
+  "description": "An interaction sent to a bot (INTERACTION_CREATE).",
+  "type": "object",
+  "required": [
+    "id",
+    "application_id",
+    "type",
+    "token",
+    "version",
+    "app_permissions"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "application_id": {
+      "$ref": "./snowflake.json"
+    },
+    "type": {
+      "type": "integer",
+      "description": "InteractionType."
+    },
+    "data": {
+      "$ref": "#/$defs/InteractionData"
+    },
+    "guild": {
+      "$ref": "#/$defs/InteractionGuild"
+    },
+    "guild_id": {
+      "$ref": "./snowflake.json"
+    },
+    "channel": {
+      "$ref": "./channel.json"
+    },
+    "channel_id": {
+      "$ref": "./snowflake.json"
+    },
+    "member": {
+      "$ref": "./guild-member.json"
+    },
+    "user": {
+      "$ref": "./user.json"
+    },
+    "token": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer",
+      "description": "Always 1."
+    },
+    "message": {
+      "$ref": "./message.json"
+    },
+    "app_permissions": {
+      "$ref": "./permission-bitset.json"
+    },
+    "locale": {
+      "type": "string"
+    },
+    "guild_locale": {
+      "type": "string"
+    },
+    "context": {
+      "type": "integer"
+    }
+  },
+  "$defs": {
+    "InteractionGuild": {
+      "title": "InteractionGuild",
+      "description": "Partial guild of an interaction.",
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "locale": {
+          "type": "string"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "InteractionData": {
+      "title": "InteractionData",
+      "description": "Interaction data for commands, components and modals.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "integer"
+        },
+        "resolved": {
+          "$ref": "#/$defs/ResolvedData"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InteractionDataOption"
+          }
+        },
+        "guild_id": {
+          "$ref": "./snowflake.json"
+        },
+        "target_id": {
+          "$ref": "./snowflake.json"
+        },
+        "custom_id": {
+          "type": "string"
+        },
+        "component_type": {
+          "type": "integer"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "./message-component.json"
+          }
+        }
+      }
+    },
+    "ResolvedData": {
+      "title": "ResolvedData",
+      "description": "Objects referenced by an interaction, keyed by ID.",
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "./user.json"
+          }
+        },
+        "members": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "./guild-member.json"
+          }
+        },
+        "roles": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "./role.json"
+          }
+        },
+        "channels": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "./channel.json"
+          }
+        },
+        "messages": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "./message.json"
+          }
+        },
+        "attachments": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "./attachment.json"
+          }
+        }
+      }
+    },
+    "InteractionDataOption": {
+      "title": "InteractionDataOption",
+      "description": "A filled-in command option.",
+      "type": "object",
+      "required": [
+        "name",
+        "type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "integer"
+        },
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "boolean"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InteractionDataOption"
+          }
+        },
+        "focused": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

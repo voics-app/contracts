@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/application-command-request.json",
+  "title": "ApplicationCommandRequest",
+  "description": "Create, overwrite or edit an application command.",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32
+    },
+    "name_localizations": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "description_localizations": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/application-command-option.json"
+      },
+      "maxItems": 25
+    },
+    "default_member_permissions": {
+      "anyOf": [
+        {
+          "$ref": "../objects/permission-bitset.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "dm_permission": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "type": {
+      "type": "integer"
+    },
+    "nsfw": {
+      "type": "boolean"
+    },
+    "contexts": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "integer"
+      }
+    },
+    "integration_types": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/auth-response.json",
+  "title": "AuthResponse",
+  "description": "Tokens returned by register, login and refresh.",
+  "type": "object",
+  "required": [
+    "access_token",
+    "refresh_token",
+    "user"
+  ],
+  "properties": {
+    "access_token": {
+      "type": "string",
+      "description": "EdDSA JWT, 15 minutes."
+    },
+    "refresh_token": {
+      "type": "string",
+      "description": "Rotated on every use."
+    },
+    "user": {
+      "$ref": "../objects/user.json"
+    }
+  }
+}

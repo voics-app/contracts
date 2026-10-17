@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/guild-members-chunk.json",
+  "title": "GuildMembersChunkEvent",
+  "description": "GUILD_MEMBERS_CHUNK dispatch.",
+  "type": "object",
+  "required": [
+    "guild_id",
+    "members",
+    "chunk_index",
+    "chunk_count"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "$ref": "../../objects/guild-member.json"
+      }
+    },
+    "chunk_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "chunk_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "not_found": {
+      "type": "array",
+      "items": {
+        "$ref": "../../objects/snowflake.json"
+      }
+    },
+    "presences": {
+      "type": "array",
+      "items": {
+        "$ref": "./presence-update.json"
+      }
+    },
+    "nonce": {
+      "type": "string"
+    }
+  }
+}

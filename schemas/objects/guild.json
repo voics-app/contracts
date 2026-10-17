@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/guild.json",
+  "title": "Guild",
+  "description": "A guild (server). `voice_region` is a Discordy extra.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "icon",
+    "owner_id",
+    "afk_channel_id",
+    "afk_timeout",
+    "verification_level",
+    "default_message_notifications",
+    "explicit_content_filter",
+    "roles",
+    "emojis",
+    "features",
+    "mfa_level",
+    "system_channel_id",
+    "system_channel_flags",
+    "preferred_locale",
+    "voice_region"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "name": {
+      "type": "string"
+    },
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "splash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "discovery_splash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "owner": {
+      "type": "boolean",
+      "description": "True if the current user owns the guild."
+    },
+    "owner_id": {
+      "$ref": "./snowflake.json"
+    },
+    "permissions": {
+      "$ref": "./permission-bitset.json"
+    },
+    "afk_channel_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "afk_timeout": {
+      "type": "integer"
+    },
+    "verification_level": {
+      "type": "integer"
+    },
+    "default_message_notifications": {
+      "type": "integer"
+    },
+    "explicit_content_filter": {
+      "type": "integer"
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "$ref": "./role.json"
+      }
+    },
+    "emojis": {
+      "type": "array",
+      "items": {
+        "$ref": "./emoji.json"
+      }
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mfa_level": {
+      "type": "integer"
+    },
+    "application_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "system_channel_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "system_channel_flags": {
+      "type": "integer"
+    },
+    "rules_channel_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "max_members": {
+      "type": "integer"
+    },
+    "vanity_url_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "banner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "preferred_locale": {
+      "type": "string"
+    },
+    "public_updates_channel_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nsfw_level": {
+      "type": "integer"
+    },
+    "approximate_member_count": {
+      "type": "integer"
+    },
+    "approximate_presence_count": {
+      "type": "integer"
+    },
+    "voice_region": {
+      "type": "string",
+      "description": "Discordy: voice region ID used to allocate voice nodes."
+    }
+  }
+}

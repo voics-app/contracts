@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/guild-member.json",
+  "title": "GuildMember",
+  "description": "A member of a guild.",
+  "type": "object",
+  "required": [
+    "roles",
+    "joined_at",
+    "deaf",
+    "mute",
+    "flags"
+  ],
+  "properties": {
+    "user": {
+      "$ref": "./user.json"
+    },
+    "nick": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "avatar": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "banner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "$ref": "./snowflake.json"
+      }
+    },
+    "joined_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "premium_since": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "deaf": {
+      "type": "boolean"
+    },
+    "mute": {
+      "type": "boolean"
+    },
+    "flags": {
+      "type": "integer"
+    },
+    "pending": {
+      "type": "boolean"
+    },
+    "permissions": {
+      "$ref": "./permission-bitset.json",
+      "description": "Total permissions in the interaction channel; only in interaction payloads."
+    },
+    "communication_disabled_until": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  }
+}

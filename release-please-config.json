@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "include-component-in-tag": false,
+  "packages": {
+    ".": {
+      "package-name": "contracts",
+      "extra-files": [
+        { "type": "json", "path": "packages/ts/package.json", "jsonpath": "$.version" },
+        { "type": "toml", "path": "packages/rust/Cargo.toml", "jsonpath": "$.package.version" },
+        { "type": "generic", "path": "packages/elixir/mix.exs" }
+      ]
+    }
+  }
+}

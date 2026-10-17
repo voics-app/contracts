@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/edit-overwrite-request.json",
+  "title": "EditOverwriteRequest",
+  "description": "PUT /channels/{id}/permissions/{overwrite_id} body.",
+  "type": "object",
+  "required": [
+    "type"
+  ],
+  "properties": {
+    "allow": {
+      "anyOf": [
+        {
+          "$ref": "../objects/permission-bitset.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "deny": {
+      "anyOf": [
+        {
+          "$ref": "../objects/permission-bitset.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "type": {
+      "type": "integer",
+      "description": "OverwriteType."
+    }
+  }
+}

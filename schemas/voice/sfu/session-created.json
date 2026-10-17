@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/sfu/session-created.json",
+  "title": "SfuSessionCreated",
+  "description": "SFU control event: reply to create_session.",
+  "type": "object",
+  "required": [
+    "evt",
+    "session_id",
+    "local_ufrag",
+    "local_pwd",
+    "fingerprint"
+  ],
+  "properties": {
+    "evt": {
+      "const": "session_created"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "local_ufrag": {
+      "type": "string"
+    },
+    "local_pwd": {
+      "type": "string"
+    },
+    "fingerprint": {
+      "type": "string"
+    }
+  }
+}

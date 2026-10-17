@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/invite-create.json",
+  "title": "InviteCreateEvent",
+  "description": "INVITE_CREATE dispatch.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "code",
+    "created_at",
+    "max_age",
+    "max_uses",
+    "temporary",
+    "uses"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "code": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "inviter": {
+      "$ref": "../../objects/user.json"
+    },
+    "max_age": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "max_uses": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "temporary": {
+      "type": "boolean"
+    },
+    "uses": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

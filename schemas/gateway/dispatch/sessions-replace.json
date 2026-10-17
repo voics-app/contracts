@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/sessions-replace.json",
+  "title": "SessionsReplaceEvent",
+  "description": "SESSIONS_REPLACE dispatch: every active session of the user.",
+  "type": "array",
+  "items": {
+    "$ref": "../../objects/session.json"
+  }
+}

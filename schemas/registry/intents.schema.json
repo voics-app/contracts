@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/registry/intents.schema.json",
+  "title": "IntentsRegistry",
+  "description": "Schema of intents.json.",
+  "type": "object",
+  "required": [
+    "source",
+    "serialization",
+    "intents"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "serialization": {
+      "type": "string"
+    },
+    "intents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "bit",
+          "value",
+          "privileged",
+          "scope",
+          "events"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "bit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30
+          },
+          "value": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "privileged": {
+            "type": "boolean"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "guild",
+              "direct",
+              "content"
+            ]
+          },
+          "discord_name": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*$"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}

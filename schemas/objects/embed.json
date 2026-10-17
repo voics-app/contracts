@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/embed.json",
+  "title": "Embed",
+  "description": "Rich embed content.",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "color": {
+      "type": "integer"
+    },
+    "footer": {
+      "$ref": "#/$defs/EmbedFooter"
+    },
+    "image": {
+      "$ref": "#/$defs/EmbedMedia"
+    },
+    "thumbnail": {
+      "$ref": "#/$defs/EmbedMedia"
+    },
+    "video": {
+      "$ref": "#/$defs/EmbedMedia"
+    },
+    "provider": {
+      "$ref": "#/$defs/EmbedProvider"
+    },
+    "author": {
+      "$ref": "#/$defs/EmbedAuthor"
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EmbedField"
+      }
+    }
+  },
+  "$defs": {
+    "EmbedFooter": {
+      "title": "EmbedFooter",
+      "description": "Embed footer.",
+      "type": "object",
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "icon_url": {
+          "type": "string"
+        },
+        "proxy_icon_url": {
+          "type": "string"
+        }
+      }
+    },
+    "EmbedMedia": {
+      "title": "EmbedMedia",
+      "description": "Embed image, thumbnail or video.",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "proxy_url": {
+          "type": "string"
+        },
+        "height": {
+          "type": "integer"
+        },
+        "width": {
+          "type": "integer"
+        }
+      }
+    },
+    "EmbedProvider": {
+      "title": "EmbedProvider",
+      "description": "Embed provider.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "EmbedAuthor": {
+      "title": "EmbedAuthor",
+      "description": "Embed author.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "icon_url": {
+          "type": "string"
+        },
+        "proxy_icon_url": {
+          "type": "string"
+        }
+      }
+    },
+    "EmbedField": {
+      "title": "EmbedField",
+      "description": "Embed field.",
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "inline": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "events/envelope.json",
+  "data": {
+    "id": "0190a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b",
+    "type": "MESSAGE_CREATE",
+    "v": 1,
+    "occurred_at": "2026-10-17T12:00:00Z",
+    "guild_id": "1234567890123456789",
+    "channel_id": "1234567890123456790",
+    "target_user_ids": null,
+    "data": {}
+  }
+}

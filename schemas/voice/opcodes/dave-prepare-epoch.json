@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/dave-prepare-epoch.json",
+  "title": "DavePrepareEpochPayload",
+  "description": "Voice op 24 DAVE_PREPARE_EPOCH.",
+  "type": "object",
+  "required": [
+    "epoch",
+    "protocol_version"
+  ],
+  "properties": {
+    "epoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "protocol_version": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

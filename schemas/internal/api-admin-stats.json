@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/api-admin-stats.json",
+  "title": "ApiAdminStats",
+  "description": "GET /internal/v1/admin/stats on api.",
+  "type": "object",
+  "required": [
+    "users_total",
+    "guilds_total",
+    "channels_total",
+    "bots_total",
+    "signups_24h"
+  ],
+  "properties": {
+    "users_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "guilds_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "channels_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "bots_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "signups_24h": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/e2ee-envelope.json",
+  "title": "E2eeEnvelopePayload",
+  "description": "Op 20 E2EE_ENVELOPE. Client to gateway carries all recipients; gateway to client carries only the receiving device's entry.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "message_id",
+    "sender_device_id",
+    "recipients",
+    "mls_epoch",
+    "content_type"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "message_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "sender_device_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "recipients": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/E2eeRecipient"
+      },
+      "minItems": 1
+    },
+    "mls_epoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "content_type": {
+      "type": "string",
+      "enum": [
+        "application",
+        "commit",
+        "welcome",
+        "proposal"
+      ]
+    }
+  },
+  "$defs": {
+    "E2eeRecipient": {
+      "title": "E2eeRecipient",
+      "description": "Ciphertext for one recipient device.",
+      "type": "object",
+      "required": [
+        "user_id",
+        "device_id",
+        "ciphertext_b64"
+      ],
+      "properties": {
+        "user_id": {
+          "$ref": "../../objects/snowflake.json"
+        },
+        "device_id": {
+          "$ref": "../../objects/snowflake.json"
+        },
+        "ciphertext_b64": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

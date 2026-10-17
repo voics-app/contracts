@@ -1,0 +1,11 @@
+node_modules/
+target/
+_build/
+deps/
+*.ez
+.env
+.env.*
+!.env.example
+coverage/
+packages/ts/dist/
+.DS_Store

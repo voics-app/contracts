@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/voice-server-update.json",
+  "title": "VoiceServerUpdateEvent",
+  "description": "VOICE_SERVER_UPDATE dispatch.",
+  "type": "object",
+  "required": [
+    "token",
+    "guild_id",
+    "channel_id",
+    "endpoint",
+    "region"
+  ],
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "Voice JWT (HS256, 60 s)."
+    },
+    "guild_id": {
+      "anyOf": [
+        {
+          "$ref": "../../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "endpoint": {
+      "type": "string",
+      "description": "Voice node WebSocket URL."
+    },
+    "region": {
+      "type": "string"
+    }
+  }
+}

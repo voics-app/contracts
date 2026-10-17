@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/introspect-request.json",
+  "title": "IntrospectRequest",
+  "description": "POST /internal/v1/auth/introspect body.",
+  "type": "object",
+  "required": [
+    "token"
+  ],
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "The raw Authorization header value or bare token."
+    }
+  }
+}

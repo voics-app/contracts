@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/ready.json",
+  "title": "ReadyEvent",
+  "description": "READY: the internal ready state plus session details.",
+  "allOf": [
+    {
+      "$ref": "../../internal/user-ready.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "v",
+        "session_id",
+        "resume_gateway_url"
+      ],
+      "properties": {
+        "v": {
+          "type": "integer",
+          "description": "Gateway version (1)."
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "resume_gateway_url": {
+          "type": "string"
+        },
+        "application": {
+          "$ref": "#/$defs/ReadyApplication"
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "ReadyApplication": {
+      "title": "ReadyApplication",
+      "description": "The bot's application.",
+      "type": "object",
+      "required": [
+        "id",
+        "flags"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "../../objects/snowflake.json"
+        },
+        "flags": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

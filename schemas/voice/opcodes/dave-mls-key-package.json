@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/dave-mls-key-package.json",
+  "title": "DaveMlsKeyPackagePayload",
+  "description": "Voice op 26 DAVE_MLS_KEY_PACKAGE.",
+  "type": "object",
+  "required": [
+    "key_package_b64"
+  ],
+  "properties": {
+    "key_package_b64": {
+      "type": "string"
+    }
+  }
+}

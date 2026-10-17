@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/role-request.json",
+  "title": "RoleRequest",
+  "description": "POST /guilds/{id}/roles and PATCH /guilds/{id}/roles/{rid} body.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "permissions": {
+      "$ref": "../objects/permission-bitset.json"
+    },
+    "color": {
+      "type": "integer"
+    },
+    "hoist": {
+      "type": "boolean"
+    },
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "unicode_emoji": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mentionable": {
+      "type": "boolean"
+    },
+    "position": {
+      "type": "integer",
+      "description": "Only honoured on PATCH."
+    }
+  }
+}

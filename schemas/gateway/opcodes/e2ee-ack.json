@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/e2ee-ack.json",
+  "title": "E2eeAckPayload",
+  "description": "Op 21 E2EE_ACK.",
+  "type": "object",
+  "required": [
+    "message_ids"
+  ],
+  "properties": {
+    "message_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "../../objects/snowflake.json"
+      },
+      "minItems": 1
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/relationship-remove.json",
+  "title": "RelationshipRemoveEvent",
+  "description": "RELATIONSHIP_REMOVE dispatch.",
+  "type": "object",
+  "required": [
+    "id",
+    "type"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "type": {
+      "type": "integer"
+    }
+  }
+}

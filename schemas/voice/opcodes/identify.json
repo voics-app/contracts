@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/identify.json",
+  "title": "VoiceIdentifyPayload",
+  "description": "Voice op 0 IDENTIFY.",
+  "type": "object",
+  "required": [
+    "server_id",
+    "user_id",
+    "session_id",
+    "token",
+    "video"
+  ],
+  "properties": {
+    "server_id": {
+      "$ref": "../../objects/snowflake.json",
+      "description": "guild_id, or the DM channel_id for DM calls."
+    },
+    "user_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "token": {
+      "type": "string"
+    },
+    "video": {
+      "type": "boolean"
+    }
+  }
+}

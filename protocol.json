@@ -1,0 +1,407 @@
+{
+  "$schema": "./schemas/registry/protocol.schema.json",
+  "snowflake": {
+    "epoch_ms": 1767225600000,
+    "timestamp_bits": 42,
+    "worker_bits": 10,
+    "sequence_bits": 12,
+    "bucket_size_ms": 864000000,
+    "worker_ranges": [
+      { "component": "api", "min": 0, "max": 63 },
+      { "component": "messages", "min": 64, "max": 127 },
+      { "component": "gateway", "min": 128, "max": 191 },
+      { "component": "voice", "min": 192, "max": 255 }
+    ]
+  },
+  "auth": {
+    "access_token_issuer": "discordy-api",
+    "access_token_ttl_s": 900,
+    "voice_token_ttl_s": 60,
+    "bot_token_introspection_cache_s": 60,
+    "internal_token_header": "X-Internal-Token"
+  },
+  "gateway": {
+    "version": 1,
+    "encoding": "json",
+    "path": "/gateway",
+    "heartbeat_interval_ms": 41250,
+    "resume_window_s": 120,
+    "resume_buffer_max": 1000,
+    "rate_limit_sends": 120,
+    "rate_limit_window_s": 60,
+    "e2ee_inbox_ttl_s": 604800,
+    "e2ee_inbox_maxlen": 10000,
+    "opcodes": [
+      { "op": 0, "name": "DISPATCH", "direction": "receive", "payload": null, "description": "An event was dispatched. `t` is the event name and `s` the sequence number; `d` is described per event." },
+      { "op": 1, "name": "HEARTBEAT", "direction": "both", "payload": "gateway/opcodes/heartbeat.json", "description": "Keeps the connection alive. `d` is the last sequence number received, or null." },
+      { "op": 2, "name": "IDENTIFY", "direction": "send", "payload": "gateway/opcodes/identify.json", "description": "Starts a new session." },
+      { "op": 3, "name": "PRESENCE_UPDATE", "direction": "send", "payload": "gateway/opcodes/presence-update.json", "description": "Updates the client's presence." },
+      { "op": 4, "name": "VOICE_STATE_UPDATE", "direction": "send", "payload": "gateway/opcodes/voice-state-update.json", "description": "Joins, moves between or leaves voice channels." },
+      { "op": 6, "name": "RESUME", "direction": "send", "payload": "gateway/opcodes/resume.json", "description": "Resumes a previous session within the resume window." },
+      { "op": 7, "name": "RECONNECT", "direction": "receive", "payload": null, "description": "The client should reconnect and resume." },
+      { "op": 8, "name": "REQUEST_GUILD_MEMBERS", "direction": "send", "payload": "gateway/opcodes/request-guild-members.json", "description": "Requests guild members; answered with GUILD_MEMBERS_CHUNK dispatches." },
+      { "op": 9, "name": "INVALID_SESSION", "direction": "receive", "payload": "gateway/opcodes/invalid-session.json", "description": "The session is invalid. `d` tells whether it can be resumed." },
+      { "op": 10, "name": "HELLO", "direction": "receive", "payload": "gateway/opcodes/hello.json", "description": "Sent immediately after connecting; carries the heartbeat interval." },
+      { "op": 11, "name": "HEARTBEAT_ACK", "direction": "receive", "payload": null, "description": "Acknowledges a heartbeat." },
+      { "op": 20, "name": "E2EE_ENVELOPE", "direction": "both", "payload": "gateway/opcodes/e2ee-envelope.json", "description": "Ephemeral-mode MLS ciphertext. Client to gateway carries every recipient; gateway to client carries only the receiving device's entry." },
+      { "op": 21, "name": "E2EE_ACK", "direction": "send", "payload": "gateway/opcodes/e2ee-ack.json", "description": "Acknowledges ephemeral messages; the gateway deletes them from this device's inbox." },
+      { "op": 22, "name": "P2P_SIGNAL", "direction": "both", "payload": "gateway/opcodes/p2p-signal.json", "description": "P2P-mode WebRTC signaling. Relayed only, never persisted." },
+      { "op": 23, "name": "VOICE_TELEMETRY", "direction": "send", "payload": "gateway/opcodes/voice-telemetry.json", "description": "Client voice quality sample, published to discordy.telemetry.v1." },
+      { "op": 24, "name": "WATCH_TOGETHER", "direction": "both", "payload": "gateway/opcodes/watch-together.json", "description": "Watch Together playback synchronisation." }
+    ],
+    "close_codes": [
+      { "code": 4000, "name": "UNKNOWN_ERROR", "description": "Unknown error.", "reconnect": true },
+      { "code": 4001, "name": "UNKNOWN_OPCODE", "description": "An invalid opcode or payload for an opcode was sent.", "reconnect": true },
+      { "code": 4002, "name": "DECODE_ERROR", "description": "An invalid payload was sent.", "reconnect": true },
+      { "code": 4003, "name": "NOT_AUTHENTICATED", "description": "A payload was sent before identifying.", "reconnect": true },
+      { "code": 4004, "name": "AUTHENTICATION_FAILED", "description": "The token in IDENTIFY was invalid.", "reconnect": false },
+      { "code": 4005, "name": "ALREADY_AUTHENTICATED", "description": "More than one IDENTIFY was sent.", "reconnect": true },
+      { "code": 4007, "name": "INVALID_SEQ", "description": "The sequence sent when resuming was invalid.", "reconnect": true },
+      { "code": 4008, "name": "RATE_LIMITED", "description": "More than 120 payloads were sent within 60 seconds.", "reconnect": true },
+      { "code": 4009, "name": "SESSION_TIMED_OUT", "description": "The session timed out.", "reconnect": true },
+      { "code": 4013, "name": "INVALID_INTENTS", "description": "An invalid intent bitfield was sent.", "reconnect": false },
+      { "code": 4014, "name": "DISALLOWED_INTENTS", "description": "A privileged intent was requested that the application is not approved for.", "reconnect": false }
+    ],
+    "dispatch_events": [
+      { "name": "READY", "payload": "gateway/dispatch/ready.json", "source": "gateway", "topic": null, "description": "Initial state after IDENTIFY." },
+      { "name": "RESUMED", "payload": null, "source": "gateway", "topic": null, "description": "Replay after RESUME has finished. `d` is null." },
+      { "name": "PRESENCE_UPDATE", "payload": "gateway/dispatch/presence-update.json", "source": "gateway", "topic": null, "description": "A user's presence changed." },
+      { "name": "TYPING_START", "payload": "gateway/dispatch/typing-start.json", "source": "api", "topic": "discordy.message.v1", "description": "A user started typing." },
+      { "name": "VOICE_STATE_UPDATE", "payload": "objects/voice-state.json", "source": "gateway", "topic": null, "description": "A user's voice state changed." },
+      { "name": "VOICE_SERVER_UPDATE", "payload": "gateway/dispatch/voice-server-update.json", "source": "gateway", "topic": null, "description": "The voice node allocated for a guild or DM call." },
+      { "name": "GUILD_MEMBERS_CHUNK", "payload": "gateway/dispatch/guild-members-chunk.json", "source": "gateway", "topic": null, "description": "Response to REQUEST_GUILD_MEMBERS." },
+      { "name": "GUILD_CREATE", "payload": "objects/guild-full.json", "source": "api", "topic": "discordy.guild.v1", "description": "A guild became available or the user joined one." },
+      { "name": "GUILD_UPDATE", "payload": "objects/guild.json", "source": "api", "topic": "discordy.guild.v1", "description": "A guild was updated." },
+      { "name": "GUILD_DELETE", "payload": "objects/unavailable-guild.json", "source": "api", "topic": "discordy.guild.v1", "description": "A guild became unavailable or the user left it." },
+      { "name": "CHANNEL_CREATE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A channel was created. DM channels are published on discordy.user.v1 with target_user_ids." },
+      { "name": "CHANNEL_UPDATE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A channel was updated." },
+      { "name": "CHANNEL_DELETE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A channel was deleted." },
+      { "name": "GUILD_ROLE_CREATE", "payload": "gateway/dispatch/guild-role.json", "source": "api", "topic": "discordy.guild.v1", "description": "A role was created." },
+      { "name": "GUILD_ROLE_UPDATE", "payload": "gateway/dispatch/guild-role.json", "source": "api", "topic": "discordy.guild.v1", "description": "A role was updated." },
+      { "name": "GUILD_ROLE_DELETE", "payload": "gateway/dispatch/guild-role-delete.json", "source": "api", "topic": "discordy.guild.v1", "description": "A role was deleted." },
+      { "name": "GUILD_MEMBER_ADD", "payload": "gateway/dispatch/guild-member-event.json", "source": "api", "topic": "discordy.guild.v1", "description": "A user joined a guild." },
+      { "name": "GUILD_MEMBER_UPDATE", "payload": "gateway/dispatch/guild-member-event.json", "source": "api", "topic": "discordy.guild.v1", "description": "A guild member was updated." },
+      { "name": "GUILD_MEMBER_REMOVE", "payload": "gateway/dispatch/guild-member-remove.json", "source": "api", "topic": "discordy.guild.v1", "description": "A user left or was removed from a guild." },
+      { "name": "GUILD_BAN_ADD", "payload": "gateway/dispatch/guild-ban.json", "source": "api", "topic": "discordy.guild.v1", "description": "A user was banned." },
+      { "name": "GUILD_BAN_REMOVE", "payload": "gateway/dispatch/guild-ban.json", "source": "api", "topic": "discordy.guild.v1", "description": "A user was unbanned." },
+      { "name": "GUILD_EMOJIS_UPDATE", "payload": "gateway/dispatch/guild-emojis-update.json", "source": "api", "topic": "discordy.guild.v1", "description": "A guild's emojis changed." },
+      { "name": "INVITE_CREATE", "payload": "gateway/dispatch/invite-create.json", "source": "api", "topic": "discordy.guild.v1", "description": "An invite was created." },
+      { "name": "INVITE_DELETE", "payload": "gateway/dispatch/invite-delete.json", "source": "api", "topic": "discordy.guild.v1", "description": "An invite was deleted." },
+      { "name": "THREAD_CREATE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A thread was created." },
+      { "name": "THREAD_UPDATE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A thread was updated." },
+      { "name": "THREAD_DELETE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A thread was deleted." },
+      { "name": "APPLICATION_COMMAND_PERMISSIONS_UPDATE", "payload": "objects/guild-application-command-permissions.json", "source": "api", "topic": "discordy.guild.v1", "description": "Application command permissions were updated." },
+      { "name": "MESSAGE_CREATE", "payload": "gateway/dispatch/message-event.json", "source": "messages", "topic": "discordy.message.v1", "description": "A message was created." },
+      { "name": "MESSAGE_UPDATE", "payload": "gateway/dispatch/message-event.json", "source": "messages", "topic": "discordy.message.v1", "description": "A message was edited." },
+      { "name": "MESSAGE_DELETE", "payload": "gateway/dispatch/message-delete.json", "source": "messages", "topic": "discordy.message.v1", "description": "A message was deleted." },
+      { "name": "MESSAGE_DELETE_BULK", "payload": "gateway/dispatch/message-delete-bulk.json", "source": "messages", "topic": "discordy.message.v1", "description": "Several messages were deleted at once." },
+      { "name": "MESSAGE_REACTION_ADD", "payload": "gateway/dispatch/message-reaction-add.json", "source": "messages", "topic": "discordy.message.v1", "description": "A user reacted to a message." },
+      { "name": "MESSAGE_REACTION_REMOVE", "payload": "gateway/dispatch/message-reaction-remove.json", "source": "messages", "topic": "discordy.message.v1", "description": "A user removed a reaction." },
+      { "name": "MESSAGE_REACTION_REMOVE_ALL", "payload": "gateway/dispatch/message-reaction-remove-all.json", "source": "messages", "topic": "discordy.message.v1", "description": "All reactions were removed from a message." },
+      { "name": "CHANNEL_PINS_UPDATE", "payload": "gateway/dispatch/channel-pins-update.json", "source": "messages", "topic": "discordy.message.v1", "description": "A message was pinned or unpinned." },
+      { "name": "MESSAGE_ACK", "payload": "gateway/dispatch/message-ack.json", "source": "messages", "topic": "discordy.message.v1", "description": "The user's read state advanced on another device." },
+      { "name": "USER_UPDATE", "payload": "objects/user.json", "source": "api", "topic": "discordy.user.v1", "description": "The current user was updated." },
+      { "name": "USER_SETTINGS_UPDATE", "payload": "objects/user-settings.json", "source": "api", "topic": "discordy.user.v1", "description": "The current user's settings changed." },
+      { "name": "RELATIONSHIP_ADD", "payload": "objects/relationship.json", "source": "api", "topic": "discordy.user.v1", "description": "A relationship was created or changed." },
+      { "name": "RELATIONSHIP_REMOVE", "payload": "gateway/dispatch/relationship-remove.json", "source": "api", "topic": "discordy.user.v1", "description": "A relationship was removed." },
+      { "name": "CHANNEL_RECIPIENT_ADD", "payload": "gateway/dispatch/channel-recipient.json", "source": "api", "topic": "discordy.user.v1", "description": "A user was added to a group DM." },
+      { "name": "CHANNEL_RECIPIENT_REMOVE", "payload": "gateway/dispatch/channel-recipient.json", "source": "api", "topic": "discordy.user.v1", "description": "A user was removed from a group DM." },
+      { "name": "SESSIONS_REPLACE", "payload": "gateway/dispatch/sessions-replace.json", "source": "api", "topic": "discordy.user.v1", "description": "The user's set of active sessions changed." },
+      { "name": "INTERACTION_CREATE", "payload": "objects/interaction.json", "source": "api", "topic": "discordy.interaction.v1", "description": "A user invoked an application command or component." },
+      { "name": "AUDIT_LOG_ENTRY_CREATE", "payload": "gateway/dispatch/audit-log-entry-create.json", "source": "api", "topic": "discordy.audit.v1", "description": "An audit log entry was created." }
+    ]
+  },
+  "events": {
+    "envelope_version": 1,
+    "topics": [
+      { "name": "discordy.guild.v1", "key": "guild_id", "producers": ["api"] },
+      { "name": "discordy.message.v1", "key": "channel_id", "producers": ["messages", "api"] },
+      { "name": "discordy.user.v1", "key": "user_id", "producers": ["api"] },
+      { "name": "discordy.interaction.v1", "key": "application_id", "producers": ["api"] },
+      { "name": "discordy.telemetry.v1", "key": "node_id or user_id", "producers": ["voice", "gateway"] },
+      { "name": "discordy.audit.v1", "key": "guild_id", "producers": ["api"] }
+    ],
+    "user_topic_events": ["CHANNEL_CREATE"],
+    "bus_only_events": [
+      { "name": "VOICE_QUALITY", "payload": "events/voice-quality.json", "topic": "discordy.telemetry.v1", "description": "A voice quality sample from a client or a voice node." },
+      { "name": "USAGE_TICK", "payload": "events/usage-tick.json", "topic": "discordy.telemetry.v1", "description": "A periodic usage counter consumed by the admin aggregator." }
+    ]
+  },
+  "voice": {
+    "path": "/voice",
+    "heartbeat_interval_ms": 13750,
+    "speaking_flags": [
+      { "name": "MICROPHONE", "value": 1 },
+      { "name": "SOUNDSHARE", "value": 2 },
+      { "name": "PRIORITY", "value": 4 }
+    ],
+    "opcodes": [
+      { "op": 0, "name": "IDENTIFY", "direction": "send", "payload": "voice/opcodes/identify.json", "description": "Authenticates with the voice token from VOICE_SERVER_UPDATE." },
+      { "op": 1, "name": "SELECT_PROTOCOL", "direction": "send", "payload": "voice/opcodes/select-protocol.json", "description": "The client's ICE/DTLS parameters and codecs." },
+      { "op": 2, "name": "READY", "direction": "receive", "payload": "voice/opcodes/ready.json", "description": "SSRC, media endpoint and simulcast streams assigned to the client." },
+      { "op": 3, "name": "HEARTBEAT", "direction": "send", "payload": "voice/opcodes/heartbeat.json", "description": "Keeps the voice connection alive." },
+      { "op": 4, "name": "SESSION_DESCRIPTION", "direction": "receive", "payload": "voice/opcodes/session-description.json", "description": "Server ICE-lite parameters; the client synthesises the remote SDP from them." },
+      { "op": 5, "name": "SPEAKING", "direction": "both", "payload": "voice/opcodes/speaking.json", "description": "Speaking indicator." },
+      { "op": 6, "name": "HEARTBEAT_ACK", "direction": "receive", "payload": "voice/opcodes/heartbeat.json", "description": "Acknowledges a heartbeat, echoing its nonce." },
+      { "op": 8, "name": "HELLO", "direction": "receive", "payload": "voice/opcodes/hello.json", "description": "Sent on connect; carries the heartbeat interval." },
+      { "op": 11, "name": "CLIENTS_CONNECT", "direction": "receive", "payload": "voice/opcodes/clients-connect.json", "description": "Users who joined the call." },
+      { "op": 12, "name": "VIDEO", "direction": "both", "payload": "voice/opcodes/video.json", "description": "Video/screen-share SSRC announcement." },
+      { "op": 13, "name": "CLIENT_DISCONNECT", "direction": "receive", "payload": "voice/opcodes/client-disconnect.json", "description": "A user left the call." },
+      { "op": 15, "name": "MEDIA_SINK_WANTS", "direction": "send", "payload": "voice/opcodes/media-sink-wants.json", "description": "Requested quality (0-100) per SSRC; selects the simulcast layer." },
+      { "op": 21, "name": "DAVE_PREPARE_TRANSITION", "direction": "receive", "payload": "voice/opcodes/dave-prepare-transition.json", "description": "A DAVE protocol transition is about to happen." },
+      { "op": 22, "name": "DAVE_EXECUTE_TRANSITION", "direction": "receive", "payload": "voice/opcodes/dave-transition.json", "description": "Execute a previously prepared transition." },
+      { "op": 23, "name": "DAVE_TRANSITION_READY", "direction": "send", "payload": "voice/opcodes/dave-transition.json", "description": "The client is ready for the transition." },
+      { "op": 24, "name": "DAVE_PREPARE_EPOCH", "direction": "receive", "payload": "voice/opcodes/dave-prepare-epoch.json", "description": "A new MLS epoch is about to start." },
+      { "op": 25, "name": "DAVE_MLS_EXTERNAL_SENDER", "direction": "receive", "payload": "voice/opcodes/dave-mls-external-sender.json", "description": "The voice server's MLS external sender credential." },
+      { "op": 26, "name": "DAVE_MLS_KEY_PACKAGE", "direction": "send", "payload": "voice/opcodes/dave-mls-key-package.json", "description": "The client's MLS key package." },
+      { "op": 27, "name": "DAVE_MLS_PROPOSALS", "direction": "receive", "payload": "voice/opcodes/dave-mls-proposals.json", "description": "MLS proposals to append or revoke." },
+      { "op": 28, "name": "DAVE_MLS_COMMIT_WELCOME", "direction": "send", "payload": "voice/opcodes/dave-mls-commit-welcome.json", "description": "An MLS commit with an optional welcome." },
+      { "op": 29, "name": "DAVE_MLS_ANNOUNCE_COMMIT", "direction": "receive", "payload": "voice/opcodes/dave-mls-announce-commit.json", "description": "The winning commit for a transition." },
+      { "op": 30, "name": "DAVE_MLS_WELCOME", "direction": "receive", "payload": "voice/opcodes/dave-mls-welcome.json", "description": "An MLS welcome for a joining member." },
+      { "op": 31, "name": "DAVE_MLS_INVALID_COMMIT", "direction": "send", "payload": "voice/opcodes/dave-transition.json", "description": "The received commit or welcome was invalid; the client asks to be re-added." }
+    ],
+    "sfu_commands": [
+      { "name": "create_session", "payload": "voice/sfu/create-session.json", "description": "Creates (or, after an SFU restart, re-creates) a media session." },
+      { "name": "close_session", "payload": "voice/sfu/close-session.json", "description": "Closes a media session." },
+      { "name": "set_sink_wants", "payload": "voice/sfu/set-sink-wants.json", "description": "Updates simulcast layer preferences for a session." }
+    ],
+    "sfu_events": [
+      { "name": "session_created", "payload": "voice/sfu/session-created.json", "description": "Reply to create_session with the SFU's ICE/DTLS parameters." },
+      { "name": "speaking", "payload": "voice/sfu/speaking.json", "description": "Voice activity detected on an SSRC." },
+      { "name": "stats", "payload": "voice/sfu/stats.json", "description": "Periodic SFU load statistics." }
+    ]
+  },
+  "rest": {
+    "base_path": "/api/v1",
+    "internal_base_path": "/internal/v1",
+    "rate_limit_headers": ["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset", "X-RateLimit-Reset-After", "X-RateLimit-Bucket"],
+    "error_codes": [
+      { "code": 0, "name": "GENERAL_ERROR", "http_status": 500, "description": "General error." },
+      { "code": 429, "name": "RATE_LIMITED", "http_status": 429, "description": "You are being rate limited." },
+      { "code": 10002, "name": "UNKNOWN_APPLICATION", "http_status": 404, "description": "Unknown application." },
+      { "code": 10003, "name": "UNKNOWN_CHANNEL", "http_status": 404, "description": "Unknown channel." },
+      { "code": 10004, "name": "UNKNOWN_GUILD", "http_status": 404, "description": "Unknown guild." },
+      { "code": 10006, "name": "UNKNOWN_INVITE", "http_status": 404, "description": "Unknown invite." },
+      { "code": 10007, "name": "UNKNOWN_MEMBER", "http_status": 404, "description": "Unknown member." },
+      { "code": 10008, "name": "UNKNOWN_MESSAGE", "http_status": 404, "description": "Unknown message." },
+      { "code": 10011, "name": "UNKNOWN_ROLE", "http_status": 404, "description": "Unknown role." },
+      { "code": 10013, "name": "UNKNOWN_USER", "http_status": 404, "description": "Unknown user." },
+      { "code": 10014, "name": "UNKNOWN_EMOJI", "http_status": 404, "description": "Unknown emoji." },
+      { "code": 10015, "name": "UNKNOWN_WEBHOOK", "http_status": 404, "description": "Unknown webhook." },
+      { "code": 10026, "name": "UNKNOWN_BAN", "http_status": 404, "description": "Unknown ban." },
+      { "code": 10062, "name": "UNKNOWN_INTERACTION", "http_status": 404, "description": "Unknown interaction." },
+      { "code": 10063, "name": "UNKNOWN_APPLICATION_COMMAND", "http_status": 404, "description": "Unknown application command." },
+      { "code": 40001, "name": "UNAUTHORIZED", "http_status": 401, "description": "Unauthorized. Provide a valid token and try again." },
+      { "code": 40002, "name": "VERIFICATION_REQUIRED", "http_status": 403, "description": "You need to verify your account in order to perform this action." },
+      { "code": 50001, "name": "MISSING_ACCESS", "http_status": 403, "description": "Missing access." },
+      { "code": 50013, "name": "MISSING_PERMISSIONS", "http_status": 403, "description": "You lack permissions to perform that action." },
+      { "code": 50035, "name": "INVALID_FORM_BODY", "http_status": 400, "description": "Invalid form body." },
+      { "code": 50160, "name": "DELIVERY_MODE_CONFLICT", "http_status": 409, "description": "Discordy: the channel uses a non-standard delivery mode; send over gateway op 20 or op 22." }
+    ]
+  },
+  "delivery_modes": [
+    { "name": "standard", "strictness": 0 },
+    { "name": "ephemeral", "strictness": 1 },
+    { "name": "p2p", "strictness": 2 }
+  ],
+  "delivery_mode_limits": {
+    "ephemeral_max_guild_viewers": 100,
+    "p2p_max_group_dm_members": 10
+  },
+  "enums": {
+    "ChannelType": {
+      "description": "Channel types (Discord values).",
+      "values": [
+        { "name": "GUILD_TEXT", "value": 0 },
+        { "name": "DM", "value": 1 },
+        { "name": "GUILD_VOICE", "value": 2 },
+        { "name": "GROUP_DM", "value": 3 },
+        { "name": "GUILD_CATEGORY", "value": 4 },
+        { "name": "GUILD_ANNOUNCEMENT", "value": 5 },
+        { "name": "ANNOUNCEMENT_THREAD", "value": 10 },
+        { "name": "PUBLIC_THREAD", "value": 11 },
+        { "name": "PRIVATE_THREAD", "value": 12 },
+        { "name": "GUILD_STAGE_VOICE", "value": 13 },
+        { "name": "GUILD_FORUM", "value": 15 }
+      ]
+    },
+    "OverwriteType": {
+      "description": "Permission overwrite target type.",
+      "values": [
+        { "name": "ROLE", "value": 0 },
+        { "name": "MEMBER", "value": 1 }
+      ]
+    },
+    "MessageType": {
+      "description": "Message types (Discord values) used by Discordy.",
+      "values": [
+        { "name": "DEFAULT", "value": 0 },
+        { "name": "RECIPIENT_ADD", "value": 1 },
+        { "name": "RECIPIENT_REMOVE", "value": 2 },
+        { "name": "CALL", "value": 3 },
+        { "name": "CHANNEL_NAME_CHANGE", "value": 4 },
+        { "name": "CHANNEL_ICON_CHANGE", "value": 5 },
+        { "name": "CHANNEL_PINNED_MESSAGE", "value": 6 },
+        { "name": "USER_JOIN", "value": 7 },
+        { "name": "THREAD_CREATED", "value": 18 },
+        { "name": "REPLY", "value": 19 },
+        { "name": "CHAT_INPUT_COMMAND", "value": 20 },
+        { "name": "THREAD_STARTER_MESSAGE", "value": 21 },
+        { "name": "CONTEXT_MENU_COMMAND", "value": 23 }
+      ]
+    },
+    "RelationshipType": {
+      "description": "Relationship types.",
+      "values": [
+        { "name": "FRIEND", "value": 1 },
+        { "name": "BLOCKED", "value": 2 },
+        { "name": "PENDING_INCOMING", "value": 3 },
+        { "name": "PENDING_OUTGOING", "value": 4 }
+      ]
+    },
+    "InteractionType": {
+      "description": "Interaction types.",
+      "values": [
+        { "name": "PING", "value": 1 },
+        { "name": "APPLICATION_COMMAND", "value": 2 },
+        { "name": "MESSAGE_COMPONENT", "value": 3 },
+        { "name": "APPLICATION_COMMAND_AUTOCOMPLETE", "value": 4 },
+        { "name": "MODAL_SUBMIT", "value": 5 }
+      ]
+    },
+    "InteractionCallbackType": {
+      "description": "Interaction response types.",
+      "values": [
+        { "name": "PONG", "value": 1 },
+        { "name": "CHANNEL_MESSAGE_WITH_SOURCE", "value": 4 },
+        { "name": "DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE", "value": 5 },
+        { "name": "DEFERRED_UPDATE_MESSAGE", "value": 6 },
+        { "name": "UPDATE_MESSAGE", "value": 7 },
+        { "name": "APPLICATION_COMMAND_AUTOCOMPLETE_RESULT", "value": 8 },
+        { "name": "MODAL", "value": 9 }
+      ]
+    },
+    "ApplicationCommandType": {
+      "description": "Application command types.",
+      "values": [
+        { "name": "CHAT_INPUT", "value": 1 },
+        { "name": "USER", "value": 2 },
+        { "name": "MESSAGE", "value": 3 }
+      ]
+    },
+    "ApplicationCommandOptionType": {
+      "description": "Application command option types.",
+      "values": [
+        { "name": "SUB_COMMAND", "value": 1 },
+        { "name": "SUB_COMMAND_GROUP", "value": 2 },
+        { "name": "STRING", "value": 3 },
+        { "name": "INTEGER", "value": 4 },
+        { "name": "BOOLEAN", "value": 5 },
+        { "name": "USER", "value": 6 },
+        { "name": "CHANNEL", "value": 7 },
+        { "name": "ROLE", "value": 8 },
+        { "name": "MENTIONABLE", "value": 9 },
+        { "name": "NUMBER", "value": 10 },
+        { "name": "ATTACHMENT", "value": 11 }
+      ]
+    },
+    "ApplicationCommandPermissionType": {
+      "description": "Application command permission target types.",
+      "values": [
+        { "name": "ROLE", "value": 1 },
+        { "name": "USER", "value": 2 },
+        { "name": "CHANNEL", "value": 3 }
+      ]
+    },
+    "ComponentType": {
+      "description": "Message component types.",
+      "values": [
+        { "name": "ACTION_ROW", "value": 1 },
+        { "name": "BUTTON", "value": 2 },
+        { "name": "STRING_SELECT", "value": 3 },
+        { "name": "TEXT_INPUT", "value": 4 },
+        { "name": "USER_SELECT", "value": 5 },
+        { "name": "ROLE_SELECT", "value": 6 },
+        { "name": "MENTIONABLE_SELECT", "value": 7 },
+        { "name": "CHANNEL_SELECT", "value": 8 }
+      ]
+    },
+    "ButtonStyle": {
+      "description": "Button styles.",
+      "values": [
+        { "name": "PRIMARY", "value": 1 },
+        { "name": "SECONDARY", "value": 2 },
+        { "name": "SUCCESS", "value": 3 },
+        { "name": "DANGER", "value": 4 },
+        { "name": "LINK", "value": 5 }
+      ]
+    },
+    "WebhookType": {
+      "description": "Webhook types.",
+      "values": [
+        { "name": "INCOMING", "value": 1 },
+        { "name": "CHANNEL_FOLLOWER", "value": 2 },
+        { "name": "APPLICATION", "value": 3 }
+      ]
+    },
+    "InviteTargetType": {
+      "description": "Invite target types.",
+      "values": [
+        { "name": "STREAM", "value": 1 },
+        { "name": "EMBEDDED_APPLICATION", "value": 2 }
+      ]
+    },
+    "ActivityType": {
+      "description": "Activity types.",
+      "values": [
+        { "name": "PLAYING", "value": 0 },
+        { "name": "STREAMING", "value": 1 },
+        { "name": "LISTENING", "value": 2 },
+        { "name": "WATCHING", "value": 3 },
+        { "name": "CUSTOM", "value": 4 },
+        { "name": "COMPETING", "value": 5 }
+      ]
+    },
+    "AuditLogEvent": {
+      "description": "Audit log action types (Discord values) used by Discordy.",
+      "values": [
+        { "name": "GUILD_UPDATE", "value": 1 },
+        { "name": "CHANNEL_CREATE", "value": 10 },
+        { "name": "CHANNEL_UPDATE", "value": 11 },
+        { "name": "CHANNEL_DELETE", "value": 12 },
+        { "name": "CHANNEL_OVERWRITE_CREATE", "value": 13 },
+        { "name": "CHANNEL_OVERWRITE_UPDATE", "value": 14 },
+        { "name": "CHANNEL_OVERWRITE_DELETE", "value": 15 },
+        { "name": "MEMBER_KICK", "value": 20 },
+        { "name": "MEMBER_PRUNE", "value": 21 },
+        { "name": "MEMBER_BAN_ADD", "value": 22 },
+        { "name": "MEMBER_BAN_REMOVE", "value": 23 },
+        { "name": "MEMBER_UPDATE", "value": 24 },
+        { "name": "MEMBER_ROLE_UPDATE", "value": 25 },
+        { "name": "MEMBER_MOVE", "value": 26 },
+        { "name": "MEMBER_DISCONNECT", "value": 27 },
+        { "name": "BOT_ADD", "value": 28 },
+        { "name": "ROLE_CREATE", "value": 30 },
+        { "name": "ROLE_UPDATE", "value": 31 },
+        { "name": "ROLE_DELETE", "value": 32 },
+        { "name": "INVITE_CREATE", "value": 40 },
+        { "name": "INVITE_UPDATE", "value": 41 },
+        { "name": "INVITE_DELETE", "value": 42 },
+        { "name": "WEBHOOK_CREATE", "value": 50 },
+        { "name": "WEBHOOK_UPDATE", "value": 51 },
+        { "name": "WEBHOOK_DELETE", "value": 52 },
+        { "name": "EMOJI_CREATE", "value": 60 },
+        { "name": "EMOJI_UPDATE", "value": 61 },
+        { "name": "EMOJI_DELETE", "value": 62 },
+        { "name": "MESSAGE_DELETE", "value": 72 },
+        { "name": "MESSAGE_BULK_DELETE", "value": 73 },
+        { "name": "MESSAGE_PIN", "value": 74 },
+        { "name": "MESSAGE_UNPIN", "value": 75 },
+        { "name": "THREAD_CREATE", "value": 110 },
+        { "name": "THREAD_UPDATE", "value": 111 },
+        { "name": "THREAD_DELETE", "value": 112 },
+        { "name": "APPLICATION_COMMAND_PERMISSION_UPDATE", "value": 121 }
+      ]
+    }
+  }
+}

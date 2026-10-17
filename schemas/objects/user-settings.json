@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/user-settings.json",
+  "title": "UserSettings",
+  "description": "Account-wide settings of the current user. `default_delivery_mode` is a Discordy extra.",
+  "type": "object",
+  "required": [
+    "locale",
+    "theme",
+    "status",
+    "custom_status",
+    "default_delivery_mode",
+    "developer_mode",
+    "message_display_compact"
+  ],
+  "properties": {
+    "locale": {
+      "type": "string"
+    },
+    "theme": {
+      "type": "string",
+      "enum": [
+        "dark",
+        "light",
+        "oled"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "online",
+        "idle",
+        "dnd",
+        "invisible"
+      ]
+    },
+    "custom_status": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CustomStatus"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "default_delivery_mode": {
+      "$ref": "./delivery-mode.json",
+      "description": "Default delivery mode for DMs and group DMs without a per-chat override."
+    },
+    "developer_mode": {
+      "type": "boolean"
+    },
+    "message_display_compact": {
+      "type": "boolean"
+    },
+    "accent_color": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "CustomStatus": {
+      "title": "CustomStatus",
+      "description": "A user's custom status.",
+      "type": "object",
+      "required": [
+        "text",
+        "emoji_id",
+        "emoji_name",
+        "expires_at"
+      ],
+      "properties": {
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "emoji_id": {
+          "anyOf": [
+            {
+              "$ref": "./snowflake.json"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "emoji_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expires_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

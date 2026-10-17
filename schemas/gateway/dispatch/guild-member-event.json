@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/guild-member-event.json",
+  "title": "GuildMemberEvent",
+  "description": "GUILD_MEMBER_ADD / GUILD_MEMBER_UPDATE dispatch: a guild member plus guild_id.",
+  "allOf": [
+    {
+      "$ref": "../../objects/guild-member.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "guild_id"
+      ],
+      "properties": {
+        "guild_id": {
+          "$ref": "../../objects/snowflake.json"
+        }
+      }
+    }
+  ]
+}

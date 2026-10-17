@@ -1,0 +1,646 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/registry/protocol.schema.json",
+  "title": "ProtocolRegistry",
+  "description": "Schema of protocol.json.",
+  "type": "object",
+  "required": [
+    "snowflake",
+    "auth",
+    "gateway",
+    "events",
+    "voice",
+    "rest",
+    "delivery_modes",
+    "delivery_mode_limits",
+    "enums"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "snowflake": {
+      "type": "object",
+      "required": [
+        "epoch_ms",
+        "timestamp_bits",
+        "worker_bits",
+        "sequence_bits",
+        "bucket_size_ms",
+        "worker_ranges"
+      ],
+      "properties": {
+        "epoch_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "timestamp_bits": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "worker_bits": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sequence_bits": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bucket_size_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "worker_ranges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "component",
+              "min",
+              "max"
+            ],
+            "properties": {
+              "component": {
+                "type": "string"
+              },
+              "min": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "max": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "auth": {
+      "type": "object",
+      "required": [
+        "access_token_issuer",
+        "access_token_ttl_s",
+        "voice_token_ttl_s",
+        "bot_token_introspection_cache_s",
+        "internal_token_header"
+      ],
+      "properties": {
+        "access_token_issuer": {
+          "type": "string"
+        },
+        "access_token_ttl_s": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "voice_token_ttl_s": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bot_token_introspection_cache_s": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "internal_token_header": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "gateway": {
+      "type": "object",
+      "required": [
+        "version",
+        "encoding",
+        "path",
+        "heartbeat_interval_ms",
+        "resume_window_s",
+        "resume_buffer_max",
+        "rate_limit_sends",
+        "rate_limit_window_s",
+        "e2ee_inbox_ttl_s",
+        "e2ee_inbox_maxlen",
+        "opcodes",
+        "close_codes",
+        "dispatch_events"
+      ],
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "encoding": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "heartbeat_interval_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "resume_window_s": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "resume_buffer_max": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rate_limit_sends": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rate_limit_window_s": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "e2ee_inbox_ttl_s": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "e2ee_inbox_maxlen": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "opcodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "op",
+              "name",
+              "direction",
+              "payload",
+              "description"
+            ],
+            "properties": {
+              "op": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "send",
+                  "receive",
+                  "both"
+                ]
+              },
+              "payload": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-z]+(/[a-z0-9-]+)+\\.json$",
+                    "description": "Path of the payload schema, relative to schemas/."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "close_codes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "name",
+              "description",
+              "reconnect"
+            ],
+            "properties": {
+              "code": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "description": {
+                "type": "string"
+              },
+              "reconnect": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "dispatch_events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "payload",
+              "source",
+              "topic",
+              "description"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "payload": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-z]+(/[a-z0-9-]+)+\\.json$",
+                    "description": "Path of the payload schema, relative to schemas/."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "gateway",
+                  "api",
+                  "messages"
+                ]
+              },
+              "topic": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "events": {
+      "type": "object",
+      "required": [
+        "envelope_version",
+        "topics",
+        "user_topic_events",
+        "bus_only_events"
+      ],
+      "properties": {
+        "envelope_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "key",
+              "producers"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              },
+              "producers": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "user_topic_events": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          }
+        },
+        "bus_only_events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "payload",
+              "topic",
+              "description"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "payload": {
+                "type": "string",
+                "pattern": "^[a-z]+(/[a-z0-9-]+)+\\.json$",
+                "description": "Path of the payload schema, relative to schemas/."
+              },
+              "topic": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "voice": {
+      "type": "object",
+      "required": [
+        "path",
+        "heartbeat_interval_ms",
+        "speaking_flags",
+        "opcodes",
+        "sfu_commands",
+        "sfu_events"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "heartbeat_interval_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "speaking_flags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "value"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "value": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "opcodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "op",
+              "name",
+              "direction",
+              "payload",
+              "description"
+            ],
+            "properties": {
+              "op": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "send",
+                  "receive",
+                  "both"
+                ]
+              },
+              "payload": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-z]+(/[a-z0-9-]+)+\\.json$",
+                    "description": "Path of the payload schema, relative to schemas/."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "sfu_commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "payload",
+              "description"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_]+$"
+              },
+              "payload": {
+                "type": "string",
+                "pattern": "^[a-z]+(/[a-z0-9-]+)+\\.json$",
+                "description": "Path of the payload schema, relative to schemas/."
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "sfu_events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "payload",
+              "description"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z_]+$"
+              },
+              "payload": {
+                "type": "string",
+                "pattern": "^[a-z]+(/[a-z0-9-]+)+\\.json$",
+                "description": "Path of the payload schema, relative to schemas/."
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "rest": {
+      "type": "object",
+      "required": [
+        "base_path",
+        "internal_base_path",
+        "rate_limit_headers",
+        "error_codes"
+      ],
+      "properties": {
+        "base_path": {
+          "type": "string"
+        },
+        "internal_base_path": {
+          "type": "string"
+        },
+        "rate_limit_headers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "error_codes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "name",
+              "http_status",
+              "description"
+            ],
+            "properties": {
+              "code": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "http_status": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "delivery_modes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "strictness"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "strictness": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "delivery_mode_limits": {
+      "type": "object",
+      "required": [
+        "ephemeral_max_guild_viewers",
+        "p2p_max_group_dm_members"
+      ],
+      "properties": {
+        "ephemeral_max_guild_viewers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "p2p_max_group_dm_members": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "enums": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "description",
+          "values"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "value"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*$"
+                },
+                "value": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

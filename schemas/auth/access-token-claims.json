@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/auth/access-token-claims.json",
+  "title": "AccessTokenClaims",
+  "description": "Claims of a user access JWT (EdDSA, 15 minutes).",
+  "type": "object",
+  "required": [
+    "iss",
+    "sub",
+    "sid",
+    "did",
+    "kind",
+    "iat",
+    "exp"
+  ],
+  "properties": {
+    "iss": {
+      "const": "discordy-api"
+    },
+    "sub": {
+      "$ref": "../objects/snowflake.json",
+      "description": "User ID."
+    },
+    "sid": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Session ID."
+    },
+    "did": {
+      "$ref": "../objects/snowflake.json",
+      "description": "Device ID."
+    },
+    "kind": {
+      "const": "user"
+    },
+    "iat": {
+      "type": "integer"
+    },
+    "exp": {
+      "type": "integer"
+    }
+  }
+}

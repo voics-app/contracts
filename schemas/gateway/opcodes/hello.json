@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/hello.json",
+  "title": "HelloPayload",
+  "description": "Op 10 HELLO.",
+  "type": "object",
+  "required": [
+    "heartbeat_interval"
+  ],
+  "properties": {
+    "heartbeat_interval": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Milliseconds between heartbeats (41250)."
+    }
+  }
+}

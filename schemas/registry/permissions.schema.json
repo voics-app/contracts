@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/registry/permissions.schema.json",
+  "title": "PermissionsRegistry",
+  "description": "Schema of permissions.json.",
+  "type": "object",
+  "required": [
+    "source",
+    "serialization",
+    "permissions"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "serialization": {
+      "type": "string"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "bit",
+          "value",
+          "description",
+          "channel_types",
+          "requires_mfa"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "bit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 63
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "description": {
+            "type": "string"
+          },
+          "channel_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "text",
+                "voice",
+                "stage"
+              ]
+            }
+          },
+          "requires_mfa": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}

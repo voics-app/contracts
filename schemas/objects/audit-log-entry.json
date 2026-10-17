@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/audit-log-entry.json",
+  "title": "AuditLogEntry",
+  "description": "An audit log entry.",
+  "type": "object",
+  "required": [
+    "id",
+    "target_id",
+    "user_id",
+    "action_type"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "target_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AuditLogChange"
+      }
+    },
+    "user_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "action_type": {
+      "type": "integer",
+      "description": "AuditLogEvent."
+    },
+    "options": {
+      "$ref": "#/$defs/AuditEntryInfo"
+    },
+    "reason": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "AuditLogChange": {
+      "title": "AuditLogChange",
+      "description": "A changed field.",
+      "type": "object",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "new_value": {},
+        "old_value": {},
+        "key": {
+          "type": "string"
+        }
+      }
+    },
+    "AuditEntryInfo": {
+      "title": "AuditEntryInfo",
+      "description": "Optional extra audit information.",
+      "type": "object",
+      "properties": {
+        "channel_id": {
+          "$ref": "./snowflake.json"
+        },
+        "count": {
+          "type": "string"
+        },
+        "delete_member_days": {
+          "type": "string"
+        },
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "members_removed": {
+          "type": "string"
+        },
+        "message_id": {
+          "$ref": "./snowflake.json"
+        },
+        "role_name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

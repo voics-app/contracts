@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/heartbeat.json",
+  "title": "HeartbeatPayload",
+  "description": "Op 1 HEARTBEAT: the last sequence number received, or null.",
+  "type": [
+    "integer",
+    "null"
+  ]
+}

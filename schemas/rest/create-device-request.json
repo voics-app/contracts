@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-device-request.json",
+  "title": "CreateDeviceRequest",
+  "description": "POST /devices body.",
+  "type": "object",
+  "required": [
+    "name",
+    "identity_key_b64"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "identity_key_b64": {
+      "type": "string"
+    }
+  }
+}

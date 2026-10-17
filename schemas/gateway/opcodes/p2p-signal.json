@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/p2p-signal.json",
+  "title": "P2pSignalPayload",
+  "description": "Op 22 P2P_SIGNAL. Relayed only, never persisted.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "to_user_id",
+    "to_device_id",
+    "from_user_id",
+    "from_device_id",
+    "kind",
+    "payload",
+    "identity_sig_b64"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "to_user_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "to_device_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "from_user_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "from_device_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "offer",
+        "answer",
+        "ice",
+        "bye"
+      ]
+    },
+    "payload": {
+      "type": "string",
+      "description": "Opaque SDP or ICE candidate."
+    },
+    "identity_sig_b64": {
+      "type": "string",
+      "description": "Signature over the DTLS fingerprint by the sender's device identity key."
+    }
+  }
+}

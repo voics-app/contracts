@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/application.json",
+  "title": "Application",
+  "description": "An application (bot).",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "icon",
+    "description",
+    "bot_public",
+    "bot_require_code_grant",
+    "verify_key",
+    "flags"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "name": {
+      "type": "string"
+    },
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "bot_public": {
+      "type": "boolean"
+    },
+    "bot_require_code_grant": {
+      "type": "boolean"
+    },
+    "bot": {
+      "$ref": "./user.json"
+    },
+    "owner": {
+      "$ref": "./user.json"
+    },
+    "verify_key": {
+      "type": "string"
+    },
+    "flags": {
+      "type": "integer"
+    },
+    "interactions_endpoint_url": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "install_params": {
+      "$ref": "#/$defs/InstallParams"
+    },
+    "approximate_guild_count": {
+      "type": "integer"
+    },
+    "redirect_uris": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "custom_install_url": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "InstallParams": {
+      "title": "InstallParams",
+      "description": "Default scopes and permissions for the bot invite.",
+      "type": "object",
+      "required": [
+        "scopes",
+        "permissions"
+      ],
+      "properties": {
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "permissions": {
+          "$ref": "./permission-bitset.json"
+        }
+      }
+    }
+  }
+}

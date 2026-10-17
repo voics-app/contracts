@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/upload-key-packages-request.json",
+  "title": "UploadKeyPackagesRequest",
+  "description": "POST /devices/{id}/key-packages body.",
+  "type": "object",
+  "required": [
+    "packages"
+  ],
+  "properties": {
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "MLS KeyPackage, base64."
+      },
+      "minItems": 1,
+      "maxItems": 100
+    }
+  }
+}

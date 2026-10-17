@@ -1,0 +1,30 @@
+name: release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: "@discordy-voics"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Publish to GitHub Packages
+        working-directory: packages/ts
+        run: pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+# The Rust crate is consumed through a git dependency pinned to this tag
+# (`discordy-contracts = { git = "...", tag = "vX.Y.Z" }`), so the tag itself is the release.

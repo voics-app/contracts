@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/admin-user-page.json",
+  "title": "AdminUserPage",
+  "description": "GET /internal/v1/admin/users: a page of users, ordered by ID.",
+  "type": "object",
+  "required": [
+    "users",
+    "next_after"
+  ],
+  "properties": {
+    "users": {
+      "type": "array",
+      "items": {
+        "$ref": "./admin-user.json"
+      }
+    },
+    "next_after": {
+      "anyOf": [
+        {
+          "$ref": "../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Pass as `after` to fetch the next page; null at the end."
+    }
+  }
+}

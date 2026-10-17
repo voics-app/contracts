@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/dave-mls-commit-welcome.json",
+  "title": "DaveMlsCommitWelcomePayload",
+  "description": "Voice op 28 DAVE_MLS_COMMIT_WELCOME.",
+  "type": "object",
+  "required": [
+    "commit_b64"
+  ],
+  "properties": {
+    "commit_b64": {
+      "type": "string"
+    },
+    "welcome_b64": {
+      "type": "string"
+    }
+  }
+}

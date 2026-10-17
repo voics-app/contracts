@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/voice-telemetry.json",
+  "title": "VoiceTelemetryPayload",
+  "description": "Op 23 VOICE_TELEMETRY.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "jitter_ms",
+    "loss_pct",
+    "rtt_ms",
+    "bitrate_kbps"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "jitter_ms": {
+      "type": "number"
+    },
+    "loss_pct": {
+      "type": "number"
+    },
+    "rtt_ms": {
+      "type": "number"
+    },
+    "bitrate_kbps": {
+      "type": "number"
+    }
+  }
+}

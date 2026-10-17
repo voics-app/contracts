@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/ack-request.json",
+  "title": "AckRequest",
+  "description": "POST /channels/{id}/messages/{mid}/ack body.",
+  "type": "object",
+  "properties": {
+    "mention_count": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

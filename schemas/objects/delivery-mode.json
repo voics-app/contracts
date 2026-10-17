@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/delivery-mode.json",
+  "title": "DeliveryMode",
+  "description": "Discordy message delivery mode. Strictness: standard (0) < ephemeral (1) < p2p (2).",
+  "type": "string",
+  "enum": [
+    "standard",
+    "ephemeral",
+    "p2p"
+  ]
+}

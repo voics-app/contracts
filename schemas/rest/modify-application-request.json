@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-application-request.json",
+  "title": "ModifyApplicationRequest",
+  "description": "PATCH /applications/{id} body.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "bot_public": {
+      "type": "boolean"
+    },
+    "bot_require_code_grant": {
+      "type": "boolean"
+    },
+    "interactions_endpoint_url": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "install_params": {
+      "$ref": "../objects/application.json#/$defs/InstallParams"
+    },
+    "flags": {
+      "type": "integer"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

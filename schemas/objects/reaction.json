@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/reaction.json",
+  "title": "Reaction",
+  "description": "Reactions of one emoji on a message.",
+  "type": "object",
+  "required": [
+    "count",
+    "count_details",
+    "me",
+    "me_burst",
+    "emoji",
+    "burst_colors"
+  ],
+  "properties": {
+    "count": {
+      "type": "integer"
+    },
+    "count_details": {
+      "$ref": "#/$defs/ReactionCountDetails"
+    },
+    "me": {
+      "type": "boolean"
+    },
+    "me_burst": {
+      "type": "boolean"
+    },
+    "emoji": {
+      "$ref": "./emoji.json"
+    },
+    "burst_colors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "ReactionCountDetails": {
+      "title": "ReactionCountDetails",
+      "description": "Normal and burst reaction counts.",
+      "type": "object",
+      "required": [
+        "burst",
+        "normal"
+      ],
+      "properties": {
+        "burst": {
+          "type": "integer"
+        },
+        "normal": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
