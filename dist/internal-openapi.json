@@ -2050,6 +2050,7 @@
           "status",
           "custom_status",
           "default_delivery_mode",
+          "e2ee_calls_default",
           "developer_mode",
           "message_display_compact"
         ],
@@ -2087,6 +2088,10 @@
           "default_delivery_mode": {
             "$ref": "#/components/schemas/DeliveryMode",
             "description": "Default delivery mode for DMs and group DMs without a per-chat override."
+          },
+          "e2ee_calls_default": {
+            "type": "boolean",
+            "description": "When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set."
           },
           "developer_mode": {
             "type": "boolean"

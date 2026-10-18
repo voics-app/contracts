@@ -2053,6 +2053,10 @@ export interface ModifyUserSettingsRequest {
   status?: "online" | "idle" | "dnd" | "invisible";
   custom_status?: CustomStatus | null;
   default_delivery_mode?: DeliveryMode;
+  /**
+   * When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set.
+   */
+  e2ee_calls_default?: boolean;
   developer_mode?: boolean;
   message_display_compact?: boolean;
   accent_color?: number | null;
@@ -2187,6 +2191,10 @@ export interface UserSettings {
   status: "online" | "idle" | "dnd" | "invisible";
   custom_status: CustomStatus | null;
   default_delivery_mode: DeliveryMode;
+  /**
+   * When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set.
+   */
+  e2ee_calls_default: boolean;
   developer_mode: boolean;
   message_display_compact: boolean;
   accent_color?: number | null;
