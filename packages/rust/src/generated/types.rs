@@ -3334,6 +3334,9 @@ pub struct ModifyUserSettingsRequest {
     pub default_delivery_mode: ::std::option::Option<DeliveryMode>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub developer_mode: ::std::option::Option<bool>,
+    ///When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub e2ee_calls_default: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub locale: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -4563,6 +4566,8 @@ pub struct UserSettings {
     ///Default delivery mode for DMs and group DMs without a per-chat override.
     pub default_delivery_mode: DeliveryMode,
     pub developer_mode: bool,
+    ///When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set.
+    pub e2ee_calls_default: bool,
     pub locale: ::std::string::String,
     pub message_display_compact: bool,
     pub status: UserSettingsStatus,

@@ -1159,6 +1159,7 @@ Account-wide settings of the current user. `default_delivery_mode` is a Discordy
 | `status` | `"online" or "idle" or "dnd" or "invisible"` |  |
 | `custom_status` | `?CustomStatus` |  |
 | `default_delivery_mode` | `DeliveryMode` | Default delivery mode for DMs and group DMs without a per-chat override. |
+| `e2ee_calls_default` | `boolean` | When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set. |
 | `developer_mode` | `boolean` |  |
 | `message_display_compact` | `boolean` |  |
 | `accent_color?` | `?integer` |  |
@@ -1669,6 +1670,7 @@ PATCH /users/@me/settings body (partial).
 | `status?` | `"online" or "idle" or "dnd" or "invisible"` |  |
 | `custom_status?` | `?CustomStatus` |  |
 | `default_delivery_mode?` | `DeliveryMode` |  |
+| `e2ee_calls_default?` | `boolean` | When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set. |
 | `developer_mode?` | `boolean` |  |
 | `message_display_compact?` | `boolean` |  |
 | `accent_color?` | `?integer` |  |

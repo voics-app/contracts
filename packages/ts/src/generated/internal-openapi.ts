@@ -698,6 +698,8 @@ export interface components {
             /** @description Default delivery mode for DMs and group DMs without a per-chat override. */
             default_delivery_mode: components["schemas"]["DeliveryMode"];
             developer_mode: boolean;
+            /** @description When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set. */
+            e2ee_calls_default: boolean;
             locale: string;
             message_display_compact: boolean;
             /** @enum {string} */
