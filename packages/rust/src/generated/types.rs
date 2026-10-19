@@ -596,6 +596,31 @@ pub struct Ban {
 pub struct BulkDeleteRequest {
     pub messages: ::std::vec::Vec<Snowflake>,
 }
+///A DM or group DM call: its voice states and the recipients still ringing for it. Carried by CALL_CREATE and CALL_UPDATE.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct Call {
+    pub channel_id: Snowflake,
+    ///Always null: a call is not attached to a message.
+    pub message_id: (),
+    ///Voice region the call is served from.
+    pub region: ::std::string::String,
+    ///Recipients who have not joined or declined yet.
+    pub ringing: ::std::vec::Vec<Snowflake>,
+    ///The VoiceState of every participant.
+    pub voice_states: ::std::vec::Vec<VoiceState>,
+}
+///Op 25 CALL_DECLINE. Declines the call ringing in a DM channel; a no-op when the user is not ringing.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CallDeclinePayload {
+    pub channel_id: Snowflake,
+}
+///CALL_DELETE dispatch: the last participant left the DM call.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CallDeleteEvent {
+    pub channel_id: Snowflake,
+    ///Always null.
+    pub message_id: (),
+}
 ///A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Channel {

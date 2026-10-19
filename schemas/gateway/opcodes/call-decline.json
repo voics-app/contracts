@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/call-decline.json",
+  "title": "CallDeclinePayload",
+  "description": "Op 25 CALL_DECLINE. Declines the call ringing in a DM channel; a no-op when the user is not ringing.",
+  "type": "object",
+  "required": [
+    "channel_id"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    }
+  }
+}

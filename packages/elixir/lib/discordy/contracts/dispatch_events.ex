@@ -22,6 +22,15 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec voice_server_update() :: String.t()
   def voice_server_update, do: "VOICE_SERVER_UPDATE"
 
+  @spec call_create() :: String.t()
+  def call_create, do: "CALL_CREATE"
+
+  @spec call_update() :: String.t()
+  def call_update, do: "CALL_UPDATE"
+
+  @spec call_delete() :: String.t()
+  def call_delete, do: "CALL_DELETE"
+
   @spec guild_members_chunk() :: String.t()
   def guild_members_chunk, do: "GUILD_MEMBERS_CHUNK"
 
@@ -152,6 +161,9 @@ defmodule Discordy.Contracts.DispatchEvents do
       typing_start: "TYPING_START",
       voice_state_update: "VOICE_STATE_UPDATE",
       voice_server_update: "VOICE_SERVER_UPDATE",
+      call_create: "CALL_CREATE",
+      call_update: "CALL_UPDATE",
+      call_delete: "CALL_DELETE",
       guild_members_chunk: "GUILD_MEMBERS_CHUNK",
       guild_create: "GUILD_CREATE",
       guild_update: "GUILD_UPDATE",

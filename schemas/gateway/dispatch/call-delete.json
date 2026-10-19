@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/call-delete.json",
+  "title": "CallDeleteEvent",
+  "description": "CALL_DELETE dispatch: the last participant left the DM call.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "message_id"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "message_id": {
+      "description": "Always null.",
+      "type": "null"
+    }
+  }
+}
