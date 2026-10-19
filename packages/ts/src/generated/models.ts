@@ -570,6 +570,62 @@ export interface BulkDeleteRequest {
   messages: [Snowflake, Snowflake, ...Snowflake[]];
 }
 /**
+ * A DM or group DM call: its voice states and the recipients still ringing for it. Carried by CALL_CREATE and CALL_UPDATE.
+ */
+export interface Call {
+  channel_id: Snowflake;
+  /**
+   * Always null: a call is not attached to a message.
+   */
+  message_id: null;
+  /**
+   * Voice region the call is served from.
+   */
+  region: string;
+  /**
+   * Recipients who have not joined or declined yet.
+   */
+  ringing: Snowflake[];
+  /**
+   * The VoiceState of every participant.
+   */
+  voice_states: VoiceState[];
+}
+/**
+ * A user's voice connection state.
+ */
+export interface VoiceState {
+  guild_id?: Snowflake;
+  channel_id: Snowflake | null;
+  user_id: Snowflake;
+  member?: GuildMember;
+  session_id: string;
+  deaf: boolean;
+  mute: boolean;
+  self_deaf: boolean;
+  self_mute: boolean;
+  self_stream?: boolean;
+  self_video: boolean;
+  suppress: boolean;
+  request_to_speak_timestamp: string | null;
+}
+/**
+ * Op 25 CALL_DECLINE. Declines the call ringing in a DM channel; a no-op when the user is not ringing.
+ */
+export interface CallDeclinePayload {
+  channel_id: Snowflake;
+}
+/**
+ * CALL_DELETE dispatch: the last participant left the DM call.
+ */
+export interface CallDeleteEvent {
+  channel_id: Snowflake;
+  /**
+   * Always null.
+   */
+  message_id: null;
+}
+/**
  * GET /internal/v1/channels/{channel_id}/access/{user_id}.
  */
 export interface ChannelAccess {
@@ -1411,24 +1467,6 @@ export interface PartialUser {
   global_name?: string | null;
   avatar?: string | null;
   bot?: boolean;
-}
-/**
- * A user's voice connection state.
- */
-export interface VoiceState {
-  guild_id?: Snowflake;
-  channel_id: Snowflake | null;
-  user_id: Snowflake;
-  member?: GuildMember;
-  session_id: string;
-  deaf: boolean;
-  mute: boolean;
-  self_deaf: boolean;
-  self_mute: boolean;
-  self_stream?: boolean;
-  self_video: boolean;
-  suppress: boolean;
-  request_to_speak_timestamp: string | null;
 }
 /**
  * GUILD_MEMBER_ADD / GUILD_MEMBER_UPDATE dispatch: a guild member plus guild_id.

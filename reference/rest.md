@@ -431,6 +431,18 @@ A guild ban.
 | `reason` | `?string` |  |
 | `user` | `User` |  |
 
+### Call
+
+A DM or group DM call: its voice states and the recipients still ringing for it. Carried by CALL_CREATE and CALL_UPDATE.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `channel_id` | `Snowflake` |  |
+| `message_id` | `null` | Always null: a call is not attached to a message. |
+| `region` | `string` | Voice region the call is served from. |
+| `ringing` | `array of Snowflake` | Recipients who have not joined or declined yet. |
+| `voice_states` | `array of VoiceState` | The VoiceState of every participant. |
+
 ### Channel
 
 A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.

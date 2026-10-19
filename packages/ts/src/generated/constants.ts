@@ -196,6 +196,8 @@ export const GatewayOpcodes = {
   VOICE_TELEMETRY: 23,
   /** Watch Together playback synchronisation. */
   WATCH_TOGETHER: 24,
+  /** Declines the DM call ringing in a channel. The caller's call stops ringing for this user. */
+  CALL_DECLINE: 25,
 } as const;
 export type GatewayOpcodesKey = keyof typeof GatewayOpcodes;
 
@@ -234,6 +236,9 @@ export const DispatchEvents = {
   TYPING_START: "TYPING_START",
   VOICE_STATE_UPDATE: "VOICE_STATE_UPDATE",
   VOICE_SERVER_UPDATE: "VOICE_SERVER_UPDATE",
+  CALL_CREATE: "CALL_CREATE",
+  CALL_UPDATE: "CALL_UPDATE",
+  CALL_DELETE: "CALL_DELETE",
   GUILD_MEMBERS_CHUNK: "GUILD_MEMBERS_CHUNK",
   GUILD_CREATE: "GUILD_CREATE",
   GUILD_UPDATE: "GUILD_UPDATE",

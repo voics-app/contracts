@@ -159,6 +159,13 @@
         "direction": "both",
         "payload": "gateway/opcodes/watch-together.json",
         "description": "Watch Together playback synchronisation."
+      },
+      {
+        "op": 25,
+        "name": "CALL_DECLINE",
+        "direction": "send",
+        "payload": "gateway/opcodes/call-decline.json",
+        "description": "Declines the DM call ringing in a channel. The caller's call stops ringing for this user."
       }
     ],
     "close_codes": [
@@ -271,6 +278,27 @@
         "source": "gateway",
         "topic": null,
         "description": "The voice node allocated for a guild or DM call."
+      },
+      {
+        "name": "CALL_CREATE",
+        "payload": "objects/call.json",
+        "source": "gateway",
+        "topic": null,
+        "description": "A DM call started (its first participant joined). Sent to the channel's recipients; `ringing` lists the recipients being rung."
+      },
+      {
+        "name": "CALL_UPDATE",
+        "payload": "objects/call.json",
+        "source": "gateway",
+        "topic": null,
+        "description": "A DM call's ringing recipients or voice states changed."
+      },
+      {
+        "name": "CALL_DELETE",
+        "payload": "gateway/dispatch/call-delete.json",
+        "source": "gateway",
+        "topic": null,
+        "description": "The last participant left the DM call."
       },
       {
         "name": "GUILD_MEMBERS_CHUNK",

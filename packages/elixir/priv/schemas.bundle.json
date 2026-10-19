@@ -1074,6 +1074,76 @@
         }
       }
     },
+    "Call": {
+      "title": "Call",
+      "description": "A DM or group DM call: its voice states and the recipients still ringing for it. Carried by CALL_CREATE and CALL_UPDATE.",
+      "type": "object",
+      "required": [
+        "channel_id",
+        "message_id",
+        "region",
+        "ringing",
+        "voice_states"
+      ],
+      "properties": {
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "message_id": {
+          "description": "Always null: a call is not attached to a message.",
+          "type": "null"
+        },
+        "region": {
+          "type": "string",
+          "description": "Voice region the call is served from."
+        },
+        "ringing": {
+          "type": "array",
+          "description": "Recipients who have not joined or declined yet.",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
+        },
+        "voice_states": {
+          "type": "array",
+          "description": "The VoiceState of every participant.",
+          "items": {
+            "$ref": "#/$defs/VoiceState"
+          }
+        }
+      }
+    },
+    "CallDeclinePayload": {
+      "title": "CallDeclinePayload",
+      "description": "Op 25 CALL_DECLINE. Declines the call ringing in a DM channel; a no-op when the user is not ringing.",
+      "type": "object",
+      "required": [
+        "channel_id"
+      ],
+      "properties": {
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        }
+      }
+    },
+    "CallDeleteEvent": {
+      "title": "CallDeleteEvent",
+      "description": "CALL_DELETE dispatch: the last participant left the DM call.",
+      "type": "object",
+      "required": [
+        "channel_id",
+        "message_id"
+      ],
+      "properties": {
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "message_id": {
+          "description": "Always null.",
+          "type": "null"
+        }
+      }
+    },
     "Channel": {
       "title": "Channel",
       "description": "A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.",

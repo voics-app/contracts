@@ -21,6 +21,12 @@ pub enum DispatchEvent {
     VoiceStateUpdate(VoiceState),
     #[serde(rename = "VOICE_SERVER_UPDATE")]
     VoiceServerUpdate(VoiceServerUpdateEvent),
+    #[serde(rename = "CALL_CREATE")]
+    CallCreate(Call),
+    #[serde(rename = "CALL_UPDATE")]
+    CallUpdate(Call),
+    #[serde(rename = "CALL_DELETE")]
+    CallDelete(CallDeleteEvent),
     #[serde(rename = "GUILD_MEMBERS_CHUNK")]
     GuildMembersChunk(GuildMembersChunkEvent),
     #[serde(rename = "GUILD_CREATE")]
@@ -113,6 +119,9 @@ impl DispatchEvent {
             Self::TypingStart(_) => "TYPING_START",
             Self::VoiceStateUpdate(_) => "VOICE_STATE_UPDATE",
             Self::VoiceServerUpdate(_) => "VOICE_SERVER_UPDATE",
+            Self::CallCreate(_) => "CALL_CREATE",
+            Self::CallUpdate(_) => "CALL_UPDATE",
+            Self::CallDelete(_) => "CALL_DELETE",
             Self::GuildMembersChunk(_) => "GUILD_MEMBERS_CHUNK",
             Self::GuildCreate(_) => "GUILD_CREATE",
             Self::GuildUpdate(_) => "GUILD_UPDATE",

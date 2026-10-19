@@ -100,6 +100,12 @@ defmodule Discordy.Contracts.GatewayOpcodes do
   @spec watch_together() :: non_neg_integer()
   def watch_together, do: 24
 
+  @doc ~S"""
+  Declines the DM call ringing in a channel. The caller's call stops ringing for this user.
+  """
+  @spec call_decline() :: non_neg_integer()
+  def call_decline, do: 25
+
   @doc "Every entry of this group, keyed by atom."
   @spec entries() :: %{atom() => non_neg_integer()}
   def entries do
@@ -119,7 +125,8 @@ defmodule Discordy.Contracts.GatewayOpcodes do
       e2ee_ack: 21,
       p2p_signal: 22,
       voice_telemetry: 23,
-      watch_together: 24
+      watch_together: 24,
+      call_decline: 25
     }
   end
 

@@ -277,6 +277,8 @@ pub mod gateway_opcodes {
     pub const VOICE_TELEMETRY: u8 = 23;
     /// Watch Together playback synchronisation.
     pub const WATCH_TOGETHER: u8 = 24;
+    /// Declines the DM call ringing in a channel. The caller's call stops ringing for this user.
+    pub const CALL_DECLINE: u8 = 25;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -296,6 +298,7 @@ pub mod gateway_opcodes {
         ("P2P_SIGNAL", P2P_SIGNAL),
         ("VOICE_TELEMETRY", VOICE_TELEMETRY),
         ("WATCH_TOGETHER", WATCH_TOGETHER),
+        ("CALL_DECLINE", CALL_DECLINE),
     ];
 }
 
@@ -348,6 +351,9 @@ pub mod dispatch_events {
     pub const TYPING_START: &str = "TYPING_START";
     pub const VOICE_STATE_UPDATE: &str = "VOICE_STATE_UPDATE";
     pub const VOICE_SERVER_UPDATE: &str = "VOICE_SERVER_UPDATE";
+    pub const CALL_CREATE: &str = "CALL_CREATE";
+    pub const CALL_UPDATE: &str = "CALL_UPDATE";
+    pub const CALL_DELETE: &str = "CALL_DELETE";
     pub const GUILD_MEMBERS_CHUNK: &str = "GUILD_MEMBERS_CHUNK";
     pub const GUILD_CREATE: &str = "GUILD_CREATE";
     pub const GUILD_UPDATE: &str = "GUILD_UPDATE";
@@ -398,6 +404,9 @@ pub mod dispatch_events {
         ("TYPING_START", TYPING_START),
         ("VOICE_STATE_UPDATE", VOICE_STATE_UPDATE),
         ("VOICE_SERVER_UPDATE", VOICE_SERVER_UPDATE),
+        ("CALL_CREATE", CALL_CREATE),
+        ("CALL_UPDATE", CALL_UPDATE),
+        ("CALL_DELETE", CALL_DELETE),
         ("GUILD_MEMBERS_CHUNK", GUILD_MEMBERS_CHUNK),
         ("GUILD_CREATE", GUILD_CREATE),
         ("GUILD_UPDATE", GUILD_UPDATE),
