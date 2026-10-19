@@ -2084,7 +2084,7 @@ export interface ModifyMemberRequest {
   mute?: boolean;
   deaf?: boolean;
   /**
-   * Move to a voice channel, or null to disconnect.
+   * Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice.
    */
   channel_id?: Snowflake | null;
   communication_disabled_until?: string | null;
@@ -2569,6 +2569,17 @@ export interface VoiceIdentifyPayload {
   session_id: string;
   token: string;
   video: boolean;
+}
+/**
+ * VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.
+ */
+export interface VoiceMemberMoveEvent {
+  guild_id: Snowflake;
+  user_id: Snowflake;
+  /**
+   * The voice channel to move the member to, or null to disconnect them.
+   */
+  channel_id: Snowflake | null;
 }
 /**
  * etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).

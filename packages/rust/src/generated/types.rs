@@ -3337,7 +3337,7 @@ impl<'de> ::serde::Deserialize<'de> for ModifyGuildRequestName {
 ///PATCH /guilds/{id}/members/{uid} body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyMemberRequest {
-    ///Move to a voice channel, or null to disconnect.
+    ///Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub channel_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -4881,6 +4881,15 @@ pub struct VoiceIdentifyPayload {
     pub token: ::std::string::String,
     pub user_id: Snowflake,
     pub video: bool,
+}
+///VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct VoiceMemberMoveEvent {
+    ///The voice channel to move the member to, or null to disconnect them.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    pub guild_id: Snowflake,
+    pub user_id: Snowflake,
 }
 ///etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

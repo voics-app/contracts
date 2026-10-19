@@ -635,6 +635,12 @@
     ],
     "bus_only_events": [
       {
+        "name": "VOICE_MEMBER_MOVE",
+        "payload": "events/voice-member-move.json",
+        "topic": "discordy.guild.v1",
+        "description": "A moderator moved a member to another voice channel or disconnected them; the gateway applies it to the member voice session and never dispatches it."
+      },
+      {
         "name": "VOICE_QUALITY",
         "payload": "events/voice-quality.json",
         "topic": "discordy.telemetry.v1",
