@@ -399,6 +399,10 @@ export interface Channel {
   name?: string | null;
   topic?: string | null;
   nsfw?: boolean;
+  /**
+   * Voice channels only: whether members can send messages to the channel chat. Defaults to true.
+   */
+  text_chat_enabled?: boolean;
   last_message_id?: Snowflake | null;
   bitrate?: number;
   user_limit?: number;
@@ -2008,6 +2012,10 @@ export interface ModifyChannelRequest {
   position?: number | null;
   topic?: string | null;
   nsfw?: boolean;
+  /**
+   * Voice channels only. Managers with MANAGE_CHANNELS switch the channel chat on or off.
+   */
+  text_chat_enabled?: boolean;
   rate_limit_per_user?: number | null;
   bitrate?: number | null;
   user_limit?: number | null;

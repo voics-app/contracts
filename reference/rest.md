@@ -457,6 +457,7 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `name?` | `?string` |  |
 | `topic?` | `?string` |  |
 | `nsfw?` | `boolean` |  |
+| `text_chat_enabled?` | `boolean` | Voice channels only: whether members can send messages to the channel chat. Defaults to true. |
 | `last_message_id?` | `?Snowflake` |  |
 | `bitrate?` | `integer` |  |
 | `user_limit?` | `integer` |  |
@@ -1598,6 +1599,7 @@ PATCH /channels/{id} body (partial). Changing delivery_mode requires MANAGE_CHAN
 | `position?` | `?integer` |  |
 | `topic?` | `?string` |  |
 | `nsfw?` | `boolean` |  |
+| `text_chat_enabled?` | `boolean` | Voice channels only. Managers with MANAGE_CHANNELS switch the channel chat on or off. |
 | `rate_limit_per_user?` | `?integer` |  |
 | `bitrate?` | `?integer` |  |
 | `user_limit?` | `?integer` |  |

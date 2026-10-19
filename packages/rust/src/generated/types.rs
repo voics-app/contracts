@@ -687,6 +687,9 @@ pub struct Channel {
     pub recipients: ::std::vec::Vec<User>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rtc_region: ::std::option::Option<::std::string::String>,
+    ///Voice channels only: whether members can send messages to the channel chat. Defaults to true.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub text_chat_enabled: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub thread_metadata: ::std::option::Option<ThreadMetadata>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3096,6 +3099,9 @@ pub struct ModifyChannelRequest {
     pub rate_limit_per_user: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rtc_region: ::std::option::Option<::std::string::String>,
+    ///Voice channels only. Managers with MANAGE_CHANNELS switch the channel chat on or off.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub text_chat_enabled: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub topic: ::std::option::Option<::std::string::String>,
     #[serde(

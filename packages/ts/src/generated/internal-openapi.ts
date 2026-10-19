@@ -313,6 +313,8 @@ export interface components {
             rate_limit_per_user?: number;
             recipients?: components["schemas"]["User"][];
             rtc_region?: string | null;
+            /** @description Voice channels only: whether members can send messages to the channel chat. Defaults to true. */
+            text_chat_enabled?: boolean;
             thread_metadata?: components["schemas"]["ThreadMetadata"];
             topic?: string | null;
             total_message_sent?: number;

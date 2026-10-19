@@ -5633,6 +5633,10 @@
           "nsfw": {
             "type": "boolean"
           },
+          "text_chat_enabled": {
+            "type": "boolean",
+            "description": "Voice channels only: whether members can send messages to the channel chat. Defaults to true."
+          },
           "last_message_id": {
             "anyOf": [
               {
@@ -7582,6 +7586,10 @@
           },
           "nsfw": {
             "type": "boolean"
+          },
+          "text_chat_enabled": {
+            "type": "boolean",
+            "description": "Voice channels only. Managers with MANAGE_CHANNELS switch the channel chat on or off."
           },
           "rate_limit_per_user": {
             "type": [
