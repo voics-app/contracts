@@ -2010,7 +2010,7 @@ export interface components {
          * @description PATCH /guilds/{id}/members/{uid} body.
          */
         ModifyMemberRequest: {
-            /** @description Move to a voice channel, or null to disconnect. */
+            /** @description Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice. */
             channel_id?: components["schemas"]["Snowflake"] | null;
             /** Format: date-time */
             communication_disabled_until?: string | null;

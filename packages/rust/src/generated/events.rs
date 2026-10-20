@@ -253,6 +253,8 @@ pub enum BusEvent {
     InteractionCreate(Interaction),
     #[serde(rename = "AUDIT_LOG_ENTRY_CREATE")]
     AuditLogEntryCreate(AuditLogEntryCreateEvent),
+    #[serde(rename = "VOICE_MEMBER_MOVE")]
+    VoiceMemberMove(VoiceMemberMoveEvent),
     #[serde(rename = "VOICE_QUALITY")]
     VoiceQuality(VoiceQualityEvent),
     #[serde(rename = "USAGE_TICK")]
@@ -305,6 +307,7 @@ impl BusEvent {
             Self::SessionsReplace(_) => "SESSIONS_REPLACE",
             Self::InteractionCreate(_) => "INTERACTION_CREATE",
             Self::AuditLogEntryCreate(_) => "AUDIT_LOG_ENTRY_CREATE",
+            Self::VoiceMemberMove(_) => "VOICE_MEMBER_MOVE",
             Self::VoiceQuality(_) => "VOICE_QUALITY",
             Self::UsageTick(_) => "USAGE_TICK",
         }

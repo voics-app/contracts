@@ -646,6 +646,7 @@ pub mod event_topics {
     pub const SESSIONS_REPLACE: &str = "discordy.user.v1";
     pub const INTERACTION_CREATE: &str = "discordy.interaction.v1";
     pub const AUDIT_LOG_ENTRY_CREATE: &str = "discordy.audit.v1";
+    pub const VOICE_MEMBER_MOVE: &str = "discordy.guild.v1";
     pub const VOICE_QUALITY: &str = "discordy.telemetry.v1";
     pub const USAGE_TICK: &str = "discordy.telemetry.v1";
 
@@ -694,6 +695,7 @@ pub mod event_topics {
         ("SESSIONS_REPLACE", SESSIONS_REPLACE),
         ("INTERACTION_CREATE", INTERACTION_CREATE),
         ("AUDIT_LOG_ENTRY_CREATE", AUDIT_LOG_ENTRY_CREATE),
+        ("VOICE_MEMBER_MOVE", VOICE_MEMBER_MOVE),
         ("VOICE_QUALITY", VOICE_QUALITY),
         ("USAGE_TICK", USAGE_TICK),
     ];

@@ -1669,7 +1669,7 @@ PATCH /guilds/{id}/members/{uid} body.
 | `roles?` | `array of Snowflake` |  |
 | `mute?` | `boolean` |  |
 | `deaf?` | `boolean` |  |
-| `channel_id?` | `?Snowflake` | Move to a voice channel, or null to disconnect. |
+| `channel_id?` | `?Snowflake` | Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
 | `flags?` | `integer` |  |
 

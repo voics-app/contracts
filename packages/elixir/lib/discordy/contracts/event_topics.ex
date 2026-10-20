@@ -124,6 +124,9 @@ defmodule Discordy.Contracts.EventTopics do
   @spec audit_log_entry_create() :: String.t()
   def audit_log_entry_create, do: "discordy.audit.v1"
 
+  @spec voice_member_move() :: String.t()
+  def voice_member_move, do: "discordy.guild.v1"
+
   @spec voice_quality() :: String.t()
   def voice_quality, do: "discordy.telemetry.v1"
 
@@ -174,6 +177,7 @@ defmodule Discordy.Contracts.EventTopics do
       sessions_replace: "discordy.user.v1",
       interaction_create: "discordy.interaction.v1",
       audit_log_entry_create: "discordy.audit.v1",
+      voice_member_move: "discordy.guild.v1",
       voice_quality: "discordy.telemetry.v1",
       usage_tick: "discordy.telemetry.v1"
     }

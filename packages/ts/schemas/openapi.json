@@ -7849,7 +7849,7 @@
                 "type": "null"
               }
             ],
-            "description": "Move to a voice channel, or null to disconnect."
+            "description": "Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice."
           },
           "communication_disabled_until": {
             "type": [
