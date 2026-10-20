@@ -162,6 +162,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/channels/{channel_id}/messages` | messages | — | `array of Message` | Get channel message history |
 | `POST` | `/channels/{channel_id}/messages` | messages | `CreateMessageRequest` | `Message` | Send a standard-mode message |
+| `GET` | `/guilds/{guild_id}/messages/search` | messages | — | `MessageSearchResponse` | Search guild messages |
+| `GET` | `/channels/{channel_id}/messages/search` | messages | — | `MessageSearchResponse` | Search channel messages |
 | `GET` | `/channels/{channel_id}/messages/{message_id}` | messages | — | `Message` | Get a message |
 | `PATCH` | `/channels/{channel_id}/messages/{message_id}` | messages | `EditMessageRequest` | `Message` | Edit a message |
 | `DELETE` | `/channels/{channel_id}/messages/{message_id}` | messages | — | 204 No Content | Delete a message |
@@ -923,6 +925,7 @@ A standard-mode message.
 | `reactions?` | `array of Reaction` |  |
 | `nonce?` | `string` | Client nonce used to resolve optimistic sends. |
 | `pinned` | `boolean` |  |
+| `hit?` | `boolean` | Only in message search results: true for the matching message, absent for its context messages. |
 | `webhook_id?` | `Snowflake` |  |
 | `type` | `integer` | MessageType. |
 | `application_id?` | `Snowflake` |  |
@@ -980,6 +983,16 @@ Reference to another message (reply, forward, crosspost).
 | `channel_id?` | `Snowflake` |  |
 | `guild_id?` | `Snowflake` |  |
 | `fail_if_not_exists?` | `boolean` |  |
+
+### MessageSearchResponse
+
+Result of GET /guilds/{guild_id}/messages/search and GET /channels/{channel_id}/messages/search.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `total_results` | `integer` | Number of messages that match, across all pages. |
+| `messages` | `array of array of Message` | One group per hit: the matching message (hit = true) between its context messages, oldest first. |
+| `index_building?` | `boolean` | True while the search index is being (re)built from stored history; results may be incomplete. |
 
 ### MuteConfig
 

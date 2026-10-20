@@ -3078,6 +3078,401 @@
         }
       }
     },
+    "/guilds/{guild_id}/messages/search": {
+      "get": {
+        "operationId": "searchGuildMessages",
+        "summary": "Search guild messages",
+        "description": "Searches the standard-mode messages of every channel of the guild the caller can view and read the history of. Results come from a full-text index fed from `discordy.message.v1`, so a new or edited message becomes searchable after a short delay (normally under 2 seconds). Ephemeral and P2P messages are end-to-end encrypted, never stored in plaintext and never returned; search them in the client's local history. Each element of `messages` is a group: the hit (`hit: true`) with `context` messages on either side, oldest first. At most 10 searches per 10 seconds per user.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "required": false,
+            "description": "Words to match (up to 512 characters). Matching is case-insensitive and word based; quoted phrases, `-` exclusions and `or` follow web-search syntax.",
+            "schema": {
+              "type": "string",
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "author_id",
+            "in": "query",
+            "required": false,
+            "description": "Only messages by these users (repeat the parameter, up to 10).",
+            "schema": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "$ref": "#/components/schemas/Snowflake"
+              }
+            }
+          },
+          {
+            "name": "mentions",
+            "in": "query",
+            "required": false,
+            "description": "Only messages that mention these users (repeat the parameter, up to 10).",
+            "schema": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "$ref": "#/components/schemas/Snowflake"
+              }
+            }
+          },
+          {
+            "name": "has",
+            "in": "query",
+            "required": false,
+            "description": "Only messages with all of these attachments.",
+            "schema": {
+              "type": "array",
+              "maxItems": 6,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "link",
+                  "embed",
+                  "file",
+                  "image",
+                  "video",
+                  "sound"
+                ]
+              }
+            }
+          },
+          {
+            "name": "channel_id",
+            "in": "query",
+            "required": false,
+            "description": "Only messages in these channels (repeat the parameter, up to 20). Channels the caller cannot read are ignored.",
+            "schema": {
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "$ref": "#/components/schemas/Snowflake"
+              }
+            }
+          },
+          {
+            "name": "min_id",
+            "in": "query",
+            "required": false,
+            "description": "Only messages with an ID greater than this one (to search after a date, use the first snowflake of that day).",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "max_id",
+            "in": "query",
+            "required": false,
+            "description": "Only messages with an ID lower than this one (to search before a date, use the first snowflake of that day).",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "pinned",
+            "in": "query",
+            "required": false,
+            "description": "Only pinned (`true`) or only unpinned (`false`) messages.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "description": "Order by creation time or by text relevance (relevance needs `content`).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "timestamp",
+                "relevance"
+              ],
+              "default": "timestamp"
+            }
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "required": false,
+            "description": "Sort direction.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Number of results to skip (0-9975).",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9975,
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Max number of hits (1-25).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 25,
+              "default": 25
+            }
+          },
+          {
+            "name": "context",
+            "in": "query",
+            "required": false,
+            "description": "Messages of context returned before and after each hit (0-2).",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2,
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/messages/search": {
+      "get": {
+        "operationId": "searchChannelMessages",
+        "summary": "Search channel messages",
+        "description": "Searches the standard-mode messages of one channel (a guild channel or a direct message). Results come from a full-text index fed from `discordy.message.v1`, so a new or edited message becomes searchable after a short delay (normally under 2 seconds). Ephemeral and P2P messages are end-to-end encrypted, never stored in plaintext and never returned; search them in the client's local history. Each element of `messages` is a group: the hit (`hit: true`) with `context` messages on either side, oldest first. At most 10 searches per 10 seconds per user.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "required": false,
+            "description": "Words to match (up to 512 characters). Matching is case-insensitive and word based; quoted phrases, `-` exclusions and `or` follow web-search syntax.",
+            "schema": {
+              "type": "string",
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "author_id",
+            "in": "query",
+            "required": false,
+            "description": "Only messages by these users (repeat the parameter, up to 10).",
+            "schema": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "$ref": "#/components/schemas/Snowflake"
+              }
+            }
+          },
+          {
+            "name": "mentions",
+            "in": "query",
+            "required": false,
+            "description": "Only messages that mention these users (repeat the parameter, up to 10).",
+            "schema": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "$ref": "#/components/schemas/Snowflake"
+              }
+            }
+          },
+          {
+            "name": "has",
+            "in": "query",
+            "required": false,
+            "description": "Only messages with all of these attachments.",
+            "schema": {
+              "type": "array",
+              "maxItems": 6,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "link",
+                  "embed",
+                  "file",
+                  "image",
+                  "video",
+                  "sound"
+                ]
+              }
+            }
+          },
+          {
+            "name": "min_id",
+            "in": "query",
+            "required": false,
+            "description": "Only messages with an ID greater than this one (to search after a date, use the first snowflake of that day).",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "max_id",
+            "in": "query",
+            "required": false,
+            "description": "Only messages with an ID lower than this one (to search before a date, use the first snowflake of that day).",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "pinned",
+            "in": "query",
+            "required": false,
+            "description": "Only pinned (`true`) or only unpinned (`false`) messages.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "description": "Order by creation time or by text relevance (relevance needs `content`).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "timestamp",
+                "relevance"
+              ],
+              "default": "timestamp"
+            }
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "required": false,
+            "description": "Sort direction.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Number of results to skip (0-9975).",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9975,
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Max number of hits (1-25).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 25,
+              "default": 25
+            }
+          },
+          {
+            "name": "context",
+            "in": "query",
+            "required": false,
+            "description": "Messages of context returned before and after each hit (0-2).",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2,
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/channels/{channel_id}/messages/{message_id}": {
       "get": {
         "operationId": "getMessage",
@@ -7663,6 +8058,10 @@
           "pinned": {
             "type": "boolean"
           },
+          "hit": {
+            "type": "boolean",
+            "description": "Only in message search results: true for the matching message, absent for its context messages."
+          },
           "webhook_id": {
             "$ref": "#/components/schemas/Snowflake"
           },
@@ -7820,6 +8219,36 @@
           },
           "fail_if_not_exists": {
             "type": "boolean"
+          }
+        }
+      },
+      "MessageSearchResponse": {
+        "title": "MessageSearchResponse",
+        "description": "Result of GET /guilds/{guild_id}/messages/search and GET /channels/{channel_id}/messages/search.",
+        "type": "object",
+        "required": [
+          "total_results",
+          "messages"
+        ],
+        "properties": {
+          "total_results": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of messages that match, across all pages."
+          },
+          "messages": {
+            "type": "array",
+            "description": "One group per hit: the matching message (hit = true) between its context messages, oldest first.",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Message"
+              }
+            }
+          },
+          "index_building": {
+            "type": "boolean",
+            "description": "True while the search index is being (re)built from stored history; results may be incomplete."
           }
         }
       },

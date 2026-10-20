@@ -4440,6 +4440,10 @@
         "pinned": {
           "type": "boolean"
         },
+        "hit": {
+          "type": "boolean",
+          "description": "Only in message search results: true for the matching message, absent for its context messages."
+        },
         "webhook_id": {
           "$ref": "#/$defs/Snowflake"
         },
@@ -4716,6 +4720,10 @@
         "pinned": {
           "type": "boolean"
         },
+        "hit": {
+          "type": "boolean",
+          "description": "Only in message search results: true for the matching message, absent for its context messages."
+        },
         "webhook_id": {
           "$ref": "#/$defs/Snowflake"
         },
@@ -4907,6 +4915,36 @@
         },
         "fail_if_not_exists": {
           "type": "boolean"
+        }
+      }
+    },
+    "MessageSearchResponse": {
+      "title": "MessageSearchResponse",
+      "description": "Result of GET /guilds/{guild_id}/messages/search and GET /channels/{channel_id}/messages/search.",
+      "type": "object",
+      "required": [
+        "total_results",
+        "messages"
+      ],
+      "properties": {
+        "total_results": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of messages that match, across all pages."
+        },
+        "messages": {
+          "type": "array",
+          "description": "One group per hit: the matching message (hit = true) between its context messages, oldest first.",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Message"
+            }
+          }
+        },
+        "index_building": {
+          "type": "boolean",
+          "description": "True while the search index is being (re)built from stored history; results may be incomplete."
         }
       }
     },
