@@ -374,7 +374,7 @@ A file attached to a message.
 | `ephemeral?` | `boolean` |  |
 | `duration_secs?` | `number` |  |
 | `waveform?` | `string` |  |
-| `flags?` | `integer` |  |
+| `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. |
 
 ### AuditEntryInfo
 
@@ -558,7 +558,7 @@ Rich embed content.
 | Field | Type | Description |
 | --- | --- | --- |
 | `title?` | `string` |  |
-| `type?` | `string` |  |
+| `type?` | `string` | EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich. |
 | `description?` | `string` |  |
 | `url?` | `string` |  |
 | `timestamp?` | `string (date-time)` |  |
@@ -604,7 +604,7 @@ Embed footer.
 
 ### EmbedMedia
 
-Embed image, thumbnail or video.
+Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -1310,7 +1310,8 @@ An uploaded attachment referenced when creating or editing a message.
 | `id` | `string` | Attachment ID from POST /channels/{id}/attachments, or an index for existing ones. |
 | `filename?` | `string` |  |
 | `uploaded_filename?` | `string` |  |
-| `description?` | `string` |  |
+| `description?` | `string` | Alt text shown to screen readers and as the image tooltip. |
+| `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. |
 
 ### AttachmentUpload
 

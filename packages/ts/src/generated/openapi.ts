@@ -1218,6 +1218,7 @@ export interface components {
             duration_secs?: number;
             ephemeral?: boolean;
             filename: string;
+            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. */
             flags?: number;
             height?: number | null;
             id: components["schemas"]["Snowflake"];
@@ -1233,8 +1234,11 @@ export interface components {
          * @description An uploaded attachment referenced when creating or editing a message.
          */
         AttachmentReference: {
+            /** @description Alt text shown to screen readers and as the image tooltip. */
             description?: string;
             filename?: string;
+            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. */
+            flags?: number;
             /** @description Attachment ID from POST /channels/{id}/attachments, or an index for existing ones. */
             id: string;
             uploaded_filename?: string;
@@ -1645,6 +1649,7 @@ export interface components {
             /** Format: date-time */
             timestamp?: string;
             title?: string;
+            /** @description EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich. */
             type?: string;
             url?: string;
             video?: components["schemas"]["EmbedMedia"];
@@ -1679,7 +1684,7 @@ export interface components {
         };
         /**
          * EmbedMedia
-         * @description Embed image, thumbnail or video.
+         * @description Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.
          */
         EmbedMedia: {
             height?: number;

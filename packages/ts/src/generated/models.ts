@@ -302,6 +302,9 @@ export interface Attachment {
   ephemeral?: boolean;
   duration_secs?: number;
   waveform?: string;
+  /**
+   * AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler.
+   */
   flags?: number;
 }
 /**
@@ -314,7 +317,14 @@ export interface AttachmentReference {
   id: string;
   filename?: string;
   uploaded_filename?: string;
+  /**
+   * Alt text shown to screen readers and as the image tooltip.
+   */
   description?: string;
+  /**
+   * AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
+   */
+  flags?: number;
 }
 /**
  * A presigned upload target.
@@ -916,6 +926,9 @@ export interface CreateMessageRequest {
  */
 export interface Embed {
   title?: string;
+  /**
+   * EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich.
+   */
   type?: string;
   description?: string;
   url?: string;
@@ -938,7 +951,7 @@ export interface EmbedFooter {
   proxy_icon_url?: string;
 }
 /**
- * Embed image, thumbnail or video.
+ * Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.
  */
 export interface EmbedMedia {
   url?: string;

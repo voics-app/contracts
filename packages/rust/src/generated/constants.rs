@@ -853,6 +853,26 @@ pub mod message_type {
     ];
 }
 
+/// Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message.
+pub mod message_flags {
+    pub const SUPPRESS_EMBEDS: u8 = 4;
+    pub const EPHEMERAL: u8 = 64;
+
+    /// Every entry of this group as (name, value).
+    pub const ALL_ENTRIES: &[(&str, u8)] = &[
+        ("SUPPRESS_EMBEDS", SUPPRESS_EMBEDS),
+        ("EPHEMERAL", EPHEMERAL),
+    ];
+}
+
+/// Attachment flags (Discord values) used by Discordy. IS_SPOILER blurs the media until the viewer reveals it.
+pub mod attachment_flags {
+    pub const IS_SPOILER: u8 = 8;
+
+    /// Every entry of this group as (name, value).
+    pub const ALL_ENTRIES: &[(&str, u8)] = &[("IS_SPOILER", IS_SPOILER)];
+}
+
 /// Relationship types.
 pub mod relationship_type {
     pub const FRIEND: u8 = 1;
