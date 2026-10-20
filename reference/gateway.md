@@ -273,6 +273,8 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `MESSAGE_ACK` | `MessageAckEvent` | messages | `discordy.message.v1` | The user's read state advanced on another device. |
 | `USER_UPDATE` | `User` | api | `discordy.user.v1` | The current user was updated. |
 | `USER_SETTINGS_UPDATE` | `UserSettings` | api | `discordy.user.v1` | The current user's settings changed. |
+| `USER_GUILD_SETTINGS_UPDATE` | `GuildNotificationSettings` | api | `discordy.user.v1` | The current user's notification settings for a guild or their DMs changed (sent to that user only). |
+| `USER_NOTE_UPDATE` | `UserNoteUpdateEvent` | api | `discordy.user.v1` | The current user's private note about a user changed (sent to the author only). |
 | `RELATIONSHIP_ADD` | `Relationship` | api | `discordy.user.v1` | A relationship was created or changed. |
 | `RELATIONSHIP_REMOVE` | `RelationshipRemoveEvent` | api | `discordy.user.v1` | A relationship was removed. |
 | `CHANNEL_RECIPIENT_ADD` | `ChannelRecipientEvent` | api | `discordy.user.v1` | A user was added to a group DM. |
@@ -294,6 +296,8 @@ READY: the internal ready state plus session details.
 | `private_channels` | `array of Channel` |  |
 | `relationships` | `array of Relationship` |  |
 | `user_settings` | `UserSettings` |  |
+| `user_guild_settings` | `array of GuildNotificationSettings` | Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults. |
+| `notes` | `map of string` | The user's private notes keyed by the noted user's id. |
 | `v` | `integer` | Gateway version (1). |
 | `session_id` | `string` |  |
 | `resume_gateway_url` | `string` |  |
@@ -565,6 +569,15 @@ MESSAGE_ACK dispatch (read-state sync across the user's devices).
 | `message_id` | `Snowflake` |  |
 | `mention_count` | `integer` |  |
 | `version?` | `integer` |  |
+
+### UserNoteUpdateEvent
+
+USER_NOTE_UPDATE dispatch, sent to the author's sessions only. An empty note means the note was removed.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` | The user the note is about. |
+| `note` | `string` |  |
 
 ### RelationshipRemoveEvent
 

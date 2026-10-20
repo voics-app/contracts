@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/user-note-update.json",
+  "title": "UserNoteUpdateEvent",
+  "description": "USER_NOTE_UPDATE dispatch, sent to the author's sessions only. An empty note means the note was removed.",
+  "type": "object",
+  "required": [
+    "id",
+    "note"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "../../objects/snowflake.json",
+      "description": "The user the note is about."
+    },
+    "note": {
+      "type": "string",
+      "maxLength": 256
+    }
+  }
+}

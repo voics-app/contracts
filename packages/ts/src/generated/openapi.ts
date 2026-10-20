@@ -917,6 +917,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/@me/guilds/{guild_id}/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID, or `@me` for direct messages and group DMs. */
+                guild_id: string;
+            };
+            cookie?: never;
+        };
+        /** Get the current user's notification settings for a guild (or `@me` for DMs) */
+        get: operations["getGuildNotificationSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Modify the current user's notification settings for a guild (or `@me` for DMs) */
+        patch: operations["modifyGuildNotificationSettings"];
+        trace?: never;
+    };
+    "/users/@me/notes/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the current user's private note about a user (404 when none) */
+        get: operations["getUserNote"];
+        /** Set the current user's private note about a user (empty deletes it) */
+        put: operations["putUserNote"];
+        post?: never;
+        /** Delete the current user's private note about a user */
+        delete: operations["deleteUserNote"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/@me/relationships": {
         parameters: {
             query?: never;
@@ -1354,6 +1394,17 @@ export interface components {
             name: string;
             type: number;
         };
+        /** ChannelNotificationOverride */
+        ChannelNotificationOverride: {
+            channel_id: components["schemas"]["Snowflake"];
+            /**
+             * @description 0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild).
+             * @enum {integer|null}
+             */
+            message_notifications: 0 | 1 | 2 | null;
+            mute_config: components["schemas"]["MuteConfig"] | null;
+            muted: boolean;
+        };
         /**
          * ChannelPosition
          * @description One entry of PATCH /guilds/{id}/channels.
@@ -1758,6 +1809,29 @@ export interface components {
             user?: components["schemas"]["User"];
         };
         /**
+         * GuildNotificationSettings
+         * @description The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
+         */
+        GuildNotificationSettings: {
+            /** @description Only channels with a non-default override. */
+            channel_overrides: components["schemas"]["ChannelNotificationOverride"][];
+            /** @description null for direct messages and group DMs. */
+            guild_id: components["schemas"]["Snowflake"] | null;
+            hide_muted_channels: boolean;
+            /**
+             * @description 0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild).
+             * @enum {integer|null}
+             */
+            message_notifications: 0 | 1 | 2 | null;
+            /** @description Present while muted. */
+            mute_config: components["schemas"]["MuteConfig"] | null;
+            muted: boolean;
+            /** @description Suppress @everyone and @here. */
+            suppress_everyone: boolean;
+            /** @description Suppress all role @mentions. */
+            suppress_roles: boolean;
+        };
+        /**
          * InstallParams
          * @description Default scopes and permissions for the bot invite.
          */
@@ -1983,6 +2057,42 @@ export interface components {
             roles?: components["schemas"]["Snowflake"][] | null;
         };
         /**
+         * ModifyGuildNotificationSettingsRequest
+         * @description PATCH /users/@me/guilds/{guild_id|@me}/settings body (partial). Muting with muted true and no mute_config mutes until turned off; muted false clears the mute. channel_overrides entries are merged per channel_id (omitted fields keep their value); an entry left with no level and no mute is deleted.
+         */
+        ModifyGuildNotificationSettingsRequest: {
+            channel_overrides?: {
+                channel_id: components["schemas"]["Snowflake"];
+                /**
+                 * @description 0 all, 1 mentions, 2 nothing; null or 3 inherits.
+                 * @enum {integer|null}
+                 */
+                message_notifications?: 0 | 1 | 2 | 3 | null;
+                mute_config?: {
+                    /** Format: date-time */
+                    end_time?: string | null;
+                    /** @description Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set. */
+                    selected_time_window?: number | null;
+                } | null;
+                muted?: boolean;
+            }[];
+            hide_muted_channels?: boolean;
+            /**
+             * @description 0 all, 1 mentions, 2 nothing; null or 3 inherits.
+             * @enum {integer|null}
+             */
+            message_notifications?: 0 | 1 | 2 | 3 | null;
+            mute_config?: {
+                /** Format: date-time */
+                end_time?: string | null;
+                /** @description Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set. */
+                selected_time_window?: number | null;
+            } | null;
+            muted?: boolean;
+            suppress_everyone?: boolean;
+            suppress_roles?: boolean;
+        };
+        /**
          * ModifyGuildRequest
          * @description PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
          */
@@ -2046,6 +2156,14 @@ export interface components {
             avatar?: string | null;
             channel_id?: components["schemas"]["Snowflake"];
             name?: string;
+        };
+        /**
+         * MuteConfig
+         * @description When a mute ends. end_time null means until turned off; an end_time in the past means the mute has expired and is ignored.
+         */
+        MuteConfig: {
+            /** Format: date-time */
+            end_time: string | null;
         };
         /**
          * OAuth2AuthorizeInfo
@@ -2122,6 +2240,13 @@ export interface components {
         PublicDevice: {
             device_id: components["schemas"]["Snowflake"];
             identity_key_b64: string;
+        };
+        /**
+         * PutNoteRequest
+         * @description PUT /users/@me/notes/{user_id} body. An empty or missing note deletes the note.
+         */
+        PutNoteRequest: {
+            note?: string | null;
         };
         /**
          * PutRelationshipRequest
@@ -2311,6 +2436,17 @@ export interface components {
             system?: boolean;
             username: string;
             verified?: boolean;
+        };
+        /**
+         * UserNote
+         * @description A private note the current user wrote about another user. Visible only to its author.
+         */
+        UserNote: {
+            note: string;
+            /** @description The user the note is about. */
+            note_user_id: components["schemas"]["Snowflake"];
+            /** @description The author (the current user). */
+            user_id: components["schemas"]["Snowflake"];
         };
         /**
          * UserSettings
@@ -5065,6 +5201,144 @@ export interface operations {
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildNotificationSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID, or `@me` for direct messages and group DMs. */
+                guild_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildNotificationSettings"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    modifyGuildNotificationSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID, or `@me` for direct messages and group DMs. */
+                guild_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModifyGuildNotificationSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildNotificationSettings"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getUserNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserNote"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    putUserNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PutNoteRequest"];
+            };
+        };
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    deleteUserNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
         };

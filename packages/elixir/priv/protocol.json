@@ -532,6 +532,20 @@
         "description": "The current user's settings changed."
       },
       {
+        "name": "USER_GUILD_SETTINGS_UPDATE",
+        "payload": "objects/guild-notification-settings.json",
+        "source": "api",
+        "topic": "discordy.user.v1",
+        "description": "The current user's notification settings for a guild or their DMs changed (sent to that user only)."
+      },
+      {
+        "name": "USER_NOTE_UPDATE",
+        "payload": "gateway/dispatch/user-note-update.json",
+        "source": "api",
+        "topic": "discordy.user.v1",
+        "description": "The current user's private note about a user changed (sent to the author only)."
+      },
+      {
         "name": "RELATIONSHIP_ADD",
         "payload": "objects/relationship.json",
         "source": "api",

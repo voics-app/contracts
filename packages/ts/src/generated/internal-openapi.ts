@@ -336,6 +336,17 @@ export interface components {
             permissions: components["schemas"]["PermissionBitset"];
             recipient_ids: components["schemas"]["Snowflake"][];
         };
+        /** ChannelNotificationOverride */
+        ChannelNotificationOverride: {
+            channel_id: components["schemas"]["Snowflake"];
+            /**
+             * @description 0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild).
+             * @enum {integer|null}
+             */
+            message_notifications: 0 | 1 | 2 | null;
+            mute_config: components["schemas"]["MuteConfig"] | null;
+            muted: boolean;
+        };
         /**
          * ClientStatus
          * @description Status per platform.
@@ -490,6 +501,29 @@ export interface components {
             user?: components["schemas"]["User"];
         };
         /**
+         * GuildNotificationSettings
+         * @description The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
+         */
+        GuildNotificationSettings: {
+            /** @description Only channels with a non-default override. */
+            channel_overrides: components["schemas"]["ChannelNotificationOverride"][];
+            /** @description null for direct messages and group DMs. */
+            guild_id: components["schemas"]["Snowflake"] | null;
+            hide_muted_channels: boolean;
+            /**
+             * @description 0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild).
+             * @enum {integer|null}
+             */
+            message_notifications: 0 | 1 | 2 | null;
+            /** @description Present while muted. */
+            mute_config: components["schemas"]["MuteConfig"] | null;
+            muted: boolean;
+            /** @description Suppress @everyone and @here. */
+            suppress_everyone: boolean;
+            /** @description Suppress all role @mentions. */
+            suppress_roles: boolean;
+        };
+        /**
          * IntrospectRequest
          * @description POST /internal/v1/auth/introspect body.
          */
@@ -531,6 +565,14 @@ export interface components {
             ephemeral_relayed: number;
             p2p_signaled: number;
             standard: number;
+        };
+        /**
+         * MuteConfig
+         * @description When a mute ends. end_time null means until turned off; an end_time in the past means the mute has expired and is ignored.
+         */
+        MuteConfig: {
+            /** Format: date-time */
+            end_time: string | null;
         };
         /**
          * PartialUser
@@ -685,9 +727,15 @@ export interface components {
          */
         UserReadyState: {
             guilds: components["schemas"]["GuildFull"][];
+            /** @description The user's private notes keyed by the noted user's id. */
+            notes: {
+                [key: string]: string;
+            };
             private_channels: components["schemas"]["Channel"][];
             relationships: components["schemas"]["Relationship"][];
             user: components["schemas"]["User"];
+            /** @description Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults. */
+            user_guild_settings: components["schemas"]["GuildNotificationSettings"][];
             user_settings: components["schemas"]["UserSettings"];
         };
         /**

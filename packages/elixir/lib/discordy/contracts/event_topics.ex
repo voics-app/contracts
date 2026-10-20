@@ -103,6 +103,12 @@ defmodule Discordy.Contracts.EventTopics do
   @spec user_settings_update() :: String.t()
   def user_settings_update, do: "discordy.user.v1"
 
+  @spec user_guild_settings_update() :: String.t()
+  def user_guild_settings_update, do: "discordy.user.v1"
+
+  @spec user_note_update() :: String.t()
+  def user_note_update, do: "discordy.user.v1"
+
   @spec relationship_add() :: String.t()
   def relationship_add, do: "discordy.user.v1"
 
@@ -170,6 +176,8 @@ defmodule Discordy.Contracts.EventTopics do
       message_ack: "discordy.message.v1",
       user_update: "discordy.user.v1",
       user_settings_update: "discordy.user.v1",
+      user_guild_settings_update: "discordy.user.v1",
+      user_note_update: "discordy.user.v1",
       relationship_add: "discordy.user.v1",
       relationship_remove: "discordy.user.v1",
       channel_recipient_add: "discordy.user.v1",

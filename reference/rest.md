@@ -78,6 +78,11 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/users/{user_id}` | api | — | `User` | Get a user |
 | `GET` | `/users/@me/settings` | api | — | `UserSettings` | Get the current user's settings |
 | `PATCH` | `/users/@me/settings` | api | `ModifyUserSettingsRequest` | `UserSettings` | Modify the current user's settings (including default_delivery_mode) |
+| `GET` | `/users/@me/guilds/{guild_id}/settings` | api | — | `GuildNotificationSettings` | Get the current user's notification settings for a guild (or `@me` for DMs) |
+| `PATCH` | `/users/@me/guilds/{guild_id}/settings` | api | `ModifyGuildNotificationSettingsRequest` | `GuildNotificationSettings` | Modify the current user's notification settings for a guild (or `@me` for DMs) |
+| `GET` | `/users/@me/notes/{user_id}` | api | — | `UserNote` | Get the current user's private note about a user (404 when none) |
+| `PUT` | `/users/@me/notes/{user_id}` | api | `PutNoteRequest` | 204 No Content | Set the current user's private note about a user (empty deletes it) |
+| `DELETE` | `/users/@me/notes/{user_id}` | api | — | 204 No Content | Delete the current user's private note about a user |
 | `GET` | `/users/@me/channels` | api | — | `array of Channel` | List DMs and group DMs |
 | `POST` | `/users/@me/channels` | api | `CreateDmRequest` | `Channel` | Open a DM or create a group DM |
 | `GET` | `/users/@me/relationships` | api | — | `array of Relationship` | List relationships |
@@ -500,6 +505,15 @@ A channel mentioned in a message.
 | `type` | `integer` |  |
 | `name` | `string` |  |
 
+### ChannelNotificationOverride
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `channel_id` | `Snowflake` |  |
+| `message_notifications` | `0 or 1 or 2 or null` | 0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild). |
+| `muted` | `boolean` |  |
+| `mute_config` | `?MuteConfig` |  |
+
 ### CustomStatus
 
 A user's custom status.
@@ -761,6 +775,21 @@ A member of a guild.
 | `permissions?` | `PermissionBitset` | Total permissions in the interaction channel; only in interaction payloads. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
 
+### GuildNotificationSettings
+
+The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `guild_id` | `?Snowflake` | null for direct messages and group DMs. |
+| `message_notifications` | `0 or 1 or 2 or null` | 0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild). |
+| `suppress_everyone` | `boolean` | Suppress @everyone and @here. |
+| `suppress_roles` | `boolean` | Suppress all role @mentions. |
+| `muted` | `boolean` |  |
+| `mute_config` | `?MuteConfig` | Present while muted. |
+| `hide_muted_channels` | `boolean` |  |
+| `channel_overrides` | `array of ChannelNotificationOverride` | Only channels with a non-default override. |
+
 ### InstallParams
 
 Default scopes and permissions for the bot invite.
@@ -951,6 +980,14 @@ Reference to another message (reply, forward, crosspost).
 | `channel_id?` | `Snowflake` |  |
 | `guild_id?` | `Snowflake` |  |
 | `fail_if_not_exists?` | `boolean` |  |
+
+### MuteConfig
+
+When a mute ends. end_time null means until turned off; an end_time in the past means the mute has expired and is ignored.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `end_time` | `?string (date-time)` |  |
 
 ### PartialChannel
 
@@ -1160,6 +1197,16 @@ A Discordy user (Discord v10 User object).
 | `email?` | `?string` | Only returned for the current user. |
 | `flags?` | `integer` |  |
 | `public_flags?` | `integer` |  |
+
+### UserNote
+
+A private note the current user wrote about another user. Visible only to its author.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `user_id` | `Snowflake` | The author (the current user). |
+| `note_user_id` | `Snowflake` | The user the note is about. |
+| `note` | `string` |  |
 
 ### UserSettings
 
@@ -1635,6 +1682,20 @@ PATCH /guilds/{id}/emojis/{eid} body.
 | `name?` | `string` |  |
 | `roles?` | `?array of Snowflake` |  |
 
+### ModifyGuildNotificationSettingsRequest
+
+PATCH /users/@me/guilds/{guild_id|@me}/settings body (partial). Muting with muted true and no mute_config mutes until turned off; muted false clears the mute. channel_overrides entries are merged per channel_id (omitted fields keep their value); an entry left with no level and no mute is deleted.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `message_notifications?` | `0 or 1 or 2 or 3 or null` | 0 all, 1 mentions, 2 nothing; null or 3 inherits. |
+| `suppress_everyone?` | `boolean` |  |
+| `suppress_roles?` | `boolean` |  |
+| `muted?` | `boolean` |  |
+| `mute_config?` | `?object` |  |
+| `hide_muted_channels?` | `boolean` |  |
+| `channel_overrides?` | `array of object` |  |
+
 ### ModifyGuildRequest
 
 PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
@@ -1750,6 +1811,14 @@ A device's public identity, as listed by GET /users/{id}/devices.
 | --- | --- | --- |
 | `device_id` | `Snowflake` |  |
 | `identity_key_b64` | `string` |  |
+
+### PutNoteRequest
+
+PUT /users/@me/notes/{user_id} body. An empty or missing note deletes the note.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `note?` | `?string` |  |
 
 ### PutRelationshipRequest
 

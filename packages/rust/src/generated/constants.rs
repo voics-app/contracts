@@ -388,6 +388,8 @@ pub mod dispatch_events {
     pub const MESSAGE_ACK: &str = "MESSAGE_ACK";
     pub const USER_UPDATE: &str = "USER_UPDATE";
     pub const USER_SETTINGS_UPDATE: &str = "USER_SETTINGS_UPDATE";
+    pub const USER_GUILD_SETTINGS_UPDATE: &str = "USER_GUILD_SETTINGS_UPDATE";
+    pub const USER_NOTE_UPDATE: &str = "USER_NOTE_UPDATE";
     pub const RELATIONSHIP_ADD: &str = "RELATIONSHIP_ADD";
     pub const RELATIONSHIP_REMOVE: &str = "RELATIONSHIP_REMOVE";
     pub const CHANNEL_RECIPIENT_ADD: &str = "CHANNEL_RECIPIENT_ADD";
@@ -443,6 +445,8 @@ pub mod dispatch_events {
         ("MESSAGE_ACK", MESSAGE_ACK),
         ("USER_UPDATE", USER_UPDATE),
         ("USER_SETTINGS_UPDATE", USER_SETTINGS_UPDATE),
+        ("USER_GUILD_SETTINGS_UPDATE", USER_GUILD_SETTINGS_UPDATE),
+        ("USER_NOTE_UPDATE", USER_NOTE_UPDATE),
         ("RELATIONSHIP_ADD", RELATIONSHIP_ADD),
         ("RELATIONSHIP_REMOVE", RELATIONSHIP_REMOVE),
         ("CHANNEL_RECIPIENT_ADD", CHANNEL_RECIPIENT_ADD),
@@ -639,6 +643,8 @@ pub mod event_topics {
     pub const MESSAGE_ACK: &str = "discordy.message.v1";
     pub const USER_UPDATE: &str = "discordy.user.v1";
     pub const USER_SETTINGS_UPDATE: &str = "discordy.user.v1";
+    pub const USER_GUILD_SETTINGS_UPDATE: &str = "discordy.user.v1";
+    pub const USER_NOTE_UPDATE: &str = "discordy.user.v1";
     pub const RELATIONSHIP_ADD: &str = "discordy.user.v1";
     pub const RELATIONSHIP_REMOVE: &str = "discordy.user.v1";
     pub const CHANNEL_RECIPIENT_ADD: &str = "discordy.user.v1";
@@ -688,6 +694,8 @@ pub mod event_topics {
         ("MESSAGE_ACK", MESSAGE_ACK),
         ("USER_UPDATE", USER_UPDATE),
         ("USER_SETTINGS_UPDATE", USER_SETTINGS_UPDATE),
+        ("USER_GUILD_SETTINGS_UPDATE", USER_GUILD_SETTINGS_UPDATE),
+        ("USER_NOTE_UPDATE", USER_NOTE_UPDATE),
         ("RELATIONSHIP_ADD", RELATIONSHIP_ADD),
         ("RELATIONSHIP_REMOVE", RELATIONSHIP_REMOVE),
         ("CHANNEL_RECIPIENT_ADD", CHANNEL_RECIPIENT_ADD),

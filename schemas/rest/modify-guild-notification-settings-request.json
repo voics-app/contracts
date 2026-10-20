@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-guild-notification-settings-request.json",
+  "title": "ModifyGuildNotificationSettingsRequest",
+  "description": "PATCH /users/@me/guilds/{guild_id|@me}/settings body (partial). Muting with muted true and no mute_config mutes until turned off; muted false clears the mute. channel_overrides entries are merged per channel_id (omitted fields keep their value); an entry left with no level and no mute is deleted.",
+  "type": "object",
+  "properties": {
+    "message_notifications": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        null
+      ],
+      "description": "0 all, 1 mentions, 2 nothing; null or 3 inherits."
+    },
+    "suppress_everyone": {
+      "type": "boolean"
+    },
+    "suppress_roles": {
+      "type": "boolean"
+    },
+    "muted": {
+      "type": "boolean"
+    },
+    "mute_config": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "end_time": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "selected_time_window": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set."
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "hide_muted_channels": {
+      "type": "boolean"
+    },
+    "channel_overrides": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "required": [
+          "channel_id"
+        ],
+        "properties": {
+          "channel_id": {
+            "$ref": "../objects/snowflake.json"
+          },
+          "message_notifications": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              null
+            ],
+            "description": "0 all, 1 mentions, 2 nothing; null or 3 inherits."
+          },
+          "muted": {
+            "type": "boolean"
+          },
+          "mute_config": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "end_time": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "date-time"
+                  },
+                  "selected_time_window": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "description": "Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set."
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

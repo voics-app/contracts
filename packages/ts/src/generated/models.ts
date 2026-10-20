@@ -649,6 +649,25 @@ export interface ChannelMention {
   name: string;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "ChannelNotificationOverride".
+ */
+export interface ChannelNotificationOverride {
+  channel_id: Snowflake;
+  /**
+   * 0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild).
+   */
+  message_notifications: 0 | 1 | 2 | null;
+  muted: boolean;
+  mute_config: MuteConfig | null;
+}
+/**
+ * When a mute ends. end_time null means until turned off; an end_time in the past means the mute has expired and is ignored.
+ */
+export interface MuteConfig {
+  end_time: string | null;
+}
+/**
  * CHANNEL_PINS_UPDATE dispatch.
  */
 export interface ChannelPinsUpdateEvent {
@@ -1511,6 +1530,37 @@ export interface GuildMembersChunkEvent {
   nonce?: string;
 }
 /**
+ * The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
+ */
+export interface GuildNotificationSettings {
+  /**
+   * null for direct messages and group DMs.
+   */
+  guild_id: Snowflake | null;
+  /**
+   * 0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild).
+   */
+  message_notifications: 0 | 1 | 2 | null;
+  /**
+   * Suppress @everyone and @here.
+   */
+  suppress_everyone: boolean;
+  /**
+   * Suppress all role @mentions.
+   */
+  suppress_roles: boolean;
+  muted: boolean;
+  /**
+   * Present while muted.
+   */
+  mute_config: MuteConfig | null;
+  hide_muted_channels: boolean;
+  /**
+   * Only channels with a non-default override.
+   */
+  channel_overrides: ChannelNotificationOverride[];
+}
+/**
  * GUILD_ROLE_DELETE dispatch.
  */
 export interface GuildRoleDeleteEvent {
@@ -2054,6 +2104,44 @@ export interface ModifyEmojiRequest {
   roles?: Snowflake[] | null;
 }
 /**
+ * PATCH /users/@me/guilds/{guild_id|@me}/settings body (partial). Muting with muted true and no mute_config mutes until turned off; muted false clears the mute. channel_overrides entries are merged per channel_id (omitted fields keep their value); an entry left with no level and no mute is deleted.
+ */
+export interface ModifyGuildNotificationSettingsRequest {
+  /**
+   * 0 all, 1 mentions, 2 nothing; null or 3 inherits.
+   */
+  message_notifications?: 0 | 1 | 2 | 3 | null;
+  suppress_everyone?: boolean;
+  suppress_roles?: boolean;
+  muted?: boolean;
+  mute_config?: {
+    end_time?: string | null;
+    /**
+     * Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set.
+     */
+    selected_time_window?: number | null;
+  } | null;
+  hide_muted_channels?: boolean;
+  /**
+   * @maxItems 1000
+   */
+  channel_overrides?: {
+    channel_id: Snowflake;
+    /**
+     * 0 all, 1 mentions, 2 nothing; null or 3 inherits.
+     */
+    message_notifications?: 0 | 1 | 2 | 3 | null;
+    muted?: boolean;
+    mute_config?: {
+      end_time?: string | null;
+      /**
+       * Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set.
+       */
+      selected_time_window?: number | null;
+    } | null;
+  }[];
+}
+/**
  * PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
  */
 export interface ModifyGuildRequest {
@@ -2183,6 +2271,12 @@ export interface PublicDevice {
   identity_key_b64: string;
 }
 /**
+ * PUT /users/@me/notes/{user_id} body. An empty or missing note deletes the note.
+ */
+export interface PutNoteRequest {
+  note?: string | null;
+}
+/**
  * PUT /users/@me/relationships/{id} body. Omit type to send or accept a friend request.
  */
 export interface PutRelationshipRequest {
@@ -2207,6 +2301,16 @@ export interface ReadyEvent {
   private_channels: Channel[];
   relationships: Relationship[];
   user_settings: UserSettings;
+  /**
+   * Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults.
+   */
+  user_guild_settings: GuildNotificationSettings[];
+  /**
+   * The user's private notes keyed by the noted user's id.
+   */
+  notes: {
+    [k: string]: string | undefined;
+  };
   /**
    * Gateway version (1).
    */
@@ -2505,6 +2609,21 @@ export interface UsageTickEvent {
   region?: string;
 }
 /**
+ * A private note the current user wrote about another user. Visible only to its author.
+ */
+export interface UserNote {
+  user_id: Snowflake;
+  note_user_id: Snowflake;
+  note: string;
+}
+/**
+ * USER_NOTE_UPDATE dispatch, sent to the author's sessions only. An empty note means the note was removed.
+ */
+export interface UserNoteUpdateEvent {
+  id: Snowflake;
+  note: string;
+}
+/**
  * GET /internal/v1/users/{user_id}/ready: the state used to build READY.
  */
 export interface UserReadyState {
@@ -2513,6 +2632,16 @@ export interface UserReadyState {
   private_channels: Channel[];
   relationships: Relationship[];
   user_settings: UserSettings;
+  /**
+   * Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults.
+   */
+  user_guild_settings: GuildNotificationSettings[];
+  /**
+   * The user's private notes keyed by the noted user's id.
+   */
+  notes: {
+    [k: string]: string | undefined;
+  };
 }
 /**
  * Voice op 12 VIDEO.

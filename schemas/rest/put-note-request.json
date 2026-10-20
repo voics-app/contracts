@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/put-note-request.json",
+  "title": "PutNoteRequest",
+  "description": "PUT /users/@me/notes/{user_id} body. An empty or missing note deletes the note.",
+  "type": "object",
+  "properties": {
+    "note": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 256
+    }
+  }
+}

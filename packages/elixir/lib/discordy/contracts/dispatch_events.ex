@@ -130,6 +130,12 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec user_settings_update() :: String.t()
   def user_settings_update, do: "USER_SETTINGS_UPDATE"
 
+  @spec user_guild_settings_update() :: String.t()
+  def user_guild_settings_update, do: "USER_GUILD_SETTINGS_UPDATE"
+
+  @spec user_note_update() :: String.t()
+  def user_note_update, do: "USER_NOTE_UPDATE"
+
   @spec relationship_add() :: String.t()
   def relationship_add, do: "RELATIONSHIP_ADD"
 
@@ -197,6 +203,8 @@ defmodule Discordy.Contracts.DispatchEvents do
       message_ack: "MESSAGE_ACK",
       user_update: "USER_UPDATE",
       user_settings_update: "USER_SETTINGS_UPDATE",
+      user_guild_settings_update: "USER_GUILD_SETTINGS_UPDATE",
+      user_note_update: "USER_NOTE_UPDATE",
       relationship_add: "RELATIONSHIP_ADD",
       relationship_remove: "RELATIONSHIP_REMOVE",
       channel_recipient_add: "CHANNEL_RECIPIENT_ADD",

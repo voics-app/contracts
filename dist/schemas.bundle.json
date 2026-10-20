@@ -1396,6 +1396,47 @@
         }
       }
     },
+    "ChannelNotificationOverride": {
+      "title": "ChannelNotificationOverride",
+      "type": "object",
+      "required": [
+        "channel_id",
+        "message_notifications",
+        "muted",
+        "mute_config"
+      ],
+      "properties": {
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "message_notifications": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "enum": [
+            0,
+            1,
+            2,
+            null
+          ],
+          "description": "0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild)."
+        },
+        "muted": {
+          "type": "boolean"
+        },
+        "mute_config": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MuteConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "ChannelPinsUpdateEvent": {
       "title": "ChannelPinsUpdateEvent",
       "description": "CHANNEL_PINS_UPDATE dispatch.",
@@ -3534,6 +3575,79 @@
         }
       }
     },
+    "GuildNotificationSettings": {
+      "title": "GuildNotificationSettings",
+      "description": "The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.",
+      "type": "object",
+      "required": [
+        "guild_id",
+        "message_notifications",
+        "suppress_everyone",
+        "suppress_roles",
+        "muted",
+        "mute_config",
+        "hide_muted_channels",
+        "channel_overrides"
+      ],
+      "properties": {
+        "guild_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "null for direct messages and group DMs."
+        },
+        "message_notifications": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "enum": [
+            0,
+            1,
+            2,
+            null
+          ],
+          "description": "0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild)."
+        },
+        "suppress_everyone": {
+          "type": "boolean",
+          "description": "Suppress @everyone and @here."
+        },
+        "suppress_roles": {
+          "type": "boolean",
+          "description": "Suppress all role @mentions."
+        },
+        "muted": {
+          "type": "boolean"
+        },
+        "mute_config": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MuteConfig"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Present while muted."
+        },
+        "hide_muted_channels": {
+          "type": "boolean"
+        },
+        "channel_overrides": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChannelNotificationOverride"
+          },
+          "description": "Only channels with a non-default override."
+        }
+      }
+    },
     "GuildRoleDeleteEvent": {
       "title": "GuildRoleDeleteEvent",
       "description": "GUILD_ROLE_DELETE dispatch.",
@@ -5039,6 +5153,123 @@
         }
       }
     },
+    "ModifyGuildNotificationSettingsRequest": {
+      "title": "ModifyGuildNotificationSettingsRequest",
+      "description": "PATCH /users/@me/guilds/{guild_id|@me}/settings body (partial). Muting with muted true and no mute_config mutes until turned off; muted false clears the mute. channel_overrides entries are merged per channel_id (omitted fields keep their value); an entry left with no level and no mute is deleted.",
+      "type": "object",
+      "properties": {
+        "message_notifications": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "enum": [
+            0,
+            1,
+            2,
+            3,
+            null
+          ],
+          "description": "0 all, 1 mentions, 2 nothing; null or 3 inherits."
+        },
+        "suppress_everyone": {
+          "type": "boolean"
+        },
+        "suppress_roles": {
+          "type": "boolean"
+        },
+        "muted": {
+          "type": "boolean"
+        },
+        "mute_config": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "end_time": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "selected_time_window": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "description": "Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set."
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hide_muted_channels": {
+          "type": "boolean"
+        },
+        "channel_overrides": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "object",
+            "required": [
+              "channel_id"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "message_notifications": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "enum": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  null
+                ],
+                "description": "0 all, 1 mentions, 2 nothing; null or 3 inherits."
+              },
+              "muted": {
+                "type": "boolean"
+              },
+              "mute_config": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "end_time": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date-time"
+                      },
+                      "selected_time_window": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "description": "Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set."
+                      }
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     "ModifyGuildRequest": {
       "title": "ModifyGuildRequest",
       "description": "PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.",
@@ -5257,6 +5488,23 @@
         },
         "channel_id": {
           "$ref": "#/$defs/Snowflake"
+        }
+      }
+    },
+    "MuteConfig": {
+      "title": "MuteConfig",
+      "description": "When a mute ends. end_time null means until turned off; an end_time in the past means the mute has expired and is ignored.",
+      "type": "object",
+      "required": [
+        "end_time"
+      ],
+      "properties": {
+        "end_time": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
         }
       }
     },
@@ -5597,6 +5845,20 @@
         }
       }
     },
+    "PutNoteRequest": {
+      "title": "PutNoteRequest",
+      "description": "PUT /users/@me/notes/{user_id} body. An empty or missing note deletes the note.",
+      "type": "object",
+      "properties": {
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 256
+        }
+      }
+    },
     "PutRelationshipRequest": {
       "title": "PutRelationshipRequest",
       "description": "PUT /users/@me/relationships/{id} body. Omit type to send or accept a friend request.",
@@ -5688,6 +5950,8 @@
         "private_channels",
         "relationships",
         "user_settings",
+        "user_guild_settings",
+        "notes",
         "v",
         "session_id",
         "resume_gateway_url"
@@ -5716,6 +5980,21 @@
         },
         "user_settings": {
           "$ref": "#/$defs/UserSettings"
+        },
+        "user_guild_settings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GuildNotificationSettings"
+          },
+          "description": "Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults."
+        },
+        "notes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "description": "The user's private notes keyed by the noted user's id."
         },
         "v": {
           "type": "integer",
@@ -6717,6 +6996,50 @@
         }
       }
     },
+    "UserNote": {
+      "title": "UserNote",
+      "description": "A private note the current user wrote about another user. Visible only to its author.",
+      "type": "object",
+      "required": [
+        "user_id",
+        "note_user_id",
+        "note"
+      ],
+      "properties": {
+        "user_id": {
+          "$ref": "#/$defs/Snowflake",
+          "description": "The author (the current user)."
+        },
+        "note_user_id": {
+          "$ref": "#/$defs/Snowflake",
+          "description": "The user the note is about."
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "UserNoteUpdateEvent": {
+      "title": "UserNoteUpdateEvent",
+      "description": "USER_NOTE_UPDATE dispatch, sent to the author's sessions only. An empty note means the note was removed.",
+      "type": "object",
+      "required": [
+        "id",
+        "note"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake",
+          "description": "The user the note is about."
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 256
+        }
+      }
+    },
     "UserReadyState": {
       "title": "UserReadyState",
       "description": "GET /internal/v1/users/{user_id}/ready: the state used to build READY.",
@@ -6726,7 +7049,9 @@
         "guilds",
         "private_channels",
         "relationships",
-        "user_settings"
+        "user_settings",
+        "user_guild_settings",
+        "notes"
       ],
       "properties": {
         "user": {
@@ -6752,6 +7077,21 @@
         },
         "user_settings": {
           "$ref": "#/$defs/UserSettings"
+        },
+        "user_guild_settings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GuildNotificationSettings"
+          },
+          "description": "Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults."
+        },
+        "notes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "description": "The user's private notes keyed by the noted user's id."
         }
       }
     },

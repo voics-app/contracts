@@ -9,7 +9,9 @@
     "guilds",
     "private_channels",
     "relationships",
-    "user_settings"
+    "user_settings",
+    "user_guild_settings",
+    "notes"
   ],
   "properties": {
     "user": {
@@ -35,6 +37,21 @@
     },
     "user_settings": {
       "$ref": "../objects/user-settings.json"
+    },
+    "user_guild_settings": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/guild-notification-settings.json"
+      },
+      "description": "Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults."
+    },
+    "notes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 256
+      },
+      "description": "The user's private notes keyed by the noted user's id."
     }
   }
 }

@@ -561,6 +561,199 @@
         }
       }
     },
+    "/users/@me/guilds/{guild_id}/settings": {
+      "parameters": [
+        {
+          "name": "guild_id",
+          "in": "path",
+          "required": true,
+          "description": "Guild ID, or `@me` for direct messages and group DMs.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getGuildNotificationSettings",
+        "summary": "Get the current user's notification settings for a guild (or `@me` for DMs)",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildNotificationSettings"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "modifyGuildNotificationSettings",
+        "summary": "Modify the current user's notification settings for a guild (or `@me` for DMs)",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyGuildNotificationSettingsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildNotificationSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/notes/{user_id}": {
+      "get": {
+        "operationId": "getUserNote",
+        "summary": "Get the current user's private note about a user (404 when none)",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserNote"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putUserNote",
+        "summary": "Set the current user's private note about a user (empty deletes it)",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutNoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteUserNote",
+        "summary": "Delete the current user's private note about a user",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/users/@me/channels": {
       "get": {
         "operationId": "listPrivateChannels",
@@ -5803,6 +5996,47 @@
           }
         }
       },
+      "ChannelNotificationOverride": {
+        "title": "ChannelNotificationOverride",
+        "type": "object",
+        "required": [
+          "channel_id",
+          "message_notifications",
+          "muted",
+          "mute_config"
+        ],
+        "properties": {
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "message_notifications": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              2,
+              null
+            ],
+            "description": "0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild)."
+          },
+          "muted": {
+            "type": "boolean"
+          },
+          "mute_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MuteConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
       "ChannelPosition": {
         "title": "ChannelPosition",
         "description": "One entry of PATCH /guilds/{id}/channels.",
@@ -7030,6 +7264,79 @@
           }
         }
       },
+      "GuildNotificationSettings": {
+        "title": "GuildNotificationSettings",
+        "description": "The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.",
+        "type": "object",
+        "required": [
+          "guild_id",
+          "message_notifications",
+          "suppress_everyone",
+          "suppress_roles",
+          "muted",
+          "mute_config",
+          "hide_muted_channels",
+          "channel_overrides"
+        ],
+        "properties": {
+          "guild_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null for direct messages and group DMs."
+          },
+          "message_notifications": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              2,
+              null
+            ],
+            "description": "0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild)."
+          },
+          "suppress_everyone": {
+            "type": "boolean",
+            "description": "Suppress @everyone and @here."
+          },
+          "suppress_roles": {
+            "type": "boolean",
+            "description": "Suppress all role @mentions."
+          },
+          "muted": {
+            "type": "boolean"
+          },
+          "mute_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MuteConfig"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Present while muted."
+          },
+          "hide_muted_channels": {
+            "type": "boolean"
+          },
+          "channel_overrides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelNotificationOverride"
+            },
+            "description": "Only channels with a non-default override."
+          }
+        }
+      },
       "InstallParams": {
         "title": "InstallParams",
         "description": "Default scopes and permissions for the bot invite.",
@@ -7717,6 +8024,123 @@
           }
         }
       },
+      "ModifyGuildNotificationSettingsRequest": {
+        "title": "ModifyGuildNotificationSettingsRequest",
+        "description": "PATCH /users/@me/guilds/{guild_id|@me}/settings body (partial). Muting with muted true and no mute_config mutes until turned off; muted false clears the mute. channel_overrides entries are merged per channel_id (omitted fields keep their value); an entry left with no level and no mute is deleted.",
+        "type": "object",
+        "properties": {
+          "message_notifications": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              null
+            ],
+            "description": "0 all, 1 mentions, 2 nothing; null or 3 inherits."
+          },
+          "suppress_everyone": {
+            "type": "boolean"
+          },
+          "suppress_roles": {
+            "type": "boolean"
+          },
+          "muted": {
+            "type": "boolean"
+          },
+          "mute_config": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "end_time": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "date-time"
+                  },
+                  "selected_time_window": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "description": "Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set."
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hide_muted_channels": {
+            "type": "boolean"
+          },
+          "channel_overrides": {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "type": "object",
+              "required": [
+                "channel_id"
+              ],
+              "properties": {
+                "channel_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "message_notifications": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    null
+                  ],
+                  "description": "0 all, 1 mentions, 2 nothing; null or 3 inherits."
+                },
+                "muted": {
+                  "type": "boolean"
+                },
+                "mute_config": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "end_time": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time"
+                        },
+                        "selected_time_window": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set."
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
       "ModifyGuildRequest": {
         "title": "ModifyGuildRequest",
         "description": "PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.",
@@ -7938,6 +8362,23 @@
           }
         }
       },
+      "MuteConfig": {
+        "title": "MuteConfig",
+        "description": "When a mute ends. end_time null means until turned off; an end_time in the past means the mute has expired and is ignored.",
+        "type": "object",
+        "required": [
+          "end_time"
+        ],
+        "properties": {
+          "end_time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
       "OAuth2AuthorizeInfo": {
         "title": "OAuth2AuthorizeInfo",
         "description": "GET /oauth2/authorize response: what the bot invite screen shows.",
@@ -8118,6 +8559,20 @@
           },
           "identity_key_b64": {
             "type": "string"
+          }
+        }
+      },
+      "PutNoteRequest": {
+        "title": "PutNoteRequest",
+        "description": "PUT /users/@me/notes/{user_id} body. An empty or missing note deletes the note.",
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 256
           }
         }
       },
@@ -8594,6 +9049,31 @@
           },
           "public_flags": {
             "type": "integer"
+          }
+        }
+      },
+      "UserNote": {
+        "title": "UserNote",
+        "description": "A private note the current user wrote about another user. Visible only to its author.",
+        "type": "object",
+        "required": [
+          "user_id",
+          "note_user_id",
+          "note"
+        ],
+        "properties": {
+          "user_id": {
+            "$ref": "#/components/schemas/Snowflake",
+            "description": "The author (the current user)."
+          },
+          "note_user_id": {
+            "$ref": "#/components/schemas/Snowflake",
+            "description": "The user the note is about."
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
           }
         }
       },
