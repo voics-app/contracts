@@ -1091,6 +1091,9 @@ export interface components {
          * @description POST /channels/{id}/messages/{mid}/ack body.
          */
         AckRequest: {
+            /** @description When true the read marker is set to exactly this message, even backwards (Mark Unread). Without it the marker only moves forward. */
+            manual?: boolean;
+            /** @description Unread mention count to keep after a manual ack (default 0). */
             mention_count?: number;
         };
         /**
