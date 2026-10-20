@@ -971,6 +971,47 @@
           }
         }
       },
+      "ChannelNotificationOverride": {
+        "title": "ChannelNotificationOverride",
+        "type": "object",
+        "required": [
+          "channel_id",
+          "message_notifications",
+          "muted",
+          "mute_config"
+        ],
+        "properties": {
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "message_notifications": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              2,
+              null
+            ],
+            "description": "0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild)."
+          },
+          "muted": {
+            "type": "boolean"
+          },
+          "mute_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MuteConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
       "ClientStatus": {
         "title": "ClientStatus",
         "description": "Status per platform.",
@@ -1512,6 +1553,79 @@
           }
         }
       },
+      "GuildNotificationSettings": {
+        "title": "GuildNotificationSettings",
+        "description": "The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.",
+        "type": "object",
+        "required": [
+          "guild_id",
+          "message_notifications",
+          "suppress_everyone",
+          "suppress_roles",
+          "muted",
+          "mute_config",
+          "hide_muted_channels",
+          "channel_overrides"
+        ],
+        "properties": {
+          "guild_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null for direct messages and group DMs."
+          },
+          "message_notifications": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              2,
+              null
+            ],
+            "description": "0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild)."
+          },
+          "suppress_everyone": {
+            "type": "boolean",
+            "description": "Suppress @everyone and @here."
+          },
+          "suppress_roles": {
+            "type": "boolean",
+            "description": "Suppress all role @mentions."
+          },
+          "muted": {
+            "type": "boolean"
+          },
+          "mute_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MuteConfig"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Present while muted."
+          },
+          "hide_muted_channels": {
+            "type": "boolean"
+          },
+          "channel_overrides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelNotificationOverride"
+            },
+            "description": "Only channels with a non-default override."
+          }
+        }
+      },
       "IntrospectRequest": {
         "title": "IntrospectRequest",
         "description": "POST /internal/v1/auth/introspect body.",
@@ -1624,6 +1738,23 @@
           "p2p_signaled": {
             "type": "integer",
             "minimum": 0
+          }
+        }
+      },
+      "MuteConfig": {
+        "title": "MuteConfig",
+        "description": "When a mute ends. end_time null means until turned off; an end_time in the past means the mute has expired and is ignored.",
+        "type": "object",
+        "required": [
+          "end_time"
+        ],
+        "properties": {
+          "end_time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
           }
         }
       },
@@ -2015,7 +2146,9 @@
           "guilds",
           "private_channels",
           "relationships",
-          "user_settings"
+          "user_settings",
+          "user_guild_settings",
+          "notes"
         ],
         "properties": {
           "user": {
@@ -2041,6 +2174,21 @@
           },
           "user_settings": {
             "$ref": "#/components/schemas/UserSettings"
+          },
+          "user_guild_settings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuildNotificationSettings"
+            },
+            "description": "Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults."
+          },
+          "notes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "description": "The user's private notes keyed by the noted user's id."
           }
         }
       },

@@ -352,6 +352,128 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /users/@me/guilds/{guild_id}/settings:
+    parameters:
+      - name: guild_id
+        in: path
+        required: true
+        description: Guild ID, or `@me` for direct messages and group DMs.
+        schema:
+          type: string
+    get:
+      operationId: getGuildNotificationSettings
+      summary: Get the current user's notification settings for a guild (or `@me` for DMs)
+      tags:
+        - Users
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild-notification-settings.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyGuildNotificationSettings
+      summary: Modify the current user's notification settings for a guild (or `@me` for DMs)
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-guild-notification-settings-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild-notification-settings.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/notes/{user_id}:
+    get:
+      operationId: getUserNote
+      summary: Get the current user's private note about a user (404 when none)
+      tags:
+        - Users
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/user-note.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    put:
+      operationId: putUserNote
+      summary: Set the current user's private note about a user (empty deletes it)
+      tags:
+        - Users
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/put-note-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteUserNote
+      summary: Delete the current user's private note about a user
+      tags:
+        - Users
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "204":
+          description: No content.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /users/@me/channels:
     get:
       operationId: listPrivateChannels

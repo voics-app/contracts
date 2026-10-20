@@ -726,6 +726,52 @@ pub struct ChannelMention {
     #[serde(rename = "type")]
     pub type_: i64,
 }
+///`ChannelNotificationOverride`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ChannelNotificationOverride {
+    pub channel_id: Snowflake,
+    ///0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild).
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub message_notifications:
+        ::std::option::Option<ChannelNotificationOverrideMessageNotifications>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub mute_config: ::std::option::Option<MuteConfig>,
+    pub muted: bool,
+}
+///0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild).
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ChannelNotificationOverrideMessageNotifications(i64);
+impl ::std::ops::Deref for ChannelNotificationOverrideMessageNotifications {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<ChannelNotificationOverrideMessageNotifications> for i64 {
+    fn from(value: ChannelNotificationOverrideMessageNotifications) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for ChannelNotificationOverrideMessageNotifications {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![0_i64, 1_i64, 2_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ChannelNotificationOverrideMessageNotifications {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
 ///CHANNEL_PINS_UPDATE dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct ChannelPinsUpdateEvent {
@@ -2208,6 +2254,61 @@ pub struct GuildMembersChunkEvent {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub presences: ::std::vec::Vec<PresenceUpdateEvent>,
 }
+///The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildNotificationSettings {
+    ///Only channels with a non-default override.
+    pub channel_overrides: ::std::vec::Vec<ChannelNotificationOverride>,
+    ///null for direct messages and group DMs.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub guild_id: ::std::option::Option<Snowflake>,
+    pub hide_muted_channels: bool,
+    ///0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild).
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub message_notifications: ::std::option::Option<GuildNotificationSettingsMessageNotifications>,
+    ///Present while muted.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub mute_config: ::std::option::Option<MuteConfig>,
+    pub muted: bool,
+    ///Suppress @everyone and @here.
+    pub suppress_everyone: bool,
+    ///Suppress all role @mentions.
+    pub suppress_roles: bool,
+}
+///0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild).
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct GuildNotificationSettingsMessageNotifications(i64);
+impl ::std::ops::Deref for GuildNotificationSettingsMessageNotifications {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildNotificationSettingsMessageNotifications> for i64 {
+    fn from(value: GuildNotificationSettingsMessageNotifications) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for GuildNotificationSettingsMessageNotifications {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![0_i64, 1_i64, 2_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildNotificationSettingsMessageNotifications {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
 ///GUILD_ROLE_DELETE dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildRoleDeleteEvent {
@@ -3243,6 +3344,140 @@ pub struct ModifyEmojiRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub roles: ::std::option::Option<::std::vec::Vec<Snowflake>>,
 }
+///PATCH /users/@me/guilds/{guild_id|@me}/settings body (partial). Muting with muted true and no mute_config mutes until turned off; muted false clears the mute. channel_overrides entries are merged per channel_id (omitted fields keep their value); an entry left with no level and no mute is deleted.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct ModifyGuildNotificationSettingsRequest {
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub channel_overrides:
+        ::std::vec::Vec<ModifyGuildNotificationSettingsRequestChannelOverridesItem>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub hide_muted_channels: ::std::option::Option<bool>,
+    ///0 all, 1 mentions, 2 nothing; null or 3 inherits.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub message_notifications:
+        ::std::option::Option<ModifyGuildNotificationSettingsRequestMessageNotifications>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub mute_config: ::std::option::Option<ModifyGuildNotificationSettingsRequestMuteConfig>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub muted: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub suppress_everyone: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub suppress_roles: ::std::option::Option<bool>,
+}
+///`ModifyGuildNotificationSettingsRequestChannelOverridesItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ModifyGuildNotificationSettingsRequestChannelOverridesItem {
+    pub channel_id: Snowflake,
+    ///0 all, 1 mentions, 2 nothing; null or 3 inherits.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub message_notifications: ::std::option::Option<
+        ModifyGuildNotificationSettingsRequestChannelOverridesItemMessageNotifications,
+    >,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub mute_config:
+        ::std::option::Option<ModifyGuildNotificationSettingsRequestChannelOverridesItemMuteConfig>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub muted: ::std::option::Option<bool>,
+}
+///0 all, 1 mentions, 2 nothing; null or 3 inherits.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ModifyGuildNotificationSettingsRequestChannelOverridesItemMessageNotifications(i64);
+impl ::std::ops::Deref
+    for ModifyGuildNotificationSettingsRequestChannelOverridesItemMessageNotifications
+{
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl
+    ::std::convert::From<
+        ModifyGuildNotificationSettingsRequestChannelOverridesItemMessageNotifications,
+    > for i64
+{
+    fn from(
+        value: ModifyGuildNotificationSettingsRequestChannelOverridesItemMessageNotifications,
+    ) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64>
+    for ModifyGuildNotificationSettingsRequestChannelOverridesItemMessageNotifications
+{
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![0_i64, 1_i64, 2_i64, 3_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de>
+    for ModifyGuildNotificationSettingsRequestChannelOverridesItemMessageNotifications
+{
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`ModifyGuildNotificationSettingsRequestChannelOverridesItemMuteConfig`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct ModifyGuildNotificationSettingsRequestChannelOverridesItemMuteConfig {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub end_time: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    ///Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub selected_time_window: ::std::option::Option<i64>,
+}
+///0 all, 1 mentions, 2 nothing; null or 3 inherits.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ModifyGuildNotificationSettingsRequestMessageNotifications(i64);
+impl ::std::ops::Deref for ModifyGuildNotificationSettingsRequestMessageNotifications {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyGuildNotificationSettingsRequestMessageNotifications> for i64 {
+    fn from(value: ModifyGuildNotificationSettingsRequestMessageNotifications) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for ModifyGuildNotificationSettingsRequestMessageNotifications {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![0_i64, 1_i64, 2_i64, 3_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyGuildNotificationSettingsRequestMessageNotifications {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`ModifyGuildNotificationSettingsRequestMuteConfig`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct ModifyGuildNotificationSettingsRequestMuteConfig {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub end_time: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    ///Seconds from now (900, 3600, 10800, 28800, 86400, ...), or -1 for until turned off. Ignored when end_time is set.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub selected_time_window: ::std::option::Option<i64>,
+}
 ///PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyGuildRequest {
@@ -3500,6 +3735,12 @@ pub struct ModifyWebhookRequest {
     pub channel_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: ::std::option::Option<::std::string::String>,
+}
+///When a mute ends. end_time null means until turned off; an end_time in the past means the mute has expired and is ignored.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MuteConfig {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub end_time: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
 }
 ///GET /oauth2/authorize response: what the bot invite screen shows.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -3838,6 +4079,62 @@ pub struct PublicDevice {
     pub device_id: Snowflake,
     pub identity_key_b64: ::std::string::String,
 }
+///PUT /users/@me/notes/{user_id} body. An empty or missing note deletes the note.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct PutNoteRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub note: ::std::option::Option<PutNoteRequestNote>,
+}
+///`PutNoteRequestNote`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PutNoteRequestNote(::std::string::String);
+impl ::std::ops::Deref for PutNoteRequestNote {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PutNoteRequestNote> for ::std::string::String {
+    fn from(value: PutNoteRequestNote) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PutNoteRequestNote {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 256usize {
+            return Err("longer than 256 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PutNoteRequestNote {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PutNoteRequestNote {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PutNoteRequestNote {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///PUT /users/@me/relationships/{id} body. Omit type to send or accept a friend request.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct PutRelationshipRequest {
@@ -3876,14 +4173,68 @@ pub struct ReadyEvent {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub application: ::std::option::Option<ReadyApplication>,
     pub guilds: ::std::vec::Vec<GuildFull>,
+    ///The user's private notes keyed by the noted user's id.
+    pub notes: ::std::collections::HashMap<::std::string::String, ReadyEventNotesValue>,
     pub private_channels: ::std::vec::Vec<Channel>,
     pub relationships: ::std::vec::Vec<Relationship>,
     pub resume_gateway_url: ::std::string::String,
     pub session_id: ::std::string::String,
     pub user: User,
+    ///Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults.
+    pub user_guild_settings: ::std::vec::Vec<GuildNotificationSettings>,
     pub user_settings: UserSettings,
     ///Gateway version (1).
     pub v: i64,
+}
+///`ReadyEventNotesValue`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ReadyEventNotesValue(::std::string::String);
+impl ::std::ops::Deref for ReadyEventNotesValue {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ReadyEventNotesValue> for ::std::string::String {
+    fn from(value: ReadyEventNotesValue) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ReadyEventNotesValue {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 256usize {
+            return Err("longer than 256 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ReadyEventNotesValue {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ReadyEventNotesValue {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ReadyEventNotesValue {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///POST /auth/refresh body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -4578,14 +4929,187 @@ pub struct User {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub verified: ::std::option::Option<bool>,
 }
+///A private note the current user wrote about another user. Visible only to its author.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct UserNote {
+    pub note: UserNoteNote,
+    ///The user the note is about.
+    pub note_user_id: Snowflake,
+    ///The author (the current user).
+    pub user_id: Snowflake,
+}
+///`UserNoteNote`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserNoteNote(::std::string::String);
+impl ::std::ops::Deref for UserNoteNote {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserNoteNote> for ::std::string::String {
+    fn from(value: UserNoteNote) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserNoteNote {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 256usize {
+            return Err("longer than 256 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserNoteNote {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserNoteNote {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserNoteNote {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///USER_NOTE_UPDATE dispatch, sent to the author's sessions only. An empty note means the note was removed.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct UserNoteUpdateEvent {
+    ///The user the note is about.
+    pub id: Snowflake,
+    pub note: UserNoteUpdateEventNote,
+}
+///`UserNoteUpdateEventNote`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserNoteUpdateEventNote(::std::string::String);
+impl ::std::ops::Deref for UserNoteUpdateEventNote {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserNoteUpdateEventNote> for ::std::string::String {
+    fn from(value: UserNoteUpdateEventNote) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserNoteUpdateEventNote {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 256usize {
+            return Err("longer than 256 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserNoteUpdateEventNote {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserNoteUpdateEventNote {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserNoteUpdateEventNote {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///GET /internal/v1/users/{user_id}/ready: the state used to build READY.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct UserReadyState {
     pub guilds: ::std::vec::Vec<GuildFull>,
+    ///The user's private notes keyed by the noted user's id.
+    pub notes: ::std::collections::HashMap<::std::string::String, UserReadyStateNotesValue>,
     pub private_channels: ::std::vec::Vec<Channel>,
     pub relationships: ::std::vec::Vec<Relationship>,
     pub user: User,
+    ///Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults.
+    pub user_guild_settings: ::std::vec::Vec<GuildNotificationSettings>,
     pub user_settings: UserSettings,
+}
+///`UserReadyStateNotesValue`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserReadyStateNotesValue(::std::string::String);
+impl ::std::ops::Deref for UserReadyStateNotesValue {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserReadyStateNotesValue> for ::std::string::String {
+    fn from(value: UserReadyStateNotesValue) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserReadyStateNotesValue {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 256usize {
+            return Err("longer than 256 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserReadyStateNotesValue {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserReadyStateNotesValue {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserReadyStateNotesValue {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Account-wide settings of the current user. `default_delivery_mode` is a Discordy extra.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

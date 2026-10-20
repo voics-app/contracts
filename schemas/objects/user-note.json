@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/user-note.json",
+  "title": "UserNote",
+  "description": "A private note the current user wrote about another user. Visible only to its author.",
+  "type": "object",
+  "required": [
+    "user_id",
+    "note_user_id",
+    "note"
+  ],
+  "properties": {
+    "user_id": {
+      "$ref": "./snowflake.json",
+      "description": "The author (the current user)."
+    },
+    "note_user_id": {
+      "$ref": "./snowflake.json",
+      "description": "The user the note is about."
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    }
+  }
+}

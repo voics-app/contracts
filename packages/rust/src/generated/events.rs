@@ -93,6 +93,10 @@ pub enum DispatchEvent {
     UserUpdate(User),
     #[serde(rename = "USER_SETTINGS_UPDATE")]
     UserSettingsUpdate(UserSettings),
+    #[serde(rename = "USER_GUILD_SETTINGS_UPDATE")]
+    UserGuildSettingsUpdate(GuildNotificationSettings),
+    #[serde(rename = "USER_NOTE_UPDATE")]
+    UserNoteUpdate(UserNoteUpdateEvent),
     #[serde(rename = "RELATIONSHIP_ADD")]
     RelationshipAdd(Relationship),
     #[serde(rename = "RELATIONSHIP_REMOVE")]
@@ -157,6 +161,8 @@ impl DispatchEvent {
             Self::MessageAck(_) => "MESSAGE_ACK",
             Self::UserUpdate(_) => "USER_UPDATE",
             Self::UserSettingsUpdate(_) => "USER_SETTINGS_UPDATE",
+            Self::UserGuildSettingsUpdate(_) => "USER_GUILD_SETTINGS_UPDATE",
+            Self::UserNoteUpdate(_) => "USER_NOTE_UPDATE",
             Self::RelationshipAdd(_) => "RELATIONSHIP_ADD",
             Self::RelationshipRemove(_) => "RELATIONSHIP_REMOVE",
             Self::ChannelRecipientAdd(_) => "CHANNEL_RECIPIENT_ADD",
@@ -239,6 +245,10 @@ pub enum BusEvent {
     UserUpdate(User),
     #[serde(rename = "USER_SETTINGS_UPDATE")]
     UserSettingsUpdate(UserSettings),
+    #[serde(rename = "USER_GUILD_SETTINGS_UPDATE")]
+    UserGuildSettingsUpdate(GuildNotificationSettings),
+    #[serde(rename = "USER_NOTE_UPDATE")]
+    UserNoteUpdate(UserNoteUpdateEvent),
     #[serde(rename = "RELATIONSHIP_ADD")]
     RelationshipAdd(Relationship),
     #[serde(rename = "RELATIONSHIP_REMOVE")]
@@ -300,6 +310,8 @@ impl BusEvent {
             Self::MessageAck(_) => "MESSAGE_ACK",
             Self::UserUpdate(_) => "USER_UPDATE",
             Self::UserSettingsUpdate(_) => "USER_SETTINGS_UPDATE",
+            Self::UserGuildSettingsUpdate(_) => "USER_GUILD_SETTINGS_UPDATE",
+            Self::UserNoteUpdate(_) => "USER_NOTE_UPDATE",
             Self::RelationshipAdd(_) => "RELATIONSHIP_ADD",
             Self::RelationshipRemove(_) => "RELATIONSHIP_REMOVE",
             Self::ChannelRecipientAdd(_) => "CHANNEL_RECIPIENT_ADD",
