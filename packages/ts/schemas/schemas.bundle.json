@@ -1036,6 +1036,52 @@
         }
       }
     },
+    "BackupCodesResponse": {
+      "title": "BackupCodesResponse",
+      "description": "Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.",
+      "type": "object",
+      "required": [
+        "backup_codes"
+      ],
+      "properties": {
+        "backup_codes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "consumed"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Plaintext code; omitted when only the consumed state is listed."
+              },
+              "consumed": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "BackupCodesVerificationRequest": {
+      "title": "BackupCodesVerificationRequest",
+      "description": "POST /users/@me/mfa/codes-verification body.",
+      "type": "object",
+      "required": [
+        "password"
+      ],
+      "properties": {
+        "password": {
+          "type": "string"
+        },
+        "regenerate": {
+          "type": "boolean",
+          "default": false,
+          "description": "Replaces every backup code and returns the new plaintext codes once."
+        }
+      }
+    },
     "Ban": {
       "title": "Ban",
       "description": "A guild ban.",
@@ -2230,6 +2276,24 @@
         }
       }
     },
+    "DisableTotpRequest": {
+      "title": "DisableTotpRequest",
+      "description": "POST /users/@me/mfa/totp/disable body.",
+      "type": "object",
+      "required": [
+        "password",
+        "code"
+      ],
+      "properties": {
+        "password": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string",
+          "description": "Current TOTP code or an unused backup code."
+        }
+      }
+    },
     "E2eeAckPayload": {
       "title": "E2eeAckPayload",
       "description": "Op 21 E2EE_ACK.",
@@ -2773,6 +2837,20 @@
         },
         "thread_name": {
           "type": "string"
+        }
+      }
+    },
+    "ForgotPasswordRequest": {
+      "title": "ForgotPasswordRequest",
+      "description": "POST /auth/forgot-password body.",
+      "type": "object",
+      "required": [
+        "email"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
         }
       }
     },
@@ -4331,8 +4409,7 @@
         },
         "totp": {
           "type": "string",
-          "pattern": "^[0-9]{6}$",
-          "description": "Required when 2FA is enabled."
+          "description": "TOTP code or backup code. When 2FA is enabled and this is absent the api answers 401 with code 60008 and a ticket for POST /auth/mfa/totp."
         }
       }
     },
@@ -4952,6 +5029,48 @@
         }
       }
     },
+    "MfaLoginRequest": {
+      "title": "MfaLoginRequest",
+      "description": "POST /auth/mfa/totp body: completes a login that answered 60008.",
+      "type": "object",
+      "required": [
+        "ticket",
+        "code"
+      ],
+      "properties": {
+        "ticket": {
+          "type": "string",
+          "description": "Single-use ticket returned with error 60008; valid for 5 minutes."
+        },
+        "code": {
+          "type": "string",
+          "description": "Six-digit TOTP code or a backup code such as `abcde-fghij`."
+        }
+      }
+    },
+    "MfaRequiredResponse": {
+      "title": "MfaRequiredResponse",
+      "description": "401 body of POST /auth/login when the password is right but 2FA is enabled and no code was sent.",
+      "type": "object",
+      "required": [
+        "code",
+        "message",
+        "ticket"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "const": 60008
+        },
+        "message": {
+          "type": "string"
+        },
+        "ticket": {
+          "type": "string",
+          "description": "Present to POST /auth/mfa/totp together with a code."
+        }
+      }
+    },
     "ModifyApplicationRequest": {
       "title": "ModifyApplicationRequest",
       "description": "PATCH /applications/{id} body.",
@@ -5099,7 +5218,7 @@
     },
     "ModifyCurrentUserRequest": {
       "title": "ModifyCurrentUserRequest",
-      "description": "PATCH /users/@me body.",
+      "description": "PATCH /users/@me body. `username`, `email` and `new_password` require the current `password`; an email change takes effect once the new address is verified.",
       "type": "object",
       "properties": {
         "username": {
@@ -5131,6 +5250,19 @@
             "integer",
             "null"
           ]
+        },
+        "password": {
+          "type": "string",
+          "description": "Current password; required with username, email or new_password."
+        },
+        "new_password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
         }
       }
     },
@@ -5719,6 +5851,19 @@
         }
       }
     },
+    "PasswordConfirmationRequest": {
+      "title": "PasswordConfirmationRequest",
+      "description": "Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.",
+      "type": "object",
+      "required": [
+        "password"
+      ],
+      "properties": {
+        "password": {
+          "type": "string"
+        }
+      }
+    },
     "PermissionBitset": {
       "title": "PermissionBitset",
       "description": "A 64-bit permission bitfield serialized as a decimal string. Bit values are listed in permissions.json.",
@@ -6145,6 +6290,26 @@
       "properties": {
         "token": {
           "type": "string"
+        }
+      }
+    },
+    "ResetPasswordRequest": {
+      "title": "ResetPasswordRequest",
+      "description": "POST /auth/reset-password body.",
+      "type": "object",
+      "required": [
+        "token",
+        "password"
+      ],
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "Token from the reset email."
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 128
         }
       }
     },
@@ -6808,6 +6973,25 @@
         }
       }
     },
+    "TotpEnrollmentResponse": {
+      "title": "TotpEnrollmentResponse",
+      "description": "A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.",
+      "type": "object",
+      "required": [
+        "secret",
+        "otpauth_uri"
+      ],
+      "properties": {
+        "secret": {
+          "type": "string",
+          "description": "Base32 secret for manual entry."
+        },
+        "otpauth_uri": {
+          "type": "string",
+          "description": "`otpauth://totp/...` URI to render as a QR code."
+        }
+      }
+    },
     "TypingStartEvent": {
       "title": "TypingStartEvent",
       "description": "TYPING_START dispatch.",
@@ -7159,6 +7343,34 @@
             "integer",
             "null"
           ]
+        }
+      }
+    },
+    "VerifyEmailRequest": {
+      "title": "VerifyEmailRequest",
+      "description": "POST /auth/verify-email body.",
+      "type": "object",
+      "required": [
+        "token"
+      ],
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "Token from the verification email."
+        }
+      }
+    },
+    "VerifyTotpRequest": {
+      "title": "VerifyTotpRequest",
+      "description": "POST /users/@me/mfa/totp/verify body.",
+      "type": "object",
+      "required": [
+        "code"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[0-9]{6}$"
         }
       }
     },

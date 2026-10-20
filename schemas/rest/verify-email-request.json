@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/verify-email-request.json",
+  "title": "VerifyEmailRequest",
+  "description": "POST /auth/verify-email body.",
+  "type": "object",
+  "required": [
+    "token"
+  ],
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "Token from the verification email."
+    }
+  }
+}

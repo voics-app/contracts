@@ -155,7 +155,14 @@
             "$ref": "#/components/responses/BadRequest"
           },
           "401": {
-            "$ref": "#/components/responses/Unauthorized"
+            "description": "Code 60008 with a ticket when the password is right, 2FA is enabled and no code was sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MfaRequiredResponse"
+                }
+              }
+            }
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -210,6 +217,176 @@
       "post": {
         "operationId": "logout",
         "summary": "Revoke the current session",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/auth/mfa/totp": {
+      "post": {
+        "operationId": "mfaLoginTotp",
+        "summary": "Complete a login with a TOTP or backup code",
+        "description": "Exchanges the ticket from a 60008 login response and a code for tokens. Wrong codes are rate limited per user and lock the ticket out for a while.",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MfaLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "operationId": "forgotPassword",
+        "summary": "Email a password reset token",
+        "description": "Always answers 204, whether or not the address is registered, so accounts cannot be enumerated. Rate limited per address and per caller.",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "operationId": "resetPassword",
+        "summary": "Set a new password with a reset token",
+        "description": "Revokes every session of the account. Two-factor stays enabled.",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/auth/verify-email": {
+      "post": {
+        "operationId": "verifyEmail",
+        "summary": "Verify an email address with an emailed token",
+        "description": "Marks the account verified; for an email change the new address replaces the old one.",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/auth/resend-verification": {
+      "post": {
+        "operationId": "resendVerification",
+        "summary": "Resend the verification email",
+        "description": "Rate limited. Answers 400 when the account is already verified.",
         "tags": [
           "Auth"
         ],
@@ -442,6 +619,237 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/disable": {
+      "post": {
+        "operationId": "disableAccount",
+        "summary": "Disable the account",
+        "description": "Revokes every session. Logging in again reactivates the account.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordConfirmationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/delete": {
+      "post": {
+        "operationId": "deleteAccount",
+        "summary": "Schedule account deletion",
+        "description": "Revokes every session and schedules deletion after the retention window (14 days); logging in before then cancels it. Refused with 400 while the user still owns guilds.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordConfirmationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/mfa/totp/enable": {
+      "post": {
+        "operationId": "enableTotp",
+        "summary": "Start TOTP enrolment",
+        "description": "Generates a pending secret and returns it with an otpauth URI. 2FA stays off until verified; calling again replaces the pending secret.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordConfirmationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotpEnrollmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/mfa/totp/verify": {
+      "post": {
+        "operationId": "verifyTotp",
+        "summary": "Confirm TOTP enrolment",
+        "description": "Activates 2FA, sets `mfa_enabled`, dispatches USER_UPDATE and returns ten backup codes, shown once. Wrong codes are rate limited.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyTotpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackupCodesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/mfa/totp/disable": {
+      "post": {
+        "operationId": "disableTotp",
+        "summary": "Disable TOTP",
+        "description": "Needs the password and a TOTP or backup code. Removes the secret and every backup code.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisableTotpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/mfa/codes-verification": {
+      "post": {
+        "operationId": "verifyBackupCodes",
+        "summary": "List or regenerate backup codes",
+        "description": "Needs the password. Without `regenerate` it lists consumed states only (codes are hashed at rest); with it, the old codes die and the new plaintext codes are returned once.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BackupCodesVerificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackupCodesResponse"
                 }
               }
             }
@@ -5745,6 +6153,52 @@
           }
         }
       },
+      "BackupCodesResponse": {
+        "title": "BackupCodesResponse",
+        "description": "Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.",
+        "type": "object",
+        "required": [
+          "backup_codes"
+        ],
+        "properties": {
+          "backup_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "consumed"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "Plaintext code; omitted when only the consumed state is listed."
+                },
+                "consumed": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "BackupCodesVerificationRequest": {
+        "title": "BackupCodesVerificationRequest",
+        "description": "POST /users/@me/mfa/codes-verification body.",
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "regenerate": {
+            "type": "boolean",
+            "default": false,
+            "description": "Replaces every backup code and returns the new plaintext codes once."
+          }
+        }
+      },
       "Ban": {
         "title": "Ban",
         "description": "A guild ban.",
@@ -6569,6 +7023,24 @@
           }
         }
       },
+      "DisableTotpRequest": {
+        "title": "DisableTotpRequest",
+        "description": "POST /users/@me/mfa/totp/disable body.",
+        "type": "object",
+        "required": [
+          "password",
+          "code"
+        ],
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "description": "Current TOTP code or an unused backup code."
+          }
+        }
+      },
       "EditMessageRequest": {
         "title": "EditMessageRequest",
         "description": "PATCH /channels/{id}/messages/{mid} body.",
@@ -6964,6 +7436,20 @@
           },
           "thread_name": {
             "type": "string"
+          }
+        }
+      },
+      "ForgotPasswordRequest": {
+        "title": "ForgotPasswordRequest",
+        "description": "POST /auth/forgot-password body.",
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
           }
         }
       },
@@ -7564,8 +8050,7 @@
           },
           "totp": {
             "type": "string",
-            "pattern": "^[0-9]{6}$",
-            "description": "Required when 2FA is enabled."
+            "description": "TOTP code or backup code. When 2FA is enabled and this is absent the api answers 401 with code 60008 and a ticket for POST /auth/mfa/totp."
           }
         }
       },
@@ -7823,6 +8308,48 @@
           }
         }
       },
+      "MfaLoginRequest": {
+        "title": "MfaLoginRequest",
+        "description": "POST /auth/mfa/totp body: completes a login that answered 60008.",
+        "type": "object",
+        "required": [
+          "ticket",
+          "code"
+        ],
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "description": "Single-use ticket returned with error 60008; valid for 5 minutes."
+          },
+          "code": {
+            "type": "string",
+            "description": "Six-digit TOTP code or a backup code such as `abcde-fghij`."
+          }
+        }
+      },
+      "MfaRequiredResponse": {
+        "title": "MfaRequiredResponse",
+        "description": "401 body of POST /auth/login when the password is right but 2FA is enabled and no code was sent.",
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "ticket"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "const": 60008
+          },
+          "message": {
+            "type": "string"
+          },
+          "ticket": {
+            "type": "string",
+            "description": "Present to POST /auth/mfa/totp together with a code."
+          }
+        }
+      },
       "ModifyApplicationRequest": {
         "title": "ModifyApplicationRequest",
         "description": "PATCH /applications/{id} body.",
@@ -7970,7 +8497,7 @@
       },
       "ModifyCurrentUserRequest": {
         "title": "ModifyCurrentUserRequest",
-        "description": "PATCH /users/@me body.",
+        "description": "PATCH /users/@me body. `username`, `email` and `new_password` require the current `password`; an email change takes effect once the new address is verified.",
         "type": "object",
         "properties": {
           "username": {
@@ -8002,6 +8529,19 @@
               "integer",
               "null"
             ]
+          },
+          "password": {
+            "type": "string",
+            "description": "Current password; required with username, email or new_password."
+          },
+          "new_password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
           }
         }
       },
@@ -8510,6 +9050,19 @@
           }
         }
       },
+      "PasswordConfirmationRequest": {
+        "title": "PasswordConfirmationRequest",
+        "description": "Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.",
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "properties": {
+          "password": {
+            "type": "string"
+          }
+        }
+      },
       "PermissionBitset": {
         "title": "PermissionBitset",
         "description": "A 64-bit permission bitfield serialized as a decimal string. Bit values are listed in permissions.json.",
@@ -8722,6 +9275,26 @@
         "properties": {
           "token": {
             "type": "string"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "title": "ResetPasswordRequest",
+        "description": "POST /auth/reset-password body.",
+        "type": "object",
+        "required": [
+          "token",
+          "password"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Token from the reset email."
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128
           }
         }
       },
@@ -8956,6 +9529,25 @@
           }
         }
       },
+      "TotpEnrollmentResponse": {
+        "title": "TotpEnrollmentResponse",
+        "description": "A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.",
+        "type": "object",
+        "required": [
+          "secret",
+          "otpauth_uri"
+        ],
+        "properties": {
+          "secret": {
+            "type": "string",
+            "description": "Base32 secret for manual entry."
+          },
+          "otpauth_uri": {
+            "type": "string",
+            "description": "`otpauth://totp/...` URI to render as a QR code."
+          }
+        }
+      },
       "UploadKeyPackagesRequest": {
         "title": "UploadKeyPackagesRequest",
         "description": "POST /devices/{id}/key-packages body.",
@@ -9141,6 +9733,34 @@
               "integer",
               "null"
             ]
+          }
+        }
+      },
+      "VerifyEmailRequest": {
+        "title": "VerifyEmailRequest",
+        "description": "POST /auth/verify-email body.",
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Token from the verification email."
+          }
+        }
+      },
+      "VerifyTotpRequest": {
+        "title": "VerifyTotpRequest",
+        "description": "POST /users/@me/mfa/totp/verify body.",
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[0-9]{6}$"
           }
         }
       },

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/verify-totp-request.json",
+  "title": "VerifyTotpRequest",
+  "description": "POST /users/@me/mfa/totp/verify body.",
+  "type": "object",
+  "required": [
+    "code"
+  ],
+  "properties": {
+    "code": {
+      "type": "string",
+      "pattern": "^[0-9]{6}$"
+    }
+  }
+}

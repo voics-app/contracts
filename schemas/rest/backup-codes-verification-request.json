@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/backup-codes-verification-request.json",
+  "title": "BackupCodesVerificationRequest",
+  "description": "POST /users/@me/mfa/codes-verification body.",
+  "type": "object",
+  "required": [
+    "password"
+  ],
+  "properties": {
+    "password": {
+      "type": "string"
+    },
+    "regenerate": {
+      "type": "boolean",
+      "default": false,
+      "description": "Replaces every backup code and returns the new plaintext codes once."
+    }
+  }
+}
