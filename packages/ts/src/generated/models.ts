@@ -1778,6 +1778,10 @@ export interface Message {
    */
   nonce?: string;
   pinned: boolean;
+  /**
+   * Only in message search results: true for the matching message, absent for its context messages.
+   */
+  hit?: boolean;
   webhook_id?: Snowflake;
   /**
    * MessageType.
@@ -2029,6 +2033,10 @@ export interface MessageEvent {
    */
   nonce?: string;
   pinned: boolean;
+  /**
+   * Only in message search results: true for the matching message, absent for its context messages.
+   */
+  hit?: boolean;
   webhook_id?: Snowflake;
   /**
    * MessageType.
@@ -2081,6 +2089,23 @@ export interface MessageReactionRemoveEvent {
   emoji: Emoji;
   burst: boolean;
   type: number;
+}
+/**
+ * Result of GET /guilds/{guild_id}/messages/search and GET /channels/{channel_id}/messages/search.
+ */
+export interface MessageSearchResponse {
+  /**
+   * Number of messages that match, across all pages.
+   */
+  total_results: number;
+  /**
+   * One group per hit: the matching message (hit = true) between its context messages, oldest first.
+   */
+  messages: Message[][];
+  /**
+   * True while the search index is being (re)built from stored history; results may be incomplete.
+   */
+  index_building?: boolean;
 }
 /**
  * GET /internal/v1/admin/stats on messages. Counts only, never content.
