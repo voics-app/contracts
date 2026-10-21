@@ -5591,7 +5591,8 @@
             "type": "string"
           },
           "flags": {
-            "type": "integer"
+            "type": "integer",
+            "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler."
           }
         }
       },
@@ -5614,7 +5615,13 @@
             "type": "string"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 1024,
+            "description": "Alt text shown to screen readers and as the image tooltip."
+          },
+          "flags": {
+            "type": "integer",
+            "description": "AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too."
           }
         }
       },
@@ -6793,7 +6800,8 @@
             "type": "string"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich."
           },
           "description": {
             "type": "string"
@@ -6897,7 +6905,7 @@
       },
       "EmbedMedia": {
         "title": "EmbedMedia",
-        "description": "Embed image, thumbnail or video.",
+        "description": "Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.",
         "type": "object",
         "properties": {
           "url": {

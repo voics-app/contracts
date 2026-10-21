@@ -454,6 +454,7 @@ pub struct Attachment {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ephemeral: ::std::option::Option<bool>,
     pub filename: ::std::string::String,
+    ///AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -472,14 +473,68 @@ pub struct Attachment {
 ///An uploaded attachment referenced when creating or editing a message.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct AttachmentReference {
+    ///Alt text shown to screen readers and as the image tooltip.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub description: ::std::option::Option<::std::string::String>,
+    pub description: ::std::option::Option<AttachmentReferenceDescription>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filename: ::std::option::Option<::std::string::String>,
+    ///AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub flags: ::std::option::Option<i64>,
     ///Attachment ID from POST /channels/{id}/attachments, or an index for existing ones.
     pub id: ::std::string::String,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub uploaded_filename: ::std::option::Option<::std::string::String>,
+}
+///Alt text shown to screen readers and as the image tooltip.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct AttachmentReferenceDescription(::std::string::String);
+impl ::std::ops::Deref for AttachmentReferenceDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<AttachmentReferenceDescription> for ::std::string::String {
+    fn from(value: AttachmentReferenceDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for AttachmentReferenceDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 1024usize {
+            return Err("longer than 1024 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for AttachmentReferenceDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for AttachmentReferenceDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for AttachmentReferenceDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///A presigned upload target.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -1822,6 +1877,7 @@ pub struct Embed {
     pub timestamp: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub title: ::std::option::Option<::std::string::String>,
+    ///EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich.
     #[serde(
         rename = "type",
         skip_serializing_if = "::std::option::Option::is_none"
@@ -1860,7 +1916,7 @@ pub struct EmbedFooter {
     pub proxy_icon_url: ::std::option::Option<::std::string::String>,
     pub text: ::std::string::String,
 }
-///Embed image, thumbnail or video.
+///Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct EmbedMedia {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]

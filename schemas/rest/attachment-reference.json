@@ -19,7 +19,13 @@
       "type": "string"
     },
     "description": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 1024,
+      "description": "Alt text shown to screen readers and as the image tooltip."
+    },
+    "flags": {
+      "type": "integer",
+      "description": "AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too."
     }
   }
 }
