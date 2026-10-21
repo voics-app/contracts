@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/disable-totp-request.json",
+  "title": "DisableTotpRequest",
+  "description": "POST /users/@me/mfa/totp/disable body.",
+  "type": "object",
+  "required": [
+    "password",
+    "code"
+  ],
+  "properties": {
+    "password": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string",
+      "description": "Current TOTP code or an unused backup code."
+    }
+  }
+}

@@ -98,7 +98,11 @@ paths:
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/Unauthorized"
+          description: Code 60008 with a ticket when the password is right, 2FA is enabled and no code was sent.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/mfa-required-response.json
         "429":
           $ref: "#/components/responses/RateLimited"
   /auth/refresh:
@@ -133,6 +137,119 @@ paths:
     post:
       operationId: logout
       summary: Revoke the current session
+      tags:
+        - Auth
+      x-discordy-service: api
+      responses:
+        "204":
+          description: No content.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/mfa/totp:
+    post:
+      operationId: mfaLoginTotp
+      summary: Complete a login with a TOTP or backup code
+      description: Exchanges the ticket from a 60008 login response and a code for tokens. Wrong codes are rate limited per user and lock the ticket out for a while.
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/mfa-login-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/auth-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      summary: Email a password reset token
+      description: Always answers 204, whether or not the address is registered, so accounts cannot be enumerated. Rate limited per address and per caller.
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/forgot-password-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/reset-password:
+    post:
+      operationId: resetPassword
+      summary: Set a new password with a reset token
+      description: Revokes every session of the account. Two-factor stays enabled.
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/reset-password-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/verify-email:
+    post:
+      operationId: verifyEmail
+      summary: Verify an email address with an emailed token
+      description: Marks the account verified; for an email change the new address replaces the old one.
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/verify-email-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/resend-verification:
+    post:
+      operationId: resendVerification
+      summary: Resend the verification email
+      description: Rate limited. Answers 400 when the account is already verified.
       tags:
         - Auth
       x-discordy-service: api
@@ -281,6 +398,156 @@ paths:
             application/json:
               schema:
                 $ref: ../schemas/objects/user.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/disable:
+    post:
+      operationId: disableAccount
+      summary: Disable the account
+      description: Revokes every session. Logging in again reactivates the account.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/password-confirmation-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/delete:
+    post:
+      operationId: deleteAccount
+      summary: Schedule account deletion
+      description: Revokes every session and schedules deletion after the retention window (14 days); logging in before then cancels it. Refused with 400 while the user still owns guilds.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/password-confirmation-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/totp/enable:
+    post:
+      operationId: enableTotp
+      summary: Start TOTP enrolment
+      description: Generates a pending secret and returns it with an otpauth URI. 2FA stays off until verified; calling again replaces the pending secret.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/password-confirmation-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/totp-enrollment-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/totp/verify:
+    post:
+      operationId: verifyTotp
+      summary: Confirm TOTP enrolment
+      description: Activates 2FA, sets `mfa_enabled`, dispatches USER_UPDATE and returns ten backup codes, shown once. Wrong codes are rate limited.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/verify-totp-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/backup-codes-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/totp/disable:
+    post:
+      operationId: disableTotp
+      summary: Disable TOTP
+      description: Needs the password and a TOTP or backup code. Removes the secret and every backup code.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/disable-totp-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/codes-verification:
+    post:
+      operationId: verifyBackupCodes
+      summary: List or regenerate backup codes
+      description: Needs the password. Without `regenerate` it lists consumed states only (codes are hashed at rest); with it, the old codes die and the new plaintext codes are returned once.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/backup-codes-verification-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/backup-codes-response.json
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
