@@ -20,8 +20,7 @@ function renderModule(group: ConstantGroup): ElixirModuleFile {
     .join("\n");
   const pairs = group.entries.map((entry) => `      ${screamingToSnake(entry.name)}: ${literal(entry)}`).join(",\n");
   // Flag names such as IS_SPOILER mirror the wire constants, so credo's predicate naming rule does not apply.
-  const credoNote = group.entries.some((entry) => screamingToSnake(entry.name).startsWith("is_")) ? "# credo:disable-for-this-file Credo.Check.Readability.PredicateFunctionNames
-" : "";
+  const credoNote = group.entries.some((entry) => screamingToSnake(entry.name).startsWith("is_")) ? "# credo:disable-for-this-file Credo.Check.Readability.PredicateFunctionNames\n" : "";
   const source = `# ${GENERATED_NOTICE}
 ${credoNote}defmodule ${module} do
   @moduledoc ~S"""
