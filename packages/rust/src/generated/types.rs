@@ -2860,6 +2860,9 @@ pub struct Message {
     pub embeds: ::std::vec::Vec<Embed>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub flags: ::std::option::Option<i64>,
+    ///Only in message search results: true for the matching message, absent for its context messages.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub hit: ::std::option::Option<bool>,
     pub id: Snowflake,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub interaction_metadata: ::std::option::Option<MessageInteractionMetadata>,
@@ -2972,6 +2975,9 @@ pub struct MessageEvent {
     pub flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub guild_id: ::std::option::Option<Snowflake>,
+    ///Only in message search results: true for the matching message, absent for its context messages.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub hit: ::std::option::Option<bool>,
     pub id: Snowflake,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub interaction_metadata: ::std::option::Option<MessageInteractionMetadata>,
@@ -3169,6 +3175,17 @@ pub struct MessageReference {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub type_: ::std::option::Option<i64>,
+}
+///Result of GET /guilds/{guild_id}/messages/search and GET /channels/{channel_id}/messages/search.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MessageSearchResponse {
+    ///True while the search index is being (re)built from stored history; results may be incomplete.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub index_building: ::std::option::Option<bool>,
+    ///One group per hit: the matching message (hit = true) between its context messages, oldest first.
+    pub messages: ::std::vec::Vec<::std::vec::Vec<Message>>,
+    ///Number of messages that match, across all pages.
+    pub total_results: u64,
 }
 ///GET /internal/v1/admin/stats on messages. Counts only, never content.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

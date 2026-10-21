@@ -476,6 +476,7 @@ MESSAGE_CREATE / MESSAGE_UPDATE dispatch: a message plus guild context.
 | `reactions?` | `array of Reaction` |  |
 | `nonce?` | `string` | Client nonce used to resolve optimistic sends. |
 | `pinned` | `boolean` |  |
+| `hit?` | `boolean` | Only in message search results: true for the matching message, absent for its context messages. |
 | `webhook_id?` | `Snowflake` |  |
 | `type` | `integer` | MessageType. |
 | `application_id?` | `Snowflake` |  |

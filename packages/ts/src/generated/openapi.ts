@@ -452,6 +452,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/messages/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search channel messages
+         * @description Searches the standard-mode messages of one channel (a guild channel or a direct message). Results come from a full-text index fed from `discordy.message.v1`, so a new or edited message becomes searchable after a short delay (normally under 2 seconds). Ephemeral and P2P messages are end-to-end encrypted, never stored in plaintext and never returned; search them in the client's local history. Each element of `messages` is a group: the hit (`hit: true`) with `context` messages on either side, oldest first. At most 10 searches per 10 seconds per user.
+         */
+        get: operations["searchChannelMessages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/permissions/{overwrite_id}": {
         parameters: {
             query?: never;
@@ -825,6 +845,26 @@ export interface paths {
         post?: never;
         /** Remove a role from a member */
         delete: operations["removeGuildMemberRole"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/messages/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search guild messages
+         * @description Searches the standard-mode messages of every channel of the guild the caller can view and read the history of. Results come from a full-text index fed from `discordy.message.v1`, so a new or edited message becomes searchable after a short delay (normally under 2 seconds). Ephemeral and P2P messages are end-to-end encrypted, never stored in plaintext and never returned; search them in the client's local history. Each element of `messages` is a group: the hit (`hit: true`) with `context` messages on either side, oldest first. At most 10 searches per 10 seconds per user.
+         */
+        get: operations["searchGuildMessages"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2220,6 +2260,8 @@ export interface components {
             edited_timestamp: string | null;
             embeds: components["schemas"]["Embed"][];
             flags?: number;
+            /** @description Only in message search results: true for the matching message, absent for its context messages. */
+            hit?: boolean;
             id: components["schemas"]["Snowflake"];
             interaction_metadata?: components["schemas"]["MessageInteractionMetadata"];
             mention_channels?: components["schemas"]["ChannelMention"][];
@@ -2285,6 +2327,18 @@ export interface components {
             guild_id?: components["schemas"]["Snowflake"];
             message_id?: components["schemas"]["Snowflake"];
             type?: number;
+        };
+        /**
+         * MessageSearchResponse
+         * @description Result of GET /guilds/{guild_id}/messages/search and GET /channels/{channel_id}/messages/search.
+         */
+        MessageSearchResponse: {
+            /** @description True while the search index is being (re)built from stored history; results may be incomplete. */
+            index_building?: boolean;
+            /** @description One group per hit: the matching message (hit = true) between its context messages, oldest first. */
+            messages: components["schemas"]["Message"][][];
+            /** @description Number of messages that match, across all pages. */
+            total_results: number;
         };
         /**
          * MfaLoginRequest
@@ -4129,6 +4183,59 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    searchChannelMessages: {
+        parameters: {
+            query?: {
+                /** @description Only messages by these users (repeat the parameter, up to 10). */
+                author_id?: components["schemas"]["Snowflake"][];
+                /** @description Words to match (up to 512 characters). Matching is case-insensitive and word based; quoted phrases, `-` exclusions and `or` follow web-search syntax. */
+                content?: string;
+                /** @description Messages of context returned before and after each hit (0-2). */
+                context?: number;
+                /** @description Only messages with all of these attachments. */
+                has?: ("link" | "embed" | "file" | "image" | "video" | "sound")[];
+                /** @description Max number of hits (1-25). */
+                limit?: number;
+                /** @description Only messages with an ID lower than this one (to search before a date, use the first snowflake of that day). */
+                max_id?: components["schemas"]["Snowflake"];
+                /** @description Only messages that mention these users (repeat the parameter, up to 10). */
+                mentions?: components["schemas"]["Snowflake"][];
+                /** @description Only messages with an ID greater than this one (to search after a date, use the first snowflake of that day). */
+                min_id?: components["schemas"]["Snowflake"];
+                /** @description Number of results to skip (0-9975). */
+                offset?: number;
+                /** @description Only pinned (`true`) or only unpinned (`false`) messages. */
+                pinned?: boolean;
+                /** @description Order by creation time or by text relevance (relevance needs `content`). */
+                sort_by?: "timestamp" | "relevance";
+                /** @description Sort direction. */
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSearchResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     editChannelPermissions: {
         parameters: {
             query?: never;
@@ -5203,6 +5310,61 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    searchGuildMessages: {
+        parameters: {
+            query?: {
+                /** @description Only messages by these users (repeat the parameter, up to 10). */
+                author_id?: components["schemas"]["Snowflake"][];
+                /** @description Only messages in these channels (repeat the parameter, up to 20). Channels the caller cannot read are ignored. */
+                channel_id?: components["schemas"]["Snowflake"][];
+                /** @description Words to match (up to 512 characters). Matching is case-insensitive and word based; quoted phrases, `-` exclusions and `or` follow web-search syntax. */
+                content?: string;
+                /** @description Messages of context returned before and after each hit (0-2). */
+                context?: number;
+                /** @description Only messages with all of these attachments. */
+                has?: ("link" | "embed" | "file" | "image" | "video" | "sound")[];
+                /** @description Max number of hits (1-25). */
+                limit?: number;
+                /** @description Only messages with an ID lower than this one (to search before a date, use the first snowflake of that day). */
+                max_id?: components["schemas"]["Snowflake"];
+                /** @description Only messages that mention these users (repeat the parameter, up to 10). */
+                mentions?: components["schemas"]["Snowflake"][];
+                /** @description Only messages with an ID greater than this one (to search after a date, use the first snowflake of that day). */
+                min_id?: components["schemas"]["Snowflake"];
+                /** @description Number of results to skip (0-9975). */
+                offset?: number;
+                /** @description Only pinned (`true`) or only unpinned (`false`) messages. */
+                pinned?: boolean;
+                /** @description Order by creation time or by text relevance (relevance needs `content`). */
+                sort_by?: "timestamp" | "relevance";
+                /** @description Sort direction. */
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageSearchResponse"];
+                };
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];

@@ -94,6 +94,10 @@
     "pinned": {
       "type": "boolean"
     },
+    "hit": {
+      "type": "boolean",
+      "description": "Only in message search results: true for the matching message, absent for its context messages."
+    },
     "webhook_id": {
       "$ref": "./snowflake.json"
     },
