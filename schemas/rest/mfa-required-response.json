@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/mfa-required-response.json",
+  "title": "MfaRequiredResponse",
+  "description": "401 body of POST /auth/login when the password is right but 2FA is enabled and no code was sent.",
+  "type": "object",
+  "required": [
+    "code",
+    "message",
+    "ticket"
+  ],
+  "properties": {
+    "code": {
+      "type": "integer",
+      "const": 60008
+    },
+    "message": {
+      "type": "string"
+    },
+    "ticket": {
+      "type": "string",
+      "description": "Present to POST /auth/mfa/totp together with a code."
+    }
+  }
+}

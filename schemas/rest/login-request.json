@@ -18,8 +18,7 @@
     },
     "totp": {
       "type": "string",
-      "pattern": "^[0-9]{6}$",
-      "description": "Required when 2FA is enabled."
+      "description": "TOTP code or backup code. When 2FA is enabled and this is absent the api answers 401 with code 60008 and a ticket for POST /auth/mfa/totp."
     }
   }
 }

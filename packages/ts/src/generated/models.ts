@@ -309,6 +309,9 @@ export interface Attachment {
   ephemeral?: boolean;
   duration_secs?: number;
   waveform?: string;
+  /**
+   * AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler.
+   */
   flags?: number;
 }
 /**
@@ -321,7 +324,14 @@ export interface AttachmentReference {
   id: string;
   filename?: string;
   uploaded_filename?: string;
+  /**
+   * Alt text shown to screen readers and as the image tooltip.
+   */
   description?: string;
+  /**
+   * AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
+   */
+  flags?: number;
 }
 /**
  * A presigned upload target.
@@ -562,6 +572,28 @@ export interface AuthResponse {
    */
   refresh_token: string;
   user: User;
+}
+/**
+ * Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.
+ */
+export interface BackupCodesResponse {
+  backup_codes: {
+    /**
+     * Plaintext code; omitted when only the consumed state is listed.
+     */
+    code?: string;
+    consumed: boolean;
+  }[];
+}
+/**
+ * POST /users/@me/mfa/codes-verification body.
+ */
+export interface BackupCodesVerificationRequest {
+  password: string;
+  /**
+   * Replaces every backup code and returns the new plaintext codes once.
+   */
+  regenerate?: boolean;
 }
 /**
  * A guild ban.
@@ -923,6 +955,9 @@ export interface CreateMessageRequest {
  */
 export interface Embed {
   title?: string;
+  /**
+   * EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich.
+   */
   type?: string;
   description?: string;
   url?: string;
@@ -945,7 +980,7 @@ export interface EmbedFooter {
   proxy_icon_url?: string;
 }
 /**
- * Embed image, thumbnail or video.
+ * Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.
  */
 export interface EmbedMedia {
   url?: string;
@@ -1144,6 +1179,16 @@ export interface Device {
   created_at?: string;
 }
 /**
+ * POST /users/@me/mfa/totp/disable body.
+ */
+export interface DisableTotpRequest {
+  password: string;
+  /**
+   * Current TOTP code or an unused backup code.
+   */
+  code: string;
+}
+/**
  * Op 21 E2EE_ACK.
  */
 export interface E2eeAckPayload {
@@ -1303,6 +1348,12 @@ export interface ExecuteWebhookRequest {
   attachments?: AttachmentReference[];
   flags?: number;
   thread_name?: string;
+}
+/**
+ * POST /auth/forgot-password body.
+ */
+export interface ForgotPasswordRequest {
+  email: string;
 }
 /**
  * GET /internal/v1/admin/stats on gateway.
@@ -1920,7 +1971,7 @@ export interface LoginRequest {
   email: string;
   password: string;
   /**
-   * Required when 2FA is enabled.
+   * TOTP code or backup code. When 2FA is enabled and this is absent the api answers 401 with code 60008 and a ticket for POST /auth/mfa/totp.
    */
   totp?: string;
 }
@@ -2047,6 +2098,30 @@ export interface MessagesByMode {
   p2p_signaled: number;
 }
 /**
+ * POST /auth/mfa/totp body: completes a login that answered 60008.
+ */
+export interface MfaLoginRequest {
+  /**
+   * Single-use ticket returned with error 60008; valid for 5 minutes.
+   */
+  ticket: string;
+  /**
+   * Six-digit TOTP code or a backup code such as `abcde-fghij`.
+   */
+  code: string;
+}
+/**
+ * 401 body of POST /auth/login when the password is right but 2FA is enabled and no code was sent.
+ */
+export interface MfaRequiredResponse {
+  code: 60008;
+  message: string;
+  /**
+   * Present to POST /auth/mfa/totp together with a code.
+   */
+  ticket: string;
+}
+/**
  * PATCH /applications/{id} body.
  */
 export interface ModifyApplicationRequest {
@@ -2091,7 +2166,7 @@ export interface ModifyChannelRequest {
   voice_region?: string | null;
 }
 /**
- * PATCH /users/@me body.
+ * PATCH /users/@me body. `username`, `email` and `new_password` require the current `password`; an email change takes effect once the new address is verified.
  */
 export interface ModifyCurrentUserRequest {
   username?: string;
@@ -2102,6 +2177,12 @@ export interface ModifyCurrentUserRequest {
   avatar?: string | null;
   banner?: string | null;
   accent_color?: number | null;
+  /**
+   * Current password; required with username, email or new_password.
+   */
+  password?: string;
+  new_password?: string;
+  email?: string;
 }
 /**
  * PATCH /guilds/{id}/emojis/{eid} body.
@@ -2271,6 +2352,12 @@ export interface P2pSignalPayload {
   identity_sig_b64: string;
 }
 /**
+ * Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
+ */
+export interface PasswordConfirmationRequest {
+  password: string;
+}
+/**
  * A device's public identity, as listed by GET /users/{id}/devices.
  */
 export interface PublicDevice {
@@ -2396,6 +2483,16 @@ export interface RequestGuildMembersPayload {
  */
 export interface ResetBotTokenResponse {
   token: string;
+}
+/**
+ * POST /auth/reset-password body.
+ */
+export interface ResetPasswordRequest {
+  /**
+   * Token from the reset email.
+   */
+  token: string;
+  password: string;
 }
 /**
  * Op 6 RESUME.
@@ -2571,6 +2668,19 @@ export interface SuspendUserRequest {
   until: string | null;
 }
 /**
+ * A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.
+ */
+export interface TotpEnrollmentResponse {
+  /**
+   * Base32 secret for manual entry.
+   */
+  secret: string;
+  /**
+   * `otpauth://totp/...` URI to render as a QR code.
+   */
+  otpauth_uri: string;
+}
+/**
  * TYPING_START dispatch.
  */
 export interface TypingStartEvent {
@@ -2649,6 +2759,21 @@ export interface UserReadyState {
   notes: {
     [k: string]: string | undefined;
   };
+}
+/**
+ * POST /auth/verify-email body.
+ */
+export interface VerifyEmailRequest {
+  /**
+   * Token from the verification email.
+   */
+  token: string;
+}
+/**
+ * POST /users/@me/mfa/totp/verify body.
+ */
+export interface VerifyTotpRequest {
+  code: string;
 }
 /**
  * Voice op 12 VIDEO.

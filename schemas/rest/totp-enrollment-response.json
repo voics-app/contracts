@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/totp-enrollment-response.json",
+  "title": "TotpEnrollmentResponse",
+  "description": "A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.",
+  "type": "object",
+  "required": [
+    "secret",
+    "otpauth_uri"
+  ],
+  "properties": {
+    "secret": {
+      "type": "string",
+      "description": "Base32 secret for manual entry."
+    },
+    "otpauth_uri": {
+      "type": "string",
+      "description": "`otpauth://totp/...` URI to render as a QR code."
+    }
+  }
+}

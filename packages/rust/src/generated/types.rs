@@ -458,6 +458,7 @@ pub struct Attachment {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ephemeral: ::std::option::Option<bool>,
     pub filename: ::std::string::String,
+    ///AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -476,14 +477,68 @@ pub struct Attachment {
 ///An uploaded attachment referenced when creating or editing a message.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct AttachmentReference {
+    ///Alt text shown to screen readers and as the image tooltip.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub description: ::std::option::Option<::std::string::String>,
+    pub description: ::std::option::Option<AttachmentReferenceDescription>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filename: ::std::option::Option<::std::string::String>,
+    ///AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub flags: ::std::option::Option<i64>,
     ///Attachment ID from POST /channels/{id}/attachments, or an index for existing ones.
     pub id: ::std::string::String,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub uploaded_filename: ::std::option::Option<::std::string::String>,
+}
+///Alt text shown to screen readers and as the image tooltip.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct AttachmentReferenceDescription(::std::string::String);
+impl ::std::ops::Deref for AttachmentReferenceDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<AttachmentReferenceDescription> for ::std::string::String {
+    fn from(value: AttachmentReferenceDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for AttachmentReferenceDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 1024usize {
+            return Err("longer than 1024 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for AttachmentReferenceDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for AttachmentReferenceDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for AttachmentReferenceDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///A presigned upload target.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -587,6 +642,27 @@ pub struct AuthResponse {
     ///Rotated on every use.
     pub refresh_token: ::std::string::String,
     pub user: User,
+}
+///Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct BackupCodesResponse {
+    pub backup_codes: ::std::vec::Vec<BackupCodesResponseBackupCodesItem>,
+}
+///`BackupCodesResponseBackupCodesItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct BackupCodesResponseBackupCodesItem {
+    ///Plaintext code; omitted when only the consumed state is listed.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub code: ::std::option::Option<::std::string::String>,
+    pub consumed: bool,
+}
+///POST /users/@me/mfa/codes-verification body.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct BackupCodesVerificationRequest {
+    pub password: ::std::string::String,
+    ///Replaces every backup code and returns the new plaintext codes once.
+    #[serde(default)]
+    pub regenerate: bool,
 }
 ///A guild ban.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -1581,6 +1657,13 @@ pub struct Device {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub name: ::std::option::Option<::std::string::String>,
 }
+///POST /users/@me/mfa/totp/disable body.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct DisableTotpRequest {
+    ///Current TOTP code or an unused backup code.
+    pub code: ::std::string::String,
+    pub password: ::std::string::String,
+}
 ///Op 21 E2EE_ACK.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct E2eeAckPayload {
@@ -1826,6 +1909,7 @@ pub struct Embed {
     pub timestamp: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub title: ::std::option::Option<::std::string::String>,
+    ///EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich.
     #[serde(
         rename = "type",
         skip_serializing_if = "::std::option::Option::is_none"
@@ -1864,7 +1948,7 @@ pub struct EmbedFooter {
     pub proxy_icon_url: ::std::option::Option<::std::string::String>,
     pub text: ::std::string::String,
 }
-///Embed image, thumbnail or video.
+///Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct EmbedMedia {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -2007,6 +2091,11 @@ impl<'de> ::serde::Deserialize<'de> for ExecuteWebhookRequestContent {
                 <D::Error as ::serde::de::Error>::custom(e.to_string())
             })
     }
+}
+///POST /auth/forgot-password body.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ForgotPasswordRequest {
+    pub email: ::std::string::String,
 }
 ///A tag that can be applied to forum threads.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -2731,61 +2820,9 @@ pub struct LastMessageId {
 pub struct LoginRequest {
     pub email: ::std::string::String,
     pub password: ::std::string::String,
-    ///Required when 2FA is enabled.
+    ///TOTP code or backup code. When 2FA is enabled and this is absent the api answers 401 with code 60008 and a ticket for POST /auth/mfa/totp.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub totp: ::std::option::Option<LoginRequestTotp>,
-}
-///Required when 2FA is enabled.
-#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[serde(transparent)]
-pub struct LoginRequestTotp(::std::string::String);
-impl ::std::ops::Deref for LoginRequestTotp {
-    type Target = ::std::string::String;
-    fn deref(&self) -> &::std::string::String {
-        &self.0
-    }
-}
-impl ::std::convert::From<LoginRequestTotp> for ::std::string::String {
-    fn from(value: LoginRequestTotp) -> Self {
-        value.0
-    }
-}
-impl ::std::str::FromStr for LoginRequestTotp {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]{6}$").unwrap());
-        if PATTERN.find(value).is_none() {
-            return Err("doesn't match pattern \"^[0-9]{6}$\"".into());
-        }
-        Ok(Self(value.to_string()))
-    }
-}
-impl ::std::convert::TryFrom<&str> for LoginRequestTotp {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for LoginRequestTotp {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl<'de> ::serde::Deserialize<'de> for LoginRequestTotp {
-    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
-        ::std::string::String::deserialize(deserializer)?
-            .parse()
-            .map_err(|e: self::error::ConversionError| {
-                <D::Error as ::serde::de::Error>::custom(e.to_string())
-            })
-    }
+    pub totp: ::std::option::Option<::std::string::String>,
 }
 ///Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -3150,6 +3187,22 @@ pub struct MessagesByMode {
     pub p2p_signaled: u64,
     pub standard: u64,
 }
+///POST /auth/mfa/totp body: completes a login that answered 60008.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MfaLoginRequest {
+    ///Six-digit TOTP code or a backup code such as `abcde-fghij`.
+    pub code: ::std::string::String,
+    ///Single-use ticket returned with error 60008; valid for 5 minutes.
+    pub ticket: ::std::string::String,
+}
+///401 body of POST /auth/login when the password is right but 2FA is enabled and no code was sent.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MfaRequiredResponse {
+    pub code: i64,
+    pub message: ::std::string::String,
+    ///Present to POST /auth/mfa/totp together with a code.
+    pub ticket: ::std::string::String,
+}
 ///PATCH /applications/{id} body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyApplicationRequest {
@@ -3272,7 +3325,7 @@ impl<'de> ::serde::Deserialize<'de> for ModifyChannelRequestName {
             })
     }
 }
-///PATCH /users/@me body.
+///PATCH /users/@me body. `username`, `email` and `new_password` require the current `password`; an email change takes effect once the new address is verified.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyCurrentUserRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3283,9 +3336,69 @@ pub struct ModifyCurrentUserRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub email: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub global_name: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub new_password: ::std::option::Option<ModifyCurrentUserRequestNewPassword>,
+    ///Current password; required with username, email or new_password.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub password: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub username: ::std::option::Option<ModifyCurrentUserRequestUsername>,
+}
+///`ModifyCurrentUserRequestNewPassword`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyCurrentUserRequestNewPassword(::std::string::String);
+impl ::std::ops::Deref for ModifyCurrentUserRequestNewPassword {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyCurrentUserRequestNewPassword> for ::std::string::String {
+    fn from(value: ModifyCurrentUserRequestNewPassword) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyCurrentUserRequestNewPassword {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        if value.chars().count() < 8usize {
+            return Err("shorter than 8 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyCurrentUserRequestNewPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyCurrentUserRequestNewPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyCurrentUserRequestNewPassword {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///`ModifyCurrentUserRequestUsername`
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -3877,6 +3990,11 @@ pub struct PartialUser {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub username: ::std::option::Option<::std::string::String>,
 }
+///Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasswordConfirmationRequest {
+    pub password: ::std::string::String,
+}
 ///A 64-bit permission bitfield serialized as a decimal string. Bit values are listed in permissions.json.
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[serde(transparent)]
@@ -4447,6 +4565,66 @@ impl<'de> ::serde::Deserialize<'de> for RequestGuildMembersPayloadNonce {
 pub struct ResetBotTokenResponse {
     pub token: ::std::string::String,
 }
+///POST /auth/reset-password body.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ResetPasswordRequest {
+    pub password: ResetPasswordRequestPassword,
+    ///Token from the reset email.
+    pub token: ::std::string::String,
+}
+///`ResetPasswordRequestPassword`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ResetPasswordRequestPassword(::std::string::String);
+impl ::std::ops::Deref for ResetPasswordRequestPassword {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ResetPasswordRequestPassword> for ::std::string::String {
+    fn from(value: ResetPasswordRequestPassword) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ResetPasswordRequestPassword {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        if value.chars().count() < 8usize {
+            return Err("shorter than 8 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ResetPasswordRequestPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ResetPasswordRequestPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ResetPasswordRequestPassword {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///Objects referenced by an interaction, keyed by ID.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ResolvedData {
@@ -4809,6 +4987,14 @@ pub struct ThreadMetadata {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub invitable: ::std::option::Option<bool>,
     pub locked: bool,
+}
+///A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct TotpEnrollmentResponse {
+    ///`otpauth://totp/...` URI to render as a QR code.
+    pub otpauth_uri: ::std::string::String,
+    ///Base32 secret for manual entry.
+    pub secret: ::std::string::String,
 }
 ///TYPING_START dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -5244,6 +5430,69 @@ impl ::std::convert::TryFrom<::std::string::String> for UserSettingsTheme {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///POST /auth/verify-email body.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct VerifyEmailRequest {
+    ///Token from the verification email.
+    pub token: ::std::string::String,
+}
+///POST /users/@me/mfa/totp/verify body.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct VerifyTotpRequest {
+    pub code: VerifyTotpRequestCode,
+}
+///`VerifyTotpRequestCode`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VerifyTotpRequestCode(::std::string::String);
+impl ::std::ops::Deref for VerifyTotpRequestCode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VerifyTotpRequestCode> for ::std::string::String {
+    fn from(value: VerifyTotpRequestCode) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VerifyTotpRequestCode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]{6}$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[0-9]{6}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VerifyTotpRequestCode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VerifyTotpRequestCode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VerifyTotpRequestCode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 ///Voice op 12 VIDEO.

@@ -59,6 +59,11 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/auth/login` | api | `LoginRequest` | `AuthResponse` | Log in with email and password (and TOTP when 2FA is enabled) |
 | `POST` | `/auth/refresh` | api | `RefreshRequest` | `AuthResponse` | Rotate a refresh token |
 | `POST` | `/auth/logout` | api | — | 204 No Content | Revoke the current session |
+| `POST` | `/auth/mfa/totp` | api | `MfaLoginRequest` | `AuthResponse` | Complete a login with a TOTP or backup code |
+| `POST` | `/auth/forgot-password` | api | `ForgotPasswordRequest` | 204 No Content | Email a password reset token |
+| `POST` | `/auth/reset-password` | api | `ResetPasswordRequest` | 204 No Content | Set a new password with a reset token |
+| `POST` | `/auth/verify-email` | api | `VerifyEmailRequest` | 204 No Content | Verify an email address with an emailed token |
+| `POST` | `/auth/resend-verification` | api | — | 204 No Content | Resend the verification email |
 
 ### Devices
 
@@ -75,6 +80,12 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/users/@me` | api | — | `User` | Get the current user |
 | `PATCH` | `/users/@me` | api | `ModifyCurrentUserRequest` | `User` | Modify the current user |
+| `POST` | `/users/@me/disable` | api | `PasswordConfirmationRequest` | 204 No Content | Disable the account |
+| `POST` | `/users/@me/delete` | api | `PasswordConfirmationRequest` | 204 No Content | Schedule account deletion |
+| `POST` | `/users/@me/mfa/totp/enable` | api | `PasswordConfirmationRequest` | `TotpEnrollmentResponse` | Start TOTP enrolment |
+| `POST` | `/users/@me/mfa/totp/verify` | api | `VerifyTotpRequest` | `BackupCodesResponse` | Confirm TOTP enrolment |
+| `POST` | `/users/@me/mfa/totp/disable` | api | `DisableTotpRequest` | 204 No Content | Disable TOTP |
+| `POST` | `/users/@me/mfa/codes-verification` | api | `BackupCodesVerificationRequest` | `BackupCodesResponse` | List or regenerate backup codes |
 | `GET` | `/users/{user_id}` | api | — | `User` | Get a user |
 | `GET` | `/users/@me/settings` | api | — | `UserSettings` | Get the current user's settings |
 | `PATCH` | `/users/@me/settings` | api | `ModifyUserSettingsRequest` | `UserSettings` | Modify the current user's settings (including default_delivery_mode) |
@@ -141,10 +152,12 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/channels/{channel_id}` | api | — | `Channel` | Get a channel |
 | `PATCH` | `/channels/{channel_id}` | api | `ModifyChannelRequest` | `Channel` | Modify a channel (including delivery_mode and voice_region) |
-| `DELETE` | `/channels/{channel_id}` | api | — | `Channel` | Delete a channel or close a DM |
+| `DELETE` | `/channels/{channel_id}` | api | — | `Channel` | Delete a channel, leave a group DM or close a DM |
 | `PUT` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | `EditOverwriteRequest` | 204 No Content | Create or edit a permission overwrite |
 | `DELETE` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | — | 204 No Content | Delete a permission overwrite |
 | `POST` | `/channels/{channel_id}/invites` | api | `CreateInviteRequest` | `Invite` | Create an invite |
+| `PUT` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Add a user to a group DM |
+| `DELETE` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Remove a user from a group DM, or leave with @me |
 | `POST` | `/channels/{channel_id}/typing` | api | — | 204 No Content | Trigger the typing indicator (publishes TYPING_START) |
 | `POST` | `/channels/{channel_id}/threads` | api | `CreateThreadRequest` | `Channel` | Start a thread (or forum post) |
 
@@ -374,7 +387,7 @@ A file attached to a message.
 | `ephemeral?` | `boolean` |  |
 | `duration_secs?` | `number` |  |
 | `waveform?` | `string` |  |
-| `flags?` | `integer` |  |
+| `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. |
 
 ### AuditEntryInfo
 
@@ -558,7 +571,7 @@ Rich embed content.
 | Field | Type | Description |
 | --- | --- | --- |
 | `title?` | `string` |  |
-| `type?` | `string` |  |
+| `type?` | `string` | EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich. |
 | `description?` | `string` |  |
 | `url?` | `string` |  |
 | `timestamp?` | `string (date-time)` |  |
@@ -604,7 +617,7 @@ Embed footer.
 
 ### EmbedMedia
 
-Embed image, thumbnail or video.
+Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -1311,7 +1324,8 @@ An uploaded attachment referenced when creating or editing a message.
 | `id` | `string` | Attachment ID from POST /channels/{id}/attachments, or an index for existing ones. |
 | `filename?` | `string` |  |
 | `uploaded_filename?` | `string` |  |
-| `description?` | `string` |  |
+| `description?` | `string` | Alt text shown to screen readers and as the image tooltip. |
+| `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. |
 
 ### AttachmentUpload
 
@@ -1342,6 +1356,23 @@ Tokens returned by register, login and refresh.
 | `access_token` | `string` | EdDSA JWT, 15 minutes. |
 | `refresh_token` | `string` | Rotated on every use. |
 | `user` | `User` |  |
+
+### BackupCodesResponse
+
+Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `backup_codes` | `array of object` |  |
+
+### BackupCodesVerificationRequest
+
+POST /users/@me/mfa/codes-verification body.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `password` | `string` |  |
+| `regenerate?` | `boolean` | Replaces every backup code and returns the new plaintext codes once. |
 
 ### BulkDeleteRequest
 
@@ -1532,6 +1563,15 @@ The caller's per-chat override and the resulting effective mode.
 | `mode` | `?DeliveryMode` |  |
 | `effective_mode` | `DeliveryMode` |  |
 
+### DisableTotpRequest
+
+POST /users/@me/mfa/totp/disable body.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `password` | `string` |  |
+| `code` | `string` | Current TOTP code or an unused backup code. |
+
 ### EditMessageRequest
 
 PATCH /channels/{id}/messages/{mid} body.
@@ -1584,6 +1624,14 @@ POST /webhooks/{id}/{token} body (execute or interaction follow-up).
 | `flags?` | `integer` |  |
 | `thread_name?` | `string` |  |
 
+### ForgotPasswordRequest
+
+POST /auth/forgot-password body.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `email` | `string (email)` |  |
+
 ### InteractionCallbackData
 
 Message, autocomplete or modal data.
@@ -1618,7 +1666,26 @@ POST /auth/login body.
 | --- | --- | --- |
 | `email` | `string (email)` |  |
 | `password` | `string` |  |
-| `totp?` | `string` | Required when 2FA is enabled. |
+| `totp?` | `string` | TOTP code or backup code. When 2FA is enabled and this is absent the api answers 401 with code 60008 and a ticket for POST /auth/mfa/totp. |
+
+### MfaLoginRequest
+
+POST /auth/mfa/totp body: completes a login that answered 60008.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `ticket` | `string` | Single-use ticket returned with error 60008; valid for 5 minutes. |
+| `code` | `string` | Six-digit TOTP code or a backup code such as `abcde-fghij`. |
+
+### MfaRequiredResponse
+
+401 body of POST /auth/login when the password is right but 2FA is enabled and no code was sent.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `code` | `60008` |  |
+| `message` | `string` |  |
+| `ticket` | `string` | Present to POST /auth/mfa/totp together with a code. |
 
 ### ModifyApplicationRequest
 
@@ -1664,7 +1731,7 @@ PATCH /channels/{id} body (partial). Changing delivery_mode requires MANAGE_CHAN
 
 ### ModifyCurrentUserRequest
 
-PATCH /users/@me body.
+PATCH /users/@me body. `username`, `email` and `new_password` require the current `password`; an email change takes effect once the new address is verified.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -1673,6 +1740,9 @@ PATCH /users/@me body.
 | `avatar?` | `?string` | Data URI image. |
 | `banner?` | `?string` |  |
 | `accent_color?` | `?integer` |  |
+| `password?` | `string` | Current password; required with username, email or new_password. |
+| `new_password?` | `string` |  |
+| `email?` | `string (email)` |  |
 
 ### ModifyEmojiRequest
 
@@ -1804,6 +1874,14 @@ A guild the user can add the bot to.
 | `icon` | `?string` |  |
 | `permissions` | `PermissionBitset` |  |
 
+### PasswordConfirmationRequest
+
+Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `password` | `string` |  |
+
 ### PublicDevice
 
 A device's public identity, as listed by GET /users/{id}/devices.
@@ -1855,6 +1933,15 @@ POST /applications/{id}/bot/reset-token response. The token is shown once.
 | --- | --- | --- |
 | `token` | `string` |  |
 
+### ResetPasswordRequest
+
+POST /auth/reset-password body.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `token` | `string` | Token from the reset email. |
+| `password` | `string` |  |
+
 ### RoleRequest
 
 POST /guilds/{id}/roles and PATCH /guilds/{id}/roles/{rid} body.
@@ -1878,6 +1965,15 @@ PUT /users/@me/channels/{id}/delivery-mode body.
 | --- | --- | --- |
 | `mode` | `?DeliveryMode` | Null clears the per-chat override. |
 
+### TotpEnrollmentResponse
+
+A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `secret` | `string` | Base32 secret for manual entry. |
+| `otpauth_uri` | `string` | `otpauth://totp/...` URI to render as a QR code. |
+
 ### UploadKeyPackagesRequest
 
 POST /devices/{id}/key-packages body.
@@ -1885,3 +1981,19 @@ POST /devices/{id}/key-packages body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `packages` | `array of string` |  |
+
+### VerifyEmailRequest
+
+POST /auth/verify-email body.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `token` | `string` | Token from the verification email. |
+
+### VerifyTotpRequest
+
+POST /users/@me/mfa/totp/verify body.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `code` | `string` |  |

@@ -98,7 +98,11 @@ paths:
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: "#/components/responses/Unauthorized"
+          description: Code 60008 with a ticket when the password is right, 2FA is enabled and no code was sent.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/mfa-required-response.json
         "429":
           $ref: "#/components/responses/RateLimited"
   /auth/refresh:
@@ -133,6 +137,119 @@ paths:
     post:
       operationId: logout
       summary: Revoke the current session
+      tags:
+        - Auth
+      x-discordy-service: api
+      responses:
+        "204":
+          description: No content.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/mfa/totp:
+    post:
+      operationId: mfaLoginTotp
+      summary: Complete a login with a TOTP or backup code
+      description: Exchanges the ticket from a 60008 login response and a code for tokens. Wrong codes are rate limited per user and lock the ticket out for a while.
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/mfa-login-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/auth-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      summary: Email a password reset token
+      description: Always answers 204, whether or not the address is registered, so accounts cannot be enumerated. Rate limited per address and per caller.
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/forgot-password-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/reset-password:
+    post:
+      operationId: resetPassword
+      summary: Set a new password with a reset token
+      description: Revokes every session of the account. Two-factor stays enabled.
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/reset-password-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/verify-email:
+    post:
+      operationId: verifyEmail
+      summary: Verify an email address with an emailed token
+      description: Marks the account verified; for an email change the new address replaces the old one.
+      tags:
+        - Auth
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/verify-email-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/resend-verification:
+    post:
+      operationId: resendVerification
+      summary: Resend the verification email
+      description: Rate limited. Answers 400 when the account is already verified.
       tags:
         - Auth
       x-discordy-service: api
@@ -281,6 +398,156 @@ paths:
             application/json:
               schema:
                 $ref: ../schemas/objects/user.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/disable:
+    post:
+      operationId: disableAccount
+      summary: Disable the account
+      description: Revokes every session. Logging in again reactivates the account.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/password-confirmation-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/delete:
+    post:
+      operationId: deleteAccount
+      summary: Schedule account deletion
+      description: Revokes every session and schedules deletion after the retention window (14 days); logging in before then cancels it. Refused with 400 while the user still owns guilds.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/password-confirmation-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/totp/enable:
+    post:
+      operationId: enableTotp
+      summary: Start TOTP enrolment
+      description: Generates a pending secret and returns it with an otpauth URI. 2FA stays off until verified; calling again replaces the pending secret.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/password-confirmation-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/totp-enrollment-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/totp/verify:
+    post:
+      operationId: verifyTotp
+      summary: Confirm TOTP enrolment
+      description: Activates 2FA, sets `mfa_enabled`, dispatches USER_UPDATE and returns ten backup codes, shown once. Wrong codes are rate limited.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/verify-totp-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/backup-codes-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/totp/disable:
+    post:
+      operationId: disableTotp
+      summary: Disable TOTP
+      description: Needs the password and a TOTP or backup code. Removes the secret and every backup code.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/disable-totp-request.json
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/codes-verification:
+    post:
+      operationId: verifyBackupCodes
+      summary: List or regenerate backup codes
+      description: Needs the password. Without `regenerate` it lists consumed states only (codes are hashed at rest); with it, the old codes die and the new plaintext codes are returned once.
+      tags:
+        - Users
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/backup-codes-verification-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/backup-codes-response.json
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1527,7 +1794,7 @@ paths:
     patch:
       operationId: modifyChannel
       summary: Modify a channel (including delivery_mode and voice_region)
-      description: ephemeral is rejected (400) for guild channels viewable by more than 100 members; p2p is rejected for guild channels.
+      description: Group DMs accept name and icon (posts CHANNEL_NAME_CHANGE / CHANNEL_ICON_CHANGE system messages, dispatches CHANNEL_UPDATE). ephemeral is rejected (400) for guild channels viewable by more than 100 members; p2p is rejected for guild channels.
       tags:
         - Channels
       x-discordy-service: api
@@ -1558,7 +1825,8 @@ paths:
           $ref: "#/components/responses/RateLimited"
     delete:
       operationId: deleteChannel
-      summary: Delete a channel or close a DM
+      summary: Delete a channel, leave a group DM or close a DM
+      description: For a group DM the caller leaves (same as DELETE /channels/{id}/recipients/@me). Closing a 1:1 DM is client-side state.
       tags:
         - Channels
       x-discordy-service: api
@@ -1654,6 +1922,53 @@ paths:
             application/json:
               schema:
                 $ref: ../schemas/objects/invite.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/recipients/{user_id}:
+    put:
+      operationId: addGroupDmRecipient
+      summary: Add a user to a group DM
+      description: Any member may add a user, up to 10 members in total. Posts a RECIPIENT_ADD system message and dispatches CHANNEL_RECIPIENT_ADD to the members and CHANNEL_CREATE to the new member. In Ephemeral mode the adding client issues the MLS Add commit.
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: removeGroupDmRecipient
+      summary: Remove a user from a group DM, or leave with @me
+      description: Only the owner removes others; any member leaves with user_id @me. Leaving as owner transfers ownership to the longest-standing member. Posts a RECIPIENT_REMOVE system message and dispatches CHANNEL_RECIPIENT_REMOVE to the remaining members and CHANNEL_DELETE to the removed user. In Ephemeral mode a remaining client issues the MLS Remove commit.
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "204":
+          description: No content.
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
