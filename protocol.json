@@ -257,6 +257,19 @@
         { "name": "CONTEXT_MENU_COMMAND", "value": 23 }
       ]
     },
+    "MessageFlags": {
+      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message.",
+      "values": [
+        { "name": "SUPPRESS_EMBEDS", "value": 4 },
+        { "name": "EPHEMERAL", "value": 64 }
+      ]
+    },
+    "AttachmentFlags": {
+      "description": "Attachment flags (Discord values) used by Discordy. IS_SPOILER blurs the media until the viewer reveals it.",
+      "values": [
+        { "name": "IS_SPOILER", "value": 8 }
+      ]
+    },
     "RelationshipType": {
       "description": "Relationship types.",
       "values": [

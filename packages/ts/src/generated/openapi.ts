@@ -130,6 +130,26 @@ export interface paths {
         patch: operations["editGuildCommand"];
         trace?: never;
     };
+    "/auth/forgot-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Email a password reset token
+         * @description Always answers 204, whether or not the address is registered, so accounts cannot be enumerated. Rate limited per address and per caller.
+         */
+        post: operations["forgotPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/login": {
         parameters: {
             query?: never;
@@ -158,6 +178,26 @@ export interface paths {
         put?: never;
         /** Revoke the current session */
         post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/mfa/totp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Complete a login with a TOTP or backup code
+         * @description Exchanges the ticket from a 60008 login response and a code for tokens. Wrong codes are rate limited per user and lock the ticket out for a while.
+         */
+        post: operations["mfaLoginTotp"];
         delete?: never;
         options?: never;
         head?: never;
@@ -201,6 +241,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/resend-verification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resend the verification email
+         * @description Rate limited. Answers 400 when the account is already verified.
+         */
+        post: operations["resendVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set a new password with a reset token
+         * @description Revokes every session of the account. Two-factor stays enabled.
+         */
+        post: operations["resetPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/verify-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify an email address with an emailed token
+         * @description Marks the account verified; for an email change the new address replaces the old one.
+         */
+        post: operations["verifyEmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}": {
         parameters: {
             query?: never;
@@ -212,13 +312,16 @@ export interface paths {
         get: operations["getChannel"];
         put?: never;
         post?: never;
-        /** Delete a channel or close a DM */
+        /**
+         * Delete a channel, leave a group DM or close a DM
+         * @description For a group DM the caller leaves (same as DELETE /channels/{id}/recipients/@me). Closing a 1:1 DM is client-side state.
+         */
         delete: operations["deleteChannel"];
         options?: never;
         head?: never;
         /**
          * Modify a channel (including delivery_mode and voice_region)
-         * @description ephemeral is rejected (400) for guild channels viewable by more than 100 members; p2p is rejected for guild channels.
+         * @description Group DMs accept name and icon (posts CHANNEL_NAME_CHANGE / CHANNEL_ICON_CHANGE system messages, dispatches CHANNEL_UPDATE). ephemeral is rejected (400) for guild channels viewable by more than 100 members; p2p is rejected for guild channels.
          */
         patch: operations["modifyChannel"];
         trace?: never;
@@ -417,6 +520,30 @@ export interface paths {
         post?: never;
         /** Unpin a message */
         delete: operations["unpinMessage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/recipients/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Add a user to a group DM
+         * @description Any member may add a user, up to 10 members in total. Posts a RECIPIENT_ADD system message and dispatches CHANNEL_RECIPIENT_ADD to the members and CHANNEL_CREATE to the new member. In Ephemeral mode the adding client issues the MLS Add commit.
+         */
+        put: operations["addGroupDmRecipient"];
+        post?: never;
+        /**
+         * Remove a user from a group DM, or leave with @me
+         * @description Only the owner removes others; any member leaves with user_id @me. Leaving as owner transfers ownership to the longest-standing member. Posts a RECIPIENT_REMOVE system message and dispatches CHANNEL_RECIPIENT_REMOVE to the remaining members and CHANNEL_DELETE to the removed user. In Ephemeral mode a remaining client issues the MLS Remove commit.
+         */
+        delete: operations["removeGroupDmRecipient"];
         options?: never;
         head?: never;
         patch?: never;
@@ -957,6 +1084,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/@me/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Schedule account deletion
+         * @description Revokes every session and schedules deletion after the retention window (14 days); logging in before then cancels it. Refused with 400 while the user still owns guilds.
+         */
+        post: operations["deleteAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Disable the account
+         * @description Revokes every session. Logging in again reactivates the account.
+         */
+        post: operations["disableAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/@me/guilds/{guild_id}/settings": {
         parameters: {
             query?: never;
@@ -976,6 +1143,86 @@ export interface paths {
         head?: never;
         /** Modify the current user's notification settings for a guild (or `@me` for DMs) */
         patch: operations["modifyGuildNotificationSettings"];
+        trace?: never;
+    };
+    "/users/@me/mfa/codes-verification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * List or regenerate backup codes
+         * @description Needs the password. Without `regenerate` it lists consumed states only (codes are hashed at rest); with it, the old codes die and the new plaintext codes are returned once.
+         */
+        post: operations["verifyBackupCodes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/mfa/totp/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Disable TOTP
+         * @description Needs the password and a TOTP or backup code. Removes the secret and every backup code.
+         */
+        post: operations["disableTotp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/mfa/totp/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start TOTP enrolment
+         * @description Generates a pending secret and returns it with an otpauth URI. 2FA stays off until verified; calling again replaces the pending secret.
+         */
+        post: operations["enableTotp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/mfa/totp/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm TOTP enrolment
+         * @description Activates 2FA, sets `mfa_enabled`, dispatches USER_UPDATE and returns ten backup codes, shown once. Wrong codes are rate limited.
+         */
+        post: operations["verifyTotp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/users/@me/notes/{user_id}": {
@@ -1258,6 +1505,7 @@ export interface components {
             duration_secs?: number;
             ephemeral?: boolean;
             filename: string;
+            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. */
             flags?: number;
             height?: number | null;
             id: components["schemas"]["Snowflake"];
@@ -1273,8 +1521,11 @@ export interface components {
          * @description An uploaded attachment referenced when creating or editing a message.
          */
         AttachmentReference: {
+            /** @description Alt text shown to screen readers and as the image tooltip. */
             description?: string;
             filename?: string;
+            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. */
+            flags?: number;
             /** @description Attachment ID from POST /channels/{id}/attachments, or an index for existing ones. */
             id: string;
             uploaded_filename?: string;
@@ -1357,6 +1608,29 @@ export interface components {
             /** @description Rotated on every use. */
             refresh_token: string;
             user: components["schemas"]["User"];
+        };
+        /**
+         * BackupCodesResponse
+         * @description Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.
+         */
+        BackupCodesResponse: {
+            backup_codes: {
+                /** @description Plaintext code; omitted when only the consumed state is listed. */
+                code?: string;
+                consumed: boolean;
+            }[];
+        };
+        /**
+         * BackupCodesVerificationRequest
+         * @description POST /users/@me/mfa/codes-verification body.
+         */
+        BackupCodesVerificationRequest: {
+            password: string;
+            /**
+             * @description Replaces every backup code and returns the new plaintext codes once.
+             * @default false
+             */
+            regenerate: boolean;
         };
         /**
          * Ban
@@ -1637,6 +1911,15 @@ export interface components {
             mode: components["schemas"]["DeliveryMode"] | null;
         };
         /**
+         * DisableTotpRequest
+         * @description POST /users/@me/mfa/totp/disable body.
+         */
+        DisableTotpRequest: {
+            /** @description Current TOTP code or an unused backup code. */
+            code: string;
+            password: string;
+        };
+        /**
          * EditMessageRequest
          * @description PATCH /channels/{id}/messages/{mid} body.
          */
@@ -1685,6 +1968,7 @@ export interface components {
             /** Format: date-time */
             timestamp?: string;
             title?: string;
+            /** @description EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich. */
             type?: string;
             url?: string;
             video?: components["schemas"]["EmbedMedia"];
@@ -1719,7 +2003,7 @@ export interface components {
         };
         /**
          * EmbedMedia
-         * @description Embed image, thumbnail or video.
+         * @description Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.
          */
         EmbedMedia: {
             height?: number;
@@ -1774,6 +2058,14 @@ export interface components {
             thread_name?: string;
             tts?: boolean;
             username?: string;
+        };
+        /**
+         * ForgotPasswordRequest
+         * @description POST /auth/forgot-password body.
+         */
+        ForgotPasswordRequest: {
+            /** Format: email */
+            email: string;
         };
         /**
          * ForumTag
@@ -1950,7 +2242,7 @@ export interface components {
             /** Format: email */
             email: string;
             password: string;
-            /** @description Required when 2FA is enabled. */
+            /** @description TOTP code or backup code. When 2FA is enabled and this is absent the api answers 401 with code 60008 and a ticket for POST /auth/mfa/totp. */
             totp?: string;
         };
         /**
@@ -2049,6 +2341,27 @@ export interface components {
             total_results: number;
         };
         /**
+         * MfaLoginRequest
+         * @description POST /auth/mfa/totp body: completes a login that answered 60008.
+         */
+        MfaLoginRequest: {
+            /** @description Six-digit TOTP code or a backup code such as `abcde-fghij`. */
+            code: string;
+            /** @description Single-use ticket returned with error 60008; valid for 5 minutes. */
+            ticket: string;
+        };
+        /**
+         * MfaRequiredResponse
+         * @description 401 body of POST /auth/login when the password is right but 2FA is enabled and no code was sent.
+         */
+        MfaRequiredResponse: {
+            /** @constant */
+            code: 60008;
+            message: string;
+            /** @description Present to POST /auth/mfa/totp together with a code. */
+            ticket: string;
+        };
+        /**
          * ModifyApplicationRequest
          * @description PATCH /applications/{id} body.
          */
@@ -2092,14 +2405,19 @@ export interface components {
         };
         /**
          * ModifyCurrentUserRequest
-         * @description PATCH /users/@me body.
+         * @description PATCH /users/@me body. `username`, `email` and `new_password` require the current `password`; an email change takes effect once the new address is verified.
          */
         ModifyCurrentUserRequest: {
             accent_color?: number | null;
             /** @description Data URI image. */
             avatar?: string | null;
             banner?: string | null;
+            /** Format: email */
+            email?: string;
             global_name?: string | null;
+            new_password?: string;
+            /** @description Current password; required with username, email or new_password. */
+            password?: string;
             username?: string;
         };
         /**
@@ -2271,6 +2589,13 @@ export interface components {
             type: number;
         };
         /**
+         * PasswordConfirmationRequest
+         * @description Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
+         */
+        PasswordConfirmationRequest: {
+            password: string;
+        };
+        /**
          * PermissionBitset
          * @description A 64-bit permission bitfield serialized as a decimal string. Bit values are listed in permissions.json.
          * @example 1024
@@ -2369,6 +2694,15 @@ export interface components {
             token: string;
         };
         /**
+         * ResetPasswordRequest
+         * @description POST /auth/reset-password body.
+         */
+        ResetPasswordRequest: {
+            password: string;
+            /** @description Token from the reset email. */
+            token: string;
+        };
+        /**
          * Role
          * @description A guild role.
          */
@@ -2461,6 +2795,16 @@ export interface components {
             locked: boolean;
         };
         /**
+         * TotpEnrollmentResponse
+         * @description A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.
+         */
+        TotpEnrollmentResponse: {
+            /** @description `otpauth://totp/...` URI to render as a QR code. */
+            otpauth_uri: string;
+            /** @description Base32 secret for manual entry. */
+            secret: string;
+        };
+        /**
          * UploadKeyPackagesRequest
          * @description POST /devices/{id}/key-packages body.
          */
@@ -2520,6 +2864,21 @@ export interface components {
             status: "online" | "idle" | "dnd" | "invisible";
             /** @enum {string} */
             theme: "dark" | "light" | "oled";
+        };
+        /**
+         * VerifyEmailRequest
+         * @description POST /auth/verify-email body.
+         */
+        VerifyEmailRequest: {
+            /** @description Token from the verification email. */
+            token: string;
+        };
+        /**
+         * VerifyTotpRequest
+         * @description POST /users/@me/mfa/totp/verify body.
+         */
+        VerifyTotpRequest: {
+            code: string;
         };
         /**
          * VoiceRegion
@@ -3159,6 +3518,30 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    forgotPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForgotPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     login: {
         parameters: {
             query?: never;
@@ -3182,7 +3565,15 @@ export interface operations {
                 };
             };
             400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthorized"];
+            /** @description Code 60008 with a ticket when the password is right, 2FA is enabled and no code was sent. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MfaRequiredResponse"];
+                };
+            };
             429: components["responses"]["RateLimited"];
         };
     };
@@ -3202,6 +3593,33 @@ export interface operations {
                 };
                 content?: never;
             };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    mfaLoginTotp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MfaLoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             429: components["responses"]["RateLimited"];
         };
@@ -3256,6 +3674,76 @@ export interface operations {
                 };
             };
             400: components["responses"]["BadRequest"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    resendVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    resetPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    verifyEmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -3873,6 +4361,62 @@ export interface operations {
                 channel_id: components["parameters"]["channel_id"];
                 /** @description Message ID. */
                 message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    addGroupDmRecipient: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    removeGroupDmRecipient: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
             };
             cookie?: never;
         };
@@ -5367,6 +5911,56 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    deleteAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordConfirmationRequest"];
+            };
+        };
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    disableAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordConfirmationRequest"];
+            };
+        };
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     getGuildNotificationSettings: {
         parameters: {
             query?: never;
@@ -5423,6 +6017,112 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    verifyBackupCodes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BackupCodesVerificationRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BackupCodesResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    disableTotp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisableTotpRequest"];
+            };
+        };
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    enableTotp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordConfirmationRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TotpEnrollmentResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    verifyTotp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyTotpRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BackupCodesResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
             429: components["responses"]["RateLimited"];
         };
     };

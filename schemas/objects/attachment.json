@@ -59,7 +59,8 @@
       "type": "string"
     },
     "flags": {
-      "type": "integer"
+      "type": "integer",
+      "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler."
     }
   }
 }

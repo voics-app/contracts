@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/mfa-login-request.json",
+  "title": "MfaLoginRequest",
+  "description": "POST /auth/mfa/totp body: completes a login that answered 60008.",
+  "type": "object",
+  "required": [
+    "ticket",
+    "code"
+  ],
+  "properties": {
+    "ticket": {
+      "type": "string",
+      "description": "Single-use ticket returned with error 60008; valid for 5 minutes."
+    },
+    "code": {
+      "type": "string",
+      "description": "Six-digit TOTP code or a backup code such as `abcde-fghij`."
+    }
+  }
+}

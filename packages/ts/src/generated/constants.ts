@@ -520,6 +520,19 @@ export const MessageType = {
 } as const;
 export type MessageTypeKey = keyof typeof MessageType;
 
+/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message. */
+export const MessageFlags = {
+  SUPPRESS_EMBEDS: 4,
+  EPHEMERAL: 64,
+} as const;
+export type MessageFlagsKey = keyof typeof MessageFlags;
+
+/** Attachment flags (Discord values) used by Discordy. IS_SPOILER blurs the media until the viewer reveals it. */
+export const AttachmentFlags = {
+  IS_SPOILER: 8,
+} as const;
+export type AttachmentFlagsKey = keyof typeof AttachmentFlags;
+
 /** Relationship types. */
 export const RelationshipType = {
   FRIEND: 1,
