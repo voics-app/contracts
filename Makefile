@@ -29,3 +29,8 @@ docker:
 check-generated: codegen
 	git diff --exit-code -- . ':!pnpm-lock.yaml' ':!Cargo.lock'
 	test -z "$$(git ls-files --others --exclude-standard)"
+
+# Install the pre-push hook (lint + unit tests, see lefthook.yml).
+.PHONY: hooks
+hooks:
+	lefthook install
