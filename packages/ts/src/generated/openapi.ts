@@ -212,13 +212,16 @@ export interface paths {
         get: operations["getChannel"];
         put?: never;
         post?: never;
-        /** Delete a channel or close a DM */
+        /**
+         * Delete a channel, leave a group DM or close a DM
+         * @description For a group DM the caller leaves (same as DELETE /channels/{id}/recipients/@me). Closing a 1:1 DM is client-side state.
+         */
         delete: operations["deleteChannel"];
         options?: never;
         head?: never;
         /**
          * Modify a channel (including delivery_mode and voice_region)
-         * @description ephemeral is rejected (400) for guild channels viewable by more than 100 members; p2p is rejected for guild channels.
+         * @description Group DMs accept name and icon (posts CHANNEL_NAME_CHANGE / CHANNEL_ICON_CHANGE system messages, dispatches CHANNEL_UPDATE). ephemeral is rejected (400) for guild channels viewable by more than 100 members; p2p is rejected for guild channels.
          */
         patch: operations["modifyChannel"];
         trace?: never;
@@ -397,6 +400,30 @@ export interface paths {
         post?: never;
         /** Unpin a message */
         delete: operations["unpinMessage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/recipients/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Add a user to a group DM
+         * @description Any member may add a user, up to 10 members in total. Posts a RECIPIENT_ADD system message and dispatches CHANNEL_RECIPIENT_ADD to the members and CHANNEL_CREATE to the new member. In Ephemeral mode the adding client issues the MLS Add commit.
+         */
+        put: operations["addGroupDmRecipient"];
+        post?: never;
+        /**
+         * Remove a user from a group DM, or leave with @me
+         * @description Only the owner removes others; any member leaves with user_id @me. Leaving as owner transfers ownership to the longest-standing member. Posts a RECIPIENT_REMOVE system message and dispatches CHANNEL_RECIPIENT_REMOVE to the remaining members and CHANNEL_DELETE to the removed user. In Ephemeral mode a remaining client issues the MLS Remove commit.
+         */
+        delete: operations["removeGroupDmRecipient"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3766,6 +3793,62 @@ export interface operations {
                 channel_id: components["parameters"]["channel_id"];
                 /** @description Message ID. */
                 message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    addGroupDmRecipient: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    removeGroupDmRecipient: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
             };
             cookie?: never;
         };

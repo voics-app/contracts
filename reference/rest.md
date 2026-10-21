@@ -141,10 +141,12 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/channels/{channel_id}` | api | — | `Channel` | Get a channel |
 | `PATCH` | `/channels/{channel_id}` | api | `ModifyChannelRequest` | `Channel` | Modify a channel (including delivery_mode and voice_region) |
-| `DELETE` | `/channels/{channel_id}` | api | — | `Channel` | Delete a channel or close a DM |
+| `DELETE` | `/channels/{channel_id}` | api | — | `Channel` | Delete a channel, leave a group DM or close a DM |
 | `PUT` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | `EditOverwriteRequest` | 204 No Content | Create or edit a permission overwrite |
 | `DELETE` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | — | 204 No Content | Delete a permission overwrite |
 | `POST` | `/channels/{channel_id}/invites` | api | `CreateInviteRequest` | `Invite` | Create an invite |
+| `PUT` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Add a user to a group DM |
+| `DELETE` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Remove a user from a group DM, or leave with @me |
 | `POST` | `/channels/{channel_id}/typing` | api | — | 204 No Content | Trigger the typing indicator (publishes TYPING_START) |
 | `POST` | `/channels/{channel_id}/threads` | api | `CreateThreadRequest` | `Channel` | Start a thread (or forum post) |
 

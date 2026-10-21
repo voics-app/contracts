@@ -2452,7 +2452,7 @@
       "patch": {
         "operationId": "modifyChannel",
         "summary": "Modify a channel (including delivery_mode and voice_region)",
-        "description": "ephemeral is rejected (400) for guild channels viewable by more than 100 members; p2p is rejected for guild channels.",
+        "description": "Group DMs accept name and icon (posts CHANNEL_NAME_CHANGE / CHANNEL_ICON_CHANGE system messages, dispatches CHANNEL_UPDATE). ephemeral is rejected (400) for guild channels viewable by more than 100 members; p2p is rejected for guild channels.",
         "tags": [
           "Channels"
         ],
@@ -2502,7 +2502,8 @@
       },
       "delete": {
         "operationId": "deleteChannel",
-        "summary": "Delete a channel or close a DM",
+        "summary": "Delete a channel, leave a group DM or close a DM",
+        "description": "For a group DM the caller leaves (same as DELETE /channels/{id}/recipients/@me). Closing a 1:1 DM is client-side state.",
         "tags": [
           "Channels"
         ],
@@ -2658,6 +2659,82 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/recipients/{user_id}": {
+      "put": {
+        "operationId": "addGroupDmRecipient",
+        "summary": "Add a user to a group DM",
+        "description": "Any member may add a user, up to 10 members in total. Posts a RECIPIENT_ADD system message and dispatches CHANNEL_RECIPIENT_ADD to the members and CHANNEL_CREATE to the new member. In Ephemeral mode the adding client issues the MLS Add commit.",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeGroupDmRecipient",
+        "summary": "Remove a user from a group DM, or leave with @me",
+        "description": "Only the owner removes others; any member leaves with user_id @me. Leaving as owner transfers ownership to the longest-standing member. Posts a RECIPIENT_REMOVE system message and dispatches CHANNEL_RECIPIENT_REMOVE to the remaining members and CHANNEL_DELETE to the removed user. In Ephemeral mode a remaining client issues the MLS Remove commit.",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
