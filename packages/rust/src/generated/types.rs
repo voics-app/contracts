@@ -17,6 +17,10 @@ pub struct AccessTokenClaims {
 ///POST /channels/{id}/messages/{mid}/ack body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct AckRequest {
+    ///When true the read marker is set to exactly this message, even backwards (Mark Unread). Without it the marker only moves forward.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub manual: ::std::option::Option<bool>,
+    ///Unread mention count to keep after a manual ack (default 0).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub mention_count: ::std::option::Option<u64>,
 }

@@ -1307,7 +1307,8 @@ POST /channels/{id}/messages/{mid}/ack body.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `mention_count?` | `integer` |  |
+| `manual?` | `boolean` | When true the read marker is set to exactly this message, even backwards (Mark Unread). Without it the marker only moves forward. |
+| `mention_count?` | `integer` | Unread mention count to keep after a manual ack (default 0). |
 
 ### ApplicationCommandRequest
 

@@ -5941,9 +5941,14 @@
         "description": "POST /channels/{id}/messages/{mid}/ack body.",
         "type": "object",
         "properties": {
+          "manual": {
+            "type": "boolean",
+            "description": "When true the read marker is set to exactly this message, even backwards (Mark Unread). Without it the marker only moves forward."
+          },
           "mention_count": {
             "type": "integer",
-            "minimum": 0
+            "minimum": 0,
+            "description": "Unread mention count to keep after a manual ack (default 0)."
           }
         }
       },
