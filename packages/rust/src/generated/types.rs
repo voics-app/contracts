@@ -671,6 +671,18 @@ pub struct Ban {
     pub reason: ::std::option::Option<::std::string::String>,
     pub user: User,
 }
+///BAN_MESSAGE_PURGE bus event (discordy.guild.v1, routed by guild_id). A moderator banned a user with delete_message_seconds > 0 (PUT /guilds/{id}/bans/{uid}). The messages service deletes every message the user authored in the listed channels at or after since_ms (storage, search index, attachments, reactions, pins) and emits MESSAGE_DELETE_BULK per channel. The gateway ignores it and never dispatches it to clients. Replays are harmless: deleting already deleted messages is a no-op.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct BanMessagePurgeEvent {
+    ///The guild's text-capable channels and threads at ban time.
+    pub channel_ids: ::std::vec::Vec<Snowflake>,
+    pub delete_message_seconds: ::std::num::NonZeroU64,
+    pub guild_id: Snowflake,
+    ///Unix milliseconds: messages created at or after this instant are deleted (ban time minus delete_message_seconds).
+    pub since_ms: u64,
+    ///The banned user whose messages are purged.
+    pub user_id: Snowflake,
+}
 ///POST /channels/{id}/messages/bulk-delete body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct BulkDeleteRequest {

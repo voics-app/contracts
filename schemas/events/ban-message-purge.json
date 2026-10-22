@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/events/ban-message-purge.json",
+  "title": "BanMessagePurgeEvent",
+  "description": "BAN_MESSAGE_PURGE bus event (discordy.guild.v1, routed by guild_id). A moderator banned a user with delete_message_seconds > 0 (PUT /guilds/{id}/bans/{uid}). The messages service deletes every message the user authored in the listed channels at or after since_ms (storage, search index, attachments, reactions, pins) and emits MESSAGE_DELETE_BULK per channel. The gateway ignores it and never dispatches it to clients. Replays are harmless: deleting already deleted messages is a no-op.",
+  "type": "object",
+  "required": [
+    "guild_id",
+    "user_id",
+    "channel_ids",
+    "since_ms",
+    "delete_message_seconds"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "user_id": {
+      "$ref": "../objects/snowflake.json",
+      "description": "The banned user whose messages are purged."
+    },
+    "channel_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      },
+      "description": "The guild's text-capable channels and threads at ban time."
+    },
+    "since_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Unix milliseconds: messages created at or after this instant are deleted (ban time minus delete_message_seconds)."
+    },
+    "delete_message_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 604800
+    }
+  }
+}

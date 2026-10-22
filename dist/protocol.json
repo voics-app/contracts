@@ -655,6 +655,12 @@
         "description": "A moderator moved a member to another voice channel or disconnected them; the gateway applies it to the member voice session and never dispatches it."
       },
       {
+        "name": "BAN_MESSAGE_PURGE",
+        "payload": "events/ban-message-purge.json",
+        "topic": "discordy.guild.v1",
+        "description": "A user was banned with delete_message_seconds; the messages service purges their recent messages in the listed channels. The gateway ignores it and never dispatches it."
+      },
+      {
         "name": "VOICE_QUALITY",
         "payload": "events/voice-quality.json",
         "topic": "discordy.telemetry.v1",

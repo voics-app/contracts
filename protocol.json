@@ -130,6 +130,7 @@
     "user_topic_events": ["CHANNEL_CREATE"],
     "bus_only_events": [
       { "name": "VOICE_MEMBER_MOVE", "payload": "events/voice-member-move.json", "topic": "discordy.guild.v1", "description": "A moderator moved a member to another voice channel or disconnected them; the gateway applies it to the member voice session and never dispatches it." },
+      { "name": "BAN_MESSAGE_PURGE", "payload": "events/ban-message-purge.json", "topic": "discordy.guild.v1", "description": "A user was banned with delete_message_seconds; the messages service purges their recent messages in the listed channels. The gateway ignores it and never dispatches it." },
       { "name": "VOICE_QUALITY", "payload": "events/voice-quality.json", "topic": "discordy.telemetry.v1", "description": "A voice quality sample from a client or a voice node." },
       { "name": "USAGE_TICK", "payload": "events/usage-tick.json", "topic": "discordy.telemetry.v1", "description": "A periodic usage counter consumed by the admin aggregator." }
     ]
