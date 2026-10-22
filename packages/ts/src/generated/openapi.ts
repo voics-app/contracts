@@ -2962,10 +2962,22 @@ export interface components {
              * @enum {string}
              */
             accent?: "iris" | "aurora" | "ember" | "rose" | "citrine" | "sky";
+            /** @description Animate custom emoji automatically. */
+            animate_emoji?: boolean;
+            /** @description Play GIFs automatically; when off they play on hover. */
+            animate_gifs?: boolean;
+            /** @description Animate stickers automatically. */
+            animate_stickers?: boolean;
             /** @description Chat font scale. */
             font_scale?: number;
+            /** @description Increase contrast of text and borders. */
+            high_contrast?: boolean;
             /** @description Show previews (embeds) of links in messages. */
             link_previews?: boolean;
+            /** @description Always underline links in messages. */
+            link_underline?: boolean;
+            /** @description Space in pixels between message groups. */
+            message_spacing?: number;
             notify_only_mentions?: boolean;
             /** @description Master switch for notification sounds. */
             notify_sounds?: boolean;
@@ -2977,6 +2989,13 @@ export interface components {
             }[];
             reduce_motion?: boolean;
             ringtone?: string;
+            /**
+             * @description How role colours show on member names: tint the name, a dot beside it, or not at all.
+             * @enum {string}
+             */
+            role_colors?: "name" | "dot" | "hidden";
+            /** @description Colour saturation of the interface, 1 is full colour (accessibility). */
+            saturation?: number;
             show_avatars_in_compact?: boolean;
             /** @description Skin tone modifier of the emoji picker; empty for the default. */
             skin_tone?: string;
@@ -2984,6 +3003,10 @@ export interface components {
             sound_toggles?: {
                 [key: string]: boolean;
             };
+            /** @description Speech rate of text-to-speech playback, 1 is normal. */
+            tts_rate?: number;
+            /** @description Allow the /tts command and read text-to-speech messages aloud. */
+            tts_read_aloud?: boolean;
         };
         /**
          * UserSettings

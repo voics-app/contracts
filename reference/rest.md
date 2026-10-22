@@ -1269,6 +1269,16 @@ Client preferences that follow the account across devices (client#123). Sparse: 
 | `font_scale?` | `number` | Chat font scale. |
 | `show_avatars_in_compact?` | `boolean` |  |
 | `link_previews?` | `boolean` | Show previews (embeds) of links in messages. |
+| `saturation?` | `number` | Colour saturation of the interface, 1 is full colour (accessibility). |
+| `role_colors?` | `"name" or "dot" or "hidden"` | How role colours show on member names: tint the name, a dot beside it, or not at all. |
+| `link_underline?` | `boolean` | Always underline links in messages. |
+| `message_spacing?` | `integer` | Space in pixels between message groups. |
+| `high_contrast?` | `boolean` | Increase contrast of text and borders. |
+| `animate_gifs?` | `boolean` | Play GIFs automatically; when off they play on hover. |
+| `animate_emoji?` | `boolean` | Animate custom emoji automatically. |
+| `animate_stickers?` | `boolean` | Animate stickers automatically. |
+| `tts_read_aloud?` | `boolean` | Allow the /tts command and read text-to-speech messages aloud. |
+| `tts_rate?` | `number` | Speech rate of text-to-speech playback, 1 is normal. |
 | `notify_only_mentions?` | `boolean` |  |
 | `notify_sounds?` | `boolean` | Master switch for notification sounds. |
 | `sound_toggles?` | `map of boolean` | Per-sound switches under notify_sounds; a missing entry means on. |
