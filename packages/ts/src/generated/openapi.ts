@@ -1896,7 +1896,7 @@ export interface components {
         };
         /**
          * CreateMessageRequest
-         * @description POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard.
+         * @description POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
          */
         CreateMessageRequest: {
             allowed_mentions?: components["schemas"]["AllowedMentions"];
@@ -2324,6 +2324,8 @@ export interface components {
             mention_roles: components["schemas"]["Snowflake"][];
             mentions: components["schemas"]["User"][];
             message_reference?: components["schemas"]["MessageReference"];
+            /** @description Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. */
+            message_snapshots?: components["schemas"]["MessageSnapshot"][];
             /** @description Client nonce used to resolve optimistic sends. */
             nonce?: string;
             pinned: boolean;
@@ -2334,7 +2336,7 @@ export interface components {
             /** Format: date-time */
             timestamp: string;
             tts: boolean;
-            /** @description MessageType. */
+            /** @description MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). */
             type: number;
             webhook_id?: components["schemas"]["Snowflake"];
         };
@@ -2374,13 +2376,14 @@ export interface components {
         };
         /**
          * MessageReference
-         * @description Reference to another message (reply, forward, crosspost).
+         * @description Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
          */
         MessageReference: {
             channel_id?: components["schemas"]["Snowflake"];
             fail_if_not_exists?: boolean;
             guild_id?: components["schemas"]["Snowflake"];
             message_id?: components["schemas"]["Snowflake"];
+            /** @description MessageReferenceType: 0 DEFAULT (reply), 1 FORWARD. */
             type?: number;
         };
         /**
@@ -2394,6 +2397,25 @@ export interface components {
             messages: components["schemas"]["Message"][][];
             /** @description Number of messages that match, across all pages. */
             total_results: number;
+        };
+        /**
+         * MessageSnapshot
+         * @description A frozen copy of a forwarded message. Attachments are re-referenced (same stored object, freshly signed URLs); the snapshot never changes when the source is edited or deleted.
+         */
+        MessageSnapshot: {
+            message: {
+                attachments: components["schemas"]["Attachment"][];
+                content: string;
+                /** Format: date-time */
+                edited_timestamp: string | null;
+                embeds: components["schemas"]["Embed"][];
+                flags?: number;
+                mention_roles: components["schemas"]["Snowflake"][];
+                mentions: components["schemas"]["User"][];
+                /** Format: date-time */
+                timestamp: string;
+                type: number;
+            };
         };
         /**
          * MfaLoginRequest

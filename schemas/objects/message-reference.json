@@ -2,11 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/objects/message-reference.json",
   "title": "MessageReference",
-  "description": "Reference to another message (reply, forward, crosspost).",
+  "description": "Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).",
   "type": "object",
   "properties": {
     "type": {
-      "type": "integer"
+      "type": "integer",
+      "description": "MessageReferenceType: 0 DEFAULT (reply), 1 FORWARD."
     },
     "message_id": {
       "$ref": "./snowflake.json"

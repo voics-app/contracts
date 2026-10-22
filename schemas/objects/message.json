@@ -103,7 +103,7 @@
     },
     "type": {
       "type": "integer",
-      "description": "MessageType."
+      "description": "MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics)."
     },
     "application_id": {
       "$ref": "./snowflake.json"
@@ -138,6 +138,13 @@
     },
     "position": {
       "type": "integer"
+    },
+    "message_snapshots": {
+      "type": "array",
+      "description": "Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.",
+      "items": {
+        "$ref": "./message-snapshot.json"
+      }
     }
   },
   "$defs": {

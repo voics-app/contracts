@@ -944,7 +944,7 @@ A standard-mode message.
 | `pinned` | `boolean` |  |
 | `hit?` | `boolean` | Only in message search results: true for the matching message, absent for its context messages. |
 | `webhook_id?` | `Snowflake` |  |
-| `type` | `integer` | MessageType. |
+| `type` | `integer` | MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). |
 | `application_id?` | `Snowflake` |  |
 | `flags?` | `integer` |  |
 | `message_reference?` | `MessageReference` |  |
@@ -953,6 +953,7 @@ A standard-mode message.
 | `thread?` | `Channel` |  |
 | `components?` | `array of MessageComponent` |  |
 | `position?` | `integer` |  |
+| `message_snapshots?` | `array of MessageSnapshot` | Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. |
 
 ### MessageComponent
 
@@ -991,11 +992,11 @@ The interaction a message responds to.
 
 ### MessageReference
 
-Reference to another message (reply, forward, crosspost).
+Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `type?` | `integer` |  |
+| `type?` | `integer` | MessageReferenceType: 0 DEFAULT (reply), 1 FORWARD. |
 | `message_id?` | `Snowflake` |  |
 | `channel_id?` | `Snowflake` |  |
 | `guild_id?` | `Snowflake` |  |
@@ -1010,6 +1011,14 @@ Result of GET /guilds/{guild_id}/messages/search and GET /channels/{channel_id}/
 | `total_results` | `integer` | Number of messages that match, across all pages. |
 | `messages` | `array of array of Message` | One group per hit: the matching message (hit = true) between its context messages, oldest first. |
 | `index_building?` | `boolean` | True while the search index is being (re)built from stored history; results may be incomplete. |
+
+### MessageSnapshot
+
+A frozen copy of a forwarded message. Attachments are re-referenced (same stored object, freshly signed URLs); the snapshot never changes when the source is edited or deleted.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `message` | `object` |  |
 
 ### MuteConfig
 
@@ -1533,7 +1542,7 @@ POST /channels/{id}/invites body.
 
 ### CreateMessageRequest
 
-POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard.
+POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
 
 | Field | Type | Description |
 | --- | --- | --- |

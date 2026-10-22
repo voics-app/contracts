@@ -7462,7 +7462,7 @@
       },
       "CreateMessageRequest": {
         "title": "CreateMessageRequest",
-        "description": "POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard.",
+        "description": "POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).",
         "type": "object",
         "properties": {
           "content": {
@@ -8814,7 +8814,7 @@
           },
           "type": {
             "type": "integer",
-            "description": "MessageType."
+            "description": "MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics)."
           },
           "application_id": {
             "$ref": "#/components/schemas/Snowflake"
@@ -8849,6 +8849,13 @@
           },
           "position": {
             "type": "integer"
+          },
+          "message_snapshots": {
+            "type": "array",
+            "description": "Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.",
+            "items": {
+              "$ref": "#/components/schemas/MessageSnapshot"
+            }
           }
         }
       },
@@ -8949,11 +8956,12 @@
       },
       "MessageReference": {
         "title": "MessageReference",
-        "description": "Reference to another message (reply, forward, crosspost).",
+        "description": "Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).",
         "type": "object",
         "properties": {
           "type": {
-            "type": "integer"
+            "type": "integer",
+            "description": "MessageReferenceType: 0 DEFAULT (reply), 1 FORWARD."
           },
           "message_id": {
             "$ref": "#/components/schemas/Snowflake"
@@ -8996,6 +9004,75 @@
           "index_building": {
             "type": "boolean",
             "description": "True while the search index is being (re)built from stored history; results may be incomplete."
+          }
+        }
+      },
+      "MessageSnapshot": {
+        "title": "MessageSnapshot",
+        "description": "A frozen copy of a forwarded message. Attachments are re-referenced (same stored object, freshly signed URLs); the snapshot never changes when the source is edited or deleted.",
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "object",
+            "required": [
+              "content",
+              "timestamp",
+              "edited_timestamp",
+              "mentions",
+              "mention_roles",
+              "attachments",
+              "embeds",
+              "type"
+            ],
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "edited_timestamp": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "mentions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "mention_roles": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Snowflake"
+                }
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Attachment"
+                }
+              },
+              "embeds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Embed"
+                }
+              },
+              "type": {
+                "type": "integer"
+              },
+              "flags": {
+                "type": "integer"
+              }
+            }
           }
         }
       },

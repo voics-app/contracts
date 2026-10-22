@@ -478,7 +478,7 @@ MESSAGE_CREATE / MESSAGE_UPDATE dispatch: a message plus guild context.
 | `pinned` | `boolean` |  |
 | `hit?` | `boolean` | Only in message search results: true for the matching message, absent for its context messages. |
 | `webhook_id?` | `Snowflake` |  |
-| `type` | `integer` | MessageType. |
+| `type` | `integer` | MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). |
 | `application_id?` | `Snowflake` |  |
 | `flags?` | `integer` |  |
 | `message_reference?` | `MessageReference` |  |
@@ -487,6 +487,7 @@ MESSAGE_CREATE / MESSAGE_UPDATE dispatch: a message plus guild context.
 | `thread?` | `Channel` |  |
 | `components?` | `array of MessageComponent` |  |
 | `position?` | `integer` |  |
+| `message_snapshots?` | `array of MessageSnapshot` | Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. |
 | `guild_id?` | `Snowflake` |  |
 | `member?` | `GuildMember` |  |
 

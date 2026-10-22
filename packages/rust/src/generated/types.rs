@@ -1171,7 +1171,7 @@ pub struct CreateInviteRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub unique: ::std::option::Option<bool>,
 }
-///POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard.
+///POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct CreateMessageRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -2877,6 +2877,9 @@ pub struct Message {
     pub mentions: ::std::vec::Vec<User>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub message_reference: ::std::option::Option<MessageReference>,
+    ///Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub message_snapshots: ::std::vec::Vec<MessageSnapshot>,
     ///Client nonce used to resolve optimistic sends.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub nonce: ::std::option::Option<MessageNonce>,
@@ -2891,7 +2894,7 @@ pub struct Message {
     pub thread: ::std::option::Option<Channel>,
     pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
     pub tts: bool,
-    ///MessageType.
+    ///MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
     #[serde(rename = "type")]
     pub type_: i64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -2994,6 +2997,9 @@ pub struct MessageEvent {
     pub mentions: ::std::vec::Vec<User>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub message_reference: ::std::option::Option<MessageReference>,
+    ///Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub message_snapshots: ::std::vec::Vec<MessageSnapshot>,
     ///Client nonce used to resolve optimistic sends.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub nonce: ::std::option::Option<MessageEventNonce>,
@@ -3008,7 +3014,7 @@ pub struct MessageEvent {
     pub thread: ::std::option::Option<Channel>,
     pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
     pub tts: bool,
-    ///MessageType.
+    ///MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
     #[serde(rename = "type")]
     pub type_: i64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3163,7 +3169,7 @@ pub struct MessageReactionRemoveEvent {
     pub type_: i64,
     pub user_id: Snowflake,
 }
-///Reference to another message (reply, forward, crosspost).
+///Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct MessageReference {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3174,6 +3180,7 @@ pub struct MessageReference {
     pub guild_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub message_id: ::std::option::Option<Snowflake>,
+    ///MessageReferenceType: 0 DEFAULT (reply), 1 FORWARD.
     #[serde(
         rename = "type",
         skip_serializing_if = "::std::option::Option::is_none"
@@ -3190,6 +3197,27 @@ pub struct MessageSearchResponse {
     pub messages: ::std::vec::Vec<::std::vec::Vec<Message>>,
     ///Number of messages that match, across all pages.
     pub total_results: u64,
+}
+///A frozen copy of a forwarded message. Attachments are re-referenced (same stored object, freshly signed URLs); the snapshot never changes when the source is edited or deleted.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MessageSnapshot {
+    pub message: MessageSnapshotMessage,
+}
+///`MessageSnapshotMessage`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MessageSnapshotMessage {
+    pub attachments: ::std::vec::Vec<Attachment>,
+    pub content: ::std::string::String,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub edited_timestamp: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    pub embeds: ::std::vec::Vec<Embed>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub flags: ::std::option::Option<i64>,
+    pub mention_roles: ::std::vec::Vec<Snowflake>,
+    pub mentions: ::std::vec::Vec<User>,
+    pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
+    #[serde(rename = "type")]
+    pub type_: i64,
 }
 ///GET /internal/v1/admin/stats on messages. Counts only, never content.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
