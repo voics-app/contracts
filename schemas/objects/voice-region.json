@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/voice-region.json",
+  "title": "VoiceRegion",
+  "description": "A voice region.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "optimal"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "optimal": {
+      "type": "boolean"
+    },
+    "deprecated": {
+      "type": "boolean"
+    },
+    "custom": {
+      "type": "boolean"
+    }
+  }
+}

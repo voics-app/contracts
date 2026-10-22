@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/dave-prepare-transition.json",
+  "title": "DavePrepareTransitionPayload",
+  "description": "Voice op 21 DAVE_PREPARE_TRANSITION.",
+  "type": "object",
+  "required": [
+    "transition_id",
+    "protocol_version"
+  ],
+  "properties": {
+    "transition_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "protocol_version": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

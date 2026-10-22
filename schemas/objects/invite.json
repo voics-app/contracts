@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/invite.json",
+  "title": "Invite",
+  "description": "A guild or group DM invite.",
+  "type": "object",
+  "required": [
+    "code",
+    "channel"
+  ],
+  "properties": {
+    "type": {
+      "type": "integer"
+    },
+    "code": {
+      "type": "string"
+    },
+    "guild": {
+      "$ref": "#/$defs/InviteGuild"
+    },
+    "channel": {
+      "anyOf": [
+        {
+          "$ref": "./partial-channel.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "inviter": {
+      "$ref": "./user.json"
+    },
+    "target_type": {
+      "type": "integer"
+    },
+    "target_user": {
+      "$ref": "./user.json"
+    },
+    "approximate_presence_count": {
+      "type": "integer"
+    },
+    "approximate_member_count": {
+      "type": "integer"
+    },
+    "expires_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "uses": {
+      "type": "integer"
+    },
+    "max_uses": {
+      "type": "integer"
+    },
+    "max_age": {
+      "type": "integer"
+    },
+    "temporary": {
+      "type": "boolean"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "InviteGuild": {
+      "title": "InviteGuild",
+      "description": "The partial guild an invite points to.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "icon"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "name": {
+          "type": "string"
+        },
+        "icon": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "splash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "banner": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "verification_level": {
+          "type": "integer"
+        },
+        "nsfw_level": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

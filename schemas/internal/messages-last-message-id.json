@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/messages-last-message-id.json",
+  "title": "LastMessageId",
+  "description": "GET /internal/v1/channels/{id}/last-message-id on messages.",
+  "type": "object",
+  "required": [
+    "last_message_id"
+  ],
+  "properties": {
+    "last_message_id": {
+      "anyOf": [
+        {
+          "$ref": "../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

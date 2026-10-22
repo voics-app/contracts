@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/session-description.json",
+  "title": "SessionDescriptionPayload",
+  "description": "Voice op 4 SESSION_DESCRIPTION. The client synthesises the remote SDP from it.",
+  "type": "object",
+  "required": [
+    "ice_ufrag",
+    "ice_pwd",
+    "fingerprint",
+    "candidates",
+    "audio_codec",
+    "video_codec",
+    "e2ee"
+  ],
+  "properties": {
+    "ice_ufrag": {
+      "type": "string"
+    },
+    "ice_pwd": {
+      "type": "string"
+    },
+    "fingerprint": {
+      "type": "string"
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/IceCandidate"
+      }
+    },
+    "audio_codec": {
+      "type": "string"
+    },
+    "video_codec": {
+      "type": "string"
+    },
+    "e2ee": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VoiceE2ee"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "IceCandidate": {
+      "title": "IceCandidate",
+      "description": "A server ICE-lite candidate.",
+      "type": "object",
+      "required": [
+        "ip",
+        "port",
+        "protocol"
+      ],
+      "properties": {
+        "ip": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "protocol": {
+          "const": "udp"
+        }
+      }
+    },
+    "VoiceE2ee": {
+      "title": "VoiceE2ee",
+      "description": "DAVE media E2EE parameters.",
+      "type": "object",
+      "required": [
+        "protocol_version"
+      ],
+      "properties": {
+        "protocol_version": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

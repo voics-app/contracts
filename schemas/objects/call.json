@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/call.json",
+  "title": "Call",
+  "description": "A DM or group DM call: its voice states and the recipients still ringing for it. Carried by CALL_CREATE and CALL_UPDATE.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "message_id",
+    "region",
+    "ringing",
+    "voice_states"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "./snowflake.json"
+    },
+    "message_id": {
+      "description": "Always null: a call is not attached to a message.",
+      "type": "null"
+    },
+    "region": {
+      "type": "string",
+      "description": "Voice region the call is served from."
+    },
+    "ringing": {
+      "type": "array",
+      "description": "Recipients who have not joined or declined yet.",
+      "items": {
+        "$ref": "./snowflake.json"
+      }
+    },
+    "voice_states": {
+      "type": "array",
+      "description": "The VoiceState of every participant.",
+      "items": {
+        "$ref": "./voice-state.json"
+      }
+    }
+  }
+}

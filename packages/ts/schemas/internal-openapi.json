@@ -1,0 +1,2489 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Discordy internal API",
+    "version": "0.1.0",
+    "description": "Service-to-service HTTP APIs (`/internal/v1`). Every call carries `X-Internal-Token: $INTERNAL_SERVICE_TOKEN`. Tags name the owning service. `GET /admin/stats` exists on api, messages and gateway with the shapes ApiAdminStats, MessagesAdminStats and GatewayAdminStats respectively.",
+    "license": {
+      "name": "UNLICENSED",
+      "identifier": "UNLICENSED"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://api:8080/internal/v1",
+      "description": "api"
+    },
+    {
+      "url": "http://messages:8082/internal/v1",
+      "description": "messages"
+    },
+    {
+      "url": "http://gateway:4000/internal/v1",
+      "description": "gateway"
+    }
+  ],
+  "security": [
+    {
+      "InternalToken": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "api",
+      "description": "Served by api (port 8080)."
+    },
+    {
+      "name": "messages",
+      "description": "Served by messages (port 8082)."
+    },
+    {
+      "name": "gateway",
+      "description": "Served by gateway (port 4000)."
+    }
+  ],
+  "paths": {
+    "/auth/introspect": {
+      "post": {
+        "operationId": "introspectToken",
+        "summary": "Validate a user or bot token",
+        "tags": [
+          "api"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntrospectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntrospectResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/users/{user_id}/ready": {
+      "get": {
+        "operationId": "getUserReadyState",
+        "summary": "State used to build READY",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserReadyState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/state": {
+      "get": {
+        "operationId": "getGuildState",
+        "summary": "Full guild state for the gateway guild process",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildFull"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/access/{user_id}": {
+      "get": {
+        "operationId": "getChannelAccess",
+        "summary": "Permissions and effective delivery mode of a user in a channel",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChannelAccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/admin/stats": {
+      "get": {
+        "operationId": "getApiAdminStats",
+        "summary": "Service statistics (api, messages and gateway each answer with their own shape)",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiAdminStats"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MessagesAdminStats"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GatewayAdminStats"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "operationId": "listAdminUsers",
+        "summary": "Search users",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "description": "Username or email substring.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Return users with a higher ID.",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/suspend": {
+      "post": {
+        "operationId": "suspendUser",
+        "summary": "Suspend a user",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuspendUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/admin/guilds": {
+      "get": {
+        "operationId": "listAdminGuilds",
+        "summary": "Search guilds",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "description": "Guild name substring.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminGuild"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/last-message-id": {
+      "get": {
+        "operationId": "getLastMessageId",
+        "summary": "Last message ID of a channel (messages service)",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LastMessageId"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/voice/nodes/{node_id}/drain": {
+      "post": {
+        "operationId": "drainVoiceNode",
+        "summary": "Stop allocating to a voice node (gateway)",
+        "tags": [
+          "gateway"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/node_id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/voice/nodes/{node_id}/undrain": {
+      "post": {
+        "operationId": "undrainVoiceNode",
+        "summary": "Resume allocating to a voice node (gateway)",
+        "tags": [
+          "gateway"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/node_id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "InternalToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Internal-Token"
+      }
+    },
+    "parameters": {
+      "user_id": {
+        "name": "user_id",
+        "in": "path",
+        "required": true,
+        "description": "User ID.",
+        "schema": {
+          "$ref": "#/components/schemas/Snowflake"
+        }
+      },
+      "guild_id": {
+        "name": "guild_id",
+        "in": "path",
+        "required": true,
+        "description": "Guild ID.",
+        "schema": {
+          "$ref": "#/components/schemas/Snowflake"
+        }
+      },
+      "channel_id": {
+        "name": "channel_id",
+        "in": "path",
+        "required": true,
+        "description": "Channel ID.",
+        "schema": {
+          "$ref": "#/components/schemas/Snowflake"
+        }
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "User ID.",
+        "schema": {
+          "$ref": "#/components/schemas/Snowflake"
+        }
+      },
+      "node_id": {
+        "name": "node_id",
+        "in": "path",
+        "required": true,
+        "description": "Voice node ID.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid X-Internal-Token.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "The user is not a member of the channel.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Unknown resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Activity": {
+        "title": "Activity",
+        "description": "A user activity.",
+        "type": "object",
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "integer",
+            "description": "ActivityType."
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "integer"
+          },
+          "timestamps": {
+            "$ref": "#/components/schemas/ActivityTimestamps"
+          },
+          "application_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "details": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "emoji": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActivityEmoji"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ActivityEmoji": {
+        "title": "ActivityEmoji",
+        "description": "Emoji of a custom status.",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "animated": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ActivityTimestamps": {
+        "title": "ActivityTimestamps",
+        "description": "Unix millisecond start/end times.",
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "integer"
+          },
+          "end": {
+            "type": "integer"
+          }
+        }
+      },
+      "AdminGuild": {
+        "title": "AdminGuild",
+        "description": "A guild as listed in the admin portal.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "owner_id",
+          "member_count",
+          "voice_region",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string"
+          },
+          "owner_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "member_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "voice_region": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AdminUser": {
+        "title": "AdminUser",
+        "description": "A user as listed in the admin portal.",
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "email",
+          "bot",
+          "created_at",
+          "suspended_until"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bot": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "suspended_until": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "suspension_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "AdminUserPage": {
+        "title": "AdminUserPage",
+        "description": "GET /internal/v1/admin/users: a page of users, ordered by ID.",
+        "type": "object",
+        "required": [
+          "users",
+          "next_after"
+        ],
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminUser"
+            }
+          },
+          "next_after": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Pass as `after` to fetch the next page; null at the end."
+          }
+        }
+      },
+      "ApiAdminStats": {
+        "title": "ApiAdminStats",
+        "description": "GET /internal/v1/admin/stats on api.",
+        "type": "object",
+        "required": [
+          "users_total",
+          "guilds_total",
+          "channels_total",
+          "bots_total",
+          "signups_24h"
+        ],
+        "properties": {
+          "users_total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "guilds_total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "channels_total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "bots_total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "signups_24h": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "Channel": {
+        "title": "Channel",
+        "description": "A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.",
+        "type": "object",
+        "required": [
+          "id",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "type": {
+            "type": "integer",
+            "description": "ChannelType (Discord values)."
+          },
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "position": {
+            "type": "integer"
+          },
+          "permission_overwrites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermissionOverwrite"
+            }
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "topic": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nsfw": {
+            "type": "boolean"
+          },
+          "text_chat_enabled": {
+            "type": "boolean",
+            "description": "Voice channels only: whether members can send messages to the channel chat. Defaults to true."
+          },
+          "last_message_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bitrate": {
+            "type": "integer"
+          },
+          "user_limit": {
+            "type": "integer"
+          },
+          "rate_limit_per_user": {
+            "type": "integer"
+          },
+          "recipients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "owner_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "application_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "managed": {
+            "type": "boolean"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_pin_timestamp": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "rtc_region": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "video_quality_mode": {
+            "type": "integer"
+          },
+          "message_count": {
+            "type": "integer"
+          },
+          "member_count": {
+            "type": "integer"
+          },
+          "thread_metadata": {
+            "$ref": "#/components/schemas/ThreadMetadata"
+          },
+          "member": {
+            "$ref": "#/components/schemas/ThreadMember"
+          },
+          "default_auto_archive_duration": {
+            "type": "integer"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/PermissionBitset"
+          },
+          "flags": {
+            "type": "integer"
+          },
+          "total_message_sent": {
+            "type": "integer"
+          },
+          "available_tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ForumTag"
+            }
+          },
+          "applied_tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "default_reaction_emoji": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DefaultReaction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "default_thread_rate_limit_per_user": {
+            "type": "integer"
+          },
+          "default_sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "default_forum_layout": {
+            "type": "integer"
+          },
+          "newly_created": {
+            "type": "boolean",
+            "description": "Only on THREAD_CREATE."
+          },
+          "delivery_mode": {
+            "$ref": "#/components/schemas/DeliveryMode",
+            "description": "Discordy: effective delivery mode. Always present on full channel objects."
+          },
+          "voice_region": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Discordy: per-channel voice region override; null uses the guild's voice_region."
+          }
+        }
+      },
+      "ChannelAccess": {
+        "title": "ChannelAccess",
+        "description": "GET /internal/v1/channels/{channel_id}/access/{user_id}.",
+        "type": "object",
+        "required": [
+          "permissions",
+          "guild_id",
+          "channel_type",
+          "delivery_mode",
+          "recipient_ids"
+        ],
+        "properties": {
+          "permissions": {
+            "$ref": "#/components/schemas/PermissionBitset"
+          },
+          "guild_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "channel_type": {
+            "type": "integer"
+          },
+          "delivery_mode": {
+            "$ref": "#/components/schemas/DeliveryMode"
+          },
+          "recipient_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          }
+        }
+      },
+      "ChannelNotificationOverride": {
+        "title": "ChannelNotificationOverride",
+        "type": "object",
+        "required": [
+          "channel_id",
+          "message_notifications",
+          "muted",
+          "mute_config"
+        ],
+        "properties": {
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "message_notifications": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              2,
+              null
+            ],
+            "description": "0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild)."
+          },
+          "muted": {
+            "type": "boolean"
+          },
+          "mute_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MuteConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ClientStatus": {
+        "title": "ClientStatus",
+        "description": "Status per platform.",
+        "type": "object",
+        "properties": {
+          "desktop": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "web": {
+            "type": "string"
+          }
+        }
+      },
+      "CustomStatus": {
+        "title": "CustomStatus",
+        "description": "A user's custom status.",
+        "type": "object",
+        "required": [
+          "text",
+          "emoji_id",
+          "emoji_name",
+          "expires_at"
+        ],
+        "properties": {
+          "text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "emoji_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "emoji_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "DefaultReaction": {
+        "title": "DefaultReaction",
+        "description": "Default reaction emoji of a forum channel.",
+        "type": "object",
+        "required": [
+          "emoji_id",
+          "emoji_name"
+        ],
+        "properties": {
+          "emoji_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "emoji_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "DeliveryMode": {
+        "title": "DeliveryMode",
+        "description": "Discordy message delivery mode. Strictness: standard (0) < ephemeral (1) < p2p (2).",
+        "type": "string",
+        "enum": [
+          "standard",
+          "ephemeral",
+          "p2p"
+        ]
+      },
+      "Emoji": {
+        "title": "Emoji",
+        "description": "A custom or unicode emoji. Unicode emojis have a null id.",
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "require_colons": {
+            "type": "boolean"
+          },
+          "managed": {
+            "type": "boolean"
+          },
+          "animated": {
+            "type": "boolean"
+          },
+          "available": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Error": {
+        "title": "Error",
+        "description": "REST error envelope with a Discord-style error code (see protocol.json rest.error_codes).",
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "object",
+            "description": "Nested field errors for INVALID_FORM_BODY."
+          }
+        }
+      },
+      "ForumTag": {
+        "title": "ForumTag",
+        "description": "A tag that can be applied to forum threads.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "moderated",
+          "emoji_id",
+          "emoji_name"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string"
+          },
+          "moderated": {
+            "type": "boolean"
+          },
+          "emoji_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "emoji_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "GatewayAdminStats": {
+        "title": "GatewayAdminStats",
+        "description": "GET /internal/v1/admin/stats on gateway.",
+        "type": "object",
+        "required": [
+          "sessions_online",
+          "sessions_by_node",
+          "guild_processes",
+          "voice_allocations"
+        ],
+        "properties": {
+          "sessions_online": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sessions_by_node": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "guild_processes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "voice_allocations": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "GuildFolder": {
+        "title": "GuildFolder",
+        "description": "One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "color",
+          "guild_ids"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Folder id chosen by the client (stable per user); null for a single un-foldered server."
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 32
+          },
+          "color": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "RGB colour as 0xRRGGBB."
+          },
+          "guild_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            },
+            "maxItems": 200
+          }
+        }
+      },
+      "GuildFull": {
+        "title": "GuildFull",
+        "description": "A guild with its full state (GUILD_CREATE payload and the internal guild state endpoint).",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "icon",
+          "owner_id",
+          "afk_channel_id",
+          "afk_timeout",
+          "verification_level",
+          "default_message_notifications",
+          "explicit_content_filter",
+          "roles",
+          "emojis",
+          "features",
+          "mfa_level",
+          "system_channel_id",
+          "system_channel_flags",
+          "preferred_locale",
+          "voice_region",
+          "member_count",
+          "members",
+          "channels",
+          "threads",
+          "voice_states"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "splash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "discovery_splash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "owner": {
+            "type": "boolean",
+            "description": "True if the current user owns the guild."
+          },
+          "owner_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/PermissionBitset"
+          },
+          "afk_channel_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "afk_timeout": {
+            "type": "integer"
+          },
+          "verification_level": {
+            "type": "integer"
+          },
+          "default_message_notifications": {
+            "type": "integer"
+          },
+          "explicit_content_filter": {
+            "type": "integer"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            }
+          },
+          "emojis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Emoji"
+            }
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mfa_level": {
+            "type": "integer"
+          },
+          "application_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "system_channel_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "system_channel_flags": {
+            "type": "integer"
+          },
+          "rules_channel_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "max_members": {
+            "type": "integer"
+          },
+          "vanity_url_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "banner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "preferred_locale": {
+            "type": "string"
+          },
+          "public_updates_channel_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "nsfw_level": {
+            "type": "integer"
+          },
+          "approximate_member_count": {
+            "type": "integer"
+          },
+          "approximate_presence_count": {
+            "type": "integer"
+          },
+          "voice_region": {
+            "type": "string",
+            "description": "Discordy: voice region ID used to allocate voice nodes."
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "large": {
+            "type": "boolean"
+          },
+          "unavailable": {
+            "type": "boolean"
+          },
+          "member_count": {
+            "type": "integer"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuildMember"
+            }
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Channel"
+            }
+          },
+          "threads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Channel"
+            }
+          },
+          "presences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PresenceUpdateEvent"
+            }
+          },
+          "voice_states": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceState"
+            }
+          }
+        }
+      },
+      "GuildMember": {
+        "title": "GuildMember",
+        "description": "A member of a guild.",
+        "type": "object",
+        "required": [
+          "roles",
+          "joined_at",
+          "deaf",
+          "mute",
+          "flags"
+        ],
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "nick": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "avatar": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "banner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "premium_since": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "deaf": {
+            "type": "boolean"
+          },
+          "mute": {
+            "type": "boolean"
+          },
+          "flags": {
+            "type": "integer"
+          },
+          "pending": {
+            "type": "boolean"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/PermissionBitset",
+            "description": "Total permissions in the interaction channel; only in interaction payloads."
+          },
+          "communication_disabled_until": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "GuildNotificationSettings": {
+        "title": "GuildNotificationSettings",
+        "description": "The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.",
+        "type": "object",
+        "required": [
+          "guild_id",
+          "message_notifications",
+          "suppress_everyone",
+          "suppress_roles",
+          "muted",
+          "mute_config",
+          "hide_muted_channels",
+          "channel_overrides"
+        ],
+        "properties": {
+          "guild_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null for direct messages and group DMs."
+          },
+          "message_notifications": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              2,
+              null
+            ],
+            "description": "0 all messages, 1 only @mentions, 2 nothing. null inherits (the guild level for a channel override, the guild's default_message_notifications for the guild)."
+          },
+          "suppress_everyone": {
+            "type": "boolean",
+            "description": "Suppress @everyone and @here."
+          },
+          "suppress_roles": {
+            "type": "boolean",
+            "description": "Suppress all role @mentions."
+          },
+          "muted": {
+            "type": "boolean"
+          },
+          "mute_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MuteConfig"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Present while muted."
+          },
+          "hide_muted_channels": {
+            "type": "boolean"
+          },
+          "channel_overrides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelNotificationOverride"
+            },
+            "description": "Only channels with a non-default override."
+          }
+        }
+      },
+      "IntrospectRequest": {
+        "title": "IntrospectRequest",
+        "description": "POST /internal/v1/auth/introspect body.",
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The raw Authorization header value or bare token."
+          }
+        }
+      },
+      "IntrospectResponse": {
+        "title": "IntrospectResponse",
+        "description": "Result of token introspection.",
+        "type": "object",
+        "required": [
+          "user_id",
+          "kind",
+          "application_id",
+          "session_id"
+        ],
+        "properties": {
+          "user_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "user",
+              "bot"
+            ]
+          },
+          "application_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "LastMessageId": {
+        "title": "LastMessageId",
+        "description": "GET /internal/v1/channels/{id}/last-message-id on messages.",
+        "type": "object",
+        "required": [
+          "last_message_id"
+        ],
+        "properties": {
+          "last_message_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "MessagesAdminStats": {
+        "title": "MessagesAdminStats",
+        "description": "GET /internal/v1/admin/stats on messages. Counts only, never content.",
+        "type": "object",
+        "required": [
+          "messages_24h",
+          "messages_by_mode"
+        ],
+        "properties": {
+          "messages_24h": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "messages_by_mode": {
+            "$ref": "#/components/schemas/MessagesByMode"
+          }
+        }
+      },
+      "MessagesByMode": {
+        "title": "MessagesByMode",
+        "description": "Message counts per delivery mode.",
+        "type": "object",
+        "required": [
+          "standard",
+          "ephemeral_relayed",
+          "p2p_signaled"
+        ],
+        "properties": {
+          "standard": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "ephemeral_relayed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "p2p_signaled": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "MuteConfig": {
+        "title": "MuteConfig",
+        "description": "When a mute ends. end_time null means until turned off; an end_time in the past means the mute has expired and is ignored.",
+        "type": "object",
+        "required": [
+          "end_time"
+        ],
+        "properties": {
+          "end_time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "PartialUser": {
+        "title": "PartialUser",
+        "description": "A user reference that only guarantees the ID (presence updates, audit logs).",
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "username": {
+            "type": "string"
+          },
+          "global_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "avatar": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bot": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PermissionBitset": {
+        "title": "PermissionBitset",
+        "description": "A 64-bit permission bitfield serialized as a decimal string. Bit values are listed in permissions.json.",
+        "type": "string",
+        "pattern": "^[0-9]{1,20}$",
+        "examples": [
+          "1024"
+        ]
+      },
+      "PermissionOverwrite": {
+        "title": "PermissionOverwrite",
+        "description": "A channel permission overwrite for a role or member.",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "allow",
+          "deny"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "type": {
+            "type": "integer",
+            "description": "OverwriteType: 0 role, 1 member."
+          },
+          "allow": {
+            "$ref": "#/components/schemas/PermissionBitset"
+          },
+          "deny": {
+            "$ref": "#/components/schemas/PermissionBitset"
+          }
+        }
+      },
+      "PresenceUpdateEvent": {
+        "title": "PresenceUpdateEvent",
+        "description": "PRESENCE_UPDATE dispatch.",
+        "type": "object",
+        "required": [
+          "user",
+          "status",
+          "activities",
+          "client_status"
+        ],
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/PartialUser"
+          },
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "online",
+              "idle",
+              "dnd",
+              "offline"
+            ]
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity"
+            }
+          },
+          "client_status": {
+            "$ref": "#/components/schemas/ClientStatus"
+          }
+        }
+      },
+      "Relationship": {
+        "title": "Relationship",
+        "description": "A relationship with another user.",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "user"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "type": {
+            "type": "integer",
+            "description": "RelationshipType."
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "nickname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "since": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Role": {
+        "title": "Role",
+        "description": "A guild role.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "color",
+          "hoist",
+          "position",
+          "permissions",
+          "managed",
+          "mentionable",
+          "flags"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string"
+          },
+          "color": {
+            "type": "integer"
+          },
+          "hoist": {
+            "type": "boolean"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unicode_emoji": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "position": {
+            "type": "integer"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/PermissionBitset"
+          },
+          "managed": {
+            "type": "boolean"
+          },
+          "mentionable": {
+            "type": "boolean"
+          },
+          "flags": {
+            "type": "integer"
+          },
+          "tags": {
+            "$ref": "#/components/schemas/RoleTags"
+          }
+        }
+      },
+      "RoleTags": {
+        "title": "RoleTags",
+        "description": "Tags of a managed role.",
+        "type": "object",
+        "properties": {
+          "bot_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "integration_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          }
+        }
+      },
+      "Snowflake": {
+        "title": "Snowflake",
+        "description": "A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 2026-01-01T00:00:00Z, 10 bits worker, 12 bits sequence).",
+        "type": "string",
+        "pattern": "^[0-9]{1,20}$",
+        "examples": [
+          "1234567890123456789"
+        ]
+      },
+      "SuspendUserRequest": {
+        "title": "SuspendUserRequest",
+        "description": "POST /internal/v1/admin/users/{id}/suspend body.",
+        "type": "object",
+        "required": [
+          "reason",
+          "until"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "until": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Null suspends indefinitely."
+          }
+        }
+      },
+      "ThreadMember": {
+        "title": "ThreadMember",
+        "description": "A user's membership of a thread.",
+        "type": "object",
+        "required": [
+          "join_timestamp",
+          "flags"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "join_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "flags": {
+            "type": "integer"
+          },
+          "member": {
+            "$ref": "#/components/schemas/GuildMember"
+          }
+        }
+      },
+      "ThreadMetadata": {
+        "title": "ThreadMetadata",
+        "description": "Thread-specific fields.",
+        "type": "object",
+        "required": [
+          "archived",
+          "auto_archive_duration",
+          "archive_timestamp",
+          "locked"
+        ],
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "auto_archive_duration": {
+            "type": "integer"
+          },
+          "archive_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "locked": {
+            "type": "boolean"
+          },
+          "invitable": {
+            "type": "boolean"
+          },
+          "create_timestamp": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "User": {
+        "title": "User",
+        "description": "A Discordy user (Discord v10 User object).",
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "discriminator",
+          "global_name",
+          "avatar"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "username": {
+            "type": "string"
+          },
+          "discriminator": {
+            "type": "string",
+            "description": "Always \"0\" (unique usernames)."
+          },
+          "global_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "avatar": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Avatar hash."
+          },
+          "bot": {
+            "type": "boolean"
+          },
+          "system": {
+            "type": "boolean"
+          },
+          "mfa_enabled": {
+            "type": "boolean"
+          },
+          "banner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "accent_color": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "locale": {
+            "type": "string"
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Only returned for the current user."
+          },
+          "flags": {
+            "type": "integer"
+          },
+          "public_flags": {
+            "type": "integer"
+          }
+        }
+      },
+      "UserPreferences": {
+        "title": "UserPreferences",
+        "description": "Client preferences that follow the account across devices (client#123). Sparse: a key is present only once the user (or a first-run migration) set it; clients fall back to their defaults for missing keys. As a PATCH value the object is merged key by key. Device-specific settings (audio and video devices, volumes, keybinds, window state, desktop notification toggle, taskbar flash) are not stored here.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accent": {
+            "type": "string",
+            "enum": [
+              "iris",
+              "aurora",
+              "ember",
+              "rose",
+              "citrine",
+              "sky"
+            ],
+            "description": "Accent colour preset."
+          },
+          "reduce_motion": {
+            "type": "boolean"
+          },
+          "font_scale": {
+            "type": "number",
+            "minimum": 0.75,
+            "maximum": 1.5,
+            "description": "Chat font scale."
+          },
+          "show_avatars_in_compact": {
+            "type": "boolean"
+          },
+          "link_previews": {
+            "type": "boolean",
+            "description": "Show previews (embeds) of links in messages."
+          },
+          "notify_only_mentions": {
+            "type": "boolean"
+          },
+          "notify_sounds": {
+            "type": "boolean",
+            "description": "Master switch for notification sounds."
+          },
+          "sound_toggles": {
+            "type": "object",
+            "description": "Per-sound switches under notify_sounds; a missing entry means on.",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "maxProperties": 64
+          },
+          "ringtone": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "skin_tone": {
+            "type": "string",
+            "maxLength": 16,
+            "description": "Skin tone modifier of the emoji picker; empty for the default."
+          },
+          "recent_reactions": {
+            "type": "array",
+            "description": "Recently used reaction emoji, most recent first.",
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Snowflake"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "animated": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "UserReadyState": {
+        "title": "UserReadyState",
+        "description": "GET /internal/v1/users/{user_id}/ready: the state used to build READY.",
+        "type": "object",
+        "required": [
+          "user",
+          "guilds",
+          "private_channels",
+          "relationships",
+          "user_settings",
+          "user_guild_settings",
+          "notes"
+        ],
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "guilds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuildFull"
+            }
+          },
+          "private_channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Channel"
+            }
+          },
+          "relationships": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Relationship"
+            }
+          },
+          "user_settings": {
+            "$ref": "#/components/schemas/UserSettings"
+          },
+          "user_guild_settings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuildNotificationSettings"
+            },
+            "description": "Stored notification settings of the user's guilds and DMs (guild_id null); guilds without a row use the defaults."
+          },
+          "notes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "description": "The user's private notes keyed by the noted user's id."
+          }
+        }
+      },
+      "UserSettings": {
+        "title": "UserSettings",
+        "description": "Account-wide settings of the current user. `default_delivery_mode` is a Discordy extra.",
+        "type": "object",
+        "required": [
+          "locale",
+          "theme",
+          "status",
+          "custom_status",
+          "default_delivery_mode",
+          "e2ee_calls_default",
+          "developer_mode",
+          "message_display_compact",
+          "guild_folders",
+          "guild_positions",
+          "preferences"
+        ],
+        "properties": {
+          "locale": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "dark",
+              "light",
+              "oled"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "online",
+              "idle",
+              "dnd",
+              "invisible"
+            ]
+          },
+          "custom_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CustomStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "default_delivery_mode": {
+            "$ref": "#/components/schemas/DeliveryMode",
+            "description": "Default delivery mode for DMs and group DMs without a per-chat override."
+          },
+          "e2ee_calls_default": {
+            "type": "boolean",
+            "description": "When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set."
+          },
+          "developer_mode": {
+            "type": "boolean"
+          },
+          "message_display_compact": {
+            "type": "boolean"
+          },
+          "accent_color": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "guild_folders": {
+            "type": "array",
+            "description": "The user's server rail in order, with folders. Synced across devices.",
+            "items": {
+              "$ref": "#/components/schemas/GuildFolder"
+            },
+            "maxItems": 200
+          },
+          "guild_positions": {
+            "type": "array",
+            "description": "Flat server order (legacy mirror of guild_folders).",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            },
+            "maxItems": 200
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/UserPreferences",
+            "description": "Synced client preferences (appearance, chat, notification sounds, emoji). Sparse."
+          }
+        }
+      },
+      "VoiceState": {
+        "title": "VoiceState",
+        "description": "A user's voice connection state.",
+        "type": "object",
+        "required": [
+          "channel_id",
+          "user_id",
+          "session_id",
+          "deaf",
+          "mute",
+          "self_deaf",
+          "self_mute",
+          "self_video",
+          "suppress",
+          "request_to_speak_timestamp"
+        ],
+        "properties": {
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "channel_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "member": {
+            "$ref": "#/components/schemas/GuildMember"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "deaf": {
+            "type": "boolean"
+          },
+          "mute": {
+            "type": "boolean"
+          },
+          "self_deaf": {
+            "type": "boolean"
+          },
+          "self_mute": {
+            "type": "boolean"
+          },
+          "self_stream": {
+            "type": "boolean"
+          },
+          "self_video": {
+            "type": "boolean"
+          },
+          "suppress": {
+            "type": "boolean"
+          },
+          "request_to_speak_timestamp": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-webhook-request.json",
+  "title": "ModifyWebhookRequest",
+  "description": "PATCH /webhooks/{id} body.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "avatar": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "channel_id": {
+      "$ref": "../objects/snowflake.json"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/watch-together.json",
+  "title": "WatchTogetherPayload",
+  "description": "Op 24 WATCH_TOGETHER.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "action",
+    "position_ms",
+    "at_server_ms"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "load",
+        "play",
+        "pause",
+        "seek"
+      ]
+    },
+    "url": {
+      "type": "string"
+    },
+    "position_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "at_server_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Server clock (unix ms) the position refers to."
+    }
+  }
+}

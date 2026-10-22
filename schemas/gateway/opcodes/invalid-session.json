@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/invalid-session.json",
+  "title": "InvalidSessionPayload",
+  "description": "Op 9 INVALID_SESSION: whether the session can be resumed.",
+  "type": "boolean"
+}

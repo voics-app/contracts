@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/public-device.json",
+  "title": "PublicDevice",
+  "description": "A device's public identity, as listed by GET /users/{id}/devices.",
+  "type": "object",
+  "required": [
+    "device_id",
+    "identity_key_b64"
+  ],
+  "properties": {
+    "device_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "identity_key_b64": {
+      "type": "string"
+    }
+  }
+}

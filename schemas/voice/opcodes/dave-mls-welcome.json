@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/dave-mls-welcome.json",
+  "title": "DaveMlsWelcomePayload",
+  "description": "Voice op 30 DAVE_MLS_WELCOME.",
+  "type": "object",
+  "required": [
+    "transition_id",
+    "welcome_b64"
+  ],
+  "properties": {
+    "transition_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "welcome_b64": {
+      "type": "string"
+    }
+  }
+}

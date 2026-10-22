@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/channel-access.json",
+  "title": "ChannelAccess",
+  "description": "GET /internal/v1/channels/{channel_id}/access/{user_id}.",
+  "type": "object",
+  "required": [
+    "permissions",
+    "guild_id",
+    "channel_type",
+    "delivery_mode",
+    "recipient_ids"
+  ],
+  "properties": {
+    "permissions": {
+      "$ref": "../objects/permission-bitset.json"
+    },
+    "guild_id": {
+      "anyOf": [
+        {
+          "$ref": "../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "channel_type": {
+      "type": "integer"
+    },
+    "delivery_mode": {
+      "$ref": "../objects/delivery-mode.json"
+    },
+    "recipient_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/application-command-option.json",
+  "title": "ApplicationCommandOption",
+  "description": "A parameter or subcommand of an application command.",
+  "type": "object",
+  "required": [
+    "type",
+    "name",
+    "description"
+  ],
+  "properties": {
+    "type": {
+      "type": "integer",
+      "description": "ApplicationCommandOptionType."
+    },
+    "name": {
+      "type": "string"
+    },
+    "name_localizations": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "type": "string"
+    },
+    "description_localizations": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "required": {
+      "type": "boolean"
+    },
+    "choices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ApplicationCommandOptionChoice"
+      }
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "$ref": "./application-command-option.json"
+      }
+    },
+    "channel_types": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "min_value": {
+      "type": "number"
+    },
+    "max_value": {
+      "type": "number"
+    },
+    "min_length": {
+      "type": "integer"
+    },
+    "max_length": {
+      "type": "integer"
+    },
+    "autocomplete": {
+      "type": "boolean"
+    }
+  },
+  "$defs": {
+    "ApplicationCommandOptionChoice": {
+      "title": "ApplicationCommandOptionChoice",
+      "description": "A predefined choice of an option.",
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "name_localizations": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "value": {
+          "type": [
+            "string",
+            "number"
+          ]
+        }
+      }
+    }
+  }
+}

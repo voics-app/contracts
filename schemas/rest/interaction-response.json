@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/interaction-response.json",
+  "title": "InteractionResponse",
+  "description": "POST /interactions/{id}/{token}/callback body.",
+  "type": "object",
+  "required": [
+    "type"
+  ],
+  "properties": {
+    "type": {
+      "type": "integer",
+      "description": "InteractionCallbackType."
+    },
+    "data": {
+      "$ref": "#/$defs/InteractionCallbackData"
+    }
+  },
+  "$defs": {
+    "InteractionCallbackData": {
+      "title": "InteractionCallbackData",
+      "description": "Message, autocomplete or modal data.",
+      "type": "object",
+      "properties": {
+        "tts": {
+          "type": "boolean"
+        },
+        "content": {
+          "type": "string"
+        },
+        "embeds": {
+          "type": "array",
+          "items": {
+            "$ref": "../objects/embed.json"
+          },
+          "maxItems": 10
+        },
+        "allowed_mentions": {
+          "$ref": "../objects/allowed-mentions.json"
+        },
+        "flags": {
+          "type": "integer"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "../objects/message-component.json"
+          }
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "./attachment-reference.json"
+          }
+        },
+        "choices": {
+          "type": "array",
+          "items": {
+            "$ref": "../objects/application-command-option.json#/$defs/ApplicationCommandOptionChoice"
+          }
+        },
+        "custom_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

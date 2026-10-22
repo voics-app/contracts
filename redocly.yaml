@@ -1,0 +1,5 @@
+extends:
+  - recommended
+rules:
+  # The local compose ingress server (http://localhost:8000) is intentional.
+  no-server-example.com: off

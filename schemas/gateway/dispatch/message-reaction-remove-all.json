@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/message-reaction-remove-all.json",
+  "title": "MessageReactionRemoveAllEvent",
+  "description": "MESSAGE_REACTION_REMOVE_ALL dispatch.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "message_id"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "message_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    }
+  }
+}

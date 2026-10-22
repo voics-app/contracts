@@ -1,0 +1,46 @@
+{
+  "name": "@discordy-voics/contracts",
+  "version": "0.1.0",
+  "description": "Discordy wire contracts: TypeScript types for REST, gateway, event-bus and voice payloads, constants and JSON Schemas.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/discordy-voics/contracts.git",
+    "directory": "packages/ts"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/*": "./schemas/*"
+  },
+  "files": [
+    "dist",
+    "schemas"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm run build",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "^24.19.2",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "eslint": "10.13.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.2",
+    "vitest": "5.0.5"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-current-user-request.json",
+  "title": "ModifyCurrentUserRequest",
+  "description": "PATCH /users/@me body. `username`, `email` and `new_password` require the current `password`; an email change takes effect once the new address is verified.",
+  "type": "object",
+  "properties": {
+    "username": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 32
+    },
+    "global_name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "avatar": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Data URI image."
+    },
+    "banner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "accent_color": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "password": {
+      "type": "string",
+      "description": "Current password; required with username, email or new_password."
+    },
+    "new_password": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    }
+  }
+}

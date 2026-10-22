@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/attachment.json",
+  "title": "Attachment",
+  "description": "A file attached to a message.",
+  "type": "object",
+  "required": [
+    "id",
+    "filename",
+    "size",
+    "url",
+    "proxy_url"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "filename": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "content_type": {
+      "type": "string"
+    },
+    "size": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "url": {
+      "type": "string"
+    },
+    "proxy_url": {
+      "type": "string"
+    },
+    "height": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "width": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "ephemeral": {
+      "type": "boolean"
+    },
+    "duration_secs": {
+      "type": "number"
+    },
+    "waveform": {
+      "type": "string"
+    },
+    "flags": {
+      "type": "integer",
+      "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler."
+    }
+  }
+}

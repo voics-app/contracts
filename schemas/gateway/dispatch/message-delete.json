@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/message-delete.json",
+  "title": "MessageDeleteEvent",
+  "description": "MESSAGE_DELETE dispatch.",
+  "type": "object",
+  "required": [
+    "id",
+    "channel_id"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "channel_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    }
+  }
+}

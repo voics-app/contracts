@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/guild-member-remove.json",
+  "title": "GuildMemberRemoveEvent",
+  "description": "GUILD_MEMBER_REMOVE dispatch.",
+  "type": "object",
+  "required": [
+    "guild_id",
+    "user"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "user": {
+      "$ref": "../../objects/user.json"
+    }
+  }
+}

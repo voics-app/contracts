@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/ack-request.json",
+  "title": "AckRequest",
+  "description": "POST /channels/{id}/messages/{mid}/ack body.",
+  "type": "object",
+  "properties": {
+    "manual": {
+      "type": "boolean",
+      "description": "When true the read marker is set to exactly this message, even backwards (Mark Unread). Without it the marker only moves forward."
+    },
+    "mention_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Unread mention count to keep after a manual ack (default 0)."
+    }
+  }
+}

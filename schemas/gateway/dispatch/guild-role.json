@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/guild-role.json",
+  "title": "GuildRoleEvent",
+  "description": "GUILD_ROLE_CREATE / GUILD_ROLE_UPDATE dispatch.",
+  "type": "object",
+  "required": [
+    "guild_id",
+    "role"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "role": {
+      "$ref": "../../objects/role.json"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/relationship.json",
+  "title": "Relationship",
+  "description": "A relationship with another user.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "user"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "type": {
+      "type": "integer",
+      "description": "RelationshipType."
+    },
+    "user": {
+      "$ref": "./user.json"
+    },
+    "nickname": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "since": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

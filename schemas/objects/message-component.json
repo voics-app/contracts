@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/message-component.json",
+  "title": "MessageComponent",
+  "description": "A message component (action row, button, select menu, text input). Action rows nest components.",
+  "type": "object",
+  "required": [
+    "type"
+  ],
+  "properties": {
+    "type": {
+      "type": "integer",
+      "description": "ComponentType."
+    },
+    "custom_id": {
+      "type": "string"
+    },
+    "style": {
+      "type": "integer"
+    },
+    "label": {
+      "type": "string"
+    },
+    "emoji": {
+      "$ref": "./emoji.json"
+    },
+    "url": {
+      "type": "string"
+    },
+    "disabled": {
+      "type": "boolean"
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SelectOption"
+      }
+    },
+    "placeholder": {
+      "type": "string"
+    },
+    "min_values": {
+      "type": "integer"
+    },
+    "max_values": {
+      "type": "integer"
+    },
+    "min_length": {
+      "type": "integer"
+    },
+    "max_length": {
+      "type": "integer"
+    },
+    "required": {
+      "type": "boolean"
+    },
+    "value": {
+      "type": "string"
+    },
+    "channel_types": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "./message-component.json"
+      }
+    }
+  },
+  "$defs": {
+    "SelectOption": {
+      "title": "SelectOption",
+      "description": "An option of a string select menu.",
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "emoji": {
+          "$ref": "./emoji.json"
+        },
+        "default": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

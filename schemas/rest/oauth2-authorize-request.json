@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/oauth2-authorize-request.json",
+  "title": "OAuth2AuthorizeRequest",
+  "description": "POST /oauth2/authorize body: add a bot to a guild.",
+  "type": "object",
+  "required": [
+    "client_id",
+    "guild_id",
+    "permissions",
+    "scope"
+  ],
+  "properties": {
+    "client_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "guild_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "permissions": {
+      "$ref": "../objects/permission-bitset.json"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Space-separated scopes, e.g. \"bot applications.commands\"."
+    }
+  }
+}

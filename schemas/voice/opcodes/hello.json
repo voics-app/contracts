@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/hello.json",
+  "title": "VoiceHelloPayload",
+  "description": "Voice op 8 HELLO.",
+  "type": "object",
+  "required": [
+    "heartbeat_interval"
+  ],
+  "properties": {
+    "heartbeat_interval": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Milliseconds (13750)."
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/sfu/speaking.json",
+  "title": "SfuSpeaking",
+  "description": "SFU control event: voice activity on an SSRC.",
+  "type": "object",
+  "required": [
+    "evt",
+    "session_id",
+    "ssrc",
+    "speaking"
+  ],
+  "properties": {
+    "evt": {
+      "const": "speaking"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "ssrc": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "speaking": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

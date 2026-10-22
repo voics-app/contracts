@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/admin-user.json",
+  "title": "AdminUser",
+  "description": "A user as listed in the admin portal.",
+  "type": "object",
+  "required": [
+    "id",
+    "username",
+    "email",
+    "bot",
+    "created_at",
+    "suspended_until"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "username": {
+      "type": "string"
+    },
+    "email": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "bot": {
+      "type": "boolean"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "suspended_until": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "suspension_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

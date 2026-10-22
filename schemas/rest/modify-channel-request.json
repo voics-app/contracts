@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-channel-request.json",
+  "title": "ModifyChannelRequest",
+  "description": "PATCH /channels/{id} body (partial). Changing delivery_mode requires MANAGE_CHANNELS.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "type": {
+      "type": "integer"
+    },
+    "position": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "topic": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nsfw": {
+      "type": "boolean"
+    },
+    "text_chat_enabled": {
+      "type": "boolean",
+      "description": "Voice channels only. Managers with MANAGE_CHANNELS switch the channel chat on or off."
+    },
+    "rate_limit_per_user": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "bitrate": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "user_limit": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "permission_overwrites": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/permission-overwrite.json"
+      }
+    },
+    "parent_id": {
+      "anyOf": [
+        {
+          "$ref": "../objects/snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rtc_region": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Group DM icon."
+    },
+    "archived": {
+      "type": "boolean"
+    },
+    "auto_archive_duration": {
+      "type": "integer"
+    },
+    "locked": {
+      "type": "boolean"
+    },
+    "invitable": {
+      "type": "boolean"
+    },
+    "delivery_mode": {
+      "$ref": "../objects/delivery-mode.json"
+    },
+    "voice_region": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/emoji.json",
+  "title": "Emoji",
+  "description": "A custom or unicode emoji. Unicode emojis have a null id.",
+  "type": "object",
+  "required": [
+    "id",
+    "name"
+  ],
+  "properties": {
+    "id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "$ref": "./snowflake.json"
+      }
+    },
+    "user": {
+      "$ref": "./user.json"
+    },
+    "require_colons": {
+      "type": "boolean"
+    },
+    "managed": {
+      "type": "boolean"
+    },
+    "animated": {
+      "type": "boolean"
+    },
+    "available": {
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/presence-update.json",
+  "title": "PresenceUpdatePayload",
+  "description": "Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY).",
+  "type": "object",
+  "required": [
+    "status",
+    "activities",
+    "afk"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "online",
+        "idle",
+        "dnd",
+        "invisible"
+      ]
+    },
+    "activities": {
+      "type": "array",
+      "items": {
+        "$ref": "../../objects/activity.json"
+      }
+    },
+    "afk": {
+      "type": "boolean"
+    },
+    "since": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Unix ms since the client went idle."
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/oauth2-authorize-info.json",
+  "title": "OAuth2AuthorizeInfo",
+  "description": "GET /oauth2/authorize response: what the bot invite screen shows.",
+  "type": "object",
+  "required": [
+    "application",
+    "user",
+    "guilds",
+    "permissions",
+    "scopes"
+  ],
+  "properties": {
+    "application": {
+      "$ref": "../objects/application.json"
+    },
+    "bot": {
+      "$ref": "../objects/user.json"
+    },
+    "user": {
+      "$ref": "../objects/user.json"
+    },
+    "guilds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/OAuth2Guild"
+      }
+    },
+    "permissions": {
+      "$ref": "../objects/permission-bitset.json",
+      "description": "Permissions requested by the invite URL."
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "OAuth2Guild": {
+      "title": "OAuth2Guild",
+      "description": "A guild the user can add the bot to.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "icon",
+        "permissions"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "../objects/snowflake.json"
+        },
+        "name": {
+          "type": "string"
+        },
+        "icon": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "permissions": {
+          "$ref": "../objects/permission-bitset.json"
+        }
+      }
+    }
+  }
+}

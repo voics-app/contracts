@@ -1,0 +1,321 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/channel.json",
+  "title": "Channel",
+  "description": "A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.",
+  "type": "object",
+  "required": [
+    "id",
+    "type"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "type": {
+      "type": "integer",
+      "description": "ChannelType (Discord values)."
+    },
+    "guild_id": {
+      "$ref": "./snowflake.json"
+    },
+    "position": {
+      "type": "integer"
+    },
+    "permission_overwrites": {
+      "type": "array",
+      "items": {
+        "$ref": "./permission-overwrite.json"
+      }
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "topic": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nsfw": {
+      "type": "boolean"
+    },
+    "text_chat_enabled": {
+      "type": "boolean",
+      "description": "Voice channels only: whether members can send messages to the channel chat. Defaults to true."
+    },
+    "last_message_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "bitrate": {
+      "type": "integer"
+    },
+    "user_limit": {
+      "type": "integer"
+    },
+    "rate_limit_per_user": {
+      "type": "integer"
+    },
+    "recipients": {
+      "type": "array",
+      "items": {
+        "$ref": "./user.json"
+      }
+    },
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "owner_id": {
+      "$ref": "./snowflake.json"
+    },
+    "application_id": {
+      "$ref": "./snowflake.json"
+    },
+    "managed": {
+      "type": "boolean"
+    },
+    "parent_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_pin_timestamp": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "rtc_region": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "video_quality_mode": {
+      "type": "integer"
+    },
+    "message_count": {
+      "type": "integer"
+    },
+    "member_count": {
+      "type": "integer"
+    },
+    "thread_metadata": {
+      "$ref": "#/$defs/ThreadMetadata"
+    },
+    "member": {
+      "$ref": "#/$defs/ThreadMember"
+    },
+    "default_auto_archive_duration": {
+      "type": "integer"
+    },
+    "permissions": {
+      "$ref": "./permission-bitset.json"
+    },
+    "flags": {
+      "type": "integer"
+    },
+    "total_message_sent": {
+      "type": "integer"
+    },
+    "available_tags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ForumTag"
+      }
+    },
+    "applied_tags": {
+      "type": "array",
+      "items": {
+        "$ref": "./snowflake.json"
+      }
+    },
+    "default_reaction_emoji": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DefaultReaction"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "default_thread_rate_limit_per_user": {
+      "type": "integer"
+    },
+    "default_sort_order": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "default_forum_layout": {
+      "type": "integer"
+    },
+    "newly_created": {
+      "type": "boolean",
+      "description": "Only on THREAD_CREATE."
+    },
+    "delivery_mode": {
+      "$ref": "./delivery-mode.json",
+      "description": "Discordy: effective delivery mode. Always present on full channel objects."
+    },
+    "voice_region": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Discordy: per-channel voice region override; null uses the guild's voice_region."
+    }
+  },
+  "$defs": {
+    "ThreadMetadata": {
+      "title": "ThreadMetadata",
+      "description": "Thread-specific fields.",
+      "type": "object",
+      "required": [
+        "archived",
+        "auto_archive_duration",
+        "archive_timestamp",
+        "locked"
+      ],
+      "properties": {
+        "archived": {
+          "type": "boolean"
+        },
+        "auto_archive_duration": {
+          "type": "integer"
+        },
+        "archive_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "locked": {
+          "type": "boolean"
+        },
+        "invitable": {
+          "type": "boolean"
+        },
+        "create_timestamp": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "ThreadMember": {
+      "title": "ThreadMember",
+      "description": "A user's membership of a thread.",
+      "type": "object",
+      "required": [
+        "join_timestamp",
+        "flags"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "user_id": {
+          "$ref": "./snowflake.json"
+        },
+        "join_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "flags": {
+          "type": "integer"
+        },
+        "member": {
+          "$ref": "./guild-member.json"
+        }
+      }
+    },
+    "ForumTag": {
+      "title": "ForumTag",
+      "description": "A tag that can be applied to forum threads.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "moderated",
+        "emoji_id",
+        "emoji_name"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "name": {
+          "type": "string"
+        },
+        "moderated": {
+          "type": "boolean"
+        },
+        "emoji_id": {
+          "anyOf": [
+            {
+              "$ref": "./snowflake.json"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "emoji_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "DefaultReaction": {
+      "title": "DefaultReaction",
+      "description": "Default reaction emoji of a forum channel.",
+      "type": "object",
+      "required": [
+        "emoji_id",
+        "emoji_name"
+      ],
+      "properties": {
+        "emoji_id": {
+          "anyOf": [
+            {
+              "$ref": "./snowflake.json"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "emoji_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

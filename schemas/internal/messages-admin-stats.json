@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/messages-admin-stats.json",
+  "title": "MessagesAdminStats",
+  "description": "GET /internal/v1/admin/stats on messages. Counts only, never content.",
+  "type": "object",
+  "required": [
+    "messages_24h",
+    "messages_by_mode"
+  ],
+  "properties": {
+    "messages_24h": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "messages_by_mode": {
+      "$ref": "#/$defs/MessagesByMode"
+    }
+  },
+  "$defs": {
+    "MessagesByMode": {
+      "title": "MessagesByMode",
+      "description": "Message counts per delivery mode.",
+      "type": "object",
+      "required": [
+        "standard",
+        "ephemeral_relayed",
+        "p2p_signaled"
+      ],
+      "properties": {
+        "standard": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ephemeral_relayed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "p2p_signaled": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

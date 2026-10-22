@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-dm-request.json",
+  "title": "CreateDmRequest",
+  "description": "POST /users/@me/channels body. One recipient creates a DM, several a group DM.",
+  "type": "object",
+  "required": [
+    "recipient_ids"
+  ],
+  "properties": {
+    "recipient_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      },
+      "minItems": 1,
+      "maxItems": 9
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/node-registration.json",
+  "title": "VoiceNodeRegistration",
+  "description": "etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).",
+  "type": "object",
+  "required": [
+    "node_id",
+    "region",
+    "ws_url",
+    "public_ip",
+    "udp_port",
+    "users",
+    "cpu_pct",
+    "egress_bps",
+    "draining",
+    "version"
+  ],
+  "properties": {
+    "node_id": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "ws_url": {
+      "type": "string"
+    },
+    "public_ip": {
+      "type": "string"
+    },
+    "udp_port": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "users": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "cpu_pct": {
+      "type": "number"
+    },
+    "egress_bps": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "draining": {
+      "type": "boolean"
+    },
+    "version": {
+      "type": "string"
+    }
+  }
+}

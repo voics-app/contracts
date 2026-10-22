@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/delivery-mode-override.json",
+  "title": "DeliveryModeOverride",
+  "description": "The caller's per-chat override and the resulting effective mode.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "mode",
+    "effective_mode"
+  ],
+  "properties": {
+    "channel_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "mode": {
+      "anyOf": [
+        {
+          "$ref": "../objects/delivery-mode.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "effective_mode": {
+      "$ref": "../objects/delivery-mode.json"
+    }
+  }
+}

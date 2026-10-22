@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/frame.json",
+  "title": "VoiceFrame",
+  "description": "Every voice WebSocket frame (both directions).",
+  "type": "object",
+  "required": [
+    "op",
+    "d"
+  ],
+  "properties": {
+    "op": {
+      "type": "integer"
+    },
+    "d": {}
+  }
+}

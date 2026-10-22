@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/voice-state.json",
+  "title": "VoiceState",
+  "description": "A user's voice connection state.",
+  "type": "object",
+  "required": [
+    "channel_id",
+    "user_id",
+    "session_id",
+    "deaf",
+    "mute",
+    "self_deaf",
+    "self_mute",
+    "self_video",
+    "suppress",
+    "request_to_speak_timestamp"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "./snowflake.json"
+    },
+    "channel_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "user_id": {
+      "$ref": "./snowflake.json"
+    },
+    "member": {
+      "$ref": "./guild-member.json"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "deaf": {
+      "type": "boolean"
+    },
+    "mute": {
+      "type": "boolean"
+    },
+    "self_deaf": {
+      "type": "boolean"
+    },
+    "self_mute": {
+      "type": "boolean"
+    },
+    "self_stream": {
+      "type": "boolean"
+    },
+    "self_video": {
+      "type": "boolean"
+    },
+    "suppress": {
+      "type": "boolean"
+    },
+    "request_to_speak_timestamp": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  }
+}

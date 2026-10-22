@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/put-relationship-request.json",
+  "title": "PutRelationshipRequest",
+  "description": "PUT /users/@me/relationships/{id} body. Omit type to send or accept a friend request.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "integer",
+      "description": "RelationshipType: 1 friend, 2 block."
+    }
+  }
+}

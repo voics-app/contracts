@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/dave-transition.json",
+  "title": "DaveTransitionPayload",
+  "description": "Voice ops 22 DAVE_EXECUTE_TRANSITION, 23 DAVE_TRANSITION_READY and 31 DAVE_MLS_INVALID_COMMIT.",
+  "type": "object",
+  "required": [
+    "transition_id"
+  ],
+  "properties": {
+    "transition_id": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

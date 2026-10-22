@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-user-settings-request.json",
+  "title": "ModifyUserSettingsRequest",
+  "description": "PATCH /users/@me/settings body (partial).",
+  "type": "object",
+  "properties": {
+    "locale": {
+      "type": "string"
+    },
+    "theme": {
+      "type": "string",
+      "enum": [
+        "dark",
+        "light",
+        "oled"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "online",
+        "idle",
+        "dnd",
+        "invisible"
+      ]
+    },
+    "custom_status": {
+      "anyOf": [
+        {
+          "$ref": "../objects/user-settings.json#/$defs/CustomStatus"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "default_delivery_mode": {
+      "$ref": "../objects/delivery-mode.json"
+    },
+    "e2ee_calls_default": {
+      "type": "boolean",
+      "description": "When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set."
+    },
+    "developer_mode": {
+      "type": "boolean"
+    },
+    "message_display_compact": {
+      "type": "boolean"
+    },
+    "accent_color": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "guild_folders": {
+      "type": "array",
+      "description": "The user's server rail in order, with folders. Synced across devices.",
+      "items": {
+        "$ref": "../objects/guild-folder.json"
+      },
+      "maxItems": 200
+    },
+    "guild_positions": {
+      "type": "array",
+      "description": "Flat server order (legacy mirror of guild_folders).",
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      },
+      "maxItems": 200
+    },
+    "preferences": {
+      "$ref": "../objects/user-preferences.json",
+      "description": "Merged key by key into the stored preferences."
+    }
+  }
+}

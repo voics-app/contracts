@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/heartbeat.json",
+  "title": "VoiceHeartbeatPayload",
+  "description": "Voice op 3 HEARTBEAT and op 6 HEARTBEAT_ACK.",
+  "type": "object",
+  "required": [
+    "t"
+  ],
+  "properties": {
+    "t": {
+      "type": "integer",
+      "description": "Nonce, echoed by HEARTBEAT_ACK."
+    }
+  }
+}

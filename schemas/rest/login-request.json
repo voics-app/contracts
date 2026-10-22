@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/login-request.json",
+  "title": "LoginRequest",
+  "description": "POST /auth/login body.",
+  "type": "object",
+  "required": [
+    "email",
+    "password"
+  ],
+  "properties": {
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "password": {
+      "type": "string"
+    },
+    "totp": {
+      "type": "string",
+      "description": "TOTP code or backup code. When 2FA is enabled and this is absent the api answers 401 with code 60008 and a ticket for POST /auth/mfa/totp."
+    }
+  }
+}

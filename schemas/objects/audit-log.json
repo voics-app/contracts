@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/audit-log.json",
+  "title": "AuditLog",
+  "description": "A page of a guild's audit log.",
+  "type": "object",
+  "required": [
+    "application_commands",
+    "audit_log_entries",
+    "threads",
+    "users",
+    "webhooks"
+  ],
+  "properties": {
+    "application_commands": {
+      "type": "array",
+      "items": {
+        "$ref": "./application-command.json"
+      }
+    },
+    "audit_log_entries": {
+      "type": "array",
+      "items": {
+        "$ref": "./audit-log-entry.json"
+      }
+    },
+    "threads": {
+      "type": "array",
+      "items": {
+        "$ref": "./channel.json"
+      }
+    },
+    "users": {
+      "type": "array",
+      "items": {
+        "$ref": "./user.json"
+      }
+    },
+    "webhooks": {
+      "type": "array",
+      "items": {
+        "$ref": "./webhook.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/backup-codes-response.json",
+  "title": "BackupCodesResponse",
+  "description": "Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.",
+  "type": "object",
+  "required": [
+    "backup_codes"
+  ],
+  "properties": {
+    "backup_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "consumed"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Plaintext code; omitted when only the consumed state is listed."
+          },
+          "consumed": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

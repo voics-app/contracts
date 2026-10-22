@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/suspend-user-request.json",
+  "title": "SuspendUserRequest",
+  "description": "POST /internal/v1/admin/users/{id}/suspend body.",
+  "type": "object",
+  "required": [
+    "reason",
+    "until"
+  ],
+  "properties": {
+    "reason": {
+      "type": "string"
+    },
+    "until": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "Null suspends indefinitely."
+    }
+  }
+}

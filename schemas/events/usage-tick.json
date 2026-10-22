@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/events/usage-tick.json",
+  "title": "UsageTickEvent",
+  "description": "USAGE_TICK counter (discordy.telemetry.v1) consumed by the admin aggregator. Counts only, never content.",
+  "type": "object",
+  "required": [
+    "component",
+    "node_id",
+    "window_start",
+    "window_s",
+    "sessions_online",
+    "voice_users"
+  ],
+  "properties": {
+    "component": {
+      "type": "string",
+      "enum": [
+        "gateway",
+        "voice"
+      ]
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "window_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "window_s": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sessions_online": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "voice_users": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "voice_minutes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "region": {
+      "type": "string"
+    }
+  }
+}

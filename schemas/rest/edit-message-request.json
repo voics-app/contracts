@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/edit-message-request.json",
+  "title": "EditMessageRequest",
+  "description": "PATCH /channels/{id}/messages/{mid} body.",
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 2000
+    },
+    "embeds": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "../objects/embed.json"
+      },
+      "maxItems": 10
+    },
+    "flags": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "allowed_mentions": {
+      "anyOf": [
+        {
+          "$ref": "../objects/allowed-mentions.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "components": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "../objects/message-component.json"
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "./attachment-reference.json"
+      }
+    }
+  }
+}

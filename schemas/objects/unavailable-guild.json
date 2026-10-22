@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/unavailable-guild.json",
+  "title": "UnavailableGuild",
+  "description": "A guild that is unavailable or that the user left.",
+  "type": "object",
+  "required": [
+    "id"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "unavailable": {
+      "type": "boolean"
+    }
+  }
+}

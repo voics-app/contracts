@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/media-sink-wants.json",
+  "title": "MediaSinkWantsPayload",
+  "description": "Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100.",
+  "type": "object",
+  "additionalProperties": {
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 100
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/client-disconnect.json",
+  "title": "ClientDisconnectPayload",
+  "description": "Voice op 13 CLIENT_DISCONNECT.",
+  "type": "object",
+  "required": [
+    "user_id"
+  ],
+  "properties": {
+    "user_id": {
+      "$ref": "../../objects/snowflake.json"
+    }
+  }
+}
