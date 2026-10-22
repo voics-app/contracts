@@ -923,7 +923,7 @@ export interface CreateInviteRequest {
   unique?: boolean;
 }
 /**
- * POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard.
+ * POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
  */
 export interface CreateMessageRequest {
   content?: string;
@@ -1013,9 +1013,12 @@ export interface EmbedField {
   inline?: boolean;
 }
 /**
- * Reference to another message (reply, forward, crosspost).
+ * Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
  */
 export interface MessageReference {
+  /**
+   * MessageReferenceType: 0 DEFAULT (reply), 1 FORWARD.
+   */
   type?: number;
   message_id?: Snowflake;
   channel_id?: Snowflake;
@@ -1784,7 +1787,7 @@ export interface Message {
   hit?: boolean;
   webhook_id?: Snowflake;
   /**
-   * MessageType.
+   * MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
    */
   type: number;
   application_id?: Snowflake;
@@ -1795,6 +1798,10 @@ export interface Message {
   thread?: Channel;
   components?: MessageComponent[];
   position?: number;
+  /**
+   * Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.
+   */
+  message_snapshots?: MessageSnapshot[];
 }
 /**
  * Reactions of one emoji on a message.
@@ -1822,6 +1829,22 @@ export interface MessageInteractionMetadata {
   type: number;
   user: User;
   name?: string;
+}
+/**
+ * A frozen copy of a forwarded message. Attachments are re-referenced (same stored object, freshly signed URLs); the snapshot never changes when the source is edited or deleted.
+ */
+export interface MessageSnapshot {
+  message: {
+    content: string;
+    timestamp: string;
+    edited_timestamp: string | null;
+    mentions: User[];
+    mention_roles: Snowflake[];
+    attachments: Attachment[];
+    embeds: Embed[];
+    type: number;
+    flags?: number;
+  };
 }
 /**
  * A filled-in command option.
@@ -2039,7 +2062,7 @@ export interface MessageEvent {
   hit?: boolean;
   webhook_id?: Snowflake;
   /**
-   * MessageType.
+   * MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
    */
   type: number;
   application_id?: Snowflake;
@@ -2050,6 +2073,10 @@ export interface MessageEvent {
   thread?: Channel;
   components?: MessageComponent[];
   position?: number;
+  /**
+   * Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.
+   */
+  message_snapshots?: MessageSnapshot[];
   guild_id?: Snowflake;
   member?: GuildMember;
 }
