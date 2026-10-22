@@ -417,6 +417,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/messages/{message_id}/reactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove every reaction from a message (MANAGE_MESSAGES) */
+        delete: operations["deleteAllReactions"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the users that reacted with an emoji */
+        get: operations["listReactionUsers"];
+        put?: never;
+        post?: never;
+        /** Remove every reaction of one emoji (MANAGE_MESSAGES) */
+        delete: operations["deleteEmojiReactions"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove one user's reaction (MANAGE_MESSAGES) */
+        delete: operations["deleteUserReaction"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me": {
         parameters: {
             query?: never;
@@ -2592,6 +2644,17 @@ export interface components {
             type: number;
         };
         /**
+         * PartialUser
+         * @description A user reference that only guarantees the ID (presence updates, audit logs).
+         */
+        PartialUser: {
+            avatar?: string | null;
+            bot?: boolean;
+            global_name?: string | null;
+            id: components["schemas"]["Snowflake"];
+            username?: string;
+        };
+        /**
          * PasswordConfirmationRequest
          * @description Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
          */
@@ -4081,6 +4144,128 @@ export interface operations {
                 "application/json": components["schemas"]["AckRequest"];
             };
         };
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    deleteAllReactions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listReactionUsers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description URL-encoded unicode emoji, or `name:id` for a custom emoji. */
+                emoji: components["parameters"]["emoji"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Users that reacted, oldest first. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartialUser"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    deleteEmojiReactions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description URL-encoded unicode emoji, or `name:id` for a custom emoji. */
+                emoji: components["parameters"]["emoji"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    deleteUserReaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description URL-encoded unicode emoji, or `name:id` for a custom emoji. */
+                emoji: components["parameters"]["emoji"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description No content. */
             204: {

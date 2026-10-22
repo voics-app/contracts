@@ -2586,6 +2586,107 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/messages/{message_id}/reactions:
+    delete:
+      operationId: deleteAllReactions
+      summary: Remove every reaction from a message (MANAGE_MESSAGES)
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/messages/{message_id}/reactions/{emoji}:
+    get:
+      operationId: listReactionUsers
+      summary: List the users that reacted with an emoji
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+        - $ref: "#/components/parameters/emoji"
+      responses:
+        "200":
+          description: Users that reacted, oldest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/partial-user.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteEmojiReactions
+      summary: Remove every reaction of one emoji (MANAGE_MESSAGES)
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+        - $ref: "#/components/parameters/emoji"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}:
+    delete:
+      operationId: deleteUserReaction
+      summary: Remove one user's reaction (MANAGE_MESSAGES)
+      tags:
+        - Messages
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+        - $ref: "#/components/parameters/emoji"
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me:
     put:
       operationId: createReaction
