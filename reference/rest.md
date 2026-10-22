@@ -1258,6 +1258,24 @@ A private note the current user wrote about another user. Visible only to its au
 | `note_user_id` | `Snowflake` | The user the note is about. |
 | `note` | `string` |  |
 
+### UserPreferences
+
+Client preferences that follow the account across devices (client#123). Sparse: a key is present only once the user (or a first-run migration) set it; clients fall back to their defaults for missing keys. As a PATCH value the object is merged key by key. Device-specific settings (audio and video devices, volumes, keybinds, window state, desktop notification toggle, taskbar flash) are not stored here.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `accent?` | `"iris" or "aurora" or "ember" or "rose" or "citrine" or "sky"` | Accent colour preset. |
+| `reduce_motion?` | `boolean` |  |
+| `font_scale?` | `number` | Chat font scale. |
+| `show_avatars_in_compact?` | `boolean` |  |
+| `link_previews?` | `boolean` | Show previews (embeds) of links in messages. |
+| `notify_only_mentions?` | `boolean` |  |
+| `notify_sounds?` | `boolean` | Master switch for notification sounds. |
+| `sound_toggles?` | `map of boolean` | Per-sound switches under notify_sounds; a missing entry means on. |
+| `ringtone?` | `string` |  |
+| `skin_tone?` | `string` | Skin tone modifier of the emoji picker; empty for the default. |
+| `recent_reactions?` | `array of object` | Recently used reaction emoji, most recent first. |
+
 ### UserSettings
 
 Account-wide settings of the current user. `default_delivery_mode` is a Discordy extra.
@@ -1275,6 +1293,7 @@ Account-wide settings of the current user. `default_delivery_mode` is a Discordy
 | `accent_color?` | `?integer` |  |
 | `guild_folders` | `array of GuildFolder` | The user's server rail in order, with folders. Synced across devices. |
 | `guild_positions` | `array of Snowflake` | Flat server order (legacy mirror of guild_folders). |
+| `preferences` | `UserPreferences` | Synced client preferences (appearance, chat, notification sounds, emoji). Sparse. |
 
 ### VoiceRegion
 
@@ -1861,6 +1880,7 @@ PATCH /users/@me/settings body (partial).
 | `accent_color?` | `?integer` |  |
 | `guild_folders?` | `array of GuildFolder` | The user's server rail in order, with folders. Synced across devices. |
 | `guild_positions?` | `array of Snowflake` | Flat server order (legacy mirror of guild_folders). |
+| `preferences?` | `UserPreferences` | Merged key by key into the stored preferences. |
 
 ### ModifyWebhookRequest
 

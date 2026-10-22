@@ -2364,6 +2364,52 @@ export interface ModifyUserSettingsRequest {
    * @maxItems 200
    */
   guild_positions?: Snowflake[];
+  preferences?: UserPreferences;
+}
+/**
+ * Client preferences that follow the account across devices (client#123). Sparse: a key is present only once the user (or a first-run migration) set it; clients fall back to their defaults for missing keys. As a PATCH value the object is merged key by key. Device-specific settings (audio and video devices, volumes, keybinds, window state, desktop notification toggle, taskbar flash) are not stored here.
+ */
+export interface UserPreferences {
+  /**
+   * Accent colour preset.
+   */
+  accent?: "iris" | "aurora" | "ember" | "rose" | "citrine" | "sky";
+  reduce_motion?: boolean;
+  /**
+   * Chat font scale.
+   */
+  font_scale?: number;
+  show_avatars_in_compact?: boolean;
+  /**
+   * Show previews (embeds) of links in messages.
+   */
+  link_previews?: boolean;
+  notify_only_mentions?: boolean;
+  /**
+   * Master switch for notification sounds.
+   */
+  notify_sounds?: boolean;
+  /**
+   * Per-sound switches under notify_sounds; a missing entry means on.
+   */
+  sound_toggles?: {
+    [k: string]: boolean | undefined;
+  };
+  ringtone?: string;
+  /**
+   * Skin tone modifier of the emoji picker; empty for the default.
+   */
+  skin_tone?: string;
+  /**
+   * Recently used reaction emoji, most recent first.
+   *
+   * @maxItems 32
+   */
+  recent_reactions?: {
+    id: Snowflake | null;
+    name: string;
+    animated?: boolean;
+  }[];
 }
 /**
  * PATCH /webhooks/{id} body.
@@ -2536,6 +2582,7 @@ export interface UserSettings {
    * @maxItems 200
    */
   guild_positions: Snowflake[];
+  preferences: UserPreferences;
 }
 /**
  * POST /auth/refresh body.
