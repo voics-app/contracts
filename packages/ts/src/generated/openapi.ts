@@ -2173,6 +2173,18 @@ export interface components {
             voice_region: string;
         };
         /**
+         * GuildFolder
+         * @description One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.
+         */
+        GuildFolder: {
+            /** @description RGB colour as 0xRRGGBB. */
+            color: number | null;
+            guild_ids: components["schemas"]["Snowflake"][];
+            /** @description Folder id chosen by the client (stable per user); null for a single un-foldered server. */
+            id: number | null;
+            name: string | null;
+        };
+        /**
          * GuildMember
          * @description A member of a guild.
          */
@@ -2590,6 +2602,10 @@ export interface components {
             developer_mode?: boolean;
             /** @description When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set. */
             e2ee_calls_default?: boolean;
+            /** @description The user's server rail in order, with folders. Synced across devices. */
+            guild_folders?: components["schemas"]["GuildFolder"][];
+            /** @description Flat server order (legacy mirror of guild_folders). */
+            guild_positions?: components["schemas"]["Snowflake"][];
             locale?: string;
             message_display_compact?: boolean;
             /** @enum {string} */
@@ -2946,6 +2962,10 @@ export interface components {
             developer_mode: boolean;
             /** @description When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set. */
             e2ee_calls_default: boolean;
+            /** @description The user's server rail in order, with folders. Synced across devices. */
+            guild_folders: components["schemas"]["GuildFolder"][];
+            /** @description Flat server order (legacy mirror of guild_folders). */
+            guild_positions: components["schemas"]["Snowflake"][];
             locale: string;
             message_display_compact: boolean;
             /** @enum {string} */

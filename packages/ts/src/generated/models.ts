@@ -1482,6 +1482,24 @@ export interface GuildEmojisUpdateEvent {
   emojis: Emoji[];
 }
 /**
+ * One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.
+ */
+export interface GuildFolder {
+  /**
+   * Folder id chosen by the client (stable per user); null for a single un-foldered server.
+   */
+  id: number | null;
+  name: string | null;
+  /**
+   * RGB colour as 0xRRGGBB.
+   */
+  color: number | null;
+  /**
+   * @maxItems 200
+   */
+  guild_ids: Snowflake[];
+}
+/**
  * A guild with its full state (GUILD_CREATE payload and the internal guild state endpoint).
  */
 export interface GuildFull {
@@ -2334,6 +2352,18 @@ export interface ModifyUserSettingsRequest {
   developer_mode?: boolean;
   message_display_compact?: boolean;
   accent_color?: number | null;
+  /**
+   * The user's server rail in order, with folders. Synced across devices.
+   *
+   * @maxItems 200
+   */
+  guild_folders?: GuildFolder[];
+  /**
+   * Flat server order (legacy mirror of guild_folders).
+   *
+   * @maxItems 200
+   */
+  guild_positions?: Snowflake[];
 }
 /**
  * PATCH /webhooks/{id} body.
@@ -2494,6 +2524,18 @@ export interface UserSettings {
   developer_mode: boolean;
   message_display_compact: boolean;
   accent_color?: number | null;
+  /**
+   * The user's server rail in order, with folders. Synced across devices.
+   *
+   * @maxItems 200
+   */
+  guild_folders: GuildFolder[];
+  /**
+   * Flat server order (legacy mirror of guild_folders).
+   *
+   * @maxItems 200
+   */
+  guild_positions: Snowflake[];
 }
 /**
  * POST /auth/refresh body.

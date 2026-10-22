@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/guild-folder.json",
+  "title": "GuildFolder",
+  "description": "One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "color",
+    "guild_ids"
+  ],
+  "properties": {
+    "id": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Folder id chosen by the client (stable per user); null for a single un-foldered server."
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 32
+    },
+    "color": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "RGB colour as 0xRRGGBB."
+    },
+    "guild_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "./snowflake.json"
+      },
+      "maxItems": 200
+    }
+  }
+}

@@ -53,6 +53,22 @@
         "integer",
         "null"
       ]
+    },
+    "guild_folders": {
+      "type": "array",
+      "description": "The user's server rail in order, with folders. Synced across devices.",
+      "items": {
+        "$ref": "../objects/guild-folder.json"
+      },
+      "maxItems": 200
+    },
+    "guild_positions": {
+      "type": "array",
+      "description": "Flat server order (legacy mirror of guild_folders).",
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      },
+      "maxItems": 200
     }
   }
 }

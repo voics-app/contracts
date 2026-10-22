@@ -727,6 +727,17 @@ Permissions of an application's command(s) in a guild.
 | `guild_id` | `Snowflake` |  |
 | `permissions` | `array of ApplicationCommandPermission` |  |
 
+### GuildFolder
+
+One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `?integer` | Folder id chosen by the client (stable per user); null for a single un-foldered server. |
+| `name` | `?string` |  |
+| `color` | `?integer` | RGB colour as 0xRRGGBB. |
+| `guild_ids` | `array of Snowflake` |  |
+
 ### GuildFull
 
 A guild with its full state (GUILD_CREATE payload and the internal guild state endpoint).
@@ -1262,6 +1273,8 @@ Account-wide settings of the current user. `default_delivery_mode` is a Discordy
 | `developer_mode` | `boolean` |  |
 | `message_display_compact` | `boolean` |  |
 | `accent_color?` | `?integer` |  |
+| `guild_folders` | `array of GuildFolder` | The user's server rail in order, with folders. Synced across devices. |
+| `guild_positions` | `array of Snowflake` | Flat server order (legacy mirror of guild_folders). |
 
 ### VoiceRegion
 
@@ -1846,6 +1859,8 @@ PATCH /users/@me/settings body (partial).
 | `developer_mode?` | `boolean` |  |
 | `message_display_compact?` | `boolean` |  |
 | `accent_color?` | `?integer` |  |
+| `guild_folders?` | `array of GuildFolder` | The user's server rail in order, with folders. Synced across devices. |
+| `guild_positions?` | `array of Snowflake` | Flat server order (legacy mirror of guild_folders). |
 
 ### ModifyWebhookRequest
 
