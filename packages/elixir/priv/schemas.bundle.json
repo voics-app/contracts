@@ -3219,6 +3219,47 @@
         }
       }
     },
+    "GuildFolder": {
+      "title": "GuildFolder",
+      "description": "One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "color",
+        "guild_ids"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Folder id chosen by the client (stable per user); null for a single un-foldered server."
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 32
+        },
+        "color": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "RGB colour as 0xRRGGBB."
+        },
+        "guild_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          },
+          "maxItems": 200
+        }
+      }
+    },
     "GuildFull": {
       "title": "GuildFull",
       "description": "A guild with its full state (GUILD_CREATE payload and the internal guild state endpoint).",
@@ -5736,6 +5777,22 @@
             "integer",
             "null"
           ]
+        },
+        "guild_folders": {
+          "type": "array",
+          "description": "The user's server rail in order, with folders. Synced across devices.",
+          "items": {
+            "$ref": "#/$defs/GuildFolder"
+          },
+          "maxItems": 200
+        },
+        "guild_positions": {
+          "type": "array",
+          "description": "Flat server order (legacy mirror of guild_folders).",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          },
+          "maxItems": 200
         }
       }
     },
@@ -7426,7 +7483,9 @@
         "default_delivery_mode",
         "e2ee_calls_default",
         "developer_mode",
-        "message_display_compact"
+        "message_display_compact",
+        "guild_folders",
+        "guild_positions"
       ],
       "properties": {
         "locale": {
@@ -7478,6 +7537,22 @@
             "integer",
             "null"
           ]
+        },
+        "guild_folders": {
+          "type": "array",
+          "description": "The user's server rail in order, with folders. Synced across devices.",
+          "items": {
+            "$ref": "#/$defs/GuildFolder"
+          },
+          "maxItems": 200
+        },
+        "guild_positions": {
+          "type": "array",
+          "description": "Flat server order (legacy mirror of guild_folders).",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          },
+          "maxItems": 200
         }
       }
     },

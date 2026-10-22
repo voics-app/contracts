@@ -12,7 +12,9 @@
     "default_delivery_mode",
     "e2ee_calls_default",
     "developer_mode",
-    "message_display_compact"
+    "message_display_compact",
+    "guild_folders",
+    "guild_positions"
   ],
   "properties": {
     "locale": {
@@ -64,6 +66,22 @@
         "integer",
         "null"
       ]
+    },
+    "guild_folders": {
+      "type": "array",
+      "description": "The user's server rail in order, with folders. Synced across devices.",
+      "items": {
+        "$ref": "./guild-folder.json"
+      },
+      "maxItems": 200
+    },
+    "guild_positions": {
+      "type": "array",
+      "description": "Flat server order (legacy mirror of guild_folders).",
+      "items": {
+        "$ref": "./snowflake.json"
+      },
+      "maxItems": 200
     }
   },
   "$defs": {

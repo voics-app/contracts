@@ -2205,6 +2205,69 @@ pub struct GuildEmojisUpdateEvent {
     pub emojis: ::std::vec::Vec<Emoji>,
     pub guild_id: Snowflake,
 }
+///One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildFolder {
+    ///RGB colour as 0xRRGGBB.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub color: ::std::option::Option<i64>,
+    pub guild_ids: ::std::vec::Vec<Snowflake>,
+    ///Folder id chosen by the client (stable per user); null for a single un-foldered server.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub id: ::std::option::Option<i64>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub name: ::std::option::Option<GuildFolderName>,
+}
+///`GuildFolderName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildFolderName(::std::string::String);
+impl ::std::ops::Deref for GuildFolderName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildFolderName> for ::std::string::String {
+    fn from(value: GuildFolderName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildFolderName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 32usize {
+            return Err("longer than 32 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildFolderName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildFolderName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildFolderName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///A guild with its full state (GUILD_CREATE payload and the internal guild state endpoint).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildFull {
@@ -3765,6 +3828,12 @@ pub struct ModifyUserSettingsRequest {
     ///When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub e2ee_calls_default: ::std::option::Option<bool>,
+    ///The user's server rail in order, with folders. Synced across devices.
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub guild_folders: ::std::vec::Vec<GuildFolder>,
+    ///Flat server order (legacy mirror of guild_folders).
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub guild_positions: ::std::vec::Vec<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub locale: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -5358,6 +5427,10 @@ pub struct UserSettings {
     pub developer_mode: bool,
     ///When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set.
     pub e2ee_calls_default: bool,
+    ///The user's server rail in order, with folders. Synced across devices.
+    pub guild_folders: ::std::vec::Vec<GuildFolder>,
+    ///Flat server order (legacy mirror of guild_folders).
+    pub guild_positions: ::std::vec::Vec<Snowflake>,
     pub locale: ::std::string::String,
     pub message_display_compact: bool,
     pub status: UserSettingsStatus,
