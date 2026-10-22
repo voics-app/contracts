@@ -5374,12 +5374,30 @@ pub struct UserPreferences {
     ///Accent colour preset.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub accent: ::std::option::Option<UserPreferencesAccent>,
+    ///Animate custom emoji automatically.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub animate_emoji: ::std::option::Option<bool>,
+    ///Play GIFs automatically; when off they play on hover.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub animate_gifs: ::std::option::Option<bool>,
+    ///Animate stickers automatically.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub animate_stickers: ::std::option::Option<bool>,
     ///Chat font scale.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub font_scale: ::std::option::Option<f64>,
+    ///Increase contrast of text and borders.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub high_contrast: ::std::option::Option<bool>,
     ///Show previews (embeds) of links in messages.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub link_previews: ::std::option::Option<bool>,
+    ///Always underline links in messages.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub link_underline: ::std::option::Option<bool>,
+    ///Space in pixels between message groups.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub message_spacing: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub notify_only_mentions: ::std::option::Option<bool>,
     ///Master switch for notification sounds.
@@ -5392,6 +5410,12 @@ pub struct UserPreferences {
     pub reduce_motion: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ringtone: ::std::option::Option<UserPreferencesRingtone>,
+    ///How role colours show on member names: tint the name, a dot beside it, or not at all.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub role_colors: ::std::option::Option<UserPreferencesRoleColors>,
+    ///Colour saturation of the interface, 1 is full colour (accessibility).
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub saturation: ::std::option::Option<f64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub show_avatars_in_compact: ::std::option::Option<bool>,
     ///Skin tone modifier of the emoji picker; empty for the default.
@@ -5403,6 +5427,12 @@ pub struct UserPreferences {
         skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
     )]
     pub sound_toggles: ::std::collections::HashMap<::std::string::String, bool>,
+    ///Speech rate of text-to-speech playback, 1 is normal.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub tts_rate: ::std::option::Option<f64>,
+    ///Allow the /tts command and read text-to-speech messages aloud.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub tts_read_aloud: ::std::option::Option<bool>,
 }
 ///Accent colour preset.
 #[derive(
@@ -5579,6 +5609,61 @@ impl<'de> ::serde::Deserialize<'de> for UserPreferencesRingtone {
             .map_err(|e: self::error::ConversionError| {
                 <D::Error as ::serde::de::Error>::custom(e.to_string())
             })
+    }
+}
+///How role colours show on member names: tint the name, a dot beside it, or not at all.
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum UserPreferencesRoleColors {
+    #[serde(rename = "name")]
+    Name,
+    #[serde(rename = "dot")]
+    Dot,
+    #[serde(rename = "hidden")]
+    Hidden,
+}
+impl ::std::fmt::Display for UserPreferencesRoleColors {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Name => f.write_str("name"),
+            Self::Dot => f.write_str("dot"),
+            Self::Hidden => f.write_str("hidden"),
+        }
+    }
+}
+impl ::std::str::FromStr for UserPreferencesRoleColors {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "name" => Ok(Self::Name),
+            "dot" => Ok(Self::Dot),
+            "hidden" => Ok(Self::Hidden),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPreferencesRoleColors {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesRoleColors {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
     }
 }
 ///Skin tone modifier of the emoji picker; empty for the default.

@@ -2400,6 +2400,46 @@ export interface UserPreferences {
    * Show previews (embeds) of links in messages.
    */
   link_previews?: boolean;
+  /**
+   * Colour saturation of the interface, 1 is full colour (accessibility).
+   */
+  saturation?: number;
+  /**
+   * How role colours show on member names: tint the name, a dot beside it, or not at all.
+   */
+  role_colors?: "name" | "dot" | "hidden";
+  /**
+   * Always underline links in messages.
+   */
+  link_underline?: boolean;
+  /**
+   * Space in pixels between message groups.
+   */
+  message_spacing?: number;
+  /**
+   * Increase contrast of text and borders.
+   */
+  high_contrast?: boolean;
+  /**
+   * Play GIFs automatically; when off they play on hover.
+   */
+  animate_gifs?: boolean;
+  /**
+   * Animate custom emoji automatically.
+   */
+  animate_emoji?: boolean;
+  /**
+   * Animate stickers automatically.
+   */
+  animate_stickers?: boolean;
+  /**
+   * Allow the /tts command and read text-to-speech messages aloud.
+   */
+  tts_read_aloud?: boolean;
+  /**
+   * Speech rate of text-to-speech playback, 1 is normal.
+   */
+  tts_rate?: number;
   notify_only_mentions?: boolean;
   /**
    * Master switch for notification sounds.
