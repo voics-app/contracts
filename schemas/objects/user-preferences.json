@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/user-preferences.json",
+  "title": "UserPreferences",
+  "description": "Client preferences that follow the account across devices (client#123). Sparse: a key is present only once the user (or a first-run migration) set it; clients fall back to their defaults for missing keys. As a PATCH value the object is merged key by key. Device-specific settings (audio and video devices, volumes, keybinds, window state, desktop notification toggle, taskbar flash) are not stored here.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "accent": { "type": "string", "enum": ["iris", "aurora", "ember", "rose", "citrine", "sky"], "description": "Accent colour preset." },
+    "reduce_motion": { "type": "boolean" },
+    "font_scale": { "type": "number", "minimum": 0.75, "maximum": 1.5, "description": "Chat font scale." },
+    "show_avatars_in_compact": { "type": "boolean" },
+    "link_previews": { "type": "boolean", "description": "Show previews (embeds) of links in messages." },
+    "notify_only_mentions": { "type": "boolean" },
+    "notify_sounds": { "type": "boolean", "description": "Master switch for notification sounds." },
+    "sound_toggles": {
+      "type": "object",
+      "description": "Per-sound switches under notify_sounds; a missing entry means on.",
+      "additionalProperties": { "type": "boolean" },
+      "maxProperties": 64
+    },
+    "ringtone": { "type": "string", "maxLength": 32 },
+    "skin_tone": { "type": "string", "maxLength": 16, "description": "Skin tone modifier of the emoji picker; empty for the default." },
+    "recent_reactions": {
+      "type": "array",
+      "description": "Recently used reaction emoji, most recent first.",
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "anyOf": [{ "$ref": "./snowflake.json" }, { "type": "null" }] },
+          "name": { "type": "string", "maxLength": 64 },
+          "animated": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

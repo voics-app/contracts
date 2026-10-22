@@ -3838,6 +3838,9 @@ pub struct ModifyUserSettingsRequest {
     pub locale: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub message_display_compact: ::std::option::Option<bool>,
+    ///Merged key by key into the stored preferences.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub preferences: ::std::option::Option<UserPreferences>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub status: ::std::option::Option<ModifyUserSettingsRequestStatus>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -5352,6 +5355,270 @@ impl<'de> ::serde::Deserialize<'de> for UserNoteUpdateEventNote {
             })
     }
 }
+///Client preferences that follow the account across devices (client#123). Sparse: a key is present only once the user (or a first-run migration) set it; clients fall back to their defaults for missing keys. As a PATCH value the object is merged key by key. Device-specific settings (audio and video devices, volumes, keybinds, window state, desktop notification toggle, taskbar flash) are not stored here.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct UserPreferences {
+    ///Accent colour preset.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub accent: ::std::option::Option<UserPreferencesAccent>,
+    ///Chat font scale.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub font_scale: ::std::option::Option<f64>,
+    ///Show previews (embeds) of links in messages.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub link_previews: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub notify_only_mentions: ::std::option::Option<bool>,
+    ///Master switch for notification sounds.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub notify_sounds: ::std::option::Option<bool>,
+    ///Recently used reaction emoji, most recent first.
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub recent_reactions: ::std::vec::Vec<UserPreferencesRecentReactionsItem>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub reduce_motion: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub ringtone: ::std::option::Option<UserPreferencesRingtone>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub show_avatars_in_compact: ::std::option::Option<bool>,
+    ///Skin tone modifier of the emoji picker; empty for the default.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub skin_tone: ::std::option::Option<UserPreferencesSkinTone>,
+    ///Per-sound switches under notify_sounds; a missing entry means on.
+    #[serde(
+        default,
+        skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+    )]
+    pub sound_toggles: ::std::collections::HashMap<::std::string::String, bool>,
+}
+///Accent colour preset.
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum UserPreferencesAccent {
+    #[serde(rename = "iris")]
+    Iris,
+    #[serde(rename = "aurora")]
+    Aurora,
+    #[serde(rename = "ember")]
+    Ember,
+    #[serde(rename = "rose")]
+    Rose,
+    #[serde(rename = "citrine")]
+    Citrine,
+    #[serde(rename = "sky")]
+    Sky,
+}
+impl ::std::fmt::Display for UserPreferencesAccent {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Iris => f.write_str("iris"),
+            Self::Aurora => f.write_str("aurora"),
+            Self::Ember => f.write_str("ember"),
+            Self::Rose => f.write_str("rose"),
+            Self::Citrine => f.write_str("citrine"),
+            Self::Sky => f.write_str("sky"),
+        }
+    }
+}
+impl ::std::str::FromStr for UserPreferencesAccent {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "iris" => Ok(Self::Iris),
+            "aurora" => Ok(Self::Aurora),
+            "ember" => Ok(Self::Ember),
+            "rose" => Ok(Self::Rose),
+            "citrine" => Ok(Self::Citrine),
+            "sky" => Ok(Self::Sky),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPreferencesAccent {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesAccent {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`UserPreferencesRecentReactionsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct UserPreferencesRecentReactionsItem {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub animated: ::std::option::Option<bool>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub id: ::std::option::Option<Snowflake>,
+    pub name: UserPreferencesRecentReactionsItemName,
+}
+///`UserPreferencesRecentReactionsItemName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserPreferencesRecentReactionsItemName(::std::string::String);
+impl ::std::ops::Deref for UserPreferencesRecentReactionsItemName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserPreferencesRecentReactionsItemName> for ::std::string::String {
+    fn from(value: UserPreferencesRecentReactionsItemName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserPreferencesRecentReactionsItemName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 64usize {
+            return Err("longer than 64 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPreferencesRecentReactionsItemName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesRecentReactionsItemName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserPreferencesRecentReactionsItemName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`UserPreferencesRingtone`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserPreferencesRingtone(::std::string::String);
+impl ::std::ops::Deref for UserPreferencesRingtone {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserPreferencesRingtone> for ::std::string::String {
+    fn from(value: UserPreferencesRingtone) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserPreferencesRingtone {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 32usize {
+            return Err("longer than 32 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPreferencesRingtone {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesRingtone {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserPreferencesRingtone {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Skin tone modifier of the emoji picker; empty for the default.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserPreferencesSkinTone(::std::string::String);
+impl ::std::ops::Deref for UserPreferencesSkinTone {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserPreferencesSkinTone> for ::std::string::String {
+    fn from(value: UserPreferencesSkinTone) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserPreferencesSkinTone {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 16usize {
+            return Err("longer than 16 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPreferencesSkinTone {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesSkinTone {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserPreferencesSkinTone {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///GET /internal/v1/users/{user_id}/ready: the state used to build READY.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct UserReadyState {
@@ -5433,6 +5700,8 @@ pub struct UserSettings {
     pub guild_positions: ::std::vec::Vec<Snowflake>,
     pub locale: ::std::string::String,
     pub message_display_compact: bool,
+    ///Synced client preferences (appearance, chat, notification sounds, emoji). Sparse.
+    pub preferences: UserPreferences,
     pub status: UserSettingsStatus,
     pub theme: UserSettingsTheme,
 }

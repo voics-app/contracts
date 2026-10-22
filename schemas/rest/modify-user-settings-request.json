@@ -69,6 +69,10 @@
         "$ref": "../objects/snowflake.json"
       },
       "maxItems": 200
+    },
+    "preferences": {
+      "$ref": "../objects/user-preferences.json",
+      "description": "Merged key by key into the stored preferences."
     }
   }
 }

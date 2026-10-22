@@ -734,6 +734,39 @@ export interface components {
             verified?: boolean;
         };
         /**
+         * UserPreferences
+         * @description Client preferences that follow the account across devices (client#123). Sparse: a key is present only once the user (or a first-run migration) set it; clients fall back to their defaults for missing keys. As a PATCH value the object is merged key by key. Device-specific settings (audio and video devices, volumes, keybinds, window state, desktop notification toggle, taskbar flash) are not stored here.
+         */
+        UserPreferences: {
+            /**
+             * @description Accent colour preset.
+             * @enum {string}
+             */
+            accent?: "iris" | "aurora" | "ember" | "rose" | "citrine" | "sky";
+            /** @description Chat font scale. */
+            font_scale?: number;
+            /** @description Show previews (embeds) of links in messages. */
+            link_previews?: boolean;
+            notify_only_mentions?: boolean;
+            /** @description Master switch for notification sounds. */
+            notify_sounds?: boolean;
+            /** @description Recently used reaction emoji, most recent first. */
+            recent_reactions?: {
+                animated?: boolean;
+                id: components["schemas"]["Snowflake"] | null;
+                name: string;
+            }[];
+            reduce_motion?: boolean;
+            ringtone?: string;
+            show_avatars_in_compact?: boolean;
+            /** @description Skin tone modifier of the emoji picker; empty for the default. */
+            skin_tone?: string;
+            /** @description Per-sound switches under notify_sounds; a missing entry means on. */
+            sound_toggles?: {
+                [key: string]: boolean;
+            };
+        };
+        /**
          * UserReadyState
          * @description GET /internal/v1/users/{user_id}/ready: the state used to build READY.
          */
@@ -768,6 +801,8 @@ export interface components {
             guild_positions: components["schemas"]["Snowflake"][];
             locale: string;
             message_display_compact: boolean;
+            /** @description Synced client preferences (appearance, chat, notification sounds, emoji). Sparse. */
+            preferences: components["schemas"]["UserPreferences"];
             /** @enum {string} */
             status: "online" | "idle" | "dnd" | "invisible";
             /** @enum {string} */

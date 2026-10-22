@@ -14,7 +14,8 @@
     "developer_mode",
     "message_display_compact",
     "guild_folders",
-    "guild_positions"
+    "guild_positions",
+    "preferences"
   ],
   "properties": {
     "locale": {
@@ -82,6 +83,10 @@
         "$ref": "./snowflake.json"
       },
       "maxItems": 200
+    },
+    "preferences": {
+      "$ref": "./user-preferences.json",
+      "description": "Synced client preferences (appearance, chat, notification sounds, emoji). Sparse."
     }
   },
   "$defs": {
