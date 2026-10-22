@@ -181,6 +181,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PATCH` | `/channels/{channel_id}/messages/{message_id}` | messages | `EditMessageRequest` | `Message` | Edit a message |
 | `DELETE` | `/channels/{channel_id}/messages/{message_id}` | messages | — | 204 No Content | Delete a message |
 | `POST` | `/channels/{channel_id}/messages/bulk-delete` | messages | `BulkDeleteRequest` | 204 No Content | Delete 2-100 messages |
+| `DELETE` | `/channels/{channel_id}/messages/{message_id}/reactions` | messages | — | 204 No Content | Remove every reaction from a message (MANAGE_MESSAGES) |
+| `GET` | `/channels/{channel_id}/messages/{message_id}/reactions/{emoji}` | messages | — | `array of PartialUser` | List the users that reacted with an emoji |
+| `DELETE` | `/channels/{channel_id}/messages/{message_id}/reactions/{emoji}` | messages | — | 204 No Content | Remove every reaction of one emoji (MANAGE_MESSAGES) |
+| `DELETE` | `/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}` | messages | — | 204 No Content | Remove one user's reaction (MANAGE_MESSAGES) |
 | `PUT` | `/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me` | messages | — | 204 No Content | Add a reaction |
 | `DELETE` | `/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me` | messages | — | 204 No Content | Remove the caller's reaction |
 | `GET` | `/channels/{channel_id}/pins` | messages | — | `array of Message` | List pinned messages |
