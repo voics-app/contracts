@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/user-profile.json",
+  "title": "UserProfile",
+  "description": "GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).",
+  "type": "object",
+  "required": [
+    "user",
+    "mutual_guilds",
+    "mutual_friends"
+  ],
+  "properties": {
+    "user": {
+      "$ref": "../objects/user.json"
+    },
+    "mutual_guilds": {
+      "type": "array",
+      "description": "Servers both users are members of. nick is the target user's nickname there.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "../objects/snowflake.json"
+          },
+          "nick": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "mutual_friends": {
+      "type": "array",
+      "description": "Users who are friends of both the caller and the target.",
+      "items": {
+        "$ref": "../objects/user.json"
+      }
+    }
+  }
+}

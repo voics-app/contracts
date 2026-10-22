@@ -2938,6 +2938,23 @@ export interface UserNoteUpdateEvent {
   note: string;
 }
 /**
+ * GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).
+ */
+export interface UserProfile {
+  user: User;
+  /**
+   * Servers both users are members of. nick is the target user's nickname there.
+   */
+  mutual_guilds: {
+    id: Snowflake;
+    nick?: string | null;
+  }[];
+  /**
+   * Users who are friends of both the caller and the target.
+   */
+  mutual_friends: User[];
+}
+/**
  * GET /internal/v1/users/{user_id}/ready: the state used to build READY.
  */
 export interface UserReadyState {

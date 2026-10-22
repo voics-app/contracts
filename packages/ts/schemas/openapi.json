@@ -902,6 +902,42 @@
         }
       }
     },
+    "/users/{user_id}/profile": {
+      "get": {
+        "operationId": "getUserProfile",
+        "summary": "Get a user's profile with mutual servers and mutual friends",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/users/@me/settings": {
       "get": {
         "operationId": "getUserSettings",
@@ -10668,6 +10704,49 @@
                   "type": "boolean"
                 }
               }
+            }
+          }
+        }
+      },
+      "UserProfile": {
+        "title": "UserProfile",
+        "description": "GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).",
+        "type": "object",
+        "required": [
+          "user",
+          "mutual_guilds",
+          "mutual_friends"
+        ],
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "mutual_guilds": {
+            "type": "array",
+            "description": "Servers both users are members of. nick is the target user's nickname there.",
+            "items": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "nick": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "mutual_friends": {
+            "type": "array",
+            "description": "Users who are friends of both the caller and the target.",
+            "items": {
+              "$ref": "#/components/schemas/User"
             }
           }
         }

@@ -5716,6 +5716,22 @@ impl<'de> ::serde::Deserialize<'de> for UserPreferencesSkinTone {
             })
     }
 }
+///GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct UserProfile {
+    ///Users who are friends of both the caller and the target.
+    pub mutual_friends: ::std::vec::Vec<User>,
+    ///Servers both users are members of. nick is the target user's nickname there.
+    pub mutual_guilds: ::std::vec::Vec<UserProfileMutualGuildsItem>,
+    pub user: User,
+}
+///`UserProfileMutualGuildsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct UserProfileMutualGuildsItem {
+    pub id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub nick: ::std::option::Option<::std::string::String>,
+}
 ///GET /internal/v1/users/{user_id}/ready: the state used to build READY.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct UserReadyState {
