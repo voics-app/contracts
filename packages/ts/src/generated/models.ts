@@ -603,6 +603,22 @@ export interface Ban {
   user: User;
 }
 /**
+ * BAN_MESSAGE_PURGE bus event (discordy.guild.v1, routed by guild_id). A moderator banned a user with delete_message_seconds > 0 (PUT /guilds/{id}/bans/{uid}). The messages service deletes every message the user authored in the listed channels at or after since_ms (storage, search index, attachments, reactions, pins) and emits MESSAGE_DELETE_BULK per channel. The gateway ignores it and never dispatches it to clients. Replays are harmless: deleting already deleted messages is a no-op.
+ */
+export interface BanMessagePurgeEvent {
+  guild_id: Snowflake;
+  user_id: Snowflake;
+  /**
+   * The guild's text-capable channels and threads at ban time.
+   */
+  channel_ids: Snowflake[];
+  /**
+   * Unix milliseconds: messages created at or after this instant are deleted (ban time minus delete_message_seconds).
+   */
+  since_ms: number;
+  delete_message_seconds: number;
+}
+/**
  * POST /channels/{id}/messages/bulk-delete body.
  */
 export interface BulkDeleteRequest {
