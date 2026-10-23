@@ -87,6 +87,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/users/@me/mfa/totp/disable` | api | `DisableTotpRequest` | 204 No Content | Disable TOTP |
 | `POST` | `/users/@me/mfa/codes-verification` | api | `BackupCodesVerificationRequest` | `BackupCodesResponse` | List or regenerate backup codes |
 | `GET` | `/users/{user_id}` | api | — | `User` | Get a user |
+| `GET` | `/users/{user_id}/profile` | api | — | `UserProfile` | Get a user's profile with mutual servers and mutual friends |
 | `GET` | `/users/@me/settings` | api | — | `UserSettings` | Get the current user's settings |
 | `PATCH` | `/users/@me/settings` | api | `ModifyUserSettingsRequest` | `UserSettings` | Modify the current user's settings (including default_delivery_mode) |
 | `GET` | `/users/@me/guilds/{guild_id}/settings` | api | — | `GuildNotificationSettings` | Get the current user's notification settings for a guild (or `@me` for DMs) |
@@ -2052,6 +2053,16 @@ POST /devices/{id}/key-packages body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `packages` | `array of string` |  |
+
+### UserProfile
+
+GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `user` | `User` |  |
+| `mutual_guilds` | `array of object` | Servers both users are members of. nick is the target user's nickname there. |
+| `mutual_friends` | `array of User` | Users who are friends of both the caller and the target. |
 
 ### VerifyEmailRequest
 

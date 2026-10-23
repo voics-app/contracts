@@ -7601,6 +7601,49 @@
         }
       }
     },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).",
+      "type": "object",
+      "required": [
+        "user",
+        "mutual_guilds",
+        "mutual_friends"
+      ],
+      "properties": {
+        "user": {
+          "$ref": "#/$defs/User"
+        },
+        "mutual_guilds": {
+          "type": "array",
+          "description": "Servers both users are members of. nick is the target user's nickname there.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "nick": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "mutual_friends": {
+          "type": "array",
+          "description": "Users who are friends of both the caller and the target.",
+          "items": {
+            "$ref": "#/$defs/User"
+          }
+        }
+      }
+    },
     "UserReadyState": {
       "title": "UserReadyState",
       "description": "GET /internal/v1/users/{user_id}/ready: the state used to build READY.",

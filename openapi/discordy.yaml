@@ -576,6 +576,28 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /users/{user_id}/profile:
+    get:
+      operationId: getUserProfile
+      summary: Get a user's profile with mutual servers and mutual friends
+      tags:
+        - Users
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/user-profile.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /users/@me/settings:
     get:
       operationId: getUserSettings

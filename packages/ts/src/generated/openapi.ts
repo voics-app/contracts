@@ -1080,6 +1080,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{user_id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a user's profile with mutual servers and mutual friends */
+        get: operations["getUserProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/@me": {
         parameters: {
             query?: never;
@@ -3007,6 +3024,20 @@ export interface components {
             tts_rate?: number;
             /** @description Allow the /tts command and read text-to-speech messages aloud. */
             tts_read_aloud?: boolean;
+        };
+        /**
+         * UserProfile
+         * @description GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).
+         */
+        UserProfile: {
+            /** @description Users who are friends of both the caller and the target. */
+            mutual_friends: components["schemas"]["User"][];
+            /** @description Servers both users are members of. nick is the target user's nickname there. */
+            mutual_guilds: {
+                id: components["schemas"]["Snowflake"];
+                nick?: string | null;
+            }[];
+            user: components["schemas"]["User"];
         };
         /**
          * UserSettings
@@ -6063,6 +6094,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClaimKeyPackageResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserProfile"];
                 };
             };
             401: components["responses"]["Unauthorized"];
