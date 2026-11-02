@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/discovery-page.json",
+  "title": "DiscoveryPage",
+  "description": "A page of discoverable servers, largest first.",
+  "type": "object",
+  "required": [
+    "guilds",
+    "total",
+    "offset",
+    "limit"
+  ],
+  "properties": {
+    "guilds": {
+      "type": "array",
+      "items": {
+        "$ref": "./discovery-guild.json"
+      }
+    },
+    "total": {
+      "type": "integer",
+      "description": "Matches across all pages."
+    },
+    "offset": {
+      "type": "integer"
+    },
+    "limit": {
+      "type": "integer"
+    }
+  }
+}

@@ -1676,6 +1676,37 @@ pub struct DisableTotpRequest {
     pub code: ::std::string::String,
     pub password: ::std::string::String,
 }
+///Category slugs a guild can be listed under.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct DiscoveryCategories {
+    pub categories: ::std::vec::Vec<::std::string::String>,
+}
+///One server card of `GET /discovery/guilds` (Discordy extra).
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct DiscoveryGuild {
+    pub approximate_member_count: i64,
+    ///Online members; null when presence is unavailable.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub approximate_presence_count: ::std::option::Option<i64>,
+    ///Category slug, see `GET /discovery/categories`.
+    pub category: ::std::string::String,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub description: ::std::option::Option<::std::string::String>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub icon: ::std::option::Option<::std::string::String>,
+    pub id: Snowflake,
+    pub name: ::std::string::String,
+    pub tags: ::std::vec::Vec<::std::string::String>,
+}
+///A page of discoverable servers, largest first.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct DiscoveryPage {
+    pub guilds: ::std::vec::Vec<DiscoveryGuild>,
+    pub limit: i64,
+    pub offset: i64,
+    ///Matches across all pages.
+    pub total: i64,
+}
 ///Op 21 E2EE_ACK.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct E2eeAckPayload {
@@ -2210,6 +2241,77 @@ pub struct GuildApplicationCommandPermissions {
 pub struct GuildBanEvent {
     pub guild_id: Snowflake,
     pub user: User,
+}
+///A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildDiscoverySettings {
+    pub blockers: ::std::vec::Vec<GuildDiscoverySettingsBlockersItem>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub category: ::std::option::Option<::std::string::String>,
+    pub enabled: bool,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub listed_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    pub member_count: i64,
+    pub tags: ::std::vec::Vec<::std::string::String>,
+}
+///`GuildDiscoverySettingsBlockersItem`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum GuildDiscoverySettingsBlockersItem {
+    #[serde(rename = "DESCRIPTION_REQUIRED")]
+    DescriptionRequired,
+    #[serde(rename = "MEMBER_COUNT_TOO_LOW")]
+    MemberCountTooLow,
+    #[serde(rename = "GUILD_TOO_NEW")]
+    GuildTooNew,
+    #[serde(rename = "NSFW_NOT_ALLOWED")]
+    NsfwNotAllowed,
+}
+impl ::std::fmt::Display for GuildDiscoverySettingsBlockersItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::DescriptionRequired => f.write_str("DESCRIPTION_REQUIRED"),
+            Self::MemberCountTooLow => f.write_str("MEMBER_COUNT_TOO_LOW"),
+            Self::GuildTooNew => f.write_str("GUILD_TOO_NEW"),
+            Self::NsfwNotAllowed => f.write_str("NSFW_NOT_ALLOWED"),
+        }
+    }
+}
+impl ::std::str::FromStr for GuildDiscoverySettingsBlockersItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "DESCRIPTION_REQUIRED" => Ok(Self::DescriptionRequired),
+            "MEMBER_COUNT_TOO_LOW" => Ok(Self::MemberCountTooLow),
+            "GUILD_TOO_NEW" => Ok(Self::GuildTooNew),
+            "NSFW_NOT_ALLOWED" => Ok(Self::NsfwNotAllowed),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildDiscoverySettingsBlockersItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildDiscoverySettingsBlockersItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
 }
 ///GUILD_EMOJIS_UPDATE dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -5143,6 +5245,68 @@ pub struct UnavailableGuild {
     pub id: Snowflake,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub unavailable: ::std::option::Option<bool>,
+}
+///PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct UpdateGuildDiscoveryRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub category: ::std::option::Option<::std::string::String>,
+    pub enabled: bool,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub tags: ::std::vec::Vec<UpdateGuildDiscoveryRequestTagsItem>,
+}
+///`UpdateGuildDiscoveryRequestTagsItem`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UpdateGuildDiscoveryRequestTagsItem(::std::string::String);
+impl ::std::ops::Deref for UpdateGuildDiscoveryRequestTagsItem {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UpdateGuildDiscoveryRequestTagsItem> for ::std::string::String {
+    fn from(value: UpdateGuildDiscoveryRequestTagsItem) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UpdateGuildDiscoveryRequestTagsItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 24usize {
+            return Err("longer than 24 characters".into());
+        }
+        if value.chars().count() < 2usize {
+            return Err("shorter than 2 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UpdateGuildDiscoveryRequestTagsItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UpdateGuildDiscoveryRequestTagsItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UpdateGuildDiscoveryRequestTagsItem {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///POST /devices/{id}/key-packages body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

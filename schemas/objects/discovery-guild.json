@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/discovery-guild.json",
+  "title": "DiscoveryGuild",
+  "description": "One server card of `GET /discovery/guilds` (Discordy extra).",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "icon",
+    "description",
+    "category",
+    "tags",
+    "approximate_member_count",
+    "approximate_presence_count"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "name": {
+      "type": "string"
+    },
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "category": {
+      "type": "string",
+      "description": "Category slug, see `GET /discovery/categories`."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 5
+    },
+    "approximate_member_count": {
+      "type": "integer"
+    },
+    "approximate_presence_count": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Online members; null when presence is unavailable."
+    }
+  }
+}
