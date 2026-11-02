@@ -2344,6 +2344,107 @@
         }
       }
     },
+    "DiscoveryCategories": {
+      "title": "DiscoveryCategories",
+      "description": "Category slugs a guild can be listed under.",
+      "type": "object",
+      "required": [
+        "categories"
+      ],
+      "properties": {
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "DiscoveryGuild": {
+      "title": "DiscoveryGuild",
+      "description": "One server card of `GET /discovery/guilds` (Discordy extra).",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "icon",
+        "description",
+        "category",
+        "tags",
+        "approximate_member_count",
+        "approximate_presence_count"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "name": {
+          "type": "string"
+        },
+        "icon": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "category": {
+          "type": "string",
+          "description": "Category slug, see `GET /discovery/categories`."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5
+        },
+        "approximate_member_count": {
+          "type": "integer"
+        },
+        "approximate_presence_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Online members; null when presence is unavailable."
+        }
+      }
+    },
+    "DiscoveryPage": {
+      "title": "DiscoveryPage",
+      "description": "A page of discoverable servers, largest first.",
+      "type": "object",
+      "required": [
+        "guilds",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "properties": {
+        "guilds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DiscoveryGuild"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "description": "Matches across all pages."
+        },
+        "offset": {
+          "type": "integer"
+        },
+        "limit": {
+          "type": "integer"
+        }
+      }
+    },
     "E2eeAckPayload": {
       "title": "E2eeAckPayload",
       "description": "Op 21 E2EE_ACK.",
@@ -3234,6 +3335,59 @@
         },
         "user": {
           "$ref": "#/$defs/User"
+        }
+      }
+    },
+    "GuildDiscoverySettings": {
+      "title": "GuildDiscoverySettings",
+      "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.",
+      "type": "object",
+      "required": [
+        "enabled",
+        "category",
+        "tags",
+        "listed_at",
+        "member_count",
+        "blockers"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "category": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5
+        },
+        "listed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "member_count": {
+          "type": "integer"
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "DESCRIPTION_REQUIRED",
+              "MEMBER_COUNT_TOO_LOW",
+              "GUILD_TOO_NEW",
+              "NSFW_NOT_ALLOWED"
+            ]
+          }
         }
       }
     },
@@ -7267,6 +7421,34 @@
         },
         "unavailable": {
           "type": "boolean"
+        }
+      }
+    },
+    "UpdateGuildDiscoveryRequest": {
+      "title": "UpdateGuildDiscoveryRequest",
+      "description": "PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.",
+      "type": "object",
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "category": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 24
+          },
+          "maxItems": 5
         }
       }
     },

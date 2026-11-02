@@ -686,6 +686,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/discovery/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List discovery categories */
+        get: operations["listDiscoveryCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/discovery/guilds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Browse and search public servers that opted in to discovery */
+        get: operations["listDiscoveryGuilds"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/discovery/guilds/{guild_id}/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Join a publicly listed server */
+        post: operations["joinDiscoveryGuild"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds": {
         parameters: {
             query?: never;
@@ -792,6 +843,24 @@ export interface paths {
         head?: never;
         /** Reorder guild channels */
         patch: operations["modifyGuildChannelPositions"];
+        trace?: never;
+    };
+    "/guilds/{guild_id}/discovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a guild discovery settings (requires MANAGE_GUILD) */
+        get: operations["getGuildDiscovery"];
+        /** List or delist a guild in discovery (requires MANAGE_GUILD) */
+        put: operations["updateGuildDiscovery"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/guilds/{guild_id}/emojis": {
@@ -1992,6 +2061,40 @@ export interface components {
             password: string;
         };
         /**
+         * DiscoveryCategories
+         * @description Category slugs a guild can be listed under.
+         */
+        DiscoveryCategories: {
+            categories: string[];
+        };
+        /**
+         * DiscoveryGuild
+         * @description One server card of `GET /discovery/guilds` (Discordy extra).
+         */
+        DiscoveryGuild: {
+            approximate_member_count: number;
+            /** @description Online members; null when presence is unavailable. */
+            approximate_presence_count: number | null;
+            /** @description Category slug, see `GET /discovery/categories`. */
+            category: string;
+            description: string | null;
+            icon: string | null;
+            id: components["schemas"]["Snowflake"];
+            name: string;
+            tags: string[];
+        };
+        /**
+         * DiscoveryPage
+         * @description A page of discoverable servers, largest first.
+         */
+        DiscoveryPage: {
+            guilds: components["schemas"]["DiscoveryGuild"][];
+            limit: number;
+            offset: number;
+            /** @description Matches across all pages. */
+            total: number;
+        };
+        /**
          * EditMessageRequest
          * @description PATCH /channels/{id}/messages/{mid} body.
          */
@@ -2188,6 +2291,19 @@ export interface components {
             verification_level: number;
             /** @description Discordy: voice region ID used to allocate voice nodes. */
             voice_region: string;
+        };
+        /**
+         * GuildDiscoverySettings
+         * @description A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+         */
+        GuildDiscoverySettings: {
+            blockers: ("DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
+            category: string | null;
+            enabled: boolean;
+            /** Format: date-time */
+            listed_at: string | null;
+            member_count: number;
+            tags: string[];
         };
         /**
          * GuildFolder
@@ -2926,6 +3042,15 @@ export interface components {
             otpauth_uri: string;
             /** @description Base32 secret for manual entry. */
             secret: string;
+        };
+        /**
+         * UpdateGuildDiscoveryRequest
+         * @description PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.
+         */
+        UpdateGuildDiscoveryRequest: {
+            category?: string | null;
+            enabled: boolean;
+            tags?: string[];
         };
         /**
          * UploadKeyPackagesRequest
@@ -4904,6 +5029,93 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listDiscoveryCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoveryCategories"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listDiscoveryGuilds: {
+        parameters: {
+            query?: {
+                /** @description Category slug. */
+                category?: string;
+                /** @description Page size (1-50, default 24). */
+                limit?: number;
+                /** @description Number of results to skip. */
+                offset?: number;
+                /** @description Case-insensitive match on name, description and tags. */
+                query?: string;
+                /** @description Exact tag. */
+                tag?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoveryPage"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    joinDiscoveryGuild: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     createGuild: {
         parameters: {
             query?: never;
@@ -5266,6 +5478,66 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildDiscovery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildDiscoverySettings"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    updateGuildDiscovery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGuildDiscoveryRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildDiscoverySettings"];
+                };
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];

@@ -1208,6 +1208,52 @@ export interface DisableTotpRequest {
   code: string;
 }
 /**
+ * Category slugs a guild can be listed under.
+ */
+export interface DiscoveryCategories {
+  categories: string[];
+}
+/**
+ * One server card of `GET /discovery/guilds` (Discordy extra).
+ */
+export interface DiscoveryGuild {
+  id: Snowflake;
+  name: string;
+  icon: string | null;
+  description: string | null;
+  /**
+   * Category slug, see `GET /discovery/categories`.
+   */
+  category: string;
+  /**
+   * @maxItems 5
+   */
+  tags:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string];
+  approximate_member_count: number;
+  /**
+   * Online members; null when presence is unavailable.
+   */
+  approximate_presence_count: number | null;
+}
+/**
+ * A page of discoverable servers, largest first.
+ */
+export interface DiscoveryPage {
+  guilds: DiscoveryGuild[];
+  /**
+   * Matches across all pages.
+   */
+  total: number;
+  offset: number;
+  limit: number;
+}
+/**
  * Op 21 E2EE_ACK.
  */
 export interface E2eeAckPayload {
@@ -1489,6 +1535,26 @@ export interface GuildApplicationCommandPermissions {
 export interface GuildBanEvent {
   guild_id: Snowflake;
   user: User;
+}
+/**
+ * A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+ */
+export interface GuildDiscoverySettings {
+  enabled: boolean;
+  category: string | null;
+  /**
+   * @maxItems 5
+   */
+  tags:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string];
+  listed_at: string | null;
+  member_count: number;
+  blockers: ("DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
 }
 /**
  * GUILD_EMOJIS_UPDATE dispatch.
@@ -2896,6 +2962,23 @@ export interface TypingStartEvent {
 export interface UnavailableGuild {
   id: Snowflake;
   unavailable?: boolean;
+}
+/**
+ * PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.
+ */
+export interface UpdateGuildDiscoveryRequest {
+  enabled: boolean;
+  category?: string | null;
+  /**
+   * @maxItems 5
+   */
+  tags?:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string];
 }
 /**
  * POST /devices/{id}/key-packages body.
