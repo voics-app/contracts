@@ -48,7 +48,8 @@
       { "op": 22, "name": "P2P_SIGNAL", "direction": "both", "payload": "gateway/opcodes/p2p-signal.json", "description": "P2P-mode WebRTC signaling. Relayed only, never persisted." },
       { "op": 23, "name": "VOICE_TELEMETRY", "direction": "send", "payload": "gateway/opcodes/voice-telemetry.json", "description": "Client voice quality sample, published to discordy.telemetry.v1." },
       { "op": 24, "name": "WATCH_TOGETHER", "direction": "both", "payload": "gateway/opcodes/watch-together.json", "description": "Watch Together playback synchronisation." },
-      { "op": 25, "name": "CALL_DECLINE", "direction": "send", "payload": "gateway/opcodes/call-decline.json", "description": "Declines the DM call ringing in a channel. The caller's call stops ringing for this user." }
+      { "op": 25, "name": "CALL_DECLINE", "direction": "send", "payload": "gateway/opcodes/call-decline.json", "description": "Declines the DM call ringing in a channel. The caller's call stops ringing for this user." },
+      { "op": 26, "name": "CALL_RING", "direction": "send", "payload": "gateway/opcodes/call-ring.json", "description": "Rings 1 to 10 members of a DM channel for a call the sender is in." }
     ],
     "close_codes": [
       { "code": 4000, "name": "UNKNOWN_ERROR", "description": "Unknown error.", "reconnect": true },
@@ -155,7 +156,7 @@
       { "op": 11, "name": "CLIENTS_CONNECT", "direction": "receive", "payload": "voice/opcodes/clients-connect.json", "description": "Users who joined the call." },
       { "op": 12, "name": "VIDEO", "direction": "both", "payload": "voice/opcodes/video.json", "description": "Video/screen-share SSRC announcement." },
       { "op": 13, "name": "CLIENT_DISCONNECT", "direction": "receive", "payload": "voice/opcodes/client-disconnect.json", "description": "A user left the call." },
-      { "op": 15, "name": "MEDIA_SINK_WANTS", "direction": "send", "payload": "voice/opcodes/media-sink-wants.json", "description": "Requested quality (0-100) per SSRC; selects the simulcast layer." },
+      { "op": 15, "name": "MEDIA_SINK_WANTS", "direction": "send", "payload": "voice/opcodes/media-sink-wants.json", "description": "Requested quality (0-100) per SSRC; selects the simulcast layer. Screen shares are delivered only after opting in with the screen SSRC at quality > 0." },
       { "op": 21, "name": "DAVE_PREPARE_TRANSITION", "direction": "receive", "payload": "voice/opcodes/dave-prepare-transition.json", "description": "A DAVE protocol transition is about to happen." },
       { "op": 22, "name": "DAVE_EXECUTE_TRANSITION", "direction": "receive", "payload": "voice/opcodes/dave-transition.json", "description": "Execute a previously prepared transition." },
       { "op": 23, "name": "DAVE_TRANSITION_READY", "direction": "send", "payload": "voice/opcodes/dave-transition.json", "description": "The client is ready for the transition." },
@@ -166,7 +167,8 @@
       { "op": 28, "name": "DAVE_MLS_COMMIT_WELCOME", "direction": "send", "payload": "voice/opcodes/dave-mls-commit-welcome.json", "description": "An MLS commit with an optional welcome." },
       { "op": 29, "name": "DAVE_MLS_ANNOUNCE_COMMIT", "direction": "receive", "payload": "voice/opcodes/dave-mls-announce-commit.json", "description": "The winning commit for a transition." },
       { "op": 30, "name": "DAVE_MLS_WELCOME", "direction": "receive", "payload": "voice/opcodes/dave-mls-welcome.json", "description": "An MLS welcome for a joining member." },
-      { "op": 31, "name": "DAVE_MLS_INVALID_COMMIT", "direction": "send", "payload": "voice/opcodes/dave-transition.json", "description": "The received commit or welcome was invalid; the client asks to be re-added." }
+      { "op": 31, "name": "DAVE_MLS_INVALID_COMMIT", "direction": "send", "payload": "voice/opcodes/dave-transition.json", "description": "The received commit or welcome was invalid; the client asks to be re-added." },
+      { "op": 40, "name": "STREAM_VIEWERS", "direction": "receive", "payload": "voice/opcodes/stream-viewers.json", "description": "Sent to the streamer only: the full list of users watching their screen share, re-sent on every change." }
     ],
     "sfu_commands": [
       { "name": "create_session", "payload": "voice/sfu/create-session.json", "description": "Creates (or, after an SFU restart, re-creates) a media session." },
@@ -176,6 +178,7 @@
     "sfu_events": [
       { "name": "session_created", "payload": "voice/sfu/session-created.json", "description": "Reply to create_session with the SFU's ICE/DTLS parameters." },
       { "name": "speaking", "payload": "voice/sfu/speaking.json", "description": "Voice activity detected on an SSRC." },
+      { "name": "stream_viewers", "payload": "voice/sfu/stream-viewers.json", "description": "The opted-in viewers of a screen share changed; carries the full list." },
       { "name": "stats", "payload": "voice/sfu/stats.json", "description": "Periodic SFU load statistics." }
     ]
   },

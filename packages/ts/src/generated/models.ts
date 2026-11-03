@@ -55,19 +55,33 @@ export interface AckRequest {
   mention_count?: number;
 }
 /**
- * A user activity.
+ * A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.
  */
 export interface Activity {
+  /**
+   * Required, non-empty, at most 128 characters.
+   */
   name: string;
   /**
-   * ActivityType.
+   * ActivityType, 0..5. At most one activity per presence may be type 4 (custom status).
    */
   type: number;
+  /**
+   * At most 512 characters.
+   */
   url?: string | null;
+  /**
+   * Unix milliseconds.
+   */
   created_at?: number;
   timestamps?: ActivityTimestamps;
-  application_id?: Snowflake;
+  /**
+   * At most 128 characters.
+   */
   details?: string | null;
+  /**
+   * At most 128 characters.
+   */
   state?: string | null;
   emoji?: ActivityEmoji | null;
 }
@@ -686,6 +700,29 @@ export interface CallDeleteEvent {
    * Always null.
    */
   message_id: null;
+}
+/**
+ * Op 26 CALL_RING. Rings the listed members of a DM channel for a call the sender is in.
+ */
+export interface CallRingPayload {
+  channel_id: Snowflake;
+  /**
+   * Users to ring, 1 to 10.
+   *
+   * @minItems 1
+   * @maxItems 10
+   */
+  user_ids:
+    | [Snowflake]
+    | [Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake];
 }
 /**
  * GET /internal/v1/channels/{channel_id}/access/{user_id}.
@@ -1888,11 +1925,22 @@ export interface IdentifyProperties {
   version: string;
 }
 /**
- * Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY).
+ * Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY). `activities` are sanitised by the gateway: at most 5 entries and at most one of type 4 (custom status); text fields at most 128 characters, `url` at most 512; unknown fields are dropped. Any violation closes the socket with 4002 DECODE_ERROR.
  */
 export interface PresenceUpdatePayload {
   status: "online" | "idle" | "dnd" | "invisible";
-  activities: Activity[];
+  /**
+   * At most 5 activities, at most one with type 4. Violations close the socket with 4002.
+   *
+   * @maxItems 5
+   */
+  activities:
+    | []
+    | [Activity]
+    | [Activity, Activity]
+    | [Activity, Activity, Activity]
+    | [Activity, Activity, Activity, Activity]
+    | [Activity, Activity, Activity, Activity, Activity];
   afk: boolean;
   /**
    * Unix ms since the client went idle.
@@ -2211,7 +2259,7 @@ export interface LoginRequest {
   totp?: string;
 }
 /**
- * Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100.
+ * Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100. Selects the simulcast layer. Screen-share packets are opt-in: a subscriber receives a publisher's screen (the SSRC announced with `type: screen` in VIDEO) only after listing that SSRC with quality > 0; otherwise the SFU skips the packets. Opting in also makes the streamer's op 40 STREAM_VIEWERS list include the subscriber.
  */
 export interface MediaSinkWantsPayload {
   [k: string]: number | undefined;
@@ -3025,6 +3073,21 @@ export interface SfuStats {
   packets_lost?: number;
 }
 /**
+ * SFU control event: the set of subscribers opted in to a screen share changed. Carries the full viewer list; signalling forwards it to the streamer as voice op 40.
+ */
+export interface SfuStreamViewers {
+  evt: "stream_viewers";
+  session_id: string;
+  /**
+   * The streamer's screen SSRC.
+   */
+  ssrc: number;
+  /**
+   * User ids of every opted-in viewer.
+   */
+  viewers: string[];
+}
+/**
  * Voice op 5 SPEAKING.
  */
 export interface SpeakingPayload {
@@ -3034,6 +3097,19 @@ export interface SpeakingPayload {
   speaking: number;
   ssrc: number;
   user_id?: Snowflake;
+}
+/**
+ * Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.
+ */
+export interface StreamViewersPayload {
+  /**
+   * The streamer's screen SSRC.
+   */
+  ssrc: number;
+  /**
+   * Every current viewer.
+   */
+  user_ids: Snowflake[];
 }
 /**
  * POST /internal/v1/admin/users/{id}/suspend body.

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/sfu/stream-viewers.json",
+  "title": "SfuStreamViewers",
+  "description": "SFU control event: the set of subscribers opted in to a screen share changed. Carries the full viewer list; signalling forwards it to the streamer as voice op 40.",
+  "type": "object",
+  "required": [
+    "evt",
+    "session_id",
+    "ssrc",
+    "viewers"
+  ],
+  "properties": {
+    "evt": {
+      "const": "stream_viewers"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "ssrc": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The streamer's screen SSRC."
+    },
+    "viewers": {
+      "type": "array",
+      "description": "User ids of every opted-in viewer.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

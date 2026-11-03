@@ -198,6 +198,8 @@ export const GatewayOpcodes = {
   WATCH_TOGETHER: 24,
   /** Declines the DM call ringing in a channel. The caller's call stops ringing for this user. */
   CALL_DECLINE: 25,
+  /** Rings 1 to 10 members of a DM channel for a call the sender is in. */
+  CALL_RING: 26,
 } as const;
 export type GatewayOpcodesKey = keyof typeof GatewayOpcodes;
 
@@ -308,7 +310,7 @@ export const VoiceOpcodes = {
   VIDEO: 12,
   /** A user left the call. */
   CLIENT_DISCONNECT: 13,
-  /** Requested quality (0-100) per SSRC; selects the simulcast layer. */
+  /** Requested quality (0-100) per SSRC; selects the simulcast layer. Screen shares are delivered only after opting in with the screen SSRC at quality > 0. */
   MEDIA_SINK_WANTS: 15,
   /** A DAVE protocol transition is about to happen. */
   DAVE_PREPARE_TRANSITION: 21,
@@ -332,6 +334,8 @@ export const VoiceOpcodes = {
   DAVE_MLS_WELCOME: 30,
   /** The received commit or welcome was invalid; the client asks to be re-added. */
   DAVE_MLS_INVALID_COMMIT: 31,
+  /** Sent to the streamer only: the full list of users watching their screen share, re-sent on every change. */
+  STREAM_VIEWERS: 40,
 } as const;
 export type VoiceOpcodesKey = keyof typeof VoiceOpcodes;
 
@@ -360,6 +364,8 @@ export const SfuEvents = {
   SESSION_CREATED: "session_created",
   /** Voice activity detected on an SSRC. */
   SPEAKING: "speaking",
+  /** The opted-in viewers of a screen share changed; carries the full list. */
+  STREAM_VIEWERS: "stream_viewers",
   /** Periodic SFU load statistics. */
   STATS: "stats",
 } as const;

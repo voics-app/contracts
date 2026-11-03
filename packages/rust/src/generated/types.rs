@@ -24,44 +24,301 @@ pub struct AckRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub mention_count: ::std::option::Option<u64>,
 }
-///A user activity.
+///A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Activity {
+    ///Unix milliseconds.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub application_id: ::std::option::Option<Snowflake>,
+    pub created_at: ::std::option::Option<u64>,
+    ///At most 128 characters.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub created_at: ::std::option::Option<i64>,
-    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub details: ::std::option::Option<::std::string::String>,
+    pub details: ::std::option::Option<ActivityDetails>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub emoji: ::std::option::Option<ActivityEmoji>,
-    pub name: ::std::string::String,
+    ///Required, non-empty, at most 128 characters.
+    pub name: ActivityName,
+    ///At most 128 characters.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub state: ::std::option::Option<::std::string::String>,
+    pub state: ::std::option::Option<ActivityState>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub timestamps: ::std::option::Option<ActivityTimestamps>,
-    ///ActivityType.
+    ///ActivityType, 0..5. At most one activity per presence may be type 4 (custom status).
     #[serde(rename = "type")]
     pub type_: i64,
+    ///At most 512 characters.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub url: ::std::option::Option<::std::string::String>,
+    pub url: ::std::option::Option<ActivityUrl>,
+}
+///At most 128 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ActivityDetails(::std::string::String);
+impl ::std::ops::Deref for ActivityDetails {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ActivityDetails> for ::std::string::String {
+    fn from(value: ActivityDetails) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ActivityDetails {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActivityDetails {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActivityDetails {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ActivityDetails {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Emoji of a custom status.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct ActivityEmoji {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub animated: ::std::option::Option<bool>,
+    ///Custom emoji id.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub id: ::std::option::Option<Snowflake>,
-    pub name: ::std::string::String,
+    pub name: ActivityEmojiName,
+}
+///`ActivityEmojiName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ActivityEmojiName(::std::string::String);
+impl ::std::ops::Deref for ActivityEmojiName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ActivityEmojiName> for ::std::string::String {
+    fn from(value: ActivityEmojiName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ActivityEmojiName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActivityEmojiName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActivityEmojiName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ActivityEmojiName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Required, non-empty, at most 128 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ActivityName(::std::string::String);
+impl ::std::ops::Deref for ActivityName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ActivityName> for ::std::string::String {
+    fn from(value: ActivityName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ActivityName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActivityName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActivityName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ActivityName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///At most 128 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ActivityState(::std::string::String);
+impl ::std::ops::Deref for ActivityState {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ActivityState> for ::std::string::String {
+    fn from(value: ActivityState) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ActivityState {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActivityState {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActivityState {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ActivityState {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Unix millisecond start/end times.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ActivityTimestamps {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub end: ::std::option::Option<i64>,
+    pub end: ::std::option::Option<u64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub start: ::std::option::Option<i64>,
+    pub start: ::std::option::Option<u64>,
+}
+///At most 512 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ActivityUrl(::std::string::String);
+impl ::std::ops::Deref for ActivityUrl {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ActivityUrl> for ::std::string::String {
+    fn from(value: ActivityUrl) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ActivityUrl {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 512usize {
+            return Err("longer than 512 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActivityUrl {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActivityUrl {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ActivityUrl {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///A guild as listed in the admin portal.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -713,6 +970,13 @@ pub struct CallDeleteEvent {
     pub channel_id: Snowflake,
     ///Always null.
     pub message_id: (),
+}
+///Op 26 CALL_RING. Rings the listed members of a DM channel for a call the sender is in.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CallRingPayload {
+    pub channel_id: Snowflake,
+    ///Users to ring, 1 to 10.
+    pub user_ids: ::std::vec::Vec<Snowflake>,
 }
 ///A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -3294,7 +3558,7 @@ pub struct LoginRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub totp: ::std::option::Option<::std::string::String>,
 }
-///Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100.
+///Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100. Selects the simulcast layer. Screen-share packets are opt-in: a subscriber receives a publisher's screen (the SSRC announced with `type: screen` in VIDEO) only after listing that SSRC with quality > 0; otherwise the SFU skips the packets. Opting in also makes the streamer's op 40 STREAM_VIEWERS list include the subscriber.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 #[serde(transparent)]
 pub struct MediaSinkWantsPayload(pub ::std::collections::HashMap<::std::string::String, i64>);
@@ -4761,9 +5025,10 @@ impl ::std::convert::TryFrom<::std::string::String> for PresenceUpdateEventStatu
         value.parse()
     }
 }
-///Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY).
+///Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY). `activities` are sanitised by the gateway: at most 5 entries and at most one of type 4 (custom status); text fields at most 128 characters, `url` at most 512; unknown fields are dropped. Any violation closes the socket with 4002 DECODE_ERROR.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct PresenceUpdatePayload {
+    ///At most 5 activities, at most one with type 4. Violations close the socket with 4002.
     pub activities: ::std::vec::Vec<Activity>,
     pub afk: bool,
     ///Unix ms since the client went idle.
@@ -5530,6 +5795,16 @@ pub struct SfuStats {
     pub packets_lost: ::std::option::Option<u64>,
     pub sessions: u64,
 }
+///SFU control event: the set of subscribers opted in to a screen share changed. Carries the full viewer list; signalling forwards it to the streamer as voice op 40.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuStreamViewers {
+    pub evt: ::serde_json::Value,
+    pub session_id: ::std::string::String,
+    ///The streamer's screen SSRC.
+    pub ssrc: u64,
+    ///User ids of every opted-in viewer.
+    pub viewers: ::std::vec::Vec<::std::string::String>,
+}
 ///A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 2026-01-01T00:00:00Z, 10 bits worker, 12 bits sequence).
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[serde(transparent)]
@@ -5590,6 +5865,14 @@ pub struct SpeakingPayload {
     pub ssrc: u64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: ::std::option::Option<Snowflake>,
+}
+///Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct StreamViewersPayload {
+    ///The streamer's screen SSRC.
+    pub ssrc: u64,
+    ///Every current viewer.
+    pub user_ids: ::std::vec::Vec<Snowflake>,
 }
 ///POST /internal/v1/admin/users/{id}/suspend body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

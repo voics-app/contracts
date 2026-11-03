@@ -38,6 +38,7 @@ Every gateway frame (both directions). `s` and `t` are only set on DISPATCH (op 
 | 23 | `VOICE_TELEMETRY` | send | `VoiceTelemetryPayload` | Client voice quality sample, published to discordy.telemetry.v1. |
 | 24 | `WATCH_TOGETHER` | both | `WatchTogetherPayload` | Watch Together playback synchronisation. |
 | 25 | `CALL_DECLINE` | send | `CallDeclinePayload` | Declines the DM call ringing in a channel. The caller's call stops ringing for this user. |
+| 26 | `CALL_RING` | send | `CallRingPayload` | Rings 1 to 10 members of a DM channel for a call the sender is in. |
 
 ## Opcode payloads
 
@@ -61,12 +62,12 @@ Op 2 IDENTIFY.
 
 ### PresenceUpdatePayload
 
-Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY).
+Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY). `activities` are sanitised by the gateway: at most 5 entries and at most one of type 4 (custom status); text fields at most 128 characters, `url` at most 512; unknown fields are dropped. Any violation closes the socket with 4002 DECODE_ERROR.
 
 | Field | Type | Description |
 | --- | --- | --- |
 | `status` | `"online" or "idle" or "dnd" or "invisible"` |  |
-| `activities` | `array of Activity` |  |
+| `activities` | `array of Activity` | At most 5 activities, at most one with type 4. Violations close the socket with 4002. |
 | `afk` | `boolean` |  |
 | `since?` | `?integer` | Unix ms since the client went idle. |
 
@@ -187,6 +188,15 @@ Op 25 CALL_DECLINE. Declines the call ringing in a DM channel; a no-op when the 
 | Field | Type | Description |
 | --- | --- | --- |
 | `channel_id` | `Snowflake` |  |
+
+### CallRingPayload
+
+Op 26 CALL_RING. Rings the listed members of a DM channel for a call the sender is in.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `channel_id` | `Snowflake` |  |
+| `user_ids` | `array of Snowflake` | Users to ring, 1 to 10. |
 
 ## Close codes
 

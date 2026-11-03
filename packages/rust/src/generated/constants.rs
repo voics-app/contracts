@@ -279,6 +279,8 @@ pub mod gateway_opcodes {
     pub const WATCH_TOGETHER: u8 = 24;
     /// Declines the DM call ringing in a channel. The caller's call stops ringing for this user.
     pub const CALL_DECLINE: u8 = 25;
+    /// Rings 1 to 10 members of a DM channel for a call the sender is in.
+    pub const CALL_RING: u8 = 26;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -299,6 +301,7 @@ pub mod gateway_opcodes {
         ("VOICE_TELEMETRY", VOICE_TELEMETRY),
         ("WATCH_TOGETHER", WATCH_TOGETHER),
         ("CALL_DECLINE", CALL_DECLINE),
+        ("CALL_RING", CALL_RING),
     ];
 }
 
@@ -481,7 +484,7 @@ pub mod voice_opcodes {
     pub const VIDEO: u8 = 12;
     /// A user left the call.
     pub const CLIENT_DISCONNECT: u8 = 13;
-    /// Requested quality (0-100) per SSRC; selects the simulcast layer.
+    /// Requested quality (0-100) per SSRC; selects the simulcast layer. Screen shares are delivered only after opting in with the screen SSRC at quality > 0.
     pub const MEDIA_SINK_WANTS: u8 = 15;
     /// A DAVE protocol transition is about to happen.
     pub const DAVE_PREPARE_TRANSITION: u8 = 21;
@@ -505,6 +508,8 @@ pub mod voice_opcodes {
     pub const DAVE_MLS_WELCOME: u8 = 30;
     /// The received commit or welcome was invalid; the client asks to be re-added.
     pub const DAVE_MLS_INVALID_COMMIT: u8 = 31;
+    /// Sent to the streamer only: the full list of users watching their screen share, re-sent on every change.
+    pub const STREAM_VIEWERS: u8 = 40;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -531,6 +536,7 @@ pub mod voice_opcodes {
         ("DAVE_MLS_ANNOUNCE_COMMIT", DAVE_MLS_ANNOUNCE_COMMIT),
         ("DAVE_MLS_WELCOME", DAVE_MLS_WELCOME),
         ("DAVE_MLS_INVALID_COMMIT", DAVE_MLS_INVALID_COMMIT),
+        ("STREAM_VIEWERS", STREAM_VIEWERS),
     ];
 }
 
@@ -571,6 +577,8 @@ pub mod sfu_events {
     pub const SESSION_CREATED: &str = "session_created";
     /// Voice activity detected on an SSRC.
     pub const SPEAKING: &str = "speaking";
+    /// The opted-in viewers of a screen share changed; carries the full list.
+    pub const STREAM_VIEWERS: &str = "stream_viewers";
     /// Periodic SFU load statistics.
     pub const STATS: &str = "stats";
 
@@ -578,6 +586,7 @@ pub mod sfu_events {
     pub const ALL_ENTRIES: &[(&str, &str)] = &[
         ("SESSION_CREATED", SESSION_CREATED),
         ("SPEAKING", SPEAKING),
+        ("STREAM_VIEWERS", STREAM_VIEWERS),
         ("STATS", STATS),
     ];
 }
