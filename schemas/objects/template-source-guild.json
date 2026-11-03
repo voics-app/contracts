@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/template-source-guild.json",
+  "title": "TemplateSourceGuild",
+  "description": "The structure a template creates: guild settings, roles and channels with template-local ids.",
+  "type": "object",
+  "required": [
+    "name",
+    "description",
+    "verification_level",
+    "default_message_notifications",
+    "explicit_content_filter",
+    "afk_timeout",
+    "afk_channel_id",
+    "system_channel_id",
+    "roles",
+    "channels"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verification_level": {
+      "type": "integer"
+    },
+    "default_message_notifications": {
+      "type": "integer"
+    },
+    "explicit_content_filter": {
+      "type": "integer"
+    },
+    "afk_timeout": {
+      "type": "integer"
+    },
+    "afk_channel_id": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Template-local channel id."
+    },
+    "system_channel_id": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Template-local channel id."
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "$ref": "./template-role.json"
+      },
+      "description": "Includes @everyone (id 0) first."
+    },
+    "channels": {
+      "type": "array",
+      "items": {
+        "$ref": "./template-channel.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/template-overwrite.json",
+  "title": "TemplateOverwrite",
+  "description": "A role permission overwrite of a template channel. `id` is a template-local role id (0 is @everyone); member overwrites are never captured.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "allow",
+    "deny"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "type": {
+      "type": "integer",
+      "description": "OverwriteType: always 0 (role)."
+    },
+    "allow": {
+      "$ref": "./permission-bitset.json"
+    },
+    "deny": {
+      "$ref": "./permission-bitset.json"
+    }
+  }
+}

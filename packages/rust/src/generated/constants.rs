@@ -739,6 +739,8 @@ pub mod error_codes {
     pub const UNKNOWN_WEBHOOK: u32 = 10015;
     /// HTTP 404. Unknown ban.
     pub const UNKNOWN_BAN: u32 = 10026;
+    /// HTTP 404. Unknown guild template.
+    pub const UNKNOWN_GUILD_TEMPLATE: u32 = 10057;
     /// HTTP 404. Unknown interaction.
     pub const UNKNOWN_INTERACTION: u32 = 10062;
     /// HTTP 404. Unknown application command.
@@ -771,6 +773,7 @@ pub mod error_codes {
         ("UNKNOWN_EMOJI", UNKNOWN_EMOJI),
         ("UNKNOWN_WEBHOOK", UNKNOWN_WEBHOOK),
         ("UNKNOWN_BAN", UNKNOWN_BAN),
+        ("UNKNOWN_GUILD_TEMPLATE", UNKNOWN_GUILD_TEMPLATE),
         ("UNKNOWN_INTERACTION", UNKNOWN_INTERACTION),
         ("UNKNOWN_APPLICATION_COMMAND", UNKNOWN_APPLICATION_COMMAND),
         ("UNAUTHORIZED", UNAUTHORIZED),
