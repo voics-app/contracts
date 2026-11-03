@@ -461,6 +461,8 @@ export const ErrorCodes = {
   UNKNOWN_WEBHOOK: 10015,
   /** HTTP 404. Unknown ban. */
   UNKNOWN_BAN: 10026,
+  /** HTTP 404. Unknown guild template. */
+  UNKNOWN_GUILD_TEMPLATE: 10057,
   /** HTTP 404. Unknown interaction. */
   UNKNOWN_INTERACTION: 10062,
   /** HTTP 404. Unknown application command. */

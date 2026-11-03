@@ -1104,6 +1104,67 @@ pub struct CreateEmojiRequest {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub roles: ::std::vec::Vec<Snowflake>,
 }
+///POST /guilds/templates/{code} body.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateGuildFromTemplateRequest {
+    ///Image data URI.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub icon: ::std::option::Option<::std::string::String>,
+    pub name: CreateGuildFromTemplateRequestName,
+}
+///`CreateGuildFromTemplateRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateGuildFromTemplateRequestName(::std::string::String);
+impl ::std::ops::Deref for CreateGuildFromTemplateRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateGuildFromTemplateRequestName> for ::std::string::String {
+    fn from(value: CreateGuildFromTemplateRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateGuildFromTemplateRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 2usize {
+            return Err("shorter than 2 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateGuildFromTemplateRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateGuildFromTemplateRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateGuildFromTemplateRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///POST /guilds body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct CreateGuildRequest {
@@ -1161,6 +1222,116 @@ impl ::std::convert::TryFrom<::std::string::String> for CreateGuildRequestName {
     }
 }
 impl<'de> ::serde::Deserialize<'de> for CreateGuildRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///POST /guilds/{guild_id}/templates body. A guild has at most one template.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateGuildTemplateRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub description: ::std::option::Option<CreateGuildTemplateRequestDescription>,
+    pub name: CreateGuildTemplateRequestName,
+}
+///`CreateGuildTemplateRequestDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateGuildTemplateRequestDescription(::std::string::String);
+impl ::std::ops::Deref for CreateGuildTemplateRequestDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateGuildTemplateRequestDescription> for ::std::string::String {
+    fn from(value: CreateGuildTemplateRequestDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateGuildTemplateRequestDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateGuildTemplateRequestDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateGuildTemplateRequestDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateGuildTemplateRequestDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`CreateGuildTemplateRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateGuildTemplateRequestName(::std::string::String);
+impl ::std::ops::Deref for CreateGuildTemplateRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateGuildTemplateRequestName> for ::std::string::String {
+    fn from(value: CreateGuildTemplateRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateGuildTemplateRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateGuildTemplateRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateGuildTemplateRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateGuildTemplateRequestName {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -2593,6 +2764,126 @@ pub struct GuildRoleEvent {
     pub guild_id: Snowflake,
     pub role: Role,
 }
+///A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildTemplate {
+    pub code: ::std::string::String,
+    pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub creator: ::std::option::Option<User>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub creator_id: ::std::option::Option<Snowflake>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub description: ::std::option::Option<GuildTemplateDescription>,
+    ///Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
+    pub is_dirty: bool,
+    pub name: GuildTemplateName,
+    pub serialized_source_guild: TemplateSourceGuild,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub source_guild_id: ::std::option::Option<Snowflake>,
+    pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub usage_count: i64,
+}
+///`GuildTemplateDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildTemplateDescription(::std::string::String);
+impl ::std::ops::Deref for GuildTemplateDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildTemplateDescription> for ::std::string::String {
+    fn from(value: GuildTemplateDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildTemplateDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildTemplateDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildTemplateDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildTemplateDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`GuildTemplateName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildTemplateName(::std::string::String);
+impl ::std::ops::Deref for GuildTemplateName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildTemplateName> for ::std::string::String {
+    fn from(value: GuildTemplateName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildTemplateName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildTemplateName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildTemplateName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildTemplateName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///Op 1 HEARTBEAT: the last sequence number received, or null.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 #[serde(transparent)]
@@ -3910,6 +4201,117 @@ impl<'de> ::serde::Deserialize<'de> for ModifyGuildRequestName {
             })
     }
 }
+///PATCH /guilds/{guild_id}/templates/{code} body.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct ModifyGuildTemplateRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub description: ::std::option::Option<ModifyGuildTemplateRequestDescription>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub name: ::std::option::Option<ModifyGuildTemplateRequestName>,
+}
+///`ModifyGuildTemplateRequestDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyGuildTemplateRequestDescription(::std::string::String);
+impl ::std::ops::Deref for ModifyGuildTemplateRequestDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyGuildTemplateRequestDescription> for ::std::string::String {
+    fn from(value: ModifyGuildTemplateRequestDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyGuildTemplateRequestDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyGuildTemplateRequestDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyGuildTemplateRequestDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyGuildTemplateRequestDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`ModifyGuildTemplateRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyGuildTemplateRequestName(::std::string::String);
+impl ::std::ops::Deref for ModifyGuildTemplateRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyGuildTemplateRequestName> for ::std::string::String {
+    fn from(value: ModifyGuildTemplateRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyGuildTemplateRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyGuildTemplateRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyGuildTemplateRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyGuildTemplateRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///PATCH /guilds/{id}/members/{uid} body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyMemberRequest {
@@ -5196,6 +5598,68 @@ pub struct SuspendUserRequest {
     ///Null suspends indefinitely.
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub until: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+}
+///A channel of a template. `id` and `parent_id` are template-local ids, numbered from 1.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct TemplateChannel {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bitrate: ::std::option::Option<i64>,
+    pub id: ::std::num::NonZeroU64,
+    pub name: ::std::string::String,
+    pub nsfw: bool,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub parent_id: ::std::option::Option<i64>,
+    pub permission_overwrites: ::std::vec::Vec<TemplateOverwrite>,
+    pub position: i64,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub rate_limit_per_user: ::std::option::Option<i64>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub topic: ::std::option::Option<::std::string::String>,
+    ///ChannelType: 0 text, 2 voice, 4 category, 5 announcement, 13 stage, 15 forum.
+    #[serde(rename = "type")]
+    pub type_: i64,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub user_limit: ::std::option::Option<i64>,
+}
+///A role permission overwrite of a template channel. `id` is a template-local role id (0 is @everyone); member overwrites are never captured.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct TemplateOverwrite {
+    pub allow: PermissionBitset,
+    pub deny: PermissionBitset,
+    pub id: u64,
+    ///OverwriteType: always 0 (role).
+    #[serde(rename = "type")]
+    pub type_: i64,
+}
+///A role of a template. `id` is template-local: 0 is @everyone, other roles are numbered from 1 in ascending position.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct TemplateRole {
+    pub color: i64,
+    pub hoist: bool,
+    pub id: u64,
+    pub mentionable: bool,
+    pub name: ::std::string::String,
+    pub permissions: PermissionBitset,
+}
+///The structure a template creates: guild settings, roles and channels with template-local ids.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct TemplateSourceGuild {
+    ///Template-local channel id.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub afk_channel_id: ::std::option::Option<i64>,
+    pub afk_timeout: i64,
+    pub channels: ::std::vec::Vec<TemplateChannel>,
+    pub default_message_notifications: i64,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub description: ::std::option::Option<::std::string::String>,
+    pub explicit_content_filter: i64,
+    pub name: ::std::string::String,
+    ///Includes @everyone (id 0) first.
+    pub roles: ::std::vec::Vec<TemplateRole>,
+    ///Template-local channel id.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub system_channel_id: ::std::option::Option<i64>,
+    pub verification_level: i64,
 }
 ///A user's membership of a thread.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

@@ -2248,6 +2248,254 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/templates:
+    get:
+      operationId: listBuiltinGuildTemplates
+      summary: List the built-in server templates
+      tags:
+        - Guilds
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/guild-template.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/templates/{code}:
+    get:
+      operationId: getGuildTemplate
+      summary: Resolve a server template by code (built-in or shared)
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - name: code
+          in: path
+          required: true
+          description: Template code.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild-template.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: createGuildFromTemplate
+      summary: Create a guild from a template
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - name: code
+          in: path
+          required: true
+          description: Template code.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-guild-from-template-request.json
+      responses:
+        "201":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/templates:
+    get:
+      operationId: listGuildTemplates
+      summary: List a guild's templates (requires MANAGE_GUILD)
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/guild-template.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: createGuildTemplate
+      summary: Create a template from the guild (requires MANAGE_GUILD)
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-guild-template-request.json
+      responses:
+        "201":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild-template.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/templates/{code}:
+    put:
+      operationId: syncGuildTemplate
+      summary: Re-snapshot a template from the guild (requires MANAGE_GUILD)
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - name: code
+          in: path
+          required: true
+          description: Template code.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild-template.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyGuildTemplate
+      summary: Modify a template's name or description (requires MANAGE_GUILD)
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - name: code
+          in: path
+          required: true
+          description: Template code.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-guild-template-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild-template.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteGuildTemplate
+      summary: Delete a template (requires MANAGE_GUILD)
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - name: code
+          in: path
+          required: true
+          description: Template code.
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /invites/{code}:
     get:
       operationId: getInvite

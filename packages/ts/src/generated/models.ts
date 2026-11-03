@@ -922,6 +922,16 @@ export interface CreateEmojiRequest {
   roles?: Snowflake[];
 }
 /**
+ * POST /guilds/templates/{code} body.
+ */
+export interface CreateGuildFromTemplateRequest {
+  name: string;
+  /**
+   * Image data URI.
+   */
+  icon?: string | null;
+}
+/**
  * POST /guilds body.
  */
 export interface CreateGuildRequest {
@@ -931,6 +941,13 @@ export interface CreateGuildRequest {
   verification_level?: number;
   default_message_notifications?: number;
   explicit_content_filter?: number;
+}
+/**
+ * POST /guilds/{guild_id}/templates body. A guild has at most one template.
+ */
+export interface CreateGuildTemplateRequest {
+  name: string;
+  description?: string | null;
 }
 /**
  * POST /channels/{id}/invites body.
@@ -1742,6 +1759,91 @@ export interface GuildRoleEvent {
   role: Role;
 }
 /**
+ * A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
+ */
+export interface GuildTemplate {
+  code: string;
+  name: string;
+  description: string | null;
+  usage_count: number;
+  creator_id: Snowflake | null;
+  creator: User | null;
+  created_at: string;
+  updated_at: string;
+  source_guild_id: Snowflake | null;
+  serialized_source_guild: TemplateSourceGuild;
+  /**
+   * Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
+   */
+  is_dirty: boolean;
+}
+/**
+ * The structure a template creates: guild settings, roles and channels with template-local ids.
+ */
+export interface TemplateSourceGuild {
+  name: string;
+  description: string | null;
+  verification_level: number;
+  default_message_notifications: number;
+  explicit_content_filter: number;
+  afk_timeout: number;
+  /**
+   * Template-local channel id.
+   */
+  afk_channel_id: number | null;
+  /**
+   * Template-local channel id.
+   */
+  system_channel_id: number | null;
+  /**
+   * Includes @everyone (id 0) first.
+   */
+  roles: TemplateRole[];
+  channels: TemplateChannel[];
+}
+/**
+ * A role of a template. `id` is template-local: 0 is @everyone, other roles are numbered from 1 in ascending position.
+ */
+export interface TemplateRole {
+  id: number;
+  name: string;
+  permissions: PermissionBitset;
+  color: number;
+  hoist: boolean;
+  mentionable: boolean;
+}
+/**
+ * A channel of a template. `id` and `parent_id` are template-local ids, numbered from 1.
+ */
+export interface TemplateChannel {
+  id: number;
+  /**
+   * ChannelType: 0 text, 2 voice, 4 category, 5 announcement, 13 stage, 15 forum.
+   */
+  type: number;
+  name: string;
+  position: number;
+  topic: string | null;
+  nsfw: boolean;
+  bitrate?: number;
+  user_limit?: number;
+  rate_limit_per_user?: number;
+  parent_id: number | null;
+  permission_overwrites: TemplateOverwrite[];
+}
+/**
+ * A role permission overwrite of a template channel. `id` is a template-local role id (0 is @everyone); member overwrites are never captured.
+ */
+export interface TemplateOverwrite {
+  id: number;
+  /**
+   * OverwriteType: always 0 (role).
+   */
+  type: number;
+  allow: PermissionBitset;
+  deny: PermissionBitset;
+}
+/**
  * Op 10 HELLO.
  */
 export interface HelloPayload {
@@ -2408,6 +2510,13 @@ export interface ModifyGuildRequest {
   default_message_notifications?: number;
   explicit_content_filter?: number;
   voice_region?: string;
+}
+/**
+ * PATCH /guilds/{guild_id}/templates/{code} body.
+ */
+export interface ModifyGuildTemplateRequest {
+  name?: string;
+  description?: string | null;
 }
 /**
  * PATCH /guilds/{id}/members/{uid} body.

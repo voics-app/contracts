@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/template-role.json",
+  "title": "TemplateRole",
+  "description": "A role of a template. `id` is template-local: 0 is @everyone, other roles are numbered from 1 in ascending position.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "permissions",
+    "color",
+    "hoist",
+    "mentionable"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "name": {
+      "type": "string"
+    },
+    "permissions": {
+      "$ref": "./permission-bitset.json"
+    },
+    "color": {
+      "type": "integer"
+    },
+    "hoist": {
+      "type": "boolean"
+    },
+    "mentionable": {
+      "type": "boolean"
+    }
+  }
+}

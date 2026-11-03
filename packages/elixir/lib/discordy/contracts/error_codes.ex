@@ -83,6 +83,12 @@ defmodule Discordy.Contracts.ErrorCodes do
   def unknown_ban, do: 10_026
 
   @doc ~S"""
+  HTTP 404. Unknown guild template.
+  """
+  @spec unknown_guild_template() :: non_neg_integer()
+  def unknown_guild_template, do: 10_057
+
+  @doc ~S"""
   HTTP 404. Unknown interaction.
   """
   @spec unknown_interaction() :: non_neg_integer()
@@ -147,6 +153,7 @@ defmodule Discordy.Contracts.ErrorCodes do
       unknown_emoji: 10_014,
       unknown_webhook: 10_015,
       unknown_ban: 10_026,
+      unknown_guild_template: 10_057,
       unknown_interaction: 10_062,
       unknown_application_command: 10_063,
       unauthorized: 40_001,

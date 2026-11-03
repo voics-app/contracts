@@ -3588,6 +3588,397 @@
         }
       }
     },
+    "/guilds/templates": {
+      "get": {
+        "operationId": "listBuiltinGuildTemplates",
+        "summary": "List the built-in server templates",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuildTemplate"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/guilds/templates/{code}": {
+      "get": {
+        "operationId": "getGuildTemplate",
+        "summary": "Resolve a server template by code (built-in or shared)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "Template code.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildTemplate"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createGuildFromTemplate",
+        "summary": "Create a guild from a template",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "Template code.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGuildFromTemplateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Guild"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/templates": {
+      "get": {
+        "operationId": "listGuildTemplates",
+        "summary": "List a guild's templates (requires MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuildTemplate"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createGuildTemplate",
+        "summary": "Create a template from the guild (requires MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGuildTemplateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildTemplate"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/templates/{code}": {
+      "put": {
+        "operationId": "syncGuildTemplate",
+        "summary": "Re-snapshot a template from the guild (requires MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "Template code.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildTemplate"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "modifyGuildTemplate",
+        "summary": "Modify a template's name or description (requires MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "Template code.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyGuildTemplateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildTemplate"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteGuildTemplate",
+        "summary": "Delete a template (requires MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "Template code.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/invites/{code}": {
       "get": {
         "operationId": "getInvite",
@@ -7692,6 +8083,28 @@
           }
         }
       },
+      "CreateGuildFromTemplateRequest": {
+        "title": "CreateGuildFromTemplateRequest",
+        "description": "POST /guilds/templates/{code} body.",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Image data URI."
+          }
+        }
+      },
       "CreateGuildRequest": {
         "title": "CreateGuildRequest",
         "description": "POST /guilds body.",
@@ -7722,6 +8135,28 @@
           },
           "explicit_content_filter": {
             "type": "integer"
+          }
+        }
+      },
+      "CreateGuildTemplateRequest": {
+        "title": "CreateGuildTemplateRequest",
+        "description": "POST /guilds/{guild_id}/templates body. A guild has at most one template.",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
           }
         }
       },
@@ -8964,6 +9399,88 @@
           }
         }
       },
+      "GuildTemplate": {
+        "title": "GuildTemplate",
+        "description": "A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.",
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "description",
+          "usage_count",
+          "creator_id",
+          "creator",
+          "created_at",
+          "updated_at",
+          "source_guild_id",
+          "serialized_source_guild",
+          "is_dirty"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
+          },
+          "usage_count": {
+            "type": "integer"
+          },
+          "creator_id": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "creator": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/User"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_guild_id": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "serialized_source_guild": {
+            "$ref": "#/components/schemas/TemplateSourceGuild"
+          },
+          "is_dirty": {
+            "type": "boolean",
+            "description": "Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
+          }
+        }
+      },
       "InstallParams": {
         "title": "InstallParams",
         "description": "Default scopes and permissions for the bot invite.",
@@ -10033,6 +10550,25 @@
           }
         }
       },
+      "ModifyGuildTemplateRequest": {
+        "title": "ModifyGuildTemplateRequest",
+        "description": "PATCH /guilds/{guild_id}/templates/{code} body.",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
+          }
+        }
+      },
       "ModifyMemberRequest": {
         "title": "ModifyMemberRequest",
         "description": "PATCH /guilds/{id}/members/{uid} body.",
@@ -10768,6 +11304,195 @@
         "examples": [
           "1234567890123456789"
         ]
+      },
+      "TemplateChannel": {
+        "title": "TemplateChannel",
+        "description": "A channel of a template. `id` and `parent_id` are template-local ids, numbered from 1.",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "name",
+          "position",
+          "topic",
+          "nsfw",
+          "parent_id",
+          "permission_overwrites"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "type": {
+            "type": "integer",
+            "description": "ChannelType: 0 text, 2 voice, 4 category, 5 announcement, 13 stage, 15 forum."
+          },
+          "name": {
+            "type": "string"
+          },
+          "position": {
+            "type": "integer"
+          },
+          "topic": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nsfw": {
+            "type": "boolean"
+          },
+          "bitrate": {
+            "type": "integer"
+          },
+          "user_limit": {
+            "type": "integer"
+          },
+          "rate_limit_per_user": {
+            "type": "integer"
+          },
+          "parent_id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "permission_overwrites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateOverwrite"
+            }
+          }
+        }
+      },
+      "TemplateOverwrite": {
+        "title": "TemplateOverwrite",
+        "description": "A role permission overwrite of a template channel. `id` is a template-local role id (0 is @everyone); member overwrites are never captured.",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "allow",
+          "deny"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "type": {
+            "type": "integer",
+            "description": "OverwriteType: always 0 (role)."
+          },
+          "allow": {
+            "$ref": "#/components/schemas/PermissionBitset"
+          },
+          "deny": {
+            "$ref": "#/components/schemas/PermissionBitset"
+          }
+        }
+      },
+      "TemplateRole": {
+        "title": "TemplateRole",
+        "description": "A role of a template. `id` is template-local: 0 is @everyone, other roles are numbered from 1 in ascending position.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "permissions",
+          "color",
+          "hoist",
+          "mentionable"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/PermissionBitset"
+          },
+          "color": {
+            "type": "integer"
+          },
+          "hoist": {
+            "type": "boolean"
+          },
+          "mentionable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TemplateSourceGuild": {
+        "title": "TemplateSourceGuild",
+        "description": "The structure a template creates: guild settings, roles and channels with template-local ids.",
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "verification_level",
+          "default_message_notifications",
+          "explicit_content_filter",
+          "afk_timeout",
+          "afk_channel_id",
+          "system_channel_id",
+          "roles",
+          "channels"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verification_level": {
+            "type": "integer"
+          },
+          "default_message_notifications": {
+            "type": "integer"
+          },
+          "explicit_content_filter": {
+            "type": "integer"
+          },
+          "afk_timeout": {
+            "type": "integer"
+          },
+          "afk_channel_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Template-local channel id."
+          },
+          "system_channel_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Template-local channel id."
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateRole"
+            },
+            "description": "Includes @everyone (id 0) first."
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateChannel"
+            }
+          }
+        }
       },
       "ThreadMember": {
         "title": "ThreadMember",
