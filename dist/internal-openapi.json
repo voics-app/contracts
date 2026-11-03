@@ -342,6 +342,99 @@
         }
       }
     },
+    "/channels/{channel_id}/messages": {
+      "post": {
+        "operationId": "createInternalMessage",
+        "summary": "Post a bot, webhook, interaction or system message (messages service)",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InternalCreateMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, for example type 18 without thread_id."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "The channel is not in standard delivery mode (code 50160)."
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/messages/{message_id}/call": {
+      "patch": {
+        "operationId": "updateMessageCall",
+        "summary": "Record the end of a call on its system message (messages service)",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/message_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCallRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not a call message or invalid timestamp."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/channels/{channel_id}/last-message-id": {
       "get": {
         "operationId": "getLastMessageId",
@@ -466,6 +559,15 @@
         "in": "path",
         "required": true,
         "description": "User ID.",
+        "schema": {
+          "$ref": "#/components/schemas/Snowflake"
+        }
+      },
+      "message_id": {
+        "name": "message_id",
+        "in": "path",
+        "required": true,
+        "description": "Message ID.",
         "schema": {
           "$ref": "#/components/schemas/Snowflake"
         }
@@ -758,6 +860,70 @@
           }
         }
       },
+      "Attachment": {
+        "title": "Attachment",
+        "description": "A file attached to a message.",
+        "type": "object",
+        "required": [
+          "id",
+          "filename",
+          "size",
+          "url",
+          "proxy_url"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "url": {
+            "type": "string"
+          },
+          "proxy_url": {
+            "type": "string"
+          },
+          "height": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "width": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "ephemeral": {
+            "type": "boolean"
+          },
+          "duration_secs": {
+            "type": "number"
+          },
+          "waveform": {
+            "type": "string"
+          },
+          "flags": {
+            "type": "integer",
+            "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler."
+          }
+        }
+      },
       "Channel": {
         "title": "Channel",
         "description": "A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.",
@@ -985,6 +1151,31 @@
           }
         }
       },
+      "ChannelMention": {
+        "title": "ChannelMention",
+        "description": "A channel mentioned in a message.",
+        "type": "object",
+        "required": [
+          "id",
+          "guild_id",
+          "type",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "ChannelNotificationOverride": {
         "title": "ChannelNotificationOverride",
         "type": "object",
@@ -1120,6 +1311,150 @@
           "ephemeral",
           "p2p"
         ]
+      },
+      "Embed": {
+        "title": "Embed",
+        "description": "Rich embed content.",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "description": "EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich."
+          },
+          "description": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "color": {
+            "type": "integer"
+          },
+          "footer": {
+            "$ref": "#/components/schemas/EmbedFooter"
+          },
+          "image": {
+            "$ref": "#/components/schemas/EmbedMedia"
+          },
+          "thumbnail": {
+            "$ref": "#/components/schemas/EmbedMedia"
+          },
+          "video": {
+            "$ref": "#/components/schemas/EmbedMedia"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/EmbedProvider"
+          },
+          "author": {
+            "$ref": "#/components/schemas/EmbedAuthor"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmbedField"
+            }
+          }
+        }
+      },
+      "EmbedAuthor": {
+        "title": "EmbedAuthor",
+        "description": "Embed author.",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "proxy_icon_url": {
+            "type": "string"
+          }
+        }
+      },
+      "EmbedField": {
+        "title": "EmbedField",
+        "description": "Embed field.",
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "inline": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EmbedFooter": {
+        "title": "EmbedFooter",
+        "description": "Embed footer.",
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "proxy_icon_url": {
+            "type": "string"
+          }
+        }
+      },
+      "EmbedMedia": {
+        "title": "EmbedMedia",
+        "description": "Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.",
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "proxy_url": {
+            "type": "string"
+          },
+          "height": {
+            "type": "integer"
+          },
+          "width": {
+            "type": "integer"
+          }
+        }
+      },
+      "EmbedProvider": {
+        "title": "EmbedProvider",
+        "description": "Embed provider.",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
       },
       "Emoji": {
         "title": "Emoji",
@@ -1681,6 +2016,79 @@
           }
         }
       },
+      "InternalCreateMessageRequest": {
+        "title": "InternalCreateMessageRequest",
+        "description": "POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.",
+        "type": "object",
+        "required": [
+          "author_id"
+        ],
+        "properties": {
+          "author_id": {
+            "description": "The bot user, the webhook id for webhook posts, or the author of a system message.",
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "webhook_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "username": {
+            "type": "string"
+          },
+          "avatar_url": {
+            "type": "string"
+          },
+          "interaction_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "application_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "content": {
+            "type": "string"
+          },
+          "embeds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Embed"
+            }
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageComponent"
+            }
+          },
+          "flags": {
+            "type": "integer",
+            "description": "64 (ephemeral) sends only to target_user_ids and stores nothing."
+          },
+          "message_reference": {
+            "$ref": "#/components/schemas/MessageReference"
+          },
+          "target_user_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            },
+            "description": "Recipients of an ephemeral message."
+          },
+          "type": {
+            "type": "integer",
+            "description": "System message type (see description); omit or 0 for a normal message."
+          },
+          "target_user_id": {
+            "description": "The user a type 1 or 2 message is about.",
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "call": {
+            "$ref": "#/components/schemas/MessageCall"
+          },
+          "thread_id": {
+            "description": "The thread a type 18 message announces (required for type 18).",
+            "$ref": "#/components/schemas/Snowflake"
+          }
+        }
+      },
       "IntrospectRequest": {
         "title": "IntrospectRequest",
         "description": "POST /internal/v1/auth/introspect body.",
@@ -1751,6 +2159,372 @@
                 "type": "null"
               }
             ]
+          }
+        }
+      },
+      "Message": {
+        "title": "Message",
+        "description": "A standard-mode message.",
+        "type": "object",
+        "required": [
+          "id",
+          "channel_id",
+          "author",
+          "content",
+          "timestamp",
+          "edited_timestamp",
+          "tts",
+          "mention_everyone",
+          "mentions",
+          "mention_roles",
+          "attachments",
+          "embeds",
+          "pinned",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "author": {
+            "$ref": "#/components/schemas/User"
+          },
+          "content": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "edited_timestamp": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "tts": {
+            "type": "boolean"
+          },
+          "mention_everyone": {
+            "type": "boolean"
+          },
+          "mention_here": {
+            "type": "boolean",
+            "description": "Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise."
+          },
+          "mentions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "mention_roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "mention_channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelMention"
+            }
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            }
+          },
+          "embeds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Embed"
+            }
+          },
+          "reactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reaction"
+            }
+          },
+          "nonce": {
+            "type": "string",
+            "maxLength": 25,
+            "description": "Client nonce used to resolve optimistic sends."
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "hit": {
+            "type": "boolean",
+            "description": "Only in message search results: true for the matching message, absent for its context messages."
+          },
+          "webhook_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "type": {
+            "type": "integer",
+            "description": "MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics)."
+          },
+          "application_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "flags": {
+            "type": "integer"
+          },
+          "message_reference": {
+            "$ref": "#/components/schemas/MessageReference"
+          },
+          "call": {
+            "$ref": "#/components/schemas/MessageCall"
+          },
+          "referenced_message": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Message"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "interaction_metadata": {
+            "$ref": "#/components/schemas/MessageInteractionMetadata"
+          },
+          "thread": {
+            "$ref": "#/components/schemas/Channel"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageComponent"
+            }
+          },
+          "position": {
+            "type": "integer"
+          },
+          "message_snapshots": {
+            "type": "array",
+            "description": "Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.",
+            "items": {
+              "$ref": "#/components/schemas/MessageSnapshot"
+            }
+          }
+        }
+      },
+      "MessageCall": {
+        "title": "MessageCall",
+        "description": "Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.",
+        "type": "object",
+        "required": [
+          "participants"
+        ],
+        "properties": {
+          "participants": {
+            "type": "array",
+            "description": "IDs of the users who took part in the call.",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "ended_timestamp": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "MessageComponent": {
+        "title": "MessageComponent",
+        "description": "A message component (action row, button, select menu, text input). Action rows nest components.",
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "integer",
+            "description": "ComponentType."
+          },
+          "custom_id": {
+            "type": "string"
+          },
+          "style": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/Emoji"
+          },
+          "url": {
+            "type": "string"
+          },
+          "disabled": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectOption"
+            }
+          },
+          "placeholder": {
+            "type": "string"
+          },
+          "min_values": {
+            "type": "integer"
+          },
+          "max_values": {
+            "type": "integer"
+          },
+          "min_length": {
+            "type": "integer"
+          },
+          "max_length": {
+            "type": "integer"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "value": {
+            "type": "string"
+          },
+          "channel_types": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageComponent"
+            }
+          }
+        }
+      },
+      "MessageInteractionMetadata": {
+        "title": "MessageInteractionMetadata",
+        "description": "The interaction a message responds to.",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "user"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "MessageReference": {
+        "title": "MessageReference",
+        "description": "Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.",
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "integer",
+            "description": "MessageReferenceType: 0 DEFAULT (reply), 1 FORWARD."
+          },
+          "message_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "fail_if_not_exists": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MessageSnapshot": {
+        "title": "MessageSnapshot",
+        "description": "A frozen copy of a forwarded message. Attachments are re-referenced (same stored object, freshly signed URLs); the snapshot never changes when the source is edited or deleted.",
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "object",
+            "required": [
+              "content",
+              "timestamp",
+              "edited_timestamp",
+              "mentions",
+              "mention_roles",
+              "attachments",
+              "embeds",
+              "type"
+            ],
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "edited_timestamp": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "mentions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "mention_roles": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Snowflake"
+                }
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Attachment"
+                }
+              },
+              "embeds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Embed"
+                }
+              },
+              "type": {
+                "type": "integer"
+              },
+              "flags": {
+                "type": "integer"
+              }
+            }
           }
         }
       },
@@ -1916,6 +2690,59 @@
           }
         }
       },
+      "Reaction": {
+        "title": "Reaction",
+        "description": "Reactions of one emoji on a message.",
+        "type": "object",
+        "required": [
+          "count",
+          "count_details",
+          "me",
+          "me_burst",
+          "emoji",
+          "burst_colors"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "count_details": {
+            "$ref": "#/components/schemas/ReactionCountDetails"
+          },
+          "me": {
+            "type": "boolean"
+          },
+          "me_burst": {
+            "type": "boolean"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/Emoji"
+          },
+          "burst_colors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ReactionCountDetails": {
+        "title": "ReactionCountDetails",
+        "description": "Normal and burst reaction counts.",
+        "type": "object",
+        "required": [
+          "burst",
+          "normal"
+        ],
+        "properties": {
+          "burst": {
+            "type": "integer"
+          },
+          "normal": {
+            "type": "integer"
+          }
+        }
+      },
       "Relationship": {
         "title": "Relationship",
         "description": "A relationship with another user.",
@@ -2021,6 +2848,32 @@
           }
         }
       },
+      "SelectOption": {
+        "title": "SelectOption",
+        "description": "An option of a string select menu.",
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/Emoji"
+          },
+          "default": {
+            "type": "boolean"
+          }
+        }
+      },
       "Snowflake": {
         "title": "Snowflake",
         "description": "A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 2026-01-01T00:00:00Z, 10 bits worker, 12 bits sequence).",
@@ -2111,6 +2964,23 @@
               "string",
               "null"
             ],
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateCallRequest": {
+        "title": "UpdateCallRequest",
+        "description": "PATCH /internal/v1/channels/{id}/messages/{id}/call on messages. Records the end of a call on its type 3 message; omitted fields stay unchanged. Answers the updated Message and publishes MESSAGE_UPDATE. 400 when the message is not a call.",
+        "type": "object",
+        "properties": {
+          "participants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "ended_timestamp": {
+            "type": "string",
             "format": "date-time"
           }
         }

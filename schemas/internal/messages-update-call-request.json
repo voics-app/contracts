@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/messages-update-call-request.json",
+  "title": "UpdateCallRequest",
+  "description": "PATCH /internal/v1/channels/{id}/messages/{id}/call on messages. Records the end of a call on its type 3 message; omitted fields stay unchanged. Answers the updated Message and publishes MESSAGE_UPDATE. 400 when the message is not a call.",
+  "type": "object",
+  "properties": {
+    "participants": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      }
+    },
+    "ended_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

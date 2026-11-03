@@ -204,6 +204,61 @@ paths:
                   $ref: ../schemas/internal/admin-guild.json
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /channels/{channel_id}/messages:
+    post:
+      operationId: createInternalMessage
+      summary: Post a bot, webhook, interaction or system message (messages service)
+      tags:
+        - messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/internal/messages-create-request.json
+      responses:
+        "200":
+          description: The created message.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "400":
+          description: Invalid body, for example type 18 without thread_id.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: The channel is not in standard delivery mode (code 50160).
+  /channels/{channel_id}/messages/{message_id}/call:
+    patch:
+      operationId: updateMessageCall
+      summary: Record the end of a call on its system message (messages service)
+      tags:
+        - messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/internal/messages-update-call-request.json
+      responses:
+        "200":
+          description: The updated message.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "400":
+          description: Not a call message or invalid timestamp.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /channels/{channel_id}/last-message-id:
     get:
       operationId: getLastMessageId
@@ -283,6 +338,12 @@ components:
       in: path
       required: true
       description: User ID.
+      schema: *a1
+    message_id:
+      name: message_id
+      in: path
+      required: true
+      description: Message ID.
       schema: *a1
     node_id:
       name: node_id

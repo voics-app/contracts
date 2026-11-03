@@ -121,6 +121,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post a bot, webhook, interaction or system message (messages service) */
+        post: operations["createInternalMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/messages/{message_id}/call": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Record the end of a call on its system message (messages service) */
+        patch: operations["updateMessageCall"];
+        trace?: never;
+    };
     "/guilds/{guild_id}/state": {
         parameters: {
             query?: never;
@@ -280,6 +314,27 @@ export interface components {
             users_total: number;
         };
         /**
+         * Attachment
+         * @description A file attached to a message.
+         */
+        Attachment: {
+            content_type?: string;
+            description?: string;
+            duration_secs?: number;
+            ephemeral?: boolean;
+            filename: string;
+            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. */
+            flags?: number;
+            height?: number | null;
+            id: components["schemas"]["Snowflake"];
+            proxy_url: string;
+            size: number;
+            title?: string;
+            url: string;
+            waveform?: string;
+            width?: number | null;
+        };
+        /**
          * Channel
          * @description A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.
          */
@@ -341,6 +396,16 @@ export interface components {
             permissions: components["schemas"]["PermissionBitset"];
             recipient_ids: components["schemas"]["Snowflake"][];
         };
+        /**
+         * ChannelMention
+         * @description A channel mentioned in a message.
+         */
+        ChannelMention: {
+            guild_id: components["schemas"]["Snowflake"];
+            id: components["schemas"]["Snowflake"];
+            name: string;
+            type: number;
+        };
         /** ChannelNotificationOverride */
         ChannelNotificationOverride: {
             channel_id: components["schemas"]["Snowflake"];
@@ -386,6 +451,73 @@ export interface components {
          * @enum {string}
          */
         DeliveryMode: "standard" | "ephemeral" | "p2p";
+        /**
+         * Embed
+         * @description Rich embed content.
+         */
+        Embed: {
+            author?: components["schemas"]["EmbedAuthor"];
+            color?: number;
+            description?: string;
+            fields?: components["schemas"]["EmbedField"][];
+            footer?: components["schemas"]["EmbedFooter"];
+            image?: components["schemas"]["EmbedMedia"];
+            provider?: components["schemas"]["EmbedProvider"];
+            thumbnail?: components["schemas"]["EmbedMedia"];
+            /** Format: date-time */
+            timestamp?: string;
+            title?: string;
+            /** @description EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich. */
+            type?: string;
+            url?: string;
+            video?: components["schemas"]["EmbedMedia"];
+        };
+        /**
+         * EmbedAuthor
+         * @description Embed author.
+         */
+        EmbedAuthor: {
+            icon_url?: string;
+            name: string;
+            proxy_icon_url?: string;
+            url?: string;
+        };
+        /**
+         * EmbedField
+         * @description Embed field.
+         */
+        EmbedField: {
+            inline?: boolean;
+            name: string;
+            value: string;
+        };
+        /**
+         * EmbedFooter
+         * @description Embed footer.
+         */
+        EmbedFooter: {
+            icon_url?: string;
+            proxy_icon_url?: string;
+            text: string;
+        };
+        /**
+         * EmbedMedia
+         * @description Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.
+         */
+        EmbedMedia: {
+            height?: number;
+            proxy_url?: string;
+            url?: string;
+            width?: number;
+        };
+        /**
+         * EmbedProvider
+         * @description Embed provider.
+         */
+        EmbedProvider: {
+            name?: string;
+            url?: string;
+        };
         /**
          * Emoji
          * @description A custom or unicode emoji. Unicode emojis have a null id.
@@ -541,6 +673,34 @@ export interface components {
             suppress_roles: boolean;
         };
         /**
+         * InternalCreateMessageRequest
+         * @description POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.
+         */
+        InternalCreateMessageRequest: {
+            application_id?: components["schemas"]["Snowflake"];
+            /** @description The bot user, the webhook id for webhook posts, or the author of a system message. */
+            author_id: components["schemas"]["Snowflake"];
+            avatar_url?: string;
+            call?: components["schemas"]["MessageCall"];
+            components?: components["schemas"]["MessageComponent"][];
+            content?: string;
+            embeds?: components["schemas"]["Embed"][];
+            /** @description 64 (ephemeral) sends only to target_user_ids and stores nothing. */
+            flags?: number;
+            interaction_id?: components["schemas"]["Snowflake"];
+            message_reference?: components["schemas"]["MessageReference"];
+            /** @description The user a type 1 or 2 message is about. */
+            target_user_id?: components["schemas"]["Snowflake"];
+            /** @description Recipients of an ephemeral message. */
+            target_user_ids?: components["schemas"]["Snowflake"][];
+            /** @description The thread a type 18 message announces (required for type 18). */
+            thread_id?: components["schemas"]["Snowflake"];
+            /** @description System message type (see description); omit or 0 for a normal message. */
+            type?: number;
+            username?: string;
+            webhook_id?: components["schemas"]["Snowflake"];
+        };
+        /**
          * IntrospectRequest
          * @description POST /internal/v1/auth/introspect body.
          */
@@ -567,6 +727,105 @@ export interface components {
             last_message_id: components["schemas"]["Snowflake"] | null;
         };
         /**
+         * Message
+         * @description A standard-mode message.
+         */
+        Message: {
+            application_id?: components["schemas"]["Snowflake"];
+            attachments: components["schemas"]["Attachment"][];
+            author: components["schemas"]["User"];
+            call?: components["schemas"]["MessageCall"];
+            channel_id: components["schemas"]["Snowflake"];
+            components?: components["schemas"]["MessageComponent"][];
+            content: string;
+            /** Format: date-time */
+            edited_timestamp: string | null;
+            embeds: components["schemas"]["Embed"][];
+            flags?: number;
+            /** @description Only in message search results: true for the matching message, absent for its context messages. */
+            hit?: boolean;
+            id: components["schemas"]["Snowflake"];
+            interaction_metadata?: components["schemas"]["MessageInteractionMetadata"];
+            mention_channels?: components["schemas"]["ChannelMention"][];
+            mention_everyone: boolean;
+            /** @description Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise. */
+            mention_here?: boolean;
+            mention_roles: components["schemas"]["Snowflake"][];
+            mentions: components["schemas"]["User"][];
+            message_reference?: components["schemas"]["MessageReference"];
+            /** @description Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. */
+            message_snapshots?: components["schemas"]["MessageSnapshot"][];
+            /** @description Client nonce used to resolve optimistic sends. */
+            nonce?: string;
+            pinned: boolean;
+            position?: number;
+            reactions?: components["schemas"]["Reaction"][];
+            referenced_message?: components["schemas"]["Message"] | null;
+            thread?: components["schemas"]["Channel"];
+            /** Format: date-time */
+            timestamp: string;
+            tts: boolean;
+            /** @description MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). */
+            type: number;
+            webhook_id?: components["schemas"]["Snowflake"];
+        };
+        /**
+         * MessageCall
+         * @description Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.
+         */
+        MessageCall: {
+            /** Format: date-time */
+            ended_timestamp?: string | null;
+            /** @description IDs of the users who took part in the call. */
+            participants: components["schemas"]["Snowflake"][];
+        };
+        /**
+         * MessageComponent
+         * @description A message component (action row, button, select menu, text input). Action rows nest components.
+         */
+        MessageComponent: {
+            channel_types?: number[];
+            components?: components["schemas"]["MessageComponent"][];
+            custom_id?: string;
+            disabled?: boolean;
+            emoji?: components["schemas"]["Emoji"];
+            label?: string;
+            max_length?: number;
+            max_values?: number;
+            min_length?: number;
+            min_values?: number;
+            options?: components["schemas"]["SelectOption"][];
+            placeholder?: string;
+            required?: boolean;
+            style?: number;
+            /** @description ComponentType. */
+            type: number;
+            url?: string;
+            value?: string;
+        };
+        /**
+         * MessageInteractionMetadata
+         * @description The interaction a message responds to.
+         */
+        MessageInteractionMetadata: {
+            id: components["schemas"]["Snowflake"];
+            name?: string;
+            type: number;
+            user: components["schemas"]["User"];
+        };
+        /**
+         * MessageReference
+         * @description Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.
+         */
+        MessageReference: {
+            channel_id?: components["schemas"]["Snowflake"];
+            fail_if_not_exists?: boolean;
+            guild_id?: components["schemas"]["Snowflake"];
+            message_id?: components["schemas"]["Snowflake"];
+            /** @description MessageReferenceType: 0 DEFAULT (reply), 1 FORWARD. */
+            type?: number;
+        };
+        /**
          * MessagesAdminStats
          * @description GET /internal/v1/admin/stats on messages. Counts only, never content.
          */
@@ -582,6 +841,25 @@ export interface components {
             ephemeral_relayed: number;
             p2p_signaled: number;
             standard: number;
+        };
+        /**
+         * MessageSnapshot
+         * @description A frozen copy of a forwarded message. Attachments are re-referenced (same stored object, freshly signed URLs); the snapshot never changes when the source is edited or deleted.
+         */
+        MessageSnapshot: {
+            message: {
+                attachments: components["schemas"]["Attachment"][];
+                content: string;
+                /** Format: date-time */
+                edited_timestamp: string | null;
+                embeds: components["schemas"]["Embed"][];
+                flags?: number;
+                mention_roles: components["schemas"]["Snowflake"][];
+                mentions: components["schemas"]["User"][];
+                /** Format: date-time */
+                timestamp: string;
+                type: number;
+            };
         };
         /**
          * MuteConfig
@@ -632,6 +910,26 @@ export interface components {
             user: components["schemas"]["PartialUser"];
         };
         /**
+         * Reaction
+         * @description Reactions of one emoji on a message.
+         */
+        Reaction: {
+            burst_colors: string[];
+            count: number;
+            count_details: components["schemas"]["ReactionCountDetails"];
+            emoji: components["schemas"]["Emoji"];
+            me: boolean;
+            me_burst: boolean;
+        };
+        /**
+         * ReactionCountDetails
+         * @description Normal and burst reaction counts.
+         */
+        ReactionCountDetails: {
+            burst: number;
+            normal: number;
+        };
+        /**
          * Relationship
          * @description A relationship with another user.
          */
@@ -669,6 +967,17 @@ export interface components {
         RoleTags: {
             bot_id?: components["schemas"]["Snowflake"];
             integration_id?: components["schemas"]["Snowflake"];
+        };
+        /**
+         * SelectOption
+         * @description An option of a string select menu.
+         */
+        SelectOption: {
+            default?: boolean;
+            description?: string;
+            emoji?: components["schemas"]["Emoji"];
+            label: string;
+            value: string;
         };
         /**
          * Snowflake
@@ -713,6 +1022,15 @@ export interface components {
             create_timestamp?: string | null;
             invitable?: boolean;
             locked: boolean;
+        };
+        /**
+         * UpdateCallRequest
+         * @description PATCH /internal/v1/channels/{id}/messages/{id}/call on messages. Records the end of a call on its type 3 message; omitted fields stay unchanged. Answers the updated Message and publishes MESSAGE_UPDATE. 400 when the message is not a call.
+         */
+        UpdateCallRequest: {
+            /** Format: date-time */
+            ended_timestamp?: string;
+            participants?: components["schemas"]["Snowflake"][];
         };
         /**
          * User
@@ -893,6 +1211,8 @@ export interface components {
         guild_id: components["schemas"]["Snowflake"];
         /** @description User ID. */
         id: components["schemas"]["Snowflake"];
+        /** @description Message ID. */
+        message_id: components["schemas"]["Snowflake"];
         /** @description Voice node ID. */
         node_id: string;
         /** @description User ID. */
@@ -1077,6 +1397,86 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["LastMessageId"];
                 };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createInternalMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InternalCreateMessageRequest"];
+            };
+        };
+        responses: {
+            /** @description The created message. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description Invalid body, for example type 18 without thread_id. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description The channel is not in standard delivery mode (code 50160). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateMessageCall: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCallRequest"];
+            };
+        };
+        responses: {
+            /** @description The updated message. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description Not a call message or invalid timestamp. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
