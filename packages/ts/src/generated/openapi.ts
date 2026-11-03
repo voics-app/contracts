@@ -1490,6 +1490,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/@me/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the current user's login sessions
+         * @description Active (not revoked, not expired) sessions with the client, OS, approximate location and last activity. The session making the request has `current` set.
+         */
+        get: operations["listSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/sessions/{session_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Log out one session
+         * @description Revokes another session of the current user right away. The current session cannot be revoked here (400 `CANNOT_REVOKE_CURRENT_SESSION`; use `POST /auth/logout`).
+         */
+        delete: operations["revokeSession"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/sessions/logout-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Log out every other session
+         * @description Revokes every session except the current one right away; their access tokens stop working and their live gateway connections are closed.
+         */
+        post: operations["logoutOtherSessions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/@me/settings": {
         parameters: {
             query?: never;
@@ -1822,6 +1882,34 @@ export interface components {
             /** @description Rotated on every use. */
             refresh_token: string;
             user: components["schemas"]["User"];
+        };
+        /**
+         * AuthSession
+         * @description A login session of the current user (one refresh-token family), as listed by GET /users/@me/sessions. Not to be confused with the gateway Session of SESSIONS_REPLACE.
+         */
+        AuthSession: {
+            /** @description The client that opened the session, derived from its User-Agent (for example `Discordy Desktop`, `Firefox`). */
+            client: string;
+            /** Format: date-time */
+            created_at: string;
+            /** @description Whether this is the session making the request. */
+            current: boolean;
+            /** @description Name of the registered end-to-end encrypted device bound to the session, if any. */
+            device_name: string | null;
+            /**
+             * Format: uuid
+             * @description Session ID; the `sid` claim of its access tokens.
+             */
+            id: string;
+            /**
+             * Format: date-time
+             * @description When the session last logged in or refreshed its tokens.
+             */
+            last_used_at: string;
+            /** @description Approximate location (an ISO 3166-1 country code from the edge), or null when the edge does not provide one. */
+            location: string | null;
+            /** @description Operating system derived from the User-Agent (for example `Windows`), or `Unknown`. */
+            os: string;
         };
         /**
          * BackupCodesResponse
@@ -3521,6 +3609,8 @@ export interface components {
         overwrite_id: components["schemas"]["Snowflake"];
         /** @description Role ID. */
         role_id: components["schemas"]["Snowflake"];
+        /** @description Login session ID (UUID). */
+        session_id: string;
         /** @description User ID. */
         user_id: components["schemas"]["Snowflake"];
         /** @description Webhook ID, or the application ID for interaction webhooks. */
@@ -7357,6 +7447,73 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthSession"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    revokeSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Login session ID (UUID). */
+                session_id: components["parameters"]["session_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    logoutOtherSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
             429: components["responses"]["RateLimited"];
         };
     };

@@ -901,6 +901,27 @@ pub struct AuthResponse {
     pub refresh_token: ::std::string::String,
     pub user: User,
 }
+///A login session of the current user (one refresh-token family), as listed by GET /users/@me/sessions. Not to be confused with the gateway Session of SESSIONS_REPLACE.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct AuthSession {
+    ///The client that opened the session, derived from its User-Agent (for example `Discordy Desktop`, `Firefox`).
+    pub client: ::std::string::String,
+    pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    ///Whether this is the session making the request.
+    pub current: bool,
+    ///Name of the registered end-to-end encrypted device bound to the session, if any.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub device_name: ::std::option::Option<::std::string::String>,
+    ///Session ID; the `sid` claim of its access tokens.
+    pub id: ::uuid::Uuid,
+    ///When the session last logged in or refreshed its tokens.
+    pub last_used_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    ///Approximate location (an ISO 3166-1 country code from the edge), or null when the edge does not provide one.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub location: ::std::option::Option<::std::string::String>,
+    ///Operating system derived from the User-Agent (for example `Windows`), or `Unknown`.
+    pub os: ::std::string::String,
+}
 ///Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct BackupCodesResponse {
@@ -5788,6 +5809,12 @@ pub struct SessionDescriptionPayload {
     pub ice_pwd: ::std::string::String,
     pub ice_ufrag: ::std::string::String,
     pub video_codec: ::std::string::String,
+}
+///SESSION_REVOKE bus event (discordy.user.v1, routed to the user in target_user_ids). Login sessions were revoked (DELETE /users/@me/sessions/{id}, POST /users/@me/sessions/logout-all). The gateway closes every live connection whose authenticated session id is listed, with close code 4004, and never dispatches it to clients.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SessionRevokeEvent {
+    ///The revoked session ids.
+    pub session_ids: ::std::vec::Vec<::uuid::Uuid>,
 }
 ///SESSIONS_REPLACE dispatch: every active session of the user.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

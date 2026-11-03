@@ -136,6 +136,9 @@ defmodule Discordy.Contracts.EventTopics do
   @spec ban_message_purge() :: String.t()
   def ban_message_purge, do: "discordy.guild.v1"
 
+  @spec session_revoke() :: String.t()
+  def session_revoke, do: "discordy.user.v1"
+
   @spec voice_quality() :: String.t()
   def voice_quality, do: "discordy.telemetry.v1"
 
@@ -190,6 +193,7 @@ defmodule Discordy.Contracts.EventTopics do
       audit_log_entry_create: "discordy.audit.v1",
       voice_member_move: "discordy.guild.v1",
       ban_message_purge: "discordy.guild.v1",
+      session_revoke: "discordy.user.v1",
       voice_quality: "discordy.telemetry.v1",
       usage_tick: "discordy.telemetry.v1"
     }

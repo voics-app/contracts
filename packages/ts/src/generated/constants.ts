@@ -434,6 +434,7 @@ export const EventTopics = {
   AUDIT_LOG_ENTRY_CREATE: "discordy.audit.v1",
   VOICE_MEMBER_MOVE: "discordy.guild.v1",
   BAN_MESSAGE_PURGE: "discordy.guild.v1",
+  SESSION_REVOKE: "discordy.user.v1",
   VOICE_QUALITY: "discordy.telemetry.v1",
   USAGE_TICK: "discordy.telemetry.v1",
 } as const;

@@ -663,6 +663,7 @@ pub mod event_topics {
     pub const AUDIT_LOG_ENTRY_CREATE: &str = "discordy.audit.v1";
     pub const VOICE_MEMBER_MOVE: &str = "discordy.guild.v1";
     pub const BAN_MESSAGE_PURGE: &str = "discordy.guild.v1";
+    pub const SESSION_REVOKE: &str = "discordy.user.v1";
     pub const VOICE_QUALITY: &str = "discordy.telemetry.v1";
     pub const USAGE_TICK: &str = "discordy.telemetry.v1";
 
@@ -715,6 +716,7 @@ pub mod event_topics {
         ("AUDIT_LOG_ENTRY_CREATE", AUDIT_LOG_ENTRY_CREATE),
         ("VOICE_MEMBER_MOVE", VOICE_MEMBER_MOVE),
         ("BAN_MESSAGE_PURGE", BAN_MESSAGE_PURGE),
+        ("SESSION_REVOKE", SESSION_REVOKE),
         ("VOICE_QUALITY", VOICE_QUALITY),
         ("USAGE_TICK", USAGE_TICK),
     ];

@@ -267,6 +267,8 @@ pub enum BusEvent {
     VoiceMemberMove(VoiceMemberMoveEvent),
     #[serde(rename = "BAN_MESSAGE_PURGE")]
     BanMessagePurge(BanMessagePurgeEvent),
+    #[serde(rename = "SESSION_REVOKE")]
+    SessionRevoke(SessionRevokeEvent),
     #[serde(rename = "VOICE_QUALITY")]
     VoiceQuality(VoiceQualityEvent),
     #[serde(rename = "USAGE_TICK")]
@@ -323,6 +325,7 @@ impl BusEvent {
             Self::AuditLogEntryCreate(_) => "AUDIT_LOG_ENTRY_CREATE",
             Self::VoiceMemberMove(_) => "VOICE_MEMBER_MOVE",
             Self::BanMessagePurge(_) => "BAN_MESSAGE_PURGE",
+            Self::SessionRevoke(_) => "SESSION_REVOKE",
             Self::VoiceQuality(_) => "VOICE_QUALITY",
             Self::UsageTick(_) => "USAGE_TICK",
         }
