@@ -126,6 +126,9 @@ export interface AllowedMentions {
   parse?: ("roles" | "users" | "everyone")[];
   roles?: Snowflake[];
   users?: Snowflake[];
+  /**
+   * Whether to mention the author of the replied-to message. Defaults to true; false suppresses the reply ping (no mention, no notification).
+   */
   replied_user?: boolean;
 }
 /**
@@ -919,6 +922,16 @@ export interface CreateEmojiRequest {
   roles?: Snowflake[];
 }
 /**
+ * POST /guilds/templates/{code} body.
+ */
+export interface CreateGuildFromTemplateRequest {
+  name: string;
+  /**
+   * Image data URI.
+   */
+  icon?: string | null;
+}
+/**
  * POST /guilds body.
  */
 export interface CreateGuildRequest {
@@ -930,6 +943,13 @@ export interface CreateGuildRequest {
   explicit_content_filter?: number;
 }
 /**
+ * POST /guilds/{guild_id}/templates body. A guild has at most one template.
+ */
+export interface CreateGuildTemplateRequest {
+  name: string;
+  description?: string | null;
+}
+/**
  * POST /channels/{id}/invites body.
  */
 export interface CreateInviteRequest {
@@ -939,7 +959,7 @@ export interface CreateInviteRequest {
   unique?: boolean;
 }
 /**
- * POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
+ * POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
  */
 export interface CreateMessageRequest {
   content?: string;
@@ -964,6 +984,9 @@ export interface CreateMessageRequest {
   message_reference?: MessageReference;
   components?: MessageComponent[];
   attachments?: AttachmentReference[];
+  /**
+   * MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped.
+   */
   flags?: number;
 }
 /**
@@ -1206,6 +1229,52 @@ export interface DisableTotpRequest {
    * Current TOTP code or an unused backup code.
    */
   code: string;
+}
+/**
+ * Category slugs a guild can be listed under.
+ */
+export interface DiscoveryCategories {
+  categories: string[];
+}
+/**
+ * One server card of `GET /discovery/guilds` (Discordy extra).
+ */
+export interface DiscoveryGuild {
+  id: Snowflake;
+  name: string;
+  icon: string | null;
+  description: string | null;
+  /**
+   * Category slug, see `GET /discovery/categories`.
+   */
+  category: string;
+  /**
+   * @maxItems 5
+   */
+  tags:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string];
+  approximate_member_count: number;
+  /**
+   * Online members; null when presence is unavailable.
+   */
+  approximate_presence_count: number | null;
+}
+/**
+ * A page of discoverable servers, largest first.
+ */
+export interface DiscoveryPage {
+  guilds: DiscoveryGuild[];
+  /**
+   * Matches across all pages.
+   */
+  total: number;
+  offset: number;
+  limit: number;
 }
 /**
  * Op 21 E2EE_ACK.
@@ -1491,6 +1560,26 @@ export interface GuildBanEvent {
   user: User;
 }
 /**
+ * A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+ */
+export interface GuildDiscoverySettings {
+  enabled: boolean;
+  category: string | null;
+  /**
+   * @maxItems 5
+   */
+  tags:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string];
+  listed_at: string | null;
+  member_count: number;
+  blockers: ("DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
+}
+/**
  * GUILD_EMOJIS_UPDATE dispatch.
  */
 export interface GuildEmojisUpdateEvent {
@@ -1668,6 +1757,91 @@ export interface GuildRoleDeleteEvent {
 export interface GuildRoleEvent {
   guild_id: Snowflake;
   role: Role;
+}
+/**
+ * A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
+ */
+export interface GuildTemplate {
+  code: string;
+  name: string;
+  description: string | null;
+  usage_count: number;
+  creator_id: Snowflake | null;
+  creator: User | null;
+  created_at: string;
+  updated_at: string;
+  source_guild_id: Snowflake | null;
+  serialized_source_guild: TemplateSourceGuild;
+  /**
+   * Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
+   */
+  is_dirty: boolean;
+}
+/**
+ * The structure a template creates: guild settings, roles and channels with template-local ids.
+ */
+export interface TemplateSourceGuild {
+  name: string;
+  description: string | null;
+  verification_level: number;
+  default_message_notifications: number;
+  explicit_content_filter: number;
+  afk_timeout: number;
+  /**
+   * Template-local channel id.
+   */
+  afk_channel_id: number | null;
+  /**
+   * Template-local channel id.
+   */
+  system_channel_id: number | null;
+  /**
+   * Includes @everyone (id 0) first.
+   */
+  roles: TemplateRole[];
+  channels: TemplateChannel[];
+}
+/**
+ * A role of a template. `id` is template-local: 0 is @everyone, other roles are numbered from 1 in ascending position.
+ */
+export interface TemplateRole {
+  id: number;
+  name: string;
+  permissions: PermissionBitset;
+  color: number;
+  hoist: boolean;
+  mentionable: boolean;
+}
+/**
+ * A channel of a template. `id` and `parent_id` are template-local ids, numbered from 1.
+ */
+export interface TemplateChannel {
+  id: number;
+  /**
+   * ChannelType: 0 text, 2 voice, 4 category, 5 announcement, 13 stage, 15 forum.
+   */
+  type: number;
+  name: string;
+  position: number;
+  topic: string | null;
+  nsfw: boolean;
+  bitrate?: number;
+  user_limit?: number;
+  rate_limit_per_user?: number;
+  parent_id: number | null;
+  permission_overwrites: TemplateOverwrite[];
+}
+/**
+ * A role permission overwrite of a template channel. `id` is a template-local role id (0 is @everyone); member overwrites are never captured.
+ */
+export interface TemplateOverwrite {
+  id: number;
+  /**
+   * OverwriteType: always 0 (role).
+   */
+  type: number;
+  allow: PermissionBitset;
+  deny: PermissionBitset;
 }
 /**
  * Op 10 HELLO.
@@ -2338,6 +2512,13 @@ export interface ModifyGuildRequest {
   voice_region?: string;
 }
 /**
+ * PATCH /guilds/{guild_id}/templates/{code} body.
+ */
+export interface ModifyGuildTemplateRequest {
+  name?: string;
+  description?: string | null;
+}
+/**
  * PATCH /guilds/{id}/members/{uid} body.
  */
 export interface ModifyMemberRequest {
@@ -2400,6 +2581,46 @@ export interface UserPreferences {
    * Show previews (embeds) of links in messages.
    */
   link_previews?: boolean;
+  /**
+   * Colour saturation of the interface, 1 is full colour (accessibility).
+   */
+  saturation?: number;
+  /**
+   * How role colours show on member names: tint the name, a dot beside it, or not at all.
+   */
+  role_colors?: "name" | "dot" | "hidden";
+  /**
+   * Always underline links in messages.
+   */
+  link_underline?: boolean;
+  /**
+   * Space in pixels between message groups.
+   */
+  message_spacing?: number;
+  /**
+   * Increase contrast of text and borders.
+   */
+  high_contrast?: boolean;
+  /**
+   * Play GIFs automatically; when off they play on hover.
+   */
+  animate_gifs?: boolean;
+  /**
+   * Animate custom emoji automatically.
+   */
+  animate_emoji?: boolean;
+  /**
+   * Animate stickers automatically.
+   */
+  animate_stickers?: boolean;
+  /**
+   * Allow the /tts command and read text-to-speech messages aloud.
+   */
+  tts_read_aloud?: boolean;
+  /**
+   * Speech rate of text-to-speech playback, 1 is normal.
+   */
+  tts_rate?: number;
   notify_only_mentions?: boolean;
   /**
    * Master switch for notification sounds.
@@ -2858,6 +3079,23 @@ export interface UnavailableGuild {
   unavailable?: boolean;
 }
 /**
+ * PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.
+ */
+export interface UpdateGuildDiscoveryRequest {
+  enabled: boolean;
+  category?: string | null;
+  /**
+   * @maxItems 5
+   */
+  tags?:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string];
+}
+/**
  * POST /devices/{id}/key-packages body.
  */
 export interface UploadKeyPackagesRequest {
@@ -2896,6 +3134,23 @@ export interface UserNote {
 export interface UserNoteUpdateEvent {
   id: Snowflake;
   note: string;
+}
+/**
+ * GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).
+ */
+export interface UserProfile {
+  user: User;
+  /**
+   * Servers both users are members of. nick is the target user's nickname there.
+   */
+  mutual_guilds: {
+    id: Snowflake;
+    nick?: string | null;
+  }[];
+  /**
+   * Users who are friends of both the caller and the target.
+   */
+  mutual_friends: User[];
 }
 /**
  * GET /internal/v1/users/{user_id}/ready: the state used to build READY.

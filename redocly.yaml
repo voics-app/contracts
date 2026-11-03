@@ -3,3 +3,6 @@ extends:
 rules:
   # The local compose ingress server (http://localhost:8000) is intentional.
   no-server-example.com: off
+  # Discord's own `/guilds/templates/{code}` overlaps `/guilds/{guild_id}/...`; routers match the
+  # static `templates` segment first, and a guild id is numeric so it never collides.
+  no-ambiguous-paths: off

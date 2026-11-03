@@ -2212,6 +2212,57 @@
             "type": "boolean",
             "description": "Show previews (embeds) of links in messages."
           },
+          "saturation": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Colour saturation of the interface, 1 is full colour (accessibility)."
+          },
+          "role_colors": {
+            "type": "string",
+            "enum": [
+              "name",
+              "dot",
+              "hidden"
+            ],
+            "description": "How role colours show on member names: tint the name, a dot beside it, or not at all."
+          },
+          "link_underline": {
+            "type": "boolean",
+            "description": "Always underline links in messages."
+          },
+          "message_spacing": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 32,
+            "description": "Space in pixels between message groups."
+          },
+          "high_contrast": {
+            "type": "boolean",
+            "description": "Increase contrast of text and borders."
+          },
+          "animate_gifs": {
+            "type": "boolean",
+            "description": "Play GIFs automatically; when off they play on hover."
+          },
+          "animate_emoji": {
+            "type": "boolean",
+            "description": "Animate custom emoji automatically."
+          },
+          "animate_stickers": {
+            "type": "boolean",
+            "description": "Animate stickers automatically."
+          },
+          "tts_read_aloud": {
+            "type": "boolean",
+            "description": "Allow the /tts command and read text-to-speech messages aloud."
+          },
+          "tts_rate": {
+            "type": "number",
+            "minimum": 0.5,
+            "maximum": 2,
+            "description": "Speech rate of text-to-speech playback, 1 is normal."
+          },
           "notify_only_mentions": {
             "type": "boolean"
           },

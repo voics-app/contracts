@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-guild-from-template-request.json",
+  "title": "CreateGuildFromTemplateRequest",
+  "description": "POST /guilds/templates/{code} body.",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 100
+    },
+    "icon": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Image data URI."
+    }
+  }
+}

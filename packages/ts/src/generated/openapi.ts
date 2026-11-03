@@ -686,6 +686,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/discovery/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List discovery categories */
+        get: operations["listDiscoveryCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/discovery/guilds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Browse and search public servers that opted in to discovery */
+        get: operations["listDiscoveryGuilds"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/discovery/guilds/{guild_id}/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Join a publicly listed server */
+        post: operations["joinDiscoveryGuild"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds": {
         parameters: {
             query?: never;
@@ -792,6 +843,24 @@ export interface paths {
         head?: never;
         /** Reorder guild channels */
         patch: operations["modifyGuildChannelPositions"];
+        trace?: never;
+    };
+    "/guilds/{guild_id}/discovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a guild discovery settings (requires MANAGE_GUILD) */
+        get: operations["getGuildDiscovery"];
+        /** List or delist a guild in discovery (requires MANAGE_GUILD) */
+        put: operations["updateGuildDiscovery"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/guilds/{guild_id}/emojis": {
@@ -958,6 +1027,43 @@ export interface paths {
         patch: operations["modifyGuildRole"];
         trace?: never;
     };
+    "/guilds/{guild_id}/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List a guild's templates (requires MANAGE_GUILD) */
+        get: operations["listGuildTemplates"];
+        put?: never;
+        /** Create a template from the guild (requires MANAGE_GUILD) */
+        post: operations["createGuildTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/templates/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Re-snapshot a template from the guild (requires MANAGE_GUILD) */
+        put: operations["syncGuildTemplate"];
+        post?: never;
+        /** Delete a template (requires MANAGE_GUILD) */
+        delete: operations["deleteGuildTemplate"];
+        options?: never;
+        head?: never;
+        /** Modify a template's name or description (requires MANAGE_GUILD) */
+        patch: operations["modifyGuildTemplate"];
+        trace?: never;
+    };
     "/guilds/{guild_id}/webhooks": {
         parameters: {
             query?: never;
@@ -969,6 +1075,41 @@ export interface paths {
         get: operations["listGuildWebhooks"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the built-in server templates */
+        get: operations["listBuiltinGuildTemplates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/templates/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resolve a server template by code (built-in or shared) */
+        get: operations["getGuildTemplate"];
+        put?: never;
+        /** Create a guild from a template */
+        post: operations["createGuildFromTemplate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1074,6 +1215,23 @@ export interface paths {
         put?: never;
         /** Claim one MLS key package of a device */
         post: operations["claimKeyPackage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a user's profile with mutual servers and mutual friends */
+        get: operations["getUserProfile"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1441,6 +1599,7 @@ export interface components {
          */
         AllowedMentions: {
             parse?: ("roles" | "users" | "everyone")[];
+            /** @description Whether to mention the author of the replied-to message. Defaults to true; false suppresses the reply ping (no mention, no notification). */
             replied_user?: boolean;
             roles?: components["schemas"]["Snowflake"][];
             users?: components["schemas"]["Snowflake"][];
@@ -1873,6 +2032,15 @@ export interface components {
             roles?: components["schemas"]["Snowflake"][];
         };
         /**
+         * CreateGuildFromTemplateRequest
+         * @description POST /guilds/templates/{code} body.
+         */
+        CreateGuildFromTemplateRequest: {
+            /** @description Image data URI. */
+            icon?: string | null;
+            name: string;
+        };
+        /**
          * CreateGuildRequest
          * @description POST /guilds body.
          */
@@ -1883,6 +2051,14 @@ export interface components {
             name: string;
             verification_level?: number;
             voice_region?: string;
+        };
+        /**
+         * CreateGuildTemplateRequest
+         * @description POST /guilds/{guild_id}/templates body. A guild has at most one template.
+         */
+        CreateGuildTemplateRequest: {
+            description?: string | null;
+            name: string;
         };
         /**
          * CreateInviteRequest
@@ -1896,7 +2072,7 @@ export interface components {
         };
         /**
          * CreateMessageRequest
-         * @description POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
+         * @description POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
          */
         CreateMessageRequest: {
             allowed_mentions?: components["schemas"]["AllowedMentions"];
@@ -1904,6 +2080,7 @@ export interface components {
             components?: components["schemas"]["MessageComponent"][];
             content?: string;
             embeds?: components["schemas"]["Embed"][];
+            /** @description MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. */
             flags?: number;
             message_reference?: components["schemas"]["MessageReference"];
             nonce?: string;
@@ -1973,6 +2150,40 @@ export interface components {
             /** @description Current TOTP code or an unused backup code. */
             code: string;
             password: string;
+        };
+        /**
+         * DiscoveryCategories
+         * @description Category slugs a guild can be listed under.
+         */
+        DiscoveryCategories: {
+            categories: string[];
+        };
+        /**
+         * DiscoveryGuild
+         * @description One server card of `GET /discovery/guilds` (Discordy extra).
+         */
+        DiscoveryGuild: {
+            approximate_member_count: number;
+            /** @description Online members; null when presence is unavailable. */
+            approximate_presence_count: number | null;
+            /** @description Category slug, see `GET /discovery/categories`. */
+            category: string;
+            description: string | null;
+            icon: string | null;
+            id: components["schemas"]["Snowflake"];
+            name: string;
+            tags: string[];
+        };
+        /**
+         * DiscoveryPage
+         * @description A page of discoverable servers, largest first.
+         */
+        DiscoveryPage: {
+            guilds: components["schemas"]["DiscoveryGuild"][];
+            limit: number;
+            offset: number;
+            /** @description Matches across all pages. */
+            total: number;
         };
         /**
          * EditMessageRequest
@@ -2173,6 +2384,19 @@ export interface components {
             voice_region: string;
         };
         /**
+         * GuildDiscoverySettings
+         * @description A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+         */
+        GuildDiscoverySettings: {
+            blockers: ("DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
+            category: string | null;
+            enabled: boolean;
+            /** Format: date-time */
+            listed_at: string | null;
+            member_count: number;
+            tags: string[];
+        };
+        /**
          * GuildFolder
          * @description One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.
          */
@@ -2229,6 +2453,26 @@ export interface components {
             suppress_everyone: boolean;
             /** @description Suppress all role @mentions. */
             suppress_roles: boolean;
+        };
+        /**
+         * GuildTemplate
+         * @description A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
+         */
+        GuildTemplate: {
+            code: string;
+            /** Format: date-time */
+            created_at: string;
+            creator: components["schemas"]["User"] | null;
+            creator_id: components["schemas"]["Snowflake"] | null;
+            description: string | null;
+            /** @description Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`). */
+            is_dirty: boolean;
+            name: string;
+            serialized_source_guild: components["schemas"]["TemplateSourceGuild"];
+            source_guild_id: components["schemas"]["Snowflake"] | null;
+            /** Format: date-time */
+            updated_at: string;
+            usage_count: number;
         };
         /**
          * InstallParams
@@ -2577,6 +2821,14 @@ export interface components {
             voice_region?: string;
         };
         /**
+         * ModifyGuildTemplateRequest
+         * @description PATCH /guilds/{guild_id}/templates/{code} body.
+         */
+        ModifyGuildTemplateRequest: {
+            description?: string | null;
+            name?: string;
+        };
+        /**
          * ModifyMemberRequest
          * @description PATCH /guilds/{id}/members/{uid} body.
          */
@@ -2875,6 +3127,66 @@ export interface components {
          */
         Snowflake: string;
         /**
+         * TemplateChannel
+         * @description A channel of a template. `id` and `parent_id` are template-local ids, numbered from 1.
+         */
+        TemplateChannel: {
+            bitrate?: number;
+            id: number;
+            name: string;
+            nsfw: boolean;
+            parent_id: number | null;
+            permission_overwrites: components["schemas"]["TemplateOverwrite"][];
+            position: number;
+            rate_limit_per_user?: number;
+            topic: string | null;
+            /** @description ChannelType: 0 text, 2 voice, 4 category, 5 announcement, 13 stage, 15 forum. */
+            type: number;
+            user_limit?: number;
+        };
+        /**
+         * TemplateOverwrite
+         * @description A role permission overwrite of a template channel. `id` is a template-local role id (0 is @everyone); member overwrites are never captured.
+         */
+        TemplateOverwrite: {
+            allow: components["schemas"]["PermissionBitset"];
+            deny: components["schemas"]["PermissionBitset"];
+            id: number;
+            /** @description OverwriteType: always 0 (role). */
+            type: number;
+        };
+        /**
+         * TemplateRole
+         * @description A role of a template. `id` is template-local: 0 is @everyone, other roles are numbered from 1 in ascending position.
+         */
+        TemplateRole: {
+            color: number;
+            hoist: boolean;
+            id: number;
+            mentionable: boolean;
+            name: string;
+            permissions: components["schemas"]["PermissionBitset"];
+        };
+        /**
+         * TemplateSourceGuild
+         * @description The structure a template creates: guild settings, roles and channels with template-local ids.
+         */
+        TemplateSourceGuild: {
+            /** @description Template-local channel id. */
+            afk_channel_id: number | null;
+            afk_timeout: number;
+            channels: components["schemas"]["TemplateChannel"][];
+            default_message_notifications: number;
+            description: string | null;
+            explicit_content_filter: number;
+            name: string;
+            /** @description Includes @everyone (id 0) first. */
+            roles: components["schemas"]["TemplateRole"][];
+            /** @description Template-local channel id. */
+            system_channel_id: number | null;
+            verification_level: number;
+        };
+        /**
          * ThreadMember
          * @description A user's membership of a thread.
          */
@@ -2909,6 +3221,15 @@ export interface components {
             otpauth_uri: string;
             /** @description Base32 secret for manual entry. */
             secret: string;
+        };
+        /**
+         * UpdateGuildDiscoveryRequest
+         * @description PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.
+         */
+        UpdateGuildDiscoveryRequest: {
+            category?: string | null;
+            enabled: boolean;
+            tags?: string[];
         };
         /**
          * UploadKeyPackagesRequest
@@ -2962,10 +3283,22 @@ export interface components {
              * @enum {string}
              */
             accent?: "iris" | "aurora" | "ember" | "rose" | "citrine" | "sky";
+            /** @description Animate custom emoji automatically. */
+            animate_emoji?: boolean;
+            /** @description Play GIFs automatically; when off they play on hover. */
+            animate_gifs?: boolean;
+            /** @description Animate stickers automatically. */
+            animate_stickers?: boolean;
             /** @description Chat font scale. */
             font_scale?: number;
+            /** @description Increase contrast of text and borders. */
+            high_contrast?: boolean;
             /** @description Show previews (embeds) of links in messages. */
             link_previews?: boolean;
+            /** @description Always underline links in messages. */
+            link_underline?: boolean;
+            /** @description Space in pixels between message groups. */
+            message_spacing?: number;
             notify_only_mentions?: boolean;
             /** @description Master switch for notification sounds. */
             notify_sounds?: boolean;
@@ -2977,6 +3310,13 @@ export interface components {
             }[];
             reduce_motion?: boolean;
             ringtone?: string;
+            /**
+             * @description How role colours show on member names: tint the name, a dot beside it, or not at all.
+             * @enum {string}
+             */
+            role_colors?: "name" | "dot" | "hidden";
+            /** @description Colour saturation of the interface, 1 is full colour (accessibility). */
+            saturation?: number;
             show_avatars_in_compact?: boolean;
             /** @description Skin tone modifier of the emoji picker; empty for the default. */
             skin_tone?: string;
@@ -2984,6 +3324,24 @@ export interface components {
             sound_toggles?: {
                 [key: string]: boolean;
             };
+            /** @description Speech rate of text-to-speech playback, 1 is normal. */
+            tts_rate?: number;
+            /** @description Allow the /tts command and read text-to-speech messages aloud. */
+            tts_read_aloud?: boolean;
+        };
+        /**
+         * UserProfile
+         * @description GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).
+         */
+        UserProfile: {
+            /** @description Users who are friends of both the caller and the target. */
+            mutual_friends: components["schemas"]["User"][];
+            /** @description Servers both users are members of. nick is the target user's nickname there. */
+            mutual_guilds: {
+                id: components["schemas"]["Snowflake"];
+                nick?: string | null;
+            }[];
+            user: components["schemas"]["User"];
         };
         /**
          * UserSettings
@@ -4850,6 +5208,93 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listDiscoveryCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoveryCategories"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listDiscoveryGuilds: {
+        parameters: {
+            query?: {
+                /** @description Category slug. */
+                category?: string;
+                /** @description Page size (1-50, default 24). */
+                limit?: number;
+                /** @description Number of results to skip. */
+                offset?: number;
+                /** @description Case-insensitive match on name, description and tags. */
+                query?: string;
+                /** @description Exact tag. */
+                tag?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoveryPage"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    joinDiscoveryGuild: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     createGuild: {
         parameters: {
             query?: never;
@@ -5212,6 +5657,66 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildDiscovery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildDiscoverySettings"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    updateGuildDiscovery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGuildDiscoveryRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildDiscoverySettings"];
+                };
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
@@ -5762,6 +6267,158 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listGuildTemplates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildTemplate"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    createGuildTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGuildTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildTemplate"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    syncGuildTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Template code. */
+                code: string;
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildTemplate"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    deleteGuildTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Template code. */
+                code: string;
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    modifyGuildTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Template code. */
+                code: string;
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModifyGuildTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildTemplate"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     listGuildWebhooks: {
         parameters: {
             query?: never;
@@ -5781,6 +6438,91 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Webhook"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listBuiltinGuildTemplates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildTemplate"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Template code. */
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildTemplate"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    createGuildFromTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Template code. */
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGuildFromTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Guild"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -6040,6 +6782,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClaimKeyPackageResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserProfile"];
                 };
             };
             401: components["responses"]["Unauthorized"];

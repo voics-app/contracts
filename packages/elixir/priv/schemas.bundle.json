@@ -284,7 +284,8 @@
           }
         },
         "replied_user": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether to mention the author of the replied-to message. Defaults to true; false suppresses the reply ping (no mention, no notification)."
         }
       }
     },
@@ -1875,6 +1876,28 @@
         }
       }
     },
+    "CreateGuildFromTemplateRequest": {
+      "title": "CreateGuildFromTemplateRequest",
+      "description": "POST /guilds/templates/{code} body.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "icon": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Image data URI."
+        }
+      }
+    },
     "CreateGuildRequest": {
       "title": "CreateGuildRequest",
       "description": "POST /guilds body.",
@@ -1908,6 +1931,28 @@
         }
       }
     },
+    "CreateGuildTemplateRequest": {
+      "title": "CreateGuildTemplateRequest",
+      "description": "POST /guilds/{guild_id}/templates body. A guild has at most one template.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
+        }
+      }
+    },
     "CreateInviteRequest": {
       "title": "CreateInviteRequest",
       "description": "POST /channels/{id}/invites body.",
@@ -1933,7 +1978,7 @@
     },
     "CreateMessageRequest": {
       "title": "CreateMessageRequest",
-      "description": "POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).",
+      "description": "POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).",
       "type": "object",
       "properties": {
         "content": {
@@ -1973,7 +2018,8 @@
           }
         },
         "flags": {
-          "type": "integer"
+          "type": "integer",
+          "description": "MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped."
         }
       }
     },
@@ -2341,6 +2387,107 @@
         "code": {
           "type": "string",
           "description": "Current TOTP code or an unused backup code."
+        }
+      }
+    },
+    "DiscoveryCategories": {
+      "title": "DiscoveryCategories",
+      "description": "Category slugs a guild can be listed under.",
+      "type": "object",
+      "required": [
+        "categories"
+      ],
+      "properties": {
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "DiscoveryGuild": {
+      "title": "DiscoveryGuild",
+      "description": "One server card of `GET /discovery/guilds` (Discordy extra).",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "icon",
+        "description",
+        "category",
+        "tags",
+        "approximate_member_count",
+        "approximate_presence_count"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "name": {
+          "type": "string"
+        },
+        "icon": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "category": {
+          "type": "string",
+          "description": "Category slug, see `GET /discovery/categories`."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5
+        },
+        "approximate_member_count": {
+          "type": "integer"
+        },
+        "approximate_presence_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Online members; null when presence is unavailable."
+        }
+      }
+    },
+    "DiscoveryPage": {
+      "title": "DiscoveryPage",
+      "description": "A page of discoverable servers, largest first.",
+      "type": "object",
+      "required": [
+        "guilds",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "properties": {
+        "guilds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DiscoveryGuild"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "description": "Matches across all pages."
+        },
+        "offset": {
+          "type": "integer"
+        },
+        "limit": {
+          "type": "integer"
         }
       }
     },
@@ -3237,6 +3384,59 @@
         }
       }
     },
+    "GuildDiscoverySettings": {
+      "title": "GuildDiscoverySettings",
+      "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.",
+      "type": "object",
+      "required": [
+        "enabled",
+        "category",
+        "tags",
+        "listed_at",
+        "member_count",
+        "blockers"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "category": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5
+        },
+        "listed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "member_count": {
+          "type": "integer"
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "DESCRIPTION_REQUIRED",
+              "MEMBER_COUNT_TOO_LOW",
+              "GUILD_TOO_NEW",
+              "NSFW_NOT_ALLOWED"
+            ]
+          }
+        }
+      }
+    },
     "GuildEmojisUpdateEvent": {
       "title": "GuildEmojisUpdateEvent",
       "description": "GUILD_EMOJIS_UPDATE dispatch.",
@@ -3849,6 +4049,88 @@
         },
         "role": {
           "$ref": "#/$defs/Role"
+        }
+      }
+    },
+    "GuildTemplate": {
+      "title": "GuildTemplate",
+      "description": "A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.",
+      "type": "object",
+      "required": [
+        "code",
+        "name",
+        "description",
+        "usage_count",
+        "creator_id",
+        "creator",
+        "created_at",
+        "updated_at",
+        "source_guild_id",
+        "serialized_source_guild",
+        "is_dirty"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
+        },
+        "usage_count": {
+          "type": "integer"
+        },
+        "creator_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "creator": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source_guild_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "serialized_source_guild": {
+          "$ref": "#/$defs/TemplateSourceGuild"
+        },
+        "is_dirty": {
+          "type": "boolean",
+          "description": "Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
         }
       }
     },
@@ -5716,6 +5998,25 @@
         }
       }
     },
+    "ModifyGuildTemplateRequest": {
+      "title": "ModifyGuildTemplateRequest",
+      "description": "PATCH /guilds/{guild_id}/templates/{code} body.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
+        }
+      }
+    },
     "ModifyMemberRequest": {
       "title": "ModifyMemberRequest",
       "description": "PATCH /guilds/{id}/members/{uid} body.",
@@ -7144,6 +7445,195 @@
         }
       }
     },
+    "TemplateChannel": {
+      "title": "TemplateChannel",
+      "description": "A channel of a template. `id` and `parent_id` are template-local ids, numbered from 1.",
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "name",
+        "position",
+        "topic",
+        "nsfw",
+        "parent_id",
+        "permission_overwrites"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "type": "integer",
+          "description": "ChannelType: 0 text, 2 voice, 4 category, 5 announcement, 13 stage, 15 forum."
+        },
+        "name": {
+          "type": "string"
+        },
+        "position": {
+          "type": "integer"
+        },
+        "topic": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nsfw": {
+          "type": "boolean"
+        },
+        "bitrate": {
+          "type": "integer"
+        },
+        "user_limit": {
+          "type": "integer"
+        },
+        "rate_limit_per_user": {
+          "type": "integer"
+        },
+        "parent_id": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "permission_overwrites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TemplateOverwrite"
+          }
+        }
+      }
+    },
+    "TemplateOverwrite": {
+      "title": "TemplateOverwrite",
+      "description": "A role permission overwrite of a template channel. `id` is a template-local role id (0 is @everyone); member overwrites are never captured.",
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "allow",
+        "deny"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "type": {
+          "type": "integer",
+          "description": "OverwriteType: always 0 (role)."
+        },
+        "allow": {
+          "$ref": "#/$defs/PermissionBitset"
+        },
+        "deny": {
+          "$ref": "#/$defs/PermissionBitset"
+        }
+      }
+    },
+    "TemplateRole": {
+      "title": "TemplateRole",
+      "description": "A role of a template. `id` is template-local: 0 is @everyone, other roles are numbered from 1 in ascending position.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "permissions",
+        "color",
+        "hoist",
+        "mentionable"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string"
+        },
+        "permissions": {
+          "$ref": "#/$defs/PermissionBitset"
+        },
+        "color": {
+          "type": "integer"
+        },
+        "hoist": {
+          "type": "boolean"
+        },
+        "mentionable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "TemplateSourceGuild": {
+      "title": "TemplateSourceGuild",
+      "description": "The structure a template creates: guild settings, roles and channels with template-local ids.",
+      "type": "object",
+      "required": [
+        "name",
+        "description",
+        "verification_level",
+        "default_message_notifications",
+        "explicit_content_filter",
+        "afk_timeout",
+        "afk_channel_id",
+        "system_channel_id",
+        "roles",
+        "channels"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verification_level": {
+          "type": "integer"
+        },
+        "default_message_notifications": {
+          "type": "integer"
+        },
+        "explicit_content_filter": {
+          "type": "integer"
+        },
+        "afk_timeout": {
+          "type": "integer"
+        },
+        "afk_channel_id": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Template-local channel id."
+        },
+        "system_channel_id": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Template-local channel id."
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TemplateRole"
+          },
+          "description": "Includes @everyone (id 0) first."
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TemplateChannel"
+          }
+        }
+      }
+    },
     "ThreadMember": {
       "title": "ThreadMember",
       "description": "A user's membership of a thread.",
@@ -7267,6 +7757,34 @@
         },
         "unavailable": {
           "type": "boolean"
+        }
+      }
+    },
+    "UpdateGuildDiscoveryRequest": {
+      "title": "UpdateGuildDiscoveryRequest",
+      "description": "PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.",
+      "type": "object",
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "category": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 24
+          },
+          "maxItems": 5
         }
       }
     },
@@ -7492,6 +8010,57 @@
           "type": "boolean",
           "description": "Show previews (embeds) of links in messages."
         },
+        "saturation": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Colour saturation of the interface, 1 is full colour (accessibility)."
+        },
+        "role_colors": {
+          "type": "string",
+          "enum": [
+            "name",
+            "dot",
+            "hidden"
+          ],
+          "description": "How role colours show on member names: tint the name, a dot beside it, or not at all."
+        },
+        "link_underline": {
+          "type": "boolean",
+          "description": "Always underline links in messages."
+        },
+        "message_spacing": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32,
+          "description": "Space in pixels between message groups."
+        },
+        "high_contrast": {
+          "type": "boolean",
+          "description": "Increase contrast of text and borders."
+        },
+        "animate_gifs": {
+          "type": "boolean",
+          "description": "Play GIFs automatically; when off they play on hover."
+        },
+        "animate_emoji": {
+          "type": "boolean",
+          "description": "Animate custom emoji automatically."
+        },
+        "animate_stickers": {
+          "type": "boolean",
+          "description": "Animate stickers automatically."
+        },
+        "tts_read_aloud": {
+          "type": "boolean",
+          "description": "Allow the /tts command and read text-to-speech messages aloud."
+        },
+        "tts_rate": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 2,
+          "description": "Speech rate of text-to-speech playback, 1 is normal."
+        },
         "notify_only_mentions": {
           "type": "boolean"
         },
@@ -7546,6 +8115,49 @@
                 "type": "boolean"
               }
             }
+          }
+        }
+      }
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).",
+      "type": "object",
+      "required": [
+        "user",
+        "mutual_guilds",
+        "mutual_friends"
+      ],
+      "properties": {
+        "user": {
+          "$ref": "#/$defs/User"
+        },
+        "mutual_guilds": {
+          "type": "array",
+          "description": "Servers both users are members of. nick is the target user's nickname there.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "nick": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "mutual_friends": {
+          "type": "array",
+          "description": "Users who are friends of both the caller and the target.",
+          "items": {
+            "$ref": "#/$defs/User"
           }
         }
       }

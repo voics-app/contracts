@@ -979,6 +979,12 @@
         "description": "Unknown ban."
       },
       {
+        "code": 10057,
+        "name": "UNKNOWN_GUILD_TEMPLATE",
+        "http_status": 404,
+        "description": "Unknown guild template."
+      },
+      {
         "code": 10062,
         "name": "UNKNOWN_INTERACTION",
         "http_status": 404,
@@ -1167,11 +1173,15 @@
       ]
     },
     "MessageFlags": {
-      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message.",
+      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications.",
       "values": [
         {
           "name": "SUPPRESS_EMBEDS",
           "value": 4
+        },
+        {
+          "name": "SUPPRESS_NOTIFICATIONS",
+          "value": 4096
         },
         {
           "name": "EPHEMERAL",

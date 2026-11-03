@@ -27,6 +27,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | 10014 | `UNKNOWN_EMOJI` | 404 | Unknown emoji. |
 | 10015 | `UNKNOWN_WEBHOOK` | 404 | Unknown webhook. |
 | 10026 | `UNKNOWN_BAN` | 404 | Unknown ban. |
+| 10057 | `UNKNOWN_GUILD_TEMPLATE` | 404 | Unknown guild template. |
 | 10062 | `UNKNOWN_INTERACTION` | 404 | Unknown interaction. |
 | 10063 | `UNKNOWN_APPLICATION_COMMAND` | 404 | Unknown application command. |
 | 40001 | `UNAUTHORIZED` | 401 | Unauthorized. Provide a valid token and try again. |
@@ -87,6 +88,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/users/@me/mfa/totp/disable` | api | `DisableTotpRequest` | 204 No Content | Disable TOTP |
 | `POST` | `/users/@me/mfa/codes-verification` | api | `BackupCodesVerificationRequest` | `BackupCodesResponse` | List or regenerate backup codes |
 | `GET` | `/users/{user_id}` | api | — | `User` | Get a user |
+| `GET` | `/users/{user_id}/profile` | api | — | `UserProfile` | Get a user's profile with mutual servers and mutual friends |
 | `GET` | `/users/@me/settings` | api | — | `UserSettings` | Get the current user's settings |
 | `PATCH` | `/users/@me/settings` | api | `ModifyUserSettingsRequest` | `UserSettings` | Modify the current user's settings (including default_delivery_mode) |
 | `GET` | `/users/@me/guilds/{guild_id}/settings` | api | — | `GuildNotificationSettings` | Get the current user's notification settings for a guild (or `@me` for DMs) |
@@ -134,6 +136,19 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PATCH` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | `ModifyEmojiRequest` | `Emoji` | Modify a custom emoji |
 | `DELETE` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | 204 No Content | Delete a custom emoji |
 | `GET` | `/guilds/{guild_id}/invites` | api | — | `array of Invite` | List a guild's invites |
+| `GET` | `/discovery/guilds` | api | — | `DiscoveryPage` | Browse and search public servers that opted in to discovery |
+| `GET` | `/discovery/categories` | api | — | `DiscoveryCategories` | List discovery categories |
+| `POST` | `/discovery/guilds/{guild_id}/join` | api | — | 204 No Content | Join a publicly listed server |
+| `GET` | `/guilds/{guild_id}/discovery` | api | — | `GuildDiscoverySettings` | Get a guild discovery settings (requires MANAGE_GUILD) |
+| `PUT` | `/guilds/{guild_id}/discovery` | api | `UpdateGuildDiscoveryRequest` | `GuildDiscoverySettings` | List or delist a guild in discovery (requires MANAGE_GUILD) |
+| `GET` | `/guilds/templates` | api | — | `array of GuildTemplate` | List the built-in server templates |
+| `GET` | `/guilds/templates/{code}` | api | — | `GuildTemplate` | Resolve a server template by code (built-in or shared) |
+| `POST` | `/guilds/templates/{code}` | api | `CreateGuildFromTemplateRequest` | `Guild` | Create a guild from a template |
+| `GET` | `/guilds/{guild_id}/templates` | api | — | `array of GuildTemplate` | List a guild's templates (requires MANAGE_GUILD) |
+| `POST` | `/guilds/{guild_id}/templates` | api | `CreateGuildTemplateRequest` | `GuildTemplate` | Create a template from the guild (requires MANAGE_GUILD) |
+| `PUT` | `/guilds/{guild_id}/templates/{code}` | api | — | `GuildTemplate` | Re-snapshot a template from the guild (requires MANAGE_GUILD) |
+| `PATCH` | `/guilds/{guild_id}/templates/{code}` | api | `ModifyGuildTemplateRequest` | `GuildTemplate` | Modify a template's name or description (requires MANAGE_GUILD) |
+| `DELETE` | `/guilds/{guild_id}/templates/{code}` | api | — | 204 No Content | Delete a template (requires MANAGE_GUILD) |
 
 ### Webhooks
 
@@ -286,7 +301,7 @@ Controls which mentions in a message notify.
 | `parse?` | `array of "roles" or "users" or "everyone"` |  |
 | `roles?` | `array of Snowflake` |  |
 | `users?` | `array of Snowflake` |  |
-| `replied_user?` | `boolean` |  |
+| `replied_user?` | `boolean` | Whether to mention the author of the replied-to message. Defaults to true; false suppresses the reply ping (no mention, no notification). |
 
 ### Application
 
@@ -570,6 +585,40 @@ A user device with its Ed25519 identity key (Discordy extra).
 | `name?` | `string` |  |
 | `created_at?` | `string (date-time)` |  |
 
+### DiscoveryCategories
+
+Category slugs a guild can be listed under.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `categories` | `array of string` |  |
+
+### DiscoveryGuild
+
+One server card of `GET /discovery/guilds` (Discordy extra).
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `icon` | `?string` |  |
+| `description` | `?string` |  |
+| `category` | `string` | Category slug, see `GET /discovery/categories`. |
+| `tags` | `array of string` |  |
+| `approximate_member_count` | `integer` |  |
+| `approximate_presence_count` | `?integer` | Online members; null when presence is unavailable. |
+
+### DiscoveryPage
+
+A page of discoverable servers, largest first.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `guilds` | `array of DiscoveryGuild` |  |
+| `total` | `integer` | Matches across all pages. |
+| `offset` | `integer` |  |
+| `limit` | `integer` |  |
+
 ### Embed
 
 Rich embed content.
@@ -727,6 +776,19 @@ Permissions of an application's command(s) in a guild.
 | `guild_id` | `Snowflake` |  |
 | `permissions` | `array of ApplicationCommandPermission` |  |
 
+### GuildDiscoverySettings
+
+A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `category` | `?string` |  |
+| `tags` | `array of string` |  |
+| `listed_at` | `?string (date-time)` |  |
+| `member_count` | `integer` |  |
+| `blockers` | `array of "DESCRIPTION_REQUIRED" or "MEMBER_COUNT_TOO_LOW" or "GUILD_TOO_NEW" or "NSFW_NOT_ALLOWED"` |  |
+
 ### GuildFolder
 
 One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.
@@ -819,6 +881,24 @@ The current user's notification settings for one guild, or for their DMs when gu
 | `mute_config` | `?MuteConfig` | Present while muted. |
 | `hide_muted_channels` | `boolean` |  |
 | `channel_overrides` | `array of ChannelNotificationOverride` | Only channels with a non-default override. |
+
+### GuildTemplate
+
+A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `code` | `string` |  |
+| `name` | `string` |  |
+| `description` | `?string` |  |
+| `usage_count` | `integer` |  |
+| `creator_id` | `any` |  |
+| `creator` | `any` |  |
+| `created_at` | `string (date-time)` |  |
+| `updated_at` | `string (date-time)` |  |
+| `source_guild_id` | `any` |  |
+| `serialized_source_guild` | `TemplateSourceGuild` |  |
+| `is_dirty` | `boolean` | Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`). |
 
 ### InstallParams
 
@@ -1192,6 +1272,65 @@ A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 
 
 Type: `string`
 
+### TemplateChannel
+
+A channel of a template. `id` and `parent_id` are template-local ids, numbered from 1.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `integer` |  |
+| `type` | `integer` | ChannelType: 0 text, 2 voice, 4 category, 5 announcement, 13 stage, 15 forum. |
+| `name` | `string` |  |
+| `position` | `integer` |  |
+| `topic` | `?string` |  |
+| `nsfw` | `boolean` |  |
+| `bitrate?` | `integer` |  |
+| `user_limit?` | `integer` |  |
+| `rate_limit_per_user?` | `integer` |  |
+| `parent_id` | `?integer` |  |
+| `permission_overwrites` | `array of TemplateOverwrite` |  |
+
+### TemplateOverwrite
+
+A role permission overwrite of a template channel. `id` is a template-local role id (0 is @everyone); member overwrites are never captured.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `integer` |  |
+| `type` | `integer` | OverwriteType: always 0 (role). |
+| `allow` | `PermissionBitset` |  |
+| `deny` | `PermissionBitset` |  |
+
+### TemplateRole
+
+A role of a template. `id` is template-local: 0 is @everyone, other roles are numbered from 1 in ascending position.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `integer` |  |
+| `name` | `string` |  |
+| `permissions` | `PermissionBitset` |  |
+| `color` | `integer` |  |
+| `hoist` | `boolean` |  |
+| `mentionable` | `boolean` |  |
+
+### TemplateSourceGuild
+
+The structure a template creates: guild settings, roles and channels with template-local ids.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
+| `description` | `?string` |  |
+| `verification_level` | `integer` |  |
+| `default_message_notifications` | `integer` |  |
+| `explicit_content_filter` | `integer` |  |
+| `afk_timeout` | `integer` |  |
+| `afk_channel_id` | `?integer` | Template-local channel id. |
+| `system_channel_id` | `?integer` | Template-local channel id. |
+| `roles` | `array of TemplateRole` | Includes @everyone (id 0) first. |
+| `channels` | `array of TemplateChannel` |  |
+
 ### ThreadMember
 
 A user's membership of a thread.
@@ -1269,6 +1408,16 @@ Client preferences that follow the account across devices (client#123). Sparse: 
 | `font_scale?` | `number` | Chat font scale. |
 | `show_avatars_in_compact?` | `boolean` |  |
 | `link_previews?` | `boolean` | Show previews (embeds) of links in messages. |
+| `saturation?` | `number` | Colour saturation of the interface, 1 is full colour (accessibility). |
+| `role_colors?` | `"name" or "dot" or "hidden"` | How role colours show on member names: tint the name, a dot beside it, or not at all. |
+| `link_underline?` | `boolean` | Always underline links in messages. |
+| `message_spacing?` | `integer` | Space in pixels between message groups. |
+| `high_contrast?` | `boolean` | Increase contrast of text and borders. |
+| `animate_gifs?` | `boolean` | Play GIFs automatically; when off they play on hover. |
+| `animate_emoji?` | `boolean` | Animate custom emoji automatically. |
+| `animate_stickers?` | `boolean` | Animate stickers automatically. |
+| `tts_read_aloud?` | `boolean` | Allow the /tts command and read text-to-speech messages aloud. |
+| `tts_rate?` | `number` | Speech rate of text-to-speech playback, 1 is normal. |
 | `notify_only_mentions?` | `boolean` |  |
 | `notify_sounds?` | `boolean` | Master switch for notification sounds. |
 | `sound_toggles?` | `map of boolean` | Per-sound switches under notify_sounds; a missing entry means on. |
@@ -1548,6 +1697,15 @@ POST /guilds/{id}/emojis body.
 | `image` | `string` | Data URI, 256 KiB max. |
 | `roles?` | `array of Snowflake` |  |
 
+### CreateGuildFromTemplateRequest
+
+POST /guilds/templates/{code} body.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
+| `icon?` | `?string` | Image data URI. |
+
 ### CreateGuildRequest
 
 POST /guilds body.
@@ -1560,6 +1718,15 @@ POST /guilds body.
 | `verification_level?` | `integer` |  |
 | `default_message_notifications?` | `integer` |  |
 | `explicit_content_filter?` | `integer` |  |
+
+### CreateGuildTemplateRequest
+
+POST /guilds/{guild_id}/templates body. A guild has at most one template.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
+| `description?` | `?string` |  |
 
 ### CreateInviteRequest
 
@@ -1574,7 +1741,7 @@ POST /channels/{id}/invites body.
 
 ### CreateMessageRequest
 
-POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
+POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -1586,7 +1753,7 @@ POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective d
 | `message_reference?` | `MessageReference` |  |
 | `components?` | `array of MessageComponent` |  |
 | `attachments?` | `array of AttachmentReference` |  |
-| `flags?` | `integer` |  |
+| `flags?` | `integer` | MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. |
 
 ### CreateThreadRequest
 
@@ -1849,6 +2016,15 @@ PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
 | `explicit_content_filter?` | `integer` |  |
 | `voice_region?` | `string` |  |
 
+### ModifyGuildTemplateRequest
+
+PATCH /guilds/{guild_id}/templates/{code} body.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name?` | `string` |  |
+| `description?` | `?string` |  |
+
 ### ModifyMemberRequest
 
 PATCH /guilds/{id}/members/{uid} body.
@@ -2035,6 +2211,16 @@ A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.
 | `secret` | `string` | Base32 secret for manual entry. |
 | `otpauth_uri` | `string` | `otpauth://totp/...` URI to render as a QR code. |
 
+### UpdateGuildDiscoveryRequest
+
+PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `category?` | `?string` |  |
+| `tags?` | `array of string` |  |
+
 ### UploadKeyPackagesRequest
 
 POST /devices/{id}/key-packages body.
@@ -2042,6 +2228,16 @@ POST /devices/{id}/key-packages body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `packages` | `array of string` |  |
+
+### UserProfile
+
+GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `user` | `User` |  |
+| `mutual_guilds` | `array of object` | Servers both users are members of. nick is the target user's nickname there. |
+| `mutual_friends` | `array of User` | Users who are friends of both the caller and the target. |
 
 ### VerifyEmailRequest
 

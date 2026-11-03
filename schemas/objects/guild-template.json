@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/guild-template.json",
+  "title": "GuildTemplate",
+  "description": "A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.",
+  "type": "object",
+  "required": [
+    "code",
+    "name",
+    "description",
+    "usage_count",
+    "creator_id",
+    "creator",
+    "created_at",
+    "updated_at",
+    "source_guild_id",
+    "serialized_source_guild",
+    "is_dirty"
+  ],
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 120
+    },
+    "usage_count": {
+      "type": "integer"
+    },
+    "creator_id": {
+      "oneOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "creator": {
+      "oneOf": [
+        {
+          "$ref": "./user.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_guild_id": {
+      "oneOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "serialized_source_guild": {
+      "$ref": "./template-source-guild.json"
+    },
+    "is_dirty": {
+      "type": "boolean",
+      "description": "Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
+    }
+  }
+}

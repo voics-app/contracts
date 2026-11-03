@@ -461,6 +461,8 @@ export const ErrorCodes = {
   UNKNOWN_WEBHOOK: 10015,
   /** HTTP 404. Unknown ban. */
   UNKNOWN_BAN: 10026,
+  /** HTTP 404. Unknown guild template. */
+  UNKNOWN_GUILD_TEMPLATE: 10057,
   /** HTTP 404. Unknown interaction. */
   UNKNOWN_INTERACTION: 10062,
   /** HTTP 404. Unknown application command. */
@@ -521,9 +523,10 @@ export const MessageType = {
 } as const;
 export type MessageTypeKey = keyof typeof MessageType;
 
-/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message. */
+/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications. */
 export const MessageFlags = {
   SUPPRESS_EMBEDS: 4,
+  SUPPRESS_NOTIFICATIONS: 4096,
   EPHEMERAL: 64,
 } as const;
 export type MessageFlagsKey = keyof typeof MessageFlags;

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/guild-discovery-settings.json",
+  "title": "GuildDiscoverySettings",
+  "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.",
+  "type": "object",
+  "required": [
+    "enabled",
+    "category",
+    "tags",
+    "listed_at",
+    "member_count",
+    "blockers"
+  ],
+  "properties": {
+    "enabled": {
+      "type": "boolean"
+    },
+    "category": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 5
+    },
+    "listed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "member_count": {
+      "type": "integer"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "DESCRIPTION_REQUIRED",
+          "MEMBER_COUNT_TOO_LOW",
+          "GUILD_TOO_NEW",
+          "NSFW_NOT_ALLOWED"
+        ]
+      }
+    }
+  }
+}
