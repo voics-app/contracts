@@ -126,6 +126,9 @@ export interface AllowedMentions {
   parse?: ("roles" | "users" | "everyone")[];
   roles?: Snowflake[];
   users?: Snowflake[];
+  /**
+   * Whether to mention the author of the replied-to message. Defaults to true; false suppresses the reply ping (no mention, no notification).
+   */
   replied_user?: boolean;
 }
 /**
@@ -939,7 +942,7 @@ export interface CreateInviteRequest {
   unique?: boolean;
 }
 /**
- * POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
+ * POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
  */
 export interface CreateMessageRequest {
   content?: string;
@@ -964,6 +967,9 @@ export interface CreateMessageRequest {
   message_reference?: MessageReference;
   components?: MessageComponent[];
   attachments?: AttachmentReference[];
+  /**
+   * MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped.
+   */
   flags?: number;
 }
 /**

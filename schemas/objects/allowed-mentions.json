@@ -29,7 +29,8 @@
       }
     },
     "replied_user": {
-      "type": "boolean"
+      "type": "boolean",
+      "description": "Whether to mention the author of the replied-to message. Defaults to true; false suppresses the reply ping (no mention, no notification)."
     }
   }
 }
