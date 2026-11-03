@@ -599,7 +599,7 @@ export interface AuthSession {
    */
   id: string;
   /**
-   * The client that opened the session, derived from its User-Agent (for example `Discordy Desktop`, `Firefox`).
+   * The client that opened the session, derived from its User-Agent (for example `Desktop app` (the desktop client; clients show it with the brand name), `Firefox`).
    */
   client: string;
   /**

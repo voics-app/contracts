@@ -904,7 +904,7 @@ pub struct AuthResponse {
 ///A login session of the current user (one refresh-token family), as listed by GET /users/@me/sessions. Not to be confused with the gateway Session of SESSIONS_REPLACE.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct AuthSession {
-    ///The client that opened the session, derived from its User-Agent (for example `Discordy Desktop`, `Firefox`).
+    ///The client that opened the session, derived from its User-Agent (for example `Desktop app` (the desktop client; clients show it with the brand name), `Firefox`).
     pub client: ::std::string::String,
     pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
     ///Whether this is the session making the request.

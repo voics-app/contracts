@@ -1888,7 +1888,7 @@ export interface components {
          * @description A login session of the current user (one refresh-token family), as listed by GET /users/@me/sessions. Not to be confused with the gateway Session of SESSIONS_REPLACE.
          */
         AuthSession: {
-            /** @description The client that opened the session, derived from its User-Agent (for example `Discordy Desktop`, `Firefox`). */
+            /** @description The client that opened the session, derived from its User-Agent (for example `Desktop app` (the desktop client; clients show it with the brand name), `Firefox`). */
             client: string;
             /** Format: date-time */
             created_at: string;
