@@ -1521,6 +1521,9 @@ export interface Guild {
   id: Snowflake;
   name: string;
   icon: string | null;
+  /**
+   * Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
+   */
   splash?: string | null;
   discovery_splash?: string | null;
   /**
@@ -1540,11 +1543,17 @@ export interface Guild {
   mfa_level: number;
   application_id?: Snowflake | null;
   system_channel_id: Snowflake | null;
+  /**
+   * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+   */
   system_channel_flags: number;
   rules_channel_id?: Snowflake | null;
   max_members?: number;
   vanity_url_code?: string | null;
   description?: string | null;
+  /**
+   * Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
+   */
   banner?: string | null;
   preferred_locale: string;
   public_updates_channel_id?: Snowflake | null;
@@ -1648,6 +1657,9 @@ export interface GuildFull {
   id: Snowflake;
   name: string;
   icon: string | null;
+  /**
+   * Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
+   */
   splash?: string | null;
   discovery_splash?: string | null;
   /**
@@ -1667,11 +1679,17 @@ export interface GuildFull {
   mfa_level: number;
   application_id?: Snowflake | null;
   system_channel_id: Snowflake | null;
+  /**
+   * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+   */
   system_channel_flags: number;
   rules_channel_id?: Snowflake | null;
   max_members?: number;
   vanity_url_code?: string | null;
   description?: string | null;
+  /**
+   * Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
+   */
   banner?: string | null;
   preferred_locale: string;
   public_updates_channel_id?: Snowflake | null;
@@ -2593,13 +2611,22 @@ export interface ModifyGuildNotificationSettingsRequest {
 export interface ModifyGuildRequest {
   name?: string;
   icon?: string | null;
+  /**
+   * Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it.
+   */
   banner?: string | null;
+  /**
+   * Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it.
+   */
   splash?: string | null;
   description?: string | null;
   owner_id?: Snowflake;
   afk_channel_id?: Snowflake | null;
   afk_timeout?: number;
   system_channel_id?: Snowflake | null;
+  /**
+   * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+   */
   system_channel_flags?: number;
   rules_channel_id?: Snowflake | null;
   public_updates_channel_id?: Snowflake | null;

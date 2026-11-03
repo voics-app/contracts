@@ -2622,6 +2622,7 @@ pub struct Guild {
     pub approximate_member_count: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub approximate_presence_count: ::std::option::Option<i64>,
+    ///Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
     pub default_message_notifications: i64,
@@ -2653,8 +2654,10 @@ pub struct Guild {
     pub roles: ::std::vec::Vec<Role>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rules_channel_id: ::std::option::Option<Snowflake>,
+    ///Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub splash: ::std::option::Option<::std::string::String>,
+    ///Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
     pub system_channel_flags: i64,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub system_channel_id: ::std::option::Option<Snowflake>,
@@ -2831,6 +2834,7 @@ pub struct GuildFull {
     pub approximate_member_count: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub approximate_presence_count: ::std::option::Option<i64>,
+    ///Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
     pub channels: ::std::vec::Vec<Channel>,
@@ -2871,8 +2875,10 @@ pub struct GuildFull {
     pub roles: ::std::vec::Vec<Role>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rules_channel_id: ::std::option::Option<Snowflake>,
+    ///Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub splash: ::std::option::Option<::std::string::String>,
+    ///Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
     pub system_channel_flags: i64,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub system_channel_id: ::std::option::Option<Snowflake>,
@@ -4443,6 +4449,7 @@ pub struct ModifyGuildRequest {
     pub afk_channel_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub afk_timeout: ::std::option::Option<i64>,
+    ///Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -4463,8 +4470,10 @@ pub struct ModifyGuildRequest {
     pub public_updates_channel_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rules_channel_id: ::std::option::Option<Snowflake>,
+    ///Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub splash: ::std::option::Option<::std::string::String>,
+    ///Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub system_channel_flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]

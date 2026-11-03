@@ -2354,6 +2354,7 @@ export interface components {
             application_id?: components["schemas"]["Snowflake"] | null;
             approximate_member_count?: number;
             approximate_presence_count?: number;
+            /** @description Banner image hash (CDN path banners/{guild_id}/{hash}), or null. */
             banner?: string | null;
             default_message_notifications: number;
             description?: string | null;
@@ -2375,7 +2376,9 @@ export interface components {
             public_updates_channel_id?: components["schemas"]["Snowflake"] | null;
             roles: components["schemas"]["Role"][];
             rules_channel_id?: components["schemas"]["Snowflake"] | null;
+            /** @description Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null. */
             splash?: string | null;
+            /** @description Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. */
             system_channel_flags: number;
             system_channel_id: components["schemas"]["Snowflake"] | null;
             vanity_url_code?: string | null;
@@ -2817,6 +2820,7 @@ export interface components {
         ModifyGuildRequest: {
             afk_channel_id?: components["schemas"]["Snowflake"] | null;
             afk_timeout?: number;
+            /** @description Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it. */
             banner?: string | null;
             default_message_notifications?: number;
             description?: string | null;
@@ -2827,7 +2831,9 @@ export interface components {
             preferred_locale?: string;
             public_updates_channel_id?: components["schemas"]["Snowflake"] | null;
             rules_channel_id?: components["schemas"]["Snowflake"] | null;
+            /** @description Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it. */
             splash?: string | null;
+            /** @description Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. */
             system_channel_flags?: number;
             system_channel_id?: components["schemas"]["Snowflake"] | null;
             verification_level?: number;
