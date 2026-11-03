@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/objects/message-reference.json",
   "title": "MessageReference",
-  "description": "Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).",
+  "description": "Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.",
   "type": "object",
   "properties": {
     "type": {

@@ -1089,7 +1089,7 @@ export interface EmbedField {
   inline?: boolean;
 }
 /**
- * Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
+ * Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.
  */
 export interface MessageReference {
   /**
@@ -2026,6 +2026,10 @@ export interface Message {
   edited_timestamp: string | null;
   tts: boolean;
   mention_everyone: boolean;
+  /**
+   * Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise.
+   */
+  mention_here?: boolean;
   mentions: User[];
   mention_roles: Snowflake[];
   mention_channels?: ChannelMention[];
@@ -2043,12 +2047,13 @@ export interface Message {
   hit?: boolean;
   webhook_id?: Snowflake;
   /**
-   * MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
+   * MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
    */
   type: number;
   application_id?: Snowflake;
   flags?: number;
   message_reference?: MessageReference;
+  call?: MessageCall;
   referenced_message?: Message | null;
   interaction_metadata?: MessageInteractionMetadata;
   thread?: Channel;
@@ -2076,6 +2081,16 @@ export interface Reaction {
 export interface ReactionCountDetails {
   burst: number;
   normal: number;
+}
+/**
+ * Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.
+ */
+export interface MessageCall {
+  /**
+   * IDs of the users who took part in the call.
+   */
+  participants: Snowflake[];
+  ended_timestamp?: string | null;
 }
 /**
  * The interaction a message responds to.
@@ -2158,6 +2173,36 @@ export interface InteractionResponse {
    */
   type: number;
   data?: InteractionCallbackData;
+}
+/**
+ * POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.
+ */
+export interface InternalCreateMessageRequest {
+  author_id: Snowflake;
+  webhook_id?: Snowflake;
+  username?: string;
+  avatar_url?: string;
+  interaction_id?: Snowflake;
+  application_id?: Snowflake;
+  content?: string;
+  embeds?: Embed[];
+  components?: MessageComponent[];
+  /**
+   * 64 (ephemeral) sends only to target_user_ids and stores nothing.
+   */
+  flags?: number;
+  message_reference?: MessageReference;
+  /**
+   * Recipients of an ephemeral message.
+   */
+  target_user_ids?: Snowflake[];
+  /**
+   * System message type (see description); omit or 0 for a normal message.
+   */
+  type?: number;
+  target_user_id?: Snowflake;
+  call?: MessageCall;
+  thread_id?: Snowflake;
 }
 /**
  * POST /internal/v1/auth/introspect body.
@@ -2301,6 +2346,10 @@ export interface MessageEvent {
   edited_timestamp: string | null;
   tts: boolean;
   mention_everyone: boolean;
+  /**
+   * Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise.
+   */
+  mention_here?: boolean;
   mentions: User[];
   mention_roles: Snowflake[];
   mention_channels?: ChannelMention[];
@@ -2318,12 +2367,13 @@ export interface MessageEvent {
   hit?: boolean;
   webhook_id?: Snowflake;
   /**
-   * MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
+   * MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
    */
   type: number;
   application_id?: Snowflake;
   flags?: number;
   message_reference?: MessageReference;
+  call?: MessageCall;
   referenced_message?: Message | null;
   interaction_metadata?: MessageInteractionMetadata;
   thread?: Channel;
@@ -3153,6 +3203,13 @@ export interface TypingStartEvent {
 export interface UnavailableGuild {
   id: Snowflake;
   unavailable?: boolean;
+}
+/**
+ * PATCH /internal/v1/channels/{id}/messages/{id}/call on messages. Records the end of a call on its type 3 message; omitted fields stay unchanged. Answers the updated Message and publishes MESSAGE_UPDATE. 400 when the message is not a call.
+ */
+export interface UpdateCallRequest {
+  participants?: Snowflake[];
+  ended_timestamp?: string;
 }
 /**
  * PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.

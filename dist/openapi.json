@@ -9762,6 +9762,10 @@
           "mention_everyone": {
             "type": "boolean"
           },
+          "mention_here": {
+            "type": "boolean",
+            "description": "Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise."
+          },
           "mentions": {
             "type": "array",
             "items": {
@@ -9815,7 +9819,7 @@
           },
           "type": {
             "type": "integer",
-            "description": "MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics)."
+            "description": "MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics)."
           },
           "application_id": {
             "$ref": "#/components/schemas/Snowflake"
@@ -9825,6 +9829,9 @@
           },
           "message_reference": {
             "$ref": "#/components/schemas/MessageReference"
+          },
+          "call": {
+            "$ref": "#/components/schemas/MessageCall"
           },
           "referenced_message": {
             "anyOf": [
@@ -9857,6 +9864,30 @@
             "items": {
               "$ref": "#/components/schemas/MessageSnapshot"
             }
+          }
+        }
+      },
+      "MessageCall": {
+        "title": "MessageCall",
+        "description": "Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.",
+        "type": "object",
+        "required": [
+          "participants"
+        ],
+        "properties": {
+          "participants": {
+            "type": "array",
+            "description": "IDs of the users who took part in the call.",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "ended_timestamp": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
           }
         }
       },
@@ -9957,7 +9988,7 @@
       },
       "MessageReference": {
         "title": "MessageReference",
-        "description": "Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).",
+        "description": "Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.",
         "type": "object",
         "properties": {
           "type": {

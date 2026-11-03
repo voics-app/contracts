@@ -3354,6 +3354,50 @@ pub struct InteractionResponse {
     #[serde(rename = "type")]
     pub type_: i64,
 }
+///POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct InternalCreateMessageRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub application_id: ::std::option::Option<Snowflake>,
+    ///The bot user, the webhook id for webhook posts, or the author of a system message.
+    pub author_id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub avatar_url: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub call: ::std::option::Option<MessageCall>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub components: ::std::vec::Vec<MessageComponent>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub content: ::std::option::Option<::std::string::String>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub embeds: ::std::vec::Vec<Embed>,
+    ///64 (ephemeral) sends only to target_user_ids and stores nothing.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub flags: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub interaction_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub message_reference: ::std::option::Option<MessageReference>,
+    ///The user a type 1 or 2 message is about.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub target_user_id: ::std::option::Option<Snowflake>,
+    ///Recipients of an ephemeral message.
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub target_user_ids: ::std::vec::Vec<Snowflake>,
+    ///The thread a type 18 message announces (required for type 18).
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub thread_id: ::std::option::Option<Snowflake>,
+    ///System message type (see description); omit or 0 for a normal message.
+    #[serde(
+        rename = "type",
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub type_: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub username: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub webhook_id: ::std::option::Option<Snowflake>,
+}
 ///POST /internal/v1/auth/introspect body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct IntrospectRequest {
@@ -3589,6 +3633,8 @@ pub struct Message {
     pub application_id: ::std::option::Option<Snowflake>,
     pub attachments: ::std::vec::Vec<Attachment>,
     pub author: User,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub call: ::std::option::Option<MessageCall>,
     pub channel_id: Snowflake,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub components: ::std::vec::Vec<MessageComponent>,
@@ -3607,6 +3653,9 @@ pub struct Message {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub mention_channels: ::std::vec::Vec<ChannelMention>,
     pub mention_everyone: bool,
+    ///Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub mention_here: ::std::option::Option<bool>,
     pub mention_roles: ::std::vec::Vec<Snowflake>,
     pub mentions: ::std::vec::Vec<User>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3628,7 +3677,7 @@ pub struct Message {
     pub thread: ::std::option::Option<Channel>,
     pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
     pub tts: bool,
-    ///MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
+    ///MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
     #[serde(rename = "type")]
     pub type_: i64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3642,6 +3691,14 @@ pub struct MessageAckEvent {
     pub message_id: Snowflake,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub version: ::std::option::Option<i64>,
+}
+///Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MessageCall {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub ended_timestamp: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    ///IDs of the users who took part in the call.
+    pub participants: ::std::vec::Vec<Snowflake>,
 }
 ///A message component (action row, button, select menu, text input). Action rows nest components.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -3705,6 +3762,8 @@ pub struct MessageEvent {
     pub application_id: ::std::option::Option<Snowflake>,
     pub attachments: ::std::vec::Vec<Attachment>,
     pub author: User,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub call: ::std::option::Option<MessageCall>,
     pub channel_id: Snowflake,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub components: ::std::vec::Vec<MessageComponent>,
@@ -3727,6 +3786,9 @@ pub struct MessageEvent {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub mention_channels: ::std::vec::Vec<ChannelMention>,
     pub mention_everyone: bool,
+    ///Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub mention_here: ::std::option::Option<bool>,
     pub mention_roles: ::std::vec::Vec<Snowflake>,
     pub mentions: ::std::vec::Vec<User>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3748,7 +3810,7 @@ pub struct MessageEvent {
     pub thread: ::std::option::Option<Channel>,
     pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
     pub tts: bool,
-    ///MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
+    ///MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
     #[serde(rename = "type")]
     pub type_: i64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3903,7 +3965,7 @@ pub struct MessageReactionRemoveEvent {
     pub type_: i64,
     pub user_id: Snowflake,
 }
-///Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
+///Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct MessageReference {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -5994,6 +6056,14 @@ pub struct UnavailableGuild {
     pub id: Snowflake,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub unavailable: ::std::option::Option<bool>,
+}
+///PATCH /internal/v1/channels/{id}/messages/{id}/call on messages. Records the end of a call on its type 3 message; omitted fields stay unchanged. Answers the updated Message and publishes MESSAGE_UPDATE. 400 when the message is not a call.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct UpdateCallRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub ended_timestamp: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub participants: ::std::vec::Vec<Snowflake>,
 }
 ///PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

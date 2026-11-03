@@ -2564,6 +2564,7 @@ export interface components {
             application_id?: components["schemas"]["Snowflake"];
             attachments: components["schemas"]["Attachment"][];
             author: components["schemas"]["User"];
+            call?: components["schemas"]["MessageCall"];
             channel_id: components["schemas"]["Snowflake"];
             components?: components["schemas"]["MessageComponent"][];
             content: string;
@@ -2577,6 +2578,8 @@ export interface components {
             interaction_metadata?: components["schemas"]["MessageInteractionMetadata"];
             mention_channels?: components["schemas"]["ChannelMention"][];
             mention_everyone: boolean;
+            /** @description Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise. */
+            mention_here?: boolean;
             mention_roles: components["schemas"]["Snowflake"][];
             mentions: components["schemas"]["User"][];
             message_reference?: components["schemas"]["MessageReference"];
@@ -2592,9 +2595,19 @@ export interface components {
             /** Format: date-time */
             timestamp: string;
             tts: boolean;
-            /** @description MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). */
+            /** @description MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). */
             type: number;
             webhook_id?: components["schemas"]["Snowflake"];
+        };
+        /**
+         * MessageCall
+         * @description Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.
+         */
+        MessageCall: {
+            /** Format: date-time */
+            ended_timestamp?: string | null;
+            /** @description IDs of the users who took part in the call. */
+            participants: components["schemas"]["Snowflake"][];
         };
         /**
          * MessageComponent
@@ -2632,7 +2645,7 @@ export interface components {
         };
         /**
          * MessageReference
-         * @description Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
+         * @description Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.
          */
         MessageReference: {
             channel_id?: components["schemas"]["Snowflake"];
