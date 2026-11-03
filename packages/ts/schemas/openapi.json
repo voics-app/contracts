@@ -9014,7 +9014,8 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null."
           },
           "discovery_splash": {
             "type": [
@@ -9096,7 +9097,10 @@
             ]
           },
           "system_channel_flags": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 63,
+            "description": "Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear."
           },
           "rules_channel_id": {
             "anyOf": [
@@ -9127,7 +9131,8 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Banner image hash (CDN path banners/{guild_id}/{hash}), or null."
           },
           "preferred_locale": {
             "type": "string"
@@ -10501,13 +10506,15 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it."
           },
           "splash": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it."
           },
           "description": {
             "type": [
@@ -10542,7 +10549,10 @@
             ]
           },
           "system_channel_flags": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 63,
+            "description": "Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear."
           },
           "rules_channel_id": {
             "anyOf": [
