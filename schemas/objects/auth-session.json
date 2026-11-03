@@ -22,7 +22,7 @@
     },
     "client": {
       "type": "string",
-      "description": "The client that opened the session, derived from its User-Agent (for example `Discordy Desktop`, `Firefox`)."
+      "description": "The client that opened the session, derived from its User-Agent (for example `Desktop app` (the desktop client; clients show it with the brand name), `Firefox`)."
     },
     "os": {
       "type": "string",
