@@ -668,6 +668,12 @@
         "description": "A user was banned with delete_message_seconds; the messages service purges their recent messages in the listed channels. The gateway ignores it and never dispatches it."
       },
       {
+        "name": "SESSION_REVOKE",
+        "payload": "events/session-revoke.json",
+        "topic": "discordy.user.v1",
+        "description": "Login sessions were revoked; the gateway closes the live connections of those sessions and never dispatches it."
+      },
+      {
         "name": "VOICE_QUALITY",
         "payload": "events/voice-quality.json",
         "topic": "discordy.telemetry.v1",

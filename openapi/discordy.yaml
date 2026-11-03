@@ -598,6 +598,63 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /users/@me/sessions:
+    get:
+      operationId: listSessions
+      summary: List the current user's login sessions
+      description: Active (not revoked, not expired) sessions with the client, OS, approximate location and last activity. The session making the request has `current` set.
+      tags:
+        - Users
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/auth-session.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/sessions/logout-all:
+    post:
+      operationId: logoutOtherSessions
+      summary: Log out every other session
+      description: Revokes every session except the current one right away; their access tokens stop working and their live gateway connections are closed.
+      tags:
+        - Users
+      x-discordy-service: api
+      responses:
+        "204":
+          description: No content.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/sessions/{session_id}:
+    delete:
+      operationId: revokeSession
+      summary: Log out one session
+      description: Revokes another session of the current user right away. The current session cannot be revoked here (400 `CANNOT_REVOKE_CURRENT_SESSION`; use `POST /auth/logout`).
+      tags:
+        - Users
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/session_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /users/@me/settings:
     get:
       operationId: getUserSettings
@@ -4073,6 +4130,14 @@ components:
       required: true
       description: Device ID.
       schema: *a1
+    session_id:
+      name: session_id
+      in: path
+      required: true
+      description: Login session ID (UUID).
+      schema:
+        type: string
+        format: uuid
     channel_id:
       name: channel_id
       in: path

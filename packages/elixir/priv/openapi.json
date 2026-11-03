@@ -938,6 +938,93 @@
         }
       }
     },
+    "/users/@me/sessions": {
+      "get": {
+        "operationId": "listSessions",
+        "summary": "List the current user's login sessions",
+        "description": "Active (not revoked, not expired) sessions with the client, OS, approximate location and last activity. The session making the request has `current` set.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthSession"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/sessions/logout-all": {
+      "post": {
+        "operationId": "logoutOtherSessions",
+        "summary": "Log out every other session",
+        "description": "Revokes every session except the current one right away; their access tokens stop working and their live gateway connections are closed.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/sessions/{session_id}": {
+      "delete": {
+        "operationId": "revokeSession",
+        "summary": "Log out one session",
+        "description": "Revokes another session of the current user right away. The current session cannot be revoked here (400 `CANNOT_REVOKE_CURRENT_SESSION`; use `POST /auth/logout`).",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/session_id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/users/@me/settings": {
       "get": {
         "operationId": "getUserSettings",
@@ -6541,6 +6628,16 @@
           "$ref": "#/components/schemas/Snowflake"
         }
       },
+      "session_id": {
+        "name": "session_id",
+        "in": "path",
+        "required": true,
+        "description": "Login session ID (UUID).",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
       "channel_id": {
         "name": "channel_id",
         "in": "path",
@@ -7485,6 +7582,63 @@
           },
           "user": {
             "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "AuthSession": {
+        "title": "AuthSession",
+        "description": "A login session of the current user (one refresh-token family), as listed by GET /users/@me/sessions. Not to be confused with the gateway Session of SESSIONS_REPLACE.",
+        "type": "object",
+        "required": [
+          "id",
+          "client",
+          "os",
+          "device_name",
+          "location",
+          "created_at",
+          "last_used_at",
+          "current"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Session ID; the `sid` claim of its access tokens."
+          },
+          "client": {
+            "type": "string",
+            "description": "The client that opened the session, derived from its User-Agent (for example `Discordy Desktop`, `Firefox`)."
+          },
+          "os": {
+            "type": "string",
+            "description": "Operating system derived from the User-Agent (for example `Windows`), or `Unknown`."
+          },
+          "device_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Name of the registered end-to-end encrypted device bound to the session, if any."
+          },
+          "location": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Approximate location (an ISO 3166-1 country code from the edge), or null when the edge does not provide one."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_used_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the session last logged in or refreshed its tokens."
+          },
+          "current": {
+            "type": "boolean",
+            "description": "Whether this is the session making the request."
           }
         }
       },
