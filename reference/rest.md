@@ -259,18 +259,17 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 
 ### Activity
 
-A user activity.
+A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `name` | `string` |  |
-| `type` | `integer` | ActivityType. |
-| `url?` | `?string` |  |
-| `created_at?` | `integer` |  |
+| `name` | `string` | Required, non-empty, at most 128 characters. |
+| `type` | `integer` | ActivityType, 0..5. At most one activity per presence may be type 4 (custom status). |
+| `url?` | `?string` | At most 512 characters. |
+| `created_at?` | `integer` | Unix milliseconds. |
 | `timestamps?` | `ActivityTimestamps` |  |
-| `application_id?` | `Snowflake` |  |
-| `details?` | `?string` |  |
-| `state?` | `?string` |  |
+| `details?` | `?string` | At most 128 characters. |
+| `state?` | `?string` | At most 128 characters. |
 | `emoji?` | `?ActivityEmoji` |  |
 
 ### ActivityEmoji
@@ -280,7 +279,7 @@ Emoji of a custom status.
 | Field | Type | Description |
 | --- | --- | --- |
 | `name` | `string` |  |
-| `id?` | `Snowflake` |  |
+| `id?` | `Snowflake` | Custom emoji id. |
 | `animated?` | `boolean` |  |
 
 ### ActivityTimestamps

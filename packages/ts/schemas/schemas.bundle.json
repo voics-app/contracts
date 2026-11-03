@@ -60,7 +60,7 @@
     },
     "Activity": {
       "title": "Activity",
-      "description": "A user activity.",
+      "description": "A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.",
       "type": "object",
       "required": [
         "name",
@@ -68,38 +68,48 @@
       ],
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Required, non-empty, at most 128 characters."
         },
         "type": {
           "type": "integer",
-          "description": "ActivityType."
+          "description": "ActivityType, 0..5. At most one activity per presence may be type 4 (custom status).",
+          "minimum": 0,
+          "maximum": 5
         },
         "url": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "At most 512 characters.",
+          "maxLength": 512
         },
         "created_at": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0,
+          "description": "Unix milliseconds."
         },
         "timestamps": {
           "$ref": "#/$defs/ActivityTimestamps"
-        },
-        "application_id": {
-          "$ref": "#/$defs/Snowflake"
         },
         "details": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "maxLength": 128,
+          "description": "At most 128 characters."
         },
         "state": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "maxLength": 128,
+          "description": "At most 128 characters."
         },
         "emoji": {
           "anyOf": [
@@ -122,10 +132,12 @@
       ],
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "maxLength": 128
         },
         "id": {
-          "$ref": "#/$defs/Snowflake"
+          "$ref": "#/$defs/Snowflake",
+          "description": "Custom emoji id."
         },
         "animated": {
           "type": "boolean"
@@ -138,10 +150,12 @@
       "type": "object",
       "properties": {
         "start": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0
         },
         "end": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -1238,6 +1252,29 @@
         "message_id": {
           "description": "Always null.",
           "type": "null"
+        }
+      }
+    },
+    "CallRingPayload": {
+      "title": "CallRingPayload",
+      "description": "Op 26 CALL_RING. Rings the listed members of a DM channel for a call the sender is in.",
+      "type": "object",
+      "required": [
+        "channel_id",
+        "user_ids"
+      ],
+      "properties": {
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "user_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "description": "Users to ring, 1 to 10.",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
         }
       }
     },
@@ -4789,7 +4826,7 @@
     },
     "MediaSinkWantsPayload": {
       "title": "MediaSinkWantsPayload",
-      "description": "Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100.",
+      "description": "Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100. Selects the simulcast layer. Screen-share packets are opt-in: a subscriber receives a publisher's screen (the SSRC announced with `type: screen` in VIDEO) only after listing that SSRC with quality > 0; otherwise the SFU skips the packets. Opting in also makes the streamer's op 40 STREAM_VIEWERS list include the subscriber.",
       "type": "object",
       "additionalProperties": {
         "type": "integer",
@@ -6473,7 +6510,7 @@
     },
     "PresenceUpdatePayload": {
       "title": "PresenceUpdatePayload",
-      "description": "Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY).",
+      "description": "Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY). `activities` are sanitised by the gateway: at most 5 entries and at most one of type 4 (custom status); text fields at most 128 characters, `url` at most 512; unknown fields are dropped. Any violation closes the socket with 4002 DECODE_ERROR.",
       "type": "object",
       "required": [
         "status",
@@ -6494,7 +6531,9 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/Activity"
-          }
+          },
+          "maxItems": 5,
+          "description": "At most 5 activities, at most one with type 4. Violations close the socket with 4002."
         },
         "afk": {
           "type": "boolean"
@@ -7391,6 +7430,37 @@
         }
       }
     },
+    "SfuStreamViewers": {
+      "title": "SfuStreamViewers",
+      "description": "SFU control event: the set of subscribers opted in to a screen share changed. Carries the full viewer list; signalling forwards it to the streamer as voice op 40.",
+      "type": "object",
+      "required": [
+        "evt",
+        "session_id",
+        "ssrc",
+        "viewers"
+      ],
+      "properties": {
+        "evt": {
+          "const": "stream_viewers"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "ssrc": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The streamer's screen SSRC."
+        },
+        "viewers": {
+          "type": "array",
+          "description": "User ids of every opted-in viewer.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "Snowflake": {
       "title": "Snowflake",
       "description": "A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 2026-01-01T00:00:00Z, 10 bits worker, 12 bits sequence).",
@@ -7420,6 +7490,29 @@
         },
         "user_id": {
           "$ref": "#/$defs/Snowflake"
+        }
+      }
+    },
+    "StreamViewersPayload": {
+      "title": "StreamViewersPayload",
+      "description": "Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.",
+      "type": "object",
+      "required": [
+        "ssrc",
+        "user_ids"
+      ],
+      "properties": {
+        "ssrc": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The streamer's screen SSRC."
+        },
+        "user_ids": {
+          "type": "array",
+          "description": "Every current viewer.",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
         }
       }
     },

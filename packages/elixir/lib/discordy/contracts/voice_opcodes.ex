@@ -71,7 +71,7 @@ defmodule Discordy.Contracts.VoiceOpcodes do
   def client_disconnect, do: 13
 
   @doc ~S"""
-  Requested quality (0-100) per SSRC; selects the simulcast layer.
+  Requested quality (0-100) per SSRC; selects the simulcast layer. Screen shares are delivered only after opting in with the screen SSRC at quality > 0.
   """
   @spec media_sink_wants() :: non_neg_integer()
   def media_sink_wants, do: 15
@@ -142,6 +142,12 @@ defmodule Discordy.Contracts.VoiceOpcodes do
   @spec dave_mls_invalid_commit() :: non_neg_integer()
   def dave_mls_invalid_commit, do: 31
 
+  @doc ~S"""
+  Sent to the streamer only: the full list of users watching their screen share, re-sent on every change.
+  """
+  @spec stream_viewers() :: non_neg_integer()
+  def stream_viewers, do: 40
+
   @doc "Every entry of this group, keyed by atom."
   @spec entries() :: %{atom() => non_neg_integer()}
   def entries do
@@ -168,7 +174,8 @@ defmodule Discordy.Contracts.VoiceOpcodes do
       dave_mls_commit_welcome: 28,
       dave_mls_announce_commit: 29,
       dave_mls_welcome: 30,
-      dave_mls_invalid_commit: 31
+      dave_mls_invalid_commit: 31,
+      stream_viewers: 40
     }
   end
 

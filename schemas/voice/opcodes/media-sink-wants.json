@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/media-sink-wants.json",
   "title": "MediaSinkWantsPayload",
-  "description": "Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100.",
+  "description": "Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100. Selects the simulcast layer. Screen-share packets are opt-in: a subscriber receives a publisher's screen (the SSRC announced with `type: screen` in VIDEO) only after listing that SSRC with quality > 0; otherwise the SFU skips the packets. Opting in also makes the streamer's op 40 STREAM_VIEWERS list include the subscriber.",
   "type": "object",
   "additionalProperties": {
     "type": "integer",

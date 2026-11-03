@@ -195,18 +195,22 @@ export interface components {
     schemas: {
         /**
          * Activity
-         * @description A user activity.
+         * @description A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.
          */
         Activity: {
-            application_id?: components["schemas"]["Snowflake"];
+            /** @description Unix milliseconds. */
             created_at?: number;
+            /** @description At most 128 characters. */
             details?: string | null;
             emoji?: components["schemas"]["ActivityEmoji"] | null;
+            /** @description Required, non-empty, at most 128 characters. */
             name: string;
+            /** @description At most 128 characters. */
             state?: string | null;
             timestamps?: components["schemas"]["ActivityTimestamps"];
-            /** @description ActivityType. */
+            /** @description ActivityType, 0..5. At most one activity per presence may be type 4 (custom status). */
             type: number;
+            /** @description At most 512 characters. */
             url?: string | null;
         };
         /**
@@ -215,6 +219,7 @@ export interface components {
          */
         ActivityEmoji: {
             animated?: boolean;
+            /** @description Custom emoji id. */
             id?: components["schemas"]["Snowflake"];
             name: string;
         };
