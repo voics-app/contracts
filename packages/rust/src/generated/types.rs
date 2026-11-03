@@ -100,6 +100,7 @@ pub struct AdminUserPage {
 pub struct AllowedMentions {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub parse: ::std::vec::Vec<AllowedMentionsParseItem>,
+    ///Whether to mention the author of the replied-to message. Defaults to true; false suppresses the reply ping (no mention, no notification).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub replied_user: ::std::option::Option<bool>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
@@ -1183,7 +1184,7 @@ pub struct CreateInviteRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub unique: ::std::option::Option<bool>,
 }
-///POST /channels/{id}/messages body. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
+///POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct CreateMessageRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -1196,6 +1197,7 @@ pub struct CreateMessageRequest {
     pub content: ::std::option::Option<CreateMessageRequestContent>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub embeds: ::std::vec::Vec<Embed>,
+    ///MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]

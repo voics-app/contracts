@@ -855,14 +855,16 @@ pub mod message_type {
     ];
 }
 
-/// Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message.
+/// Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications.
 pub mod message_flags {
-    pub const SUPPRESS_EMBEDS: u8 = 4;
-    pub const EPHEMERAL: u8 = 64;
+    pub const SUPPRESS_EMBEDS: u16 = 4;
+    pub const SUPPRESS_NOTIFICATIONS: u16 = 4096;
+    pub const EPHEMERAL: u16 = 64;
 
     /// Every entry of this group as (name, value).
-    pub const ALL_ENTRIES: &[(&str, u8)] = &[
+    pub const ALL_ENTRIES: &[(&str, u16)] = &[
         ("SUPPRESS_EMBEDS", SUPPRESS_EMBEDS),
+        ("SUPPRESS_NOTIFICATIONS", SUPPRESS_NOTIFICATIONS),
         ("EPHEMERAL", EPHEMERAL),
     ];
 }

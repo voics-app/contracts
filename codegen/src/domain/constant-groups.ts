@@ -64,7 +64,7 @@ export function buildConstantGroups({ permissions, intents, protocol }: Registri
     { name: "Topics", doc: "Redpanda topics.", type: "str", entries: protocol.events.topics.map((t) => ({ name: topicConstantName(t.name), value: t.name, doc: `Key: ${t.key}. Producers: ${t.producers.join(", ")}.` })) },
     { name: "EventTopics", doc: "Default topic of every event-bus event type.", type: "str", entries: busEvents(protocol).map((e) => ({ name: e.name, value: e.topic })) },
     { name: "ErrorCodes", doc: "REST error codes (`code` in the error envelope).", type: "u32", entries: protocol.rest.error_codes.map((e) => ({ name: e.name, value: e.code, doc: `HTTP ${e.http_status}. ${e.description}` })) },
-    ...Object.entries(protocol.enums).map(([name, entry]) => ({ name, doc: entry.description, type: "u8" as const, entries: enumEntries(entry.values) })),
+    ...Object.entries(protocol.enums).map(([name, entry]) => ({ name, doc: entry.description, type: (entry.values.some((v) => v.value > 255) ? "u16" : "u8") as ConstantType, entries: enumEntries(entry.values) })),
     { name: "DeliveryModeStrictness", doc: "Delivery-mode strictness; the effective DM mode is the strictest participant setting.", type: "u8", entries: protocol.delivery_modes.map((m) => ({ name: upper(m.name), value: m.strictness })) },
     { name: "DeliveryModeLimits", doc: "Delivery-mode membership limits.", type: "mixed", entries: scalarEntries(protocol.delivery_mode_limits) },
     { name: "SnowflakeLayout", doc: "Snowflake layout and worker ranges.", type: "mixed", entries: [...scalarEntries(protocol.snowflake), ...snowflakeRanges] },
