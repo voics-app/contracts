@@ -241,6 +241,12 @@
         "name": "DISALLOWED_INTENTS",
         "description": "A privileged intent was requested that the application is not approved for.",
         "reconnect": false
+      },
+      {
+        "code": 4015,
+        "name": "SERVER_OVERLOADED",
+        "description": "The gateway is short of memory and refuses new connections. Reconnect with backoff.",
+        "reconnect": true
       }
     ],
     "dispatch_events": [

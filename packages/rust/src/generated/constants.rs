@@ -329,6 +329,8 @@ pub mod gateway_close_codes {
     pub const INVALID_INTENTS: u16 = 4013;
     /// A privileged intent was requested that the application is not approved for. Reconnect: no.
     pub const DISALLOWED_INTENTS: u16 = 4014;
+    /// The gateway is short of memory and refuses new connections. Reconnect with backoff. Reconnect: yes.
+    pub const SERVER_OVERLOADED: u16 = 4015;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u16)] = &[
@@ -343,6 +345,7 @@ pub mod gateway_close_codes {
         ("SESSION_TIMED_OUT", SESSION_TIMED_OUT),
         ("INVALID_INTENTS", INVALID_INTENTS),
         ("DISALLOWED_INTENTS", DISALLOWED_INTENTS),
+        ("SERVER_OVERLOADED", SERVER_OVERLOADED),
     ];
 }
 
