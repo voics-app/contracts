@@ -6760,6 +6760,39 @@
         }
       }
     },
+    "PruneRequest": {
+      "title": "PruneRequest",
+      "description": "POST /guilds/{id}/prune body.",
+      "type": "object",
+      "properties": {
+        "days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30,
+          "default": 7
+        },
+        "include_roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
+        }
+      }
+    },
+    "PruneResult": {
+      "title": "PruneResult",
+      "description": "GET /guilds/{id}/prune (members that would be removed) and POST /guilds/{id}/prune (members removed).",
+      "type": "object",
+      "required": [
+        "pruned"
+      ],
+      "properties": {
+        "pruned": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
     "PublicDevice": {
       "title": "PublicDevice",
       "description": "A device's public identity, as listed by GET /users/{id}/devices.",

@@ -991,6 +991,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/prune": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Count members a prune would remove
+         * @description Discordy extra (dry run). Counts the members who joined more than `days` ago, have no login session used within that window and hold no role besides `include_roles`. The owner, bots and members the caller does not outrank are never counted. Needs KICK_MEMBERS, or ADMINISTRATOR when the guild's `prune_admin_only` is true.
+         */
+        get: operations["getGuildPruneCount"];
+        put?: never;
+        /**
+         * Prune inactive members
+         * @description Discordy extra. Removes the members a `GET` of the same parameters counts and writes one MEMBER_PRUNE audit log entry with `delete_member_days` and `members_removed`. Same permission rule as the dry run.
+         */
+        post: operations["pruneGuildMembers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/roles": {
         parameters: {
             query?: never;
@@ -3106,6 +3130,22 @@ export interface components {
             id: components["schemas"]["Snowflake"];
             /** @description OverwriteType: 0 role, 1 member. */
             type: number;
+        };
+        /**
+         * PruneRequest
+         * @description POST /guilds/{id}/prune body.
+         */
+        PruneRequest: {
+            /** @default 7 */
+            days: number;
+            include_roles?: components["schemas"]["Snowflake"][];
+        };
+        /**
+         * PruneResult
+         * @description GET /guilds/{id}/prune (members that would be removed) and POST /guilds/{id}/prune (members removed).
+         */
+        PruneResult: {
+            pruned: number;
         };
         /**
          * PublicDevice
@@ -6283,6 +6323,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MessageSearchResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildPruneCount: {
+        parameters: {
+            query?: {
+                /** @description Days of inactivity (1-30). */
+                days?: number;
+                /** @description Comma separated role IDs that do not protect their members. */
+                include_roles?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PruneResult"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    pruneGuildMembers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PruneRequest"];
+            };
+        };
+        responses: {
+            /** @description Members removed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PruneResult"];
                 };
             };
             400: components["responses"]["BadRequest"];

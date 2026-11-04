@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/prune-request.json",
+  "title": "PruneRequest",
+  "description": "POST /guilds/{id}/prune body.",
+  "type": "object",
+  "properties": {
+    "days": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 30,
+      "default": 7
+    },
+    "include_roles": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      }
+    }
+  }
+}
