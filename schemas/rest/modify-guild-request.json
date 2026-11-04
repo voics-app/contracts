@@ -102,6 +102,10 @@
     },
     "voice_region": {
       "type": "string"
+    },
+    "prune_admin_only": {
+      "type": "boolean",
+      "description": "Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD."
     }
   }
 }

@@ -1027,6 +1027,26 @@ export interface paths {
         patch: operations["modifyGuildRole"];
         trace?: never;
     };
+    "/guilds/{guild_id}/roles/{role_id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Duplicate a role
+         * @description Discordy extra. Creates a copy named "<name> (copy)" with the same permissions, colour, hoist, mentionable flag and icon, positioned directly below the source. Needs MANAGE_ROLES, a source role below the caller's highest role (the owner is exempt) and permissions the caller holds. The @everyone role cannot be duplicated. Writes a ROLE_CREATE audit log entry.
+         */
+        post: operations["duplicateGuildRole"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/templates": {
         parameters: {
             query?: never;
@@ -2461,6 +2481,8 @@ export interface components {
             owner_id: components["schemas"]["Snowflake"];
             permissions?: components["schemas"]["PermissionBitset"];
             preferred_locale: string;
+            /** @description Discordy: when true, only administrators may prune inactive members. */
+            prune_admin_only?: boolean;
             public_updates_channel_id?: components["schemas"]["Snowflake"] | null;
             roles: components["schemas"]["Role"][];
             rules_channel_id?: components["schemas"]["Snowflake"] | null;
@@ -2917,6 +2939,8 @@ export interface components {
             name?: string;
             owner_id?: components["schemas"]["Snowflake"];
             preferred_locale?: string;
+            /** @description Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD. */
+            prune_admin_only?: boolean;
             public_updates_channel_id?: components["schemas"]["Snowflake"] | null;
             rules_channel_id?: components["schemas"]["Snowflake"] | null;
             /** @description Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it. */
@@ -5543,6 +5567,8 @@ export interface operations {
                 before?: components["schemas"]["Snowflake"];
                 /** @description Max number of results (1-100). */
                 limit?: number;
+                /** @description Discordy extra. Only entries about this user, including a member who was kicked or banned and is no longer in the guild. The response `users` still carry their summary. */
+                target_id?: components["schemas"]["Snowflake"];
                 /** @description Filter by acting user. */
                 user_id?: components["schemas"]["Snowflake"];
             };
@@ -6374,6 +6400,36 @@ export interface operations {
         responses: {
             /** @description Success. */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Role"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    duplicateGuildRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                /** @description Role ID. */
+                role_id: components["parameters"]["role_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The new role. */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };

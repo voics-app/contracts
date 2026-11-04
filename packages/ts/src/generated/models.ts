@@ -1598,6 +1598,10 @@ export interface Guild {
    * Discordy: voice region ID used to allocate voice nodes.
    */
   voice_region: string;
+  /**
+   * Discordy: when true, only administrators may prune inactive members.
+   */
+  prune_admin_only?: boolean;
 }
 /**
  * A guild role.
@@ -1734,6 +1738,10 @@ export interface GuildFull {
    * Discordy: voice region ID used to allocate voice nodes.
    */
   voice_region: string;
+  /**
+   * Discordy: when true, only administrators may prune inactive members.
+   */
+  prune_admin_only?: boolean;
   joined_at?: string;
   large?: boolean;
   unavailable?: boolean;
@@ -2669,6 +2677,10 @@ export interface ModifyGuildRequest {
   default_message_notifications?: number;
   explicit_content_filter?: number;
   voice_region?: string;
+  /**
+   * Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD.
+   */
+  prune_admin_only?: boolean;
 }
 /**
  * PATCH /guilds/{guild_id}/templates/{code} body.

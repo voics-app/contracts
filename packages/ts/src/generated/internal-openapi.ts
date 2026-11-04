@@ -613,6 +613,8 @@ export interface components {
             permissions?: components["schemas"]["PermissionBitset"];
             preferred_locale: string;
             presences?: components["schemas"]["PresenceUpdateEvent"][];
+            /** @description Discordy: when true, only administrators may prune inactive members. */
+            prune_admin_only?: boolean;
             public_updates_channel_id?: components["schemas"]["Snowflake"] | null;
             roles: components["schemas"]["Role"][];
             rules_channel_id?: components["schemas"]["Snowflake"] | null;

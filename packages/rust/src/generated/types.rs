@@ -2670,6 +2670,9 @@ pub struct Guild {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub permissions: ::std::option::Option<PermissionBitset>,
     pub preferred_locale: ::std::string::String,
+    ///Discordy: when true, only administrators may prune inactive members.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub prune_admin_only: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub public_updates_channel_id: ::std::option::Option<Snowflake>,
     pub roles: ::std::vec::Vec<Role>,
@@ -2891,6 +2894,9 @@ pub struct GuildFull {
     pub preferred_locale: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub presences: ::std::vec::Vec<PresenceUpdateEvent>,
+    ///Discordy: when true, only administrators may prune inactive members.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub prune_admin_only: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub public_updates_channel_id: ::std::option::Option<Snowflake>,
     pub roles: ::std::vec::Vec<Role>,
@@ -4487,6 +4493,9 @@ pub struct ModifyGuildRequest {
     pub owner_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub preferred_locale: ::std::option::Option<::std::string::String>,
+    ///Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub prune_admin_only: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub public_updates_channel_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
