@@ -185,6 +185,10 @@
     "voice_region": {
       "type": "string",
       "description": "Discordy: voice region ID used to allocate voice nodes."
+    },
+    "prune_admin_only": {
+      "type": "boolean",
+      "description": "Discordy: when true, only administrators may prune inactive members."
     }
   }
 }

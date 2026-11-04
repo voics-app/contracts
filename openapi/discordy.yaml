@@ -1297,6 +1297,39 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/roles/{role_id}/duplicate:
+    post:
+      operationId: duplicateGuildRole
+      summary: Duplicate a role
+      description: >-
+        Discordy extra. Creates a copy named "<name> (copy)" with the same permissions, colour,
+        hoist, mentionable flag and icon, positioned directly below the source. Needs
+        MANAGE_ROLES, a source role below the caller's highest role (the owner is exempt) and
+        permissions the caller holds. The @everyone role cannot be duplicated. Writes a
+        ROLE_CREATE audit log entry.
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/role_id"
+      responses:
+        "201":
+          description: The new role.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/role.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /guilds/{guild_id}/members:
     get:
       operationId: listGuildMembers
@@ -1605,6 +1638,13 @@ paths:
           in: query
           required: false
           description: Filter by acting user.
+          schema: *a1
+        - name: target_id
+          in: query
+          required: false
+          description: >-
+            Discordy extra. Only entries about this user, including a member who was kicked or
+            banned and is no longer in the guild. The response `users` still carry their summary.
           schema: *a1
         - name: action_type
           in: query

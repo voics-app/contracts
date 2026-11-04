@@ -122,6 +122,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/guilds/{guild_id}/roles` | api | `RoleRequest` | `Role` | Create a role |
 | `PATCH` | `/guilds/{guild_id}/roles/{role_id}` | api | `RoleRequest` | `Role` | Modify a role |
 | `DELETE` | `/guilds/{guild_id}/roles/{role_id}` | api | — | 204 No Content | Delete a role |
+| `POST` | `/guilds/{guild_id}/roles/{role_id}/duplicate` | api | — | `Role` | Duplicate a role |
 | `GET` | `/guilds/{guild_id}/members` | api | — | `array of GuildMember` | List guild members |
 | `GET` | `/guilds/{guild_id}/members/{user_id}` | api | — | `GuildMember` | Get a guild member |
 | `PATCH` | `/guilds/{guild_id}/members/{user_id}` | api | `ModifyMemberRequest` | `GuildMember` | Modify a member (nick, roles, mute, deafen, move, timeout) |
@@ -781,6 +782,7 @@ A guild (server). `voice_region` is a Discordy extra.
 | `approximate_member_count?` | `integer` |  |
 | `approximate_presence_count?` | `integer` |  |
 | `voice_region` | `string` | Discordy: voice region ID used to allocate voice nodes. |
+| `prune_admin_only?` | `boolean` | Discordy: when true, only administrators may prune inactive members. |
 
 ### GuildApplicationCommandPermissions
 
@@ -854,6 +856,7 @@ A guild with its full state (GUILD_CREATE payload and the internal guild state e
 | `approximate_member_count?` | `integer` |  |
 | `approximate_presence_count?` | `integer` |  |
 | `voice_region` | `string` | Discordy: voice region ID used to allocate voice nodes. |
+| `prune_admin_only?` | `boolean` | Discordy: when true, only administrators may prune inactive members. |
 | `joined_at?` | `string (date-time)` |  |
 | `large?` | `boolean` |  |
 | `unavailable?` | `boolean` |  |
@@ -2045,6 +2048,7 @@ PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
 | `default_message_notifications?` | `integer` |  |
 | `explicit_content_filter?` | `integer` |  |
 | `voice_region?` | `string` |  |
+| `prune_admin_only?` | `boolean` | Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD. |
 
 ### ModifyGuildTemplateRequest
 

@@ -3434,6 +3434,10 @@
         "voice_region": {
           "type": "string",
           "description": "Discordy: voice region ID used to allocate voice nodes."
+        },
+        "prune_admin_only": {
+          "type": "boolean",
+          "description": "Discordy: when true, only administrators may prune inactive members."
         }
       }
     },
@@ -3787,6 +3791,10 @@
         "voice_region": {
           "type": "string",
           "description": "Discordy: voice region ID used to allocate voice nodes."
+        },
+        "prune_admin_only": {
+          "type": "boolean",
+          "description": "Discordy: when true, only administrators may prune inactive members."
         },
         "joined_at": {
           "type": "string",
@@ -6215,6 +6223,10 @@
         },
         "voice_region": {
           "type": "string"
+        },
+        "prune_admin_only": {
+          "type": "boolean",
+          "description": "Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD."
         }
       }
     },
