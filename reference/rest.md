@@ -1409,6 +1409,7 @@ A Discordy user (Discord v10 User object).
 | `discriminator` | `string` | Always "0" (unique usernames). |
 | `global_name` | `?string` |  |
 | `avatar` | `?string` | Avatar hash. |
+| `bio?` | `?string` | Profile About me text, at most 300 characters. |
 | `bot?` | `boolean` |  |
 | `system?` | `boolean` |  |
 | `mfa_enabled?` | `boolean` |  |
@@ -1998,6 +1999,7 @@ PATCH /users/@me body. `username`, `email` and `new_password` require the curren
 | `username?` | `string` |  |
 | `global_name?` | `?string` |  |
 | `avatar?` | `?string` | Data URI image. |
+| `bio?` | `?string` | About me text; null or blank clears it. Trimmed, at most 300 characters. |
 | `banner?` | `?string` |  |
 | `accent_color?` | `?integer` |  |
 | `password?` | `string` | Current password; required with username, email or new_password. |

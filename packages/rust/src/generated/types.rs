@@ -4209,6 +4209,9 @@ pub struct ModifyCurrentUserRequest {
     pub avatar: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
+    ///About me text; null or blank clears it. Trimmed, at most 300 characters.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bio: ::std::option::Option<ModifyCurrentUserRequestBio>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub email: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -4220,6 +4223,56 @@ pub struct ModifyCurrentUserRequest {
     pub password: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub username: ::std::option::Option<ModifyCurrentUserRequestUsername>,
+}
+///About me text; null or blank clears it. Trimmed, at most 300 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyCurrentUserRequestBio(::std::string::String);
+impl ::std::ops::Deref for ModifyCurrentUserRequestBio {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyCurrentUserRequestBio> for ::std::string::String {
+    fn from(value: ModifyCurrentUserRequestBio) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyCurrentUserRequestBio {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyCurrentUserRequestBio {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyCurrentUserRequestBio {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyCurrentUserRequestBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///`ModifyCurrentUserRequestNewPassword`
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -6283,6 +6336,9 @@ pub struct User {
     pub avatar: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
+    ///Profile About me text, at most 300 characters.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bio: ::std::option::Option<UserBio>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub bot: ::std::option::Option<bool>,
     ///Always "0" (unique usernames).
@@ -6306,6 +6362,56 @@ pub struct User {
     pub username: ::std::string::String,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub verified: ::std::option::Option<bool>,
+}
+///Profile About me text, at most 300 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserBio(::std::string::String);
+impl ::std::ops::Deref for UserBio {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserBio> for ::std::string::String {
+    fn from(value: UserBio) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserBio {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserBio {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserBio {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///A private note the current user wrote about another user. Visible only to its author.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

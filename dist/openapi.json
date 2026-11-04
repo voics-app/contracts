@@ -10651,6 +10651,14 @@
             ],
             "description": "Data URI image."
           },
+          "bio": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 300,
+            "description": "About me text; null or blank clears it. Trimmed, at most 300 characters."
+          },
           "banner": {
             "type": [
               "string",
@@ -12081,6 +12089,14 @@
               "null"
             ],
             "description": "Avatar hash."
+          },
+          "bio": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 300,
+            "description": "Profile About me text, at most 300 characters."
           },
           "bot": {
             "type": "boolean"
