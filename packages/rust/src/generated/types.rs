@@ -5206,6 +5206,27 @@ impl ::std::convert::TryFrom<::std::string::String> for PresenceUpdatePayloadSta
         value.parse()
     }
 }
+///POST /guilds/{id}/prune body.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PruneRequest {
+    #[serde(default = "defaults::default_nzu64::<::std::num::NonZeroU64, 7>")]
+    pub days: ::std::num::NonZeroU64,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub include_roles: ::std::vec::Vec<Snowflake>,
+}
+impl ::std::default::Default for PruneRequest {
+    fn default() -> Self {
+        Self {
+            days: defaults::default_nzu64::<::std::num::NonZeroU64, 7>(),
+            include_roles: Default::default(),
+        }
+    }
+}
+///GET /guilds/{id}/prune (members that would be removed) and POST /guilds/{id}/prune (members removed).
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PruneResult {
+    pub pruned: u64,
+}
 ///A device's public identity, as listed by GET /users/{id}/devices.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct PublicDevice {
@@ -7492,6 +7513,16 @@ pub struct Webhook {
     pub url: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user: ::std::option::Option<User>,
+}
+/// Generation of default values for serde.
+pub mod defaults {
+    pub(super) fn default_nzu64<T, const V: u64>() -> T
+    where
+        T: ::std::convert::TryFrom<::std::num::NonZeroU64>,
+        <T as ::std::convert::TryFrom<::std::num::NonZeroU64>>::Error: ::std::fmt::Debug,
+    {
+        T::try_from(::std::num::NonZeroU64::try_from(V).unwrap()).unwrap()
+    }
 }
 /// Error types.
 pub mod error {

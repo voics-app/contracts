@@ -2904,6 +2904,19 @@ export interface PasswordConfirmationRequest {
   password: string;
 }
 /**
+ * POST /guilds/{id}/prune body.
+ */
+export interface PruneRequest {
+  days?: number;
+  include_roles?: Snowflake[];
+}
+/**
+ * GET /guilds/{id}/prune (members that would be removed) and POST /guilds/{id}/prune (members removed).
+ */
+export interface PruneResult {
+  pruned: number;
+}
+/**
  * A device's public identity, as listed by GET /users/{id}/devices.
  */
 export interface PublicDevice {

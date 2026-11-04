@@ -129,6 +129,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/guilds/{guild_id}/members/{user_id}` | api | — | 204 No Content | Kick a member |
 | `PUT` | `/guilds/{guild_id}/members/{user_id}/roles/{role_id}` | api | — | 204 No Content | Add a role to a member |
 | `DELETE` | `/guilds/{guild_id}/members/{user_id}/roles/{role_id}` | api | — | 204 No Content | Remove a role from a member |
+| `GET` | `/guilds/{guild_id}/prune` | api | — | `PruneResult` | Count members a prune would remove |
+| `POST` | `/guilds/{guild_id}/prune` | api | `PruneRequest` | `PruneResult` | Prune inactive members |
 | `GET` | `/guilds/{guild_id}/bans` | api | — | `array of Ban` | List bans |
 | `GET` | `/guilds/{guild_id}/bans/{user_id}` | api | — | `Ban` | Get a ban |
 | `PUT` | `/guilds/{guild_id}/bans/{user_id}` | api | `CreateBanRequest` | 204 No Content | Ban a user |
@@ -2154,6 +2156,23 @@ Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enabl
 | Field | Type | Description |
 | --- | --- | --- |
 | `password` | `string` |  |
+
+### PruneRequest
+
+POST /guilds/{id}/prune body.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `days?` | `integer` |  |
+| `include_roles?` | `array of Snowflake` |  |
+
+### PruneResult
+
+GET /guilds/{id}/prune (members that would be removed) and POST /guilds/{id}/prune (members removed).
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `pruned` | `integer` |  |
 
 ### PublicDevice
 

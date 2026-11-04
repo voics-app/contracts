@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/prune-result.json",
+  "title": "PruneResult",
+  "description": "GET /guilds/{id}/prune (members that would be removed) and POST /guilds/{id}/prune (members removed).",
+  "type": "object",
+  "required": [
+    "pruned"
+  ],
+  "properties": {
+    "pruned": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}
