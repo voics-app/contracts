@@ -4712,6 +4712,16 @@ pub struct ModifyUserSettingsRequest {
     pub locale: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub message_display_compact: ::std::option::Option<bool>,
+    ///Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.
+    #[serde(
+        default,
+        skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+    )]
+    pub pinned_channel_ids:
+        ::std::collections::HashMap<::std::string::String, ::std::vec::Vec<Snowflake>>,
+    ///DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub pinned_dm_channel_ids: ::std::vec::Vec<Snowflake>,
     ///Merged key by key into the stored preferences.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub preferences: ::std::option::Option<UserPreferences>,
@@ -6832,6 +6842,11 @@ pub struct UserSettings {
     pub guild_positions: ::std::vec::Vec<Snowflake>,
     pub locale: ::std::string::String,
     pub message_display_compact: bool,
+    ///Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.
+    pub pinned_channel_ids:
+        ::std::collections::HashMap<::std::string::String, ::std::vec::Vec<Snowflake>>,
+    ///DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.
+    pub pinned_dm_channel_ids: ::std::vec::Vec<Snowflake>,
     ///Synced client preferences (appearance, chat, notification sounds, emoji). Sparse.
     pub preferences: UserPreferences,
     pub status: UserSettingsStatus,

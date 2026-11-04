@@ -1150,6 +1150,12 @@ export interface components {
             guild_positions: components["schemas"]["Snowflake"][];
             locale: string;
             message_display_compact: boolean;
+            /** @description Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices. */
+            pinned_channel_ids: {
+                [key: string]: components["schemas"]["Snowflake"][];
+            };
+            /** @description DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices. */
+            pinned_dm_channel_ids: components["schemas"]["Snowflake"][];
             /** @description Synced client preferences (appearance, chat, notification sounds, emoji). Sparse. */
             preferences: components["schemas"]["UserPreferences"];
             /** @enum {string} */
