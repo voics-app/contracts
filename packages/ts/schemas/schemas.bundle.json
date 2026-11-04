@@ -6353,6 +6353,24 @@
           },
           "maxItems": 200
         },
+        "pinned_dm_channel_ids": {
+          "type": "array",
+          "description": "DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
+        },
+        "pinned_channel_ids": {
+          "type": "object",
+          "description": "Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Snowflake"
+            }
+          },
+          "maxProperties": 200
+        },
         "preferences": {
           "$ref": "#/$defs/UserPreferences",
           "description": "Merged key by key into the stored preferences."
@@ -8543,6 +8561,8 @@
         "message_display_compact",
         "guild_folders",
         "guild_positions",
+        "pinned_dm_channel_ids",
+        "pinned_channel_ids",
         "preferences"
       ],
       "properties": {
@@ -8603,6 +8623,24 @@
             "$ref": "#/$defs/GuildFolder"
           },
           "maxItems": 200
+        },
+        "pinned_dm_channel_ids": {
+          "type": "array",
+          "description": "DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
+        },
+        "pinned_channel_ids": {
+          "type": "object",
+          "description": "Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Snowflake"
+            }
+          },
+          "maxProperties": 200
         },
         "guild_positions": {
           "type": "array",

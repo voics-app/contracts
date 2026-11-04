@@ -2720,6 +2720,16 @@ export interface ModifyUserSettingsRequest {
    * @maxItems 200
    */
   guild_positions?: Snowflake[];
+  /**
+   * DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.
+   */
+  pinned_dm_channel_ids?: Snowflake[];
+  /**
+   * Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.
+   */
+  pinned_channel_ids?: {
+    [k: string]: Snowflake[] | undefined;
+  };
   preferences?: UserPreferences;
 }
 /**
@@ -2972,6 +2982,16 @@ export interface UserSettings {
    * @maxItems 200
    */
   guild_folders: GuildFolder[];
+  /**
+   * DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.
+   */
+  pinned_dm_channel_ids: Snowflake[];
+  /**
+   * Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.
+   */
+  pinned_channel_ids: {
+    [k: string]: Snowflake[] | undefined;
+  };
   /**
    * Flat server order (legacy mirror of guild_folders).
    *
