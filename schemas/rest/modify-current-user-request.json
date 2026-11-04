@@ -23,6 +23,14 @@
       ],
       "description": "Data URI image."
     },
+    "bio": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 300,
+      "description": "About me text; null or blank clears it. Trimmed, at most 300 characters."
+    },
     "banner": {
       "type": [
         "string",

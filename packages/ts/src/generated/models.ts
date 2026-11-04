@@ -191,6 +191,10 @@ export interface User {
    * Avatar hash.
    */
   avatar: string | null;
+  /**
+   * Profile About me text, at most 300 characters.
+   */
+  bio?: string | null;
   bot?: boolean;
   system?: boolean;
   mfa_enabled?: boolean;
@@ -2593,6 +2597,10 @@ export interface ModifyCurrentUserRequest {
    * Data URI image.
    */
   avatar?: string | null;
+  /**
+   * About me text; null or blank clears it. Trimmed, at most 300 characters.
+   */
+  bio?: string | null;
   banner?: string | null;
   accent_color?: number | null;
   /**

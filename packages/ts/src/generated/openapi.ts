@@ -2895,6 +2895,8 @@ export interface components {
             /** @description Data URI image. */
             avatar?: string | null;
             banner?: string | null;
+            /** @description About me text; null or blank clears it. Trimmed, at most 300 characters. */
+            bio?: string | null;
             /** Format: email */
             email?: string;
             global_name?: string | null;
@@ -3424,6 +3426,8 @@ export interface components {
             /** @description Avatar hash. */
             avatar: string | null;
             banner?: string | null;
+            /** @description Profile About me text, at most 300 characters. */
+            bio?: string | null;
             bot?: boolean;
             /** @description Always "0" (unique usernames). */
             discriminator: string;

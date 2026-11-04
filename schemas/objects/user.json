@@ -35,6 +35,14 @@
       ],
       "description": "Avatar hash."
     },
+    "bio": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 300,
+      "description": "Profile About me text, at most 300 characters."
+    },
     "bot": {
       "type": "boolean"
     },

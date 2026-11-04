@@ -1046,6 +1046,8 @@ export interface components {
             /** @description Avatar hash. */
             avatar: string | null;
             banner?: string | null;
+            /** @description Profile About me text, at most 300 characters. */
+            bio?: string | null;
             bot?: boolean;
             /** @description Always "0" (unique usernames). */
             discriminator: string;
