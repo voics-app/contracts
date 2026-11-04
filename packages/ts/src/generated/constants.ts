@@ -227,6 +227,8 @@ export const GatewayCloseCodes = {
   INVALID_INTENTS: 4013,
   /** A privileged intent was requested that the application is not approved for. Reconnect: no. */
   DISALLOWED_INTENTS: 4014,
+  /** The gateway is short of memory and refuses new connections. Reconnect with backoff. Reconnect: yes. */
+  SERVER_OVERLOADED: 4015,
 } as const;
 export type GatewayCloseCodesKey = keyof typeof GatewayCloseCodes;
 

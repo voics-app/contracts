@@ -62,7 +62,8 @@
       { "code": 4008, "name": "RATE_LIMITED", "description": "More than 120 payloads were sent within 60 seconds.", "reconnect": true },
       { "code": 4009, "name": "SESSION_TIMED_OUT", "description": "The session timed out.", "reconnect": true },
       { "code": 4013, "name": "INVALID_INTENTS", "description": "An invalid intent bitfield was sent.", "reconnect": false },
-      { "code": 4014, "name": "DISALLOWED_INTENTS", "description": "A privileged intent was requested that the application is not approved for.", "reconnect": false }
+      { "code": 4014, "name": "DISALLOWED_INTENTS", "description": "A privileged intent was requested that the application is not approved for.", "reconnect": false },
+      { "code": 4015, "name": "SERVER_OVERLOADED", "description": "The gateway is short of memory and refuses new connections. Reconnect with backoff.", "reconnect": true }
     ],
     "dispatch_events": [
       { "name": "READY", "payload": "gateway/dispatch/ready.json", "source": "gateway", "topic": null, "description": "Initial state after IDENTIFY." },
