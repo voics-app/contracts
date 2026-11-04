@@ -2378,7 +2378,7 @@
       "get": {
         "operationId": "getGuildPruneCount",
         "summary": "Count members a prune would remove",
-        "description": "Discordy extra (dry run). Counts the members who joined more than `days` ago, have no login session used within that window and hold no role besides `include_roles`. The owner is never counted. Needs KICK_MEMBERS, or ADMINISTRATOR when the guild's `prune_admin_only` is true.",
+        "description": "Discordy extra (dry run). Counts the members who joined more than `days` ago, have no login session used within that window and hold no role besides `include_roles`. The owner, bots and members the caller does not outrank are never counted. Needs KICK_MEMBERS, or ADMINISTRATOR when the guild's `prune_admin_only` is true.",
         "tags": [
           "Guilds"
         ],
