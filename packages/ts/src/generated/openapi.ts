@@ -1207,7 +1207,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Resolve a server template by code (built-in or shared) */
+        /**
+         * Resolve a server template by code (built-in or shared)
+         * @description Public preview of the saved snapshot. Possession of the code grants read access; creating a guild still requires authentication.
+         */
         get: operations["getGuildTemplate"];
         put?: never;
         /** Create a guild from a template */
@@ -2755,7 +2758,7 @@ export interface components {
             creator: components["schemas"]["User"] | null;
             creator_id: components["schemas"]["Snowflake"] | null;
             description: string | null;
-            /** @description Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`). */
+            /** @description Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`). */
             is_dirty: boolean;
             name: string;
             serialized_source_guild: components["schemas"]["TemplateSourceGuild"];

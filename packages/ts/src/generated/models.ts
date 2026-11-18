@@ -1990,7 +1990,7 @@ export interface GuildTemplate {
   source_guild_id: Snowflake | null;
   serialized_source_guild: TemplateSourceGuild;
   /**
-   * Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
+   * Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
    */
   is_dirty: boolean;
 }

@@ -3226,7 +3226,7 @@ pub struct GuildTemplate {
     pub creator_id: ::std::option::Option<Snowflake>,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub description: ::std::option::Option<GuildTemplateDescription>,
-    ///Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
+    ///Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
     pub is_dirty: bool,
     pub name: GuildTemplateName,
     pub serialized_source_guild: TemplateSourceGuild,

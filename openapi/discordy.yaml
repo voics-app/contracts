@@ -2511,6 +2511,8 @@ paths:
     get:
       operationId: getGuildTemplate
       summary: Resolve a server template by code (built-in or shared)
+      description: Public preview of the saved snapshot. Possession of the code grants read access; creating a guild still requires authentication.
+      security: []
       tags:
         - Guilds
       x-discordy-service: api
