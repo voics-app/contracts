@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/scheduled-message.json",
+  "title": "ScheduledMessage",
+  "description": "Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "channel_id",
+    "author_id",
+    "revision",
+    "status",
+    "scheduled_at",
+    "created_at",
+    "updated_at",
+    "message",
+    "message_id",
+    "failure"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./scheduled-message-id.json"
+    },
+    "channel_id": {
+      "$ref": "./snowflake.json"
+    },
+    "author_id": {
+      "$ref": "./snowflake.json"
+    },
+    "revision": {
+      "$ref": "./scheduled-message-revision.json"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "dispatching",
+        "sent",
+        "failed",
+        "cancelled",
+        "delivery_unknown"
+      ]
+    },
+    "scheduled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "message": {
+      "anyOf": [
+        {
+          "$ref": "./scheduled-message-draft.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "message_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "failure": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "access_denied",
+        "channel_missing",
+        "delivery_mode_changed",
+        "invalid_message",
+        "dependency_unavailable",
+        "delivery_unknown",
+        null
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "pending"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "message": {
+            "$ref": "./scheduled-message-draft.json"
+          },
+          "message_id": {
+            "type": "null"
+          },
+          "failure": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "dispatching"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "message": {
+            "$ref": "./scheduled-message-draft.json"
+          },
+          "message_id": {
+            "$ref": "./snowflake.json"
+          },
+          "failure": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "sent"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "message": {
+            "type": "null"
+          },
+          "message_id": {
+            "$ref": "./snowflake.json"
+          },
+          "failure": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "failed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "message": {
+            "type": "null"
+          },
+          "message_id": {
+            "type": "null"
+          },
+          "failure": {
+            "type": "string",
+            "enum": [
+              "access_denied",
+              "channel_missing",
+              "delivery_mode_changed",
+              "invalid_message",
+              "dependency_unavailable"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "cancelled"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "message": {
+            "type": "null"
+          },
+          "message_id": {
+            "type": "null"
+          },
+          "failure": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "delivery_unknown"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "message": {
+            "type": "null"
+          },
+          "message_id": {
+            "$ref": "./snowflake.json"
+          },
+          "failure": {
+            "const": "delivery_unknown"
+          }
+        }
+      }
+    }
+  ]
+}

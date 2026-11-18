@@ -50,6 +50,12 @@ Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT ==
 
 ## Consuming
 
+Generated DTOs describe field shapes, not every validation rule. The published JSON
+Schemas and OpenAPI retain conditional status/certification constraints. Typify cannot
+generate these `if`/`then`/`else` validations, so only its private type-generation input
+omits them. Validate wire payloads against the schemas and enforce domain rules at the
+service boundary; successful Rust deserialization alone is not schema validation.
+
 Read-state certification is additive: `GET /internal/v1/users/{user_id}/read-states`
 keeps its array shape and adds `read_state_version` strings plus header
 `X-Read-State-Versioned: 1`. Gateway subscribes before fetching for READY and
@@ -60,6 +66,14 @@ the existing behavior. Private decrypted counts remain local. Lost publication
 converges on a newer snapshot or successful reconnect; failed accounting before
 commit is not repaired. Fence unversioned writers during rollout, and invalidate
 gateway sessions/resume buffers after database restore before fresh READY.
+
+Scheduled-message contracts propose user-only Standard text/TTS/reply/silent
+drafts under `/channels/{channel_id}/messages/scheduled`. A random UUID request
+key identifies one intent, and revisions fence edits/cancellation against dispatch.
+The scheduler must recheck current permissions/mode at send time. Ambiguous sends
+become `delivery_unknown`; this contract does not permit automatic redispatch or
+claim exactly-once event delivery. No scheduled-state gateway event is introduced.
+Schemas and fixtures prepare messages#61; they do not implement or enable a scheduler.
 
 Voice discovery supports optional `probe_required` rollout, leased `VoiceNodeHealth`
 observations fenced to the node registration's etcd lease, and persistent node/region

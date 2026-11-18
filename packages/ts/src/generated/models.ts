@@ -14,6 +14,14 @@ export type PermissionBitset = string;
  */
 export type DeliveryMode = "standard" | "ephemeral" | "p2p";
 /**
+ * Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.
+ */
+export type ScheduledMessageId = string;
+/**
+ * Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.
+ */
+export type ScheduledMessageRevision = number;
+/**
  * Op 1 HEARTBEAT: the last sequence number received, or null.
  */
 export type HeartbeatPayload = number | null;
@@ -70,6 +78,14 @@ export type NotificationRecipientPage =
       recipients: [];
       next_after: null;
     };
+/**
+ * READY: the internal ready state plus session details.
+ */
+export type ReadyEvent = ReadyEvent1;
+/**
+ * Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
+ */
+export type ScheduledMessage = ScheduledMessage1;
 /**
  * SESSIONS_REPLACE dispatch: every active session of the user.
  */
@@ -1282,6 +1298,36 @@ export interface SelectOption {
   default?: boolean;
 }
 /**
+ * POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.
+ */
+export interface CreateScheduledMessageRequest {
+  request_id: ScheduledMessageId;
+  scheduled_at: string;
+  message: ScheduledMessageDraft;
+}
+/**
+ * Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.
+ */
+export interface ScheduledMessageDraft {
+  content: string;
+  /**
+   * Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch.
+   */
+  tts?: boolean;
+  /**
+   * Same-channel reply target, revalidated at dispatch.
+   */
+  reply_to?: Snowflake | null;
+  /**
+   * Whether a reply mentions its target author; ignored when reply_to is absent.
+   */
+  replied_user?: boolean;
+  /**
+   * Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics.
+   */
+  silent?: boolean;
+}
+/**
  * POST /channels/{id}/threads body. Forum channels require `message`.
  */
 export interface CreateThreadRequest {
@@ -1579,6 +1625,14 @@ export interface EditOverwriteRequest {
    * OverwriteType.
    */
   type: number;
+}
+/**
+ * PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.
+ */
+export interface EditScheduledMessageRequest {
+  expected_revision: ScheduledMessageRevision;
+  scheduled_at?: string;
+  message?: ScheduledMessageDraft;
 }
 /**
  * PATCH /webhooks/{app_id}/{token}/messages/@original body.
@@ -3340,10 +3394,7 @@ export interface ReadyApplication {
   id: Snowflake;
   flags: number;
 }
-/**
- * READY: the internal ready state plus session details.
- */
-export interface ReadyEvent {
+export interface ReadyEvent1 {
   user: User;
   guilds: GuildFull[];
   private_channels: Channel[];
@@ -3519,6 +3570,36 @@ export interface RoleRequest {
    * Only honoured on PATCH.
    */
   position?: number;
+}
+export interface ScheduledMessage1 {
+  id: ScheduledMessageId;
+  channel_id: Snowflake;
+  author_id: Snowflake;
+  revision: ScheduledMessageRevision;
+  status: "pending" | "dispatching" | "sent" | "failed" | "cancelled" | "delivery_unknown";
+  scheduled_at: string;
+  created_at: string;
+  updated_at: string;
+  message: ScheduledMessageDraft | null;
+  message_id: Snowflake | null;
+  failure:
+    | "access_denied"
+    | "channel_missing"
+    | "delivery_mode_changed"
+    | "invalid_message"
+    | "dependency_unavailable"
+    | "delivery_unknown"
+    | null;
+}
+/**
+ * Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.
+ */
+export interface ScheduledMessageList {
+  /**
+   * @maxItems 100
+   */
+  items: ScheduledMessage[];
+  next_after: ScheduledMessageId | null;
 }
 /**
  * Client ICE/DTLS parameters.

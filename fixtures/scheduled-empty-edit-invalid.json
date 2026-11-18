@@ -1,0 +1,7 @@
+{
+  "schema": "rest/edit-scheduled-message-request.json",
+  "valid": false,
+  "data": {
+    "expected_revision": 2
+  }
+}

@@ -538,6 +538,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/messages/scheduled": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List your scheduled messages in a channel
+         * @description Author-private UUID-ordered page of active/unknown schedules and terminal jobs from the last seven days. Remains available after send permission or membership loss, without granting channel history access. Follow every non-null next_after, including after an empty filtered page. This additive proposal requires scheduler implementation before use.
+         */
+        get: operations["listScheduledMessages"];
+        put?: never;
+        /**
+         * Schedule a Standard text message
+         * @description Fresh VIEW_CHANNEL and send permission are required now and after the dispatch claim, including SEND_TTS_MESSAGES when requested. Private delivery returns 409/50160. A new instant must be 1 minute to 30 days ahead of the server clock. At most 100 active intents per author and 25 per channel are allowed, including preparing/dispatching reservations. Persist the exact request and random request_id before sending; identical author/key requests return the current job even after edits or dispatch, without rechecking original time/current access. Another original body or channel conflicts. One durable dispatch claim permits one send attempt; ambiguous outcomes become delivery_unknown without automatic redispatch. Bots, webhooks and application tokens are excluded.
+         */
+        post: operations["createScheduledMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/messages/scheduled/{schedule_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read one of your scheduled messages
+         * @description Only the author can read it. Another author or channel returns 404. Remains available after membership/send access loss. Terminal records retain no draft text, even after their seven-day list visibility expires.
+         */
+        get: operations["getScheduledMessage"];
+        put?: never;
+        post?: never;
+        /**
+         * Cancel your pending scheduled message
+         * @description Author-only; works after membership/send access loss. CAS with expected_revision competes with dispatch, so a successful cancellation guarantees no first dispatch claim. An already-cancelled job returns its current state regardless of the supplied revision. Other non-pending or stale states conflict. This does not delete a sent message.
+         */
+        delete: operations["cancelScheduledMessage"];
+        options?: never;
+        head?: never;
+        /**
+         * Edit your pending scheduled message
+         * @description Requires current Standard send access and a matching expected_revision. At least one field replacement is required; message replaces the complete draft. A new time must be 1 minute to 30 days ahead. Already-dispatching and terminal schedules conflict. Refetch a stale revision instead of overwriting another device's edit.
+         */
+        patch: operations["editScheduledMessage"];
+        trace?: never;
+    };
     "/channels/{channel_id}/messages/search": {
         parameters: {
             query?: never;
@@ -2384,6 +2436,16 @@ export interface components {
             tts: boolean;
         };
         /**
+         * CreateScheduledMessageRequest
+         * @description POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.
+         */
+        CreateScheduledMessageRequest: {
+            message: components["schemas"]["ScheduledMessageDraft"];
+            request_id: components["schemas"]["ScheduledMessageId"];
+            /** Format: date-time */
+            scheduled_at: string;
+        };
+        /**
          * CreateThreadRequest
          * @description POST /channels/{id}/threads body. Forum channels require `message`.
          */
@@ -2504,6 +2566,16 @@ export interface components {
             deny?: components["schemas"]["PermissionBitset"] | null;
             /** @description OverwriteType. */
             type: number;
+        };
+        /**
+         * EditScheduledMessageRequest
+         * @description PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.
+         */
+        EditScheduledMessageRequest: {
+            expected_revision: components["schemas"]["ScheduledMessageRevision"];
+            message?: components["schemas"]["ScheduledMessageDraft"];
+            /** Format: date-time */
+            scheduled_at?: string;
         };
         /**
          * EditWebhookMessageRequest
@@ -3572,6 +3644,71 @@ export interface components {
             integration_id?: components["schemas"]["Snowflake"];
         };
         /**
+         * ScheduledMessage
+         * @description Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
+         */
+        ScheduledMessage: {
+            author_id: components["schemas"]["Snowflake"];
+            channel_id: components["schemas"]["Snowflake"];
+            /** Format: date-time */
+            created_at: string;
+            /** @enum {string|null} */
+            failure: "access_denied" | "channel_missing" | "delivery_mode_changed" | "invalid_message" | "dependency_unavailable" | "delivery_unknown" | null;
+            id: components["schemas"]["ScheduledMessageId"];
+            message: components["schemas"]["ScheduledMessageDraft"] | null;
+            message_id: components["schemas"]["Snowflake"] | null;
+            revision: components["schemas"]["ScheduledMessageRevision"];
+            /** Format: date-time */
+            scheduled_at: string;
+            /** @enum {string} */
+            status: "pending" | "dispatching" | "sent" | "failed" | "cancelled" | "delivery_unknown";
+            /** Format: date-time */
+            updated_at: string;
+        } & (unknown & unknown & unknown & unknown & unknown & unknown);
+        /**
+         * ScheduledMessageDraft
+         * @description Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.
+         */
+        ScheduledMessageDraft: {
+            content: string;
+            /**
+             * @description Whether a reply mentions its target author; ignored when reply_to is absent.
+             * @default true
+             */
+            replied_user: boolean;
+            /** @description Same-channel reply target, revalidated at dispatch. */
+            reply_to?: components["schemas"]["Snowflake"] | null;
+            /**
+             * @description Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics.
+             * @default false
+             */
+            silent: boolean;
+            /**
+             * @description Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch.
+             * @default false
+             */
+            tts: boolean;
+        };
+        /**
+         * ScheduledMessageId
+         * Format: uuid
+         * @description Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.
+         */
+        ScheduledMessageId: string;
+        /**
+         * ScheduledMessageList
+         * @description Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.
+         */
+        ScheduledMessageList: {
+            items: components["schemas"]["ScheduledMessage"][];
+            next_after: components["schemas"]["ScheduledMessageId"] | null;
+        };
+        /**
+         * ScheduledMessageRevision
+         * @description Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.
+         */
+        ScheduledMessageRevision: number;
+        /**
          * SelectOption
          * @description An option of a string select menu.
          */
@@ -3992,6 +4129,33 @@ export interface components {
                 "application/json": components["schemas"]["Error"];
             };
         };
+        /** @description Private delivery mode (50160), or active-intent quota exhaustion/stale revision/non-pending mutation/conflicting request key (50035 with a field error). No mutation occurred. */
+        ScheduledMessageConflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Current author-private scheduled-message state. */
+        ScheduledMessageResult: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ScheduledMessage"];
+            };
+        };
+        /** @description Temporary dependency failure. Retry the exact request/key after a lost or failed creation response; never substitute a new request_id automatically. */
+        ScheduledMessageUnavailable: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
         /** @description Missing or invalid token (code 40001). */
         Unauthorized: {
             headers: {
@@ -4029,6 +4193,8 @@ export interface components {
         overwrite_id: components["schemas"]["Snowflake"];
         /** @description Role ID. */
         role_id: components["schemas"]["Snowflake"];
+        /** @description Author-private schedule UUID, equal to its original request_id. */
+        schedule_id: components["schemas"]["ScheduledMessageId"];
         /** @description Login session ID (UUID). */
         session_id: string;
         /** @description User ID. */
@@ -5389,6 +5555,143 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    listScheduledMessages: {
+        parameters: {
+            query?: {
+                /** @description Exclusive last examined schedule UUID from next_after. */
+                after?: components["schemas"]["ScheduledMessageId"];
+                /** @description Maximum rows examined in this page. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Your schedules only. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduledMessageList"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["ScheduledMessageUnavailable"];
+        };
+    };
+    createScheduledMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateScheduledMessageRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["ScheduledMessageResult"];
+            201: components["responses"]["ScheduledMessageResult"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["ScheduledMessageConflict"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["ScheduledMessageUnavailable"];
+        };
+    };
+    getScheduledMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Author-private schedule UUID, equal to its original request_id. */
+                schedule_id: components["parameters"]["schedule_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["ScheduledMessageResult"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["ScheduledMessageUnavailable"];
+        };
+    };
+    cancelScheduledMessage: {
+        parameters: {
+            query: {
+                /** @description Revision observed before cancellation. */
+                expected_revision: components["schemas"]["ScheduledMessageRevision"];
+            };
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Author-private schedule UUID, equal to its original request_id. */
+                schedule_id: components["parameters"]["schedule_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["ScheduledMessageResult"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["ScheduledMessageConflict"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["ScheduledMessageUnavailable"];
+        };
+    };
+    editScheduledMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Author-private schedule UUID, equal to its original request_id. */
+                schedule_id: components["parameters"]["schedule_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditScheduledMessageRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["ScheduledMessageResult"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["ScheduledMessageConflict"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["ScheduledMessageUnavailable"];
         };
     };
     searchChannelMessages: {

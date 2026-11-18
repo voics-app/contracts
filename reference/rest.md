@@ -206,6 +206,11 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/channels/{channel_id}/messages` | messages | — | `array of Message` | Get channel message history |
 | `POST` | `/channels/{channel_id}/messages` | messages | `CreateMessageRequest` | `Message` | Send a standard-mode message |
+| `GET` | `/channels/{channel_id}/messages/scheduled` | messages | — | `ScheduledMessageList` | List your scheduled messages in a channel |
+| `POST` | `/channels/{channel_id}/messages/scheduled` | messages | `CreateScheduledMessageRequest` | 200 No Content | Schedule a Standard text message |
+| `GET` | `/channels/{channel_id}/messages/scheduled/{schedule_id}` | messages | — | 200 No Content | Read one of your scheduled messages |
+| `PATCH` | `/channels/{channel_id}/messages/scheduled/{schedule_id}` | messages | `EditScheduledMessageRequest` | 200 No Content | Edit your pending scheduled message |
+| `DELETE` | `/channels/{channel_id}/messages/scheduled/{schedule_id}` | messages | — | 200 No Content | Cancel your pending scheduled message |
 | `GET` | `/guilds/{guild_id}/messages/search` | messages | — | `MessageSearchResponse` | Search guild messages |
 | `GET` | `/channels/{channel_id}/messages/search` | messages | — | `MessageSearchResponse` | Search channel messages |
 | `GET` | `/channels/{channel_id}/messages/{message_id}` | messages | — | `Message` | Get a message |
@@ -1298,6 +1303,48 @@ Tags of a managed role.
 | `bot_id?` | `Snowflake` |  |
 | `integration_id?` | `Snowflake` |  |
 
+### ScheduledMessage
+
+Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `ScheduledMessageId` |  |
+| `channel_id` | `Snowflake` |  |
+| `author_id` | `Snowflake` |  |
+| `revision` | `ScheduledMessageRevision` |  |
+| `status` | `"pending" or "dispatching" or "sent" or "failed" or "cancelled" or "delivery_unknown"` |  |
+| `scheduled_at` | `string (date-time)` |  |
+| `created_at` | `string (date-time)` |  |
+| `updated_at` | `string (date-time)` |  |
+| `message` | `?ScheduledMessageDraft` |  |
+| `message_id` | `?Snowflake` |  |
+| `failure` | `"access_denied" or "channel_missing" or "delivery_mode_changed" or "invalid_message" or "dependency_unavailable" or "delivery_unknown" or null` |  |
+
+### ScheduledMessageDraft
+
+Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `content` | `string` |  |
+| `tts?` | `boolean` | Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch. |
+| `reply_to?` | `?Snowflake` | Same-channel reply target, revalidated at dispatch. |
+| `replied_user?` | `boolean` | Whether a reply mentions its target author; ignored when reply_to is absent. |
+| `silent?` | `boolean` | Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics. |
+
+### ScheduledMessageId
+
+Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.
+
+Type: `string (uuid)`
+
+### ScheduledMessageRevision
+
+Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.
+
+Type: `integer`
+
 ### SelectOption
 
 An option of a string select menu.
@@ -1844,6 +1891,16 @@ POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies w
 | `attachments?` | `array of AttachmentReference` |  |
 | `flags?` | `integer` | MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. |
 
+### CreateScheduledMessageRequest
+
+POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `request_id` | `ScheduledMessageId` |  |
+| `scheduled_at` | `string (date-time)` |  |
+| `message` | `ScheduledMessageDraft` |  |
+
 ### CreateThreadRequest
 
 POST /channels/{id}/threads body. Forum channels require `message`.
@@ -1908,6 +1965,16 @@ PUT /channels/{id}/permissions/{overwrite_id} body.
 | `allow?` | `?PermissionBitset` |  |
 | `deny?` | `?PermissionBitset` |  |
 | `type` | `integer` | OverwriteType. |
+
+### EditScheduledMessageRequest
+
+PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `expected_revision` | `ScheduledMessageRevision` |  |
+| `scheduled_at?` | `string (date-time)` |  |
+| `message?` | `ScheduledMessageDraft` |  |
 
 ### EditWebhookMessageRequest
 
@@ -2385,6 +2452,15 @@ POST /guilds/{id}/roles and PATCH /guilds/{id}/roles/{rid} body.
 | `unicode_emoji?` | `?string` |  |
 | `mentionable?` | `boolean` |  |
 | `position?` | `integer` | Only honoured on PATCH. |
+
+### ScheduledMessageList
+
+Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `items` | `array of ScheduledMessage` |  |
+| `next_after` | `?ScheduledMessageId` |  |
 
 ### SetDeliveryModeRequest
 
