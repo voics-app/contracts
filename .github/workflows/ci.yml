@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 24
           # The VM runner keeps its pnpm store. Uploading that shared store stalled
-          # a completed validation job for over 20 minutes; hosted runners still cache.
+          # a job after all validations passed; hosted runners still cache.
           cache: ${{ vars.CI_RUNNER != 'vm-runner' && 'pnpm' || '' }}
       - uses: dtolnay/rust-toolchain@stable
         with:
