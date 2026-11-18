@@ -3222,7 +3222,7 @@ export interface ReadState {
   read_state_version?: ReadStateVersion;
 }
 /**
- * Certified snapshot fetched during resume, after subscription and before RESUMED. Merge each channel by version with replayed updates; an absent channel is not a deletion. A fresh READY, not this event, starts a new version history.
+ * Certified snapshot fetched during resume, after subscription and before RESUMED. Merge each channel by version with replayed updates; an absent channel is not a deletion. An equal version may restore the known authoritative snapshot over local optimistic state, but conflicting equal-version data and older versions are ignored. A fresh READY, not this event, starts a new version history.
  */
 export interface ReadStateSyncEvent {
   read_state_versioned: true;
