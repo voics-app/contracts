@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/scheduled-message-revision.json",
+  "title": "ScheduledMessageRevision",
+  "description": "Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.",
+  "type": "integer",
+  "minimum": 1,
+  "maximum": 2147483647
+}

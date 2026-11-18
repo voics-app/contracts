@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/scheduled-message-draft.json",
+  "title": "ScheduledMessageDraft",
+  "description": "Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "content"
+  ],
+  "properties": {
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "pattern": "\\S"
+    },
+    "tts": {
+      "type": "boolean",
+      "default": false,
+      "description": "Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch."
+    },
+    "reply_to": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Same-channel reply target, revalidated at dispatch."
+    },
+    "replied_user": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether a reply mentions its target author; ignored when reply_to is absent."
+    },
+    "silent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics."
+    }
+  }
+}

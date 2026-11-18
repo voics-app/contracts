@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/edit-scheduled-message-request.json",
+  "title": "EditScheduledMessageRequest",
+  "description": "PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "expected_revision"
+  ],
+  "minProperties": 2,
+  "properties": {
+    "expected_revision": {
+      "$ref": "../objects/scheduled-message-revision.json"
+    },
+    "scheduled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "message": {
+      "$ref": "../objects/scheduled-message-draft.json"
+    }
+  }
+}

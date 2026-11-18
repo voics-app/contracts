@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/scheduled-message-list.json",
+  "title": "ScheduledMessageList",
+  "description": "Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "items",
+    "next_after"
+  ],
+  "properties": {
+    "items": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "$ref": "../objects/scheduled-message.json"
+      }
+    },
+    "next_after": {
+      "anyOf": [
+        {
+          "$ref": "../objects/scheduled-message-id.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

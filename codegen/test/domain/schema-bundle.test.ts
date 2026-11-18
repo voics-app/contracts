@@ -66,6 +66,21 @@ describe("bundleSchemas", () => {
     expect(() => bundleSchemas([broken])).toThrow(/objects\/missing.json/);
   });
 
+  it("keeps outer fields and requirements when flattening object extensions", () => {
+    const { bundle } = bundleSchemas([{
+      path: "objects/outer.json",
+      schema: {
+        title: "Outer",
+        type: "object",
+        required: ["id"],
+        properties: { id: { type: "string" } },
+        allOf: [{ type: "object", required: ["name"], properties: { name: { type: "string" } } }],
+      },
+    }]);
+    expect(bundle.$defs.Outer?.required).toEqual(["id", "name"]);
+    expect(bundle.$defs.Outer?.properties).toEqual({ id: { type: "string" }, name: { type: "string" } });
+  });
+
   it("rejects duplicate and missing titles", () => {
     expect(() => bundleSchemas([snowflake, { path: "objects/other.json", schema: { title: "Snowflake" } }])).toThrow(/Duplicate title/);
     expect(() => bundleSchemas([{ path: "objects/untitled.json", schema: { type: "string" } }])).toThrow(/title/);
