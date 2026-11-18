@@ -262,6 +262,30 @@ export interface InstallParams {
   permissions: PermissionBitset;
 }
 /**
+ * One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.
+ */
+export interface ApplicationAuthorization {
+  id: Snowflake;
+  application: Application;
+  guild: AuthorizationGuild;
+  /**
+   * @minItems 1
+   * @maxItems 2
+   */
+  scopes: ["bot" | "applications.commands"] | ["bot" | "applications.commands", "bot" | "applications.commands"];
+  permissions: PermissionBitset;
+  created_at: string;
+  authorized_at: string;
+}
+/**
+ * The server of a recorded bot authorization.
+ */
+export interface AuthorizationGuild {
+  id: Snowflake;
+  name: string;
+  icon: string | null;
+}
+/**
  * A slash, user or message command.
  */
 export interface ApplicationCommand {
@@ -619,8 +643,14 @@ export interface Webhook {
   user?: User;
   name: string | null;
   avatar: string | null;
+  /**
+   * Execution credential returned only by create and reset-token; never stored in list/get/edit responses.
+   */
   token?: string;
   application_id: Snowflake | null;
+  /**
+   * Execution URL returned only by create and reset-token. Treat as a secret.
+   */
   url?: string;
 }
 /**
@@ -1922,6 +1952,14 @@ export interface PartialUser {
   bot?: boolean;
 }
 /**
+ * An application whose bot is currently installed in this server.
+ */
+export interface GuildIntegration {
+  application: Application;
+  permissions: PermissionBitset;
+  installed_at: string;
+}
+/**
  * GUILD_MEMBER_ADD / GUILD_MEMBER_UPDATE dispatch: a guild member plus guild_id.
  */
 export interface GuildMemberEvent {
@@ -3048,7 +3086,7 @@ export interface NotificationRecipient {
   suppress_roles: boolean;
 }
 /**
- * GET /oauth2/authorize response: what the bot invite screen shows.
+ * Bot-install consent information. Only bot and applications.commands are supported.
  */
 export interface OAuth2AuthorizeInfo {
   application: Application;
@@ -3056,7 +3094,11 @@ export interface OAuth2AuthorizeInfo {
   user: User;
   guilds: OAuth2Guild[];
   permissions: PermissionBitset;
-  scopes: string[];
+  /**
+   * @minItems 1
+   * @maxItems 2
+   */
+  scopes: ["bot" | "applications.commands"] | ["bot" | "applications.commands", "bot" | "applications.commands"];
 }
 /**
  * A guild the user can add the bot to.
@@ -3066,16 +3108,20 @@ export interface OAuth2Guild {
   name: string;
   icon: string | null;
   permissions: PermissionBitset;
+  /**
+   * Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation.
+   */
+  bot_permissions: PermissionBitset | null;
 }
 /**
- * POST /oauth2/authorize body: add a bot to a guild.
+ * Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.
  */
 export interface OAuth2AuthorizeRequest {
   client_id: Snowflake;
   guild_id: Snowflake;
   permissions: PermissionBitset;
   /**
-   * Space-separated scopes, e.g. "bot applications.commands".
+   * Space-separated bot and optionally applications.commands. bot is required.
    */
   scope: string;
 }
@@ -3084,7 +3130,7 @@ export interface OAuth2AuthorizeRequest {
  */
 export interface OAuth2AuthorizeResponse {
   /**
-   * Where the client should navigate next.
+   * Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI.
    */
   location: string;
 }

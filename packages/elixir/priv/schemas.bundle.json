@@ -414,6 +414,56 @@
         }
       }
     },
+    "ApplicationAuthorization": {
+      "title": "ApplicationAuthorization",
+      "description": "One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.",
+      "type": "object",
+      "required": [
+        "id",
+        "application",
+        "guild",
+        "scopes",
+        "permissions",
+        "created_at",
+        "authorized_at"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "application": {
+          "$ref": "#/$defs/Application"
+        },
+        "guild": {
+          "$ref": "#/$defs/AuthorizationGuild"
+        },
+        "scopes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "bot",
+              "applications.commands"
+            ]
+          }
+        },
+        "permissions": {
+          "$ref": "#/$defs/PermissionBitset",
+          "description": "Effective server permissions acknowledged at the last authorization, not a live permission grant."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "authorized_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "ApplicationCommand": {
       "title": "ApplicationCommand",
       "description": "A slash, user or message command.",
@@ -1145,6 +1195,30 @@
         "current": {
           "type": "boolean",
           "description": "Whether this is the session making the request."
+        }
+      }
+    },
+    "AuthorizationGuild": {
+      "title": "AuthorizationGuild",
+      "description": "The server of a recorded bot authorization.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "icon"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "name": {
+          "type": "string"
+        },
+        "icon": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     },
@@ -3900,6 +3974,29 @@
           "items": {
             "$ref": "#/$defs/VoiceState"
           }
+        }
+      }
+    },
+    "GuildIntegration": {
+      "title": "GuildIntegration",
+      "description": "An application whose bot is currently installed in this server.",
+      "type": "object",
+      "required": [
+        "application",
+        "permissions",
+        "installed_at"
+      ],
+      "properties": {
+        "application": {
+          "$ref": "#/$defs/Application"
+        },
+        "permissions": {
+          "$ref": "#/$defs/PermissionBitset",
+          "description": "Current effective server permissions, including the everyone role."
+        },
+        "installed_at": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -6800,7 +6897,7 @@
     },
     "OAuth2AuthorizeInfo": {
       "title": "OAuth2AuthorizeInfo",
-      "description": "GET /oauth2/authorize response: what the bot invite screen shows.",
+      "description": "Bot-install consent information. Only bot and applications.commands are supported.",
       "type": "object",
       "required": [
         "application",
@@ -6831,15 +6928,22 @@
         },
         "scopes": {
           "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true,
           "items": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "bot",
+              "applications.commands"
+            ]
           }
         }
       }
     },
     "OAuth2AuthorizeRequest": {
       "title": "OAuth2AuthorizeRequest",
-      "description": "POST /oauth2/authorize body: add a bot to a guild.",
+      "description": "Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.",
       "type": "object",
       "required": [
         "client_id",
@@ -6859,9 +6963,10 @@
         },
         "scope": {
           "type": "string",
-          "description": "Space-separated scopes, e.g. \"bot applications.commands\"."
+          "description": "Space-separated bot and optionally applications.commands. bot is required."
         }
-      }
+      },
+      "additionalProperties": false
     },
     "OAuth2AuthorizeResponse": {
       "title": "OAuth2AuthorizeResponse",
@@ -6873,7 +6978,7 @@
       "properties": {
         "location": {
           "type": "string",
-          "description": "Where the client should navigate next."
+          "description": "Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI."
         }
       }
     },
@@ -6885,7 +6990,8 @@
         "id",
         "name",
         "icon",
-        "permissions"
+        "permissions",
+        "bot_permissions"
       ],
       "properties": {
         "id": {
@@ -6902,6 +7008,17 @@
         },
         "permissions": {
           "$ref": "#/$defs/PermissionBitset"
+        },
+        "bot_permissions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PermissionBitset"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation."
         }
       }
     },
@@ -10106,7 +10223,8 @@
           ]
         },
         "token": {
-          "type": "string"
+          "type": "string",
+          "description": "Execution credential returned only by create and reset-token; never stored in list/get/edit responses."
         },
         "application_id": {
           "anyOf": [
@@ -10119,7 +10237,8 @@
           ]
         },
         "url": {
-          "type": "string"
+          "type": "string",
+          "description": "Execution URL returned only by create and reset-token. Treat as a secret."
         }
       }
     }

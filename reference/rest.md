@@ -164,6 +164,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PUT` | `/guilds/{guild_id}/templates/{code}` | api | — | `GuildTemplate` | Re-snapshot a template from the guild (requires MANAGE_GUILD) |
 | `PATCH` | `/guilds/{guild_id}/templates/{code}` | api | `ModifyGuildTemplateRequest` | `GuildTemplate` | Modify a template's name or description (requires MANAGE_GUILD) |
 | `DELETE` | `/guilds/{guild_id}/templates/{code}` | api | — | 204 No Content | Delete a template (requires MANAGE_GUILD) |
+| `GET` | `/guilds/{guild_id}/integrations` | api | — | `array of GuildIntegration` | List installed application bots |
+| `DELETE` | `/guilds/{guild_id}/integrations/{application_id}` | api | — | 204 No Content | Remove an installed application bot |
 
 ### Webhooks
 
@@ -172,6 +174,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}/webhooks` | api | — | `array of Webhook` | List a guild's webhooks |
 | `POST` | `/channels/{channel_id}/webhooks` | api | `CreateWebhookRequest` | `Webhook` | Create a webhook |
 | `POST` | `/webhooks/{webhook_id}/{webhook_token}` | api | `ExecuteWebhookRequest` | `Message` | Execute a webhook or send an interaction follow-up |
+| `POST` | `/webhooks/{webhook_id}/reset-token` | api | — | `Webhook` | Regenerate an incoming webhook execution credential |
 | `GET` | `/webhooks/{webhook_id}` | api | — | `Webhook` | Get a webhook |
 | `PATCH` | `/webhooks/{webhook_id}` | api | `ModifyWebhookRequest` | `Webhook` | Modify a webhook |
 | `DELETE` | `/webhooks/{webhook_id}` | api | — | 204 No Content | Delete a webhook |
@@ -261,8 +264,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
+| `GET` | `/oauth2/tokens` | api | — | `array of ApplicationAuthorization` | List the current user's recorded bot consents |
+| `DELETE` | `/oauth2/tokens/{authorization_id}` | api | — | 204 No Content | Revoke the current user's recorded consent |
 | `GET` | `/oauth2/authorize` | api | — | `OAuth2AuthorizeInfo` | Get bot invite information |
-| `POST` | `/oauth2/authorize` | api | `OAuth2AuthorizeRequest` | `OAuth2AuthorizeResponse` | Add a bot to a guild |
+| `POST` | `/oauth2/authorize` | api | `OAuth2AuthorizeRequest` | `OAuth2AuthorizeResponse` | Install a bot and record explicit consent |
 
 ### Voice
 
@@ -339,6 +344,20 @@ An application (bot).
 | `redirect_uris?` | `array of string` |  |
 | `tags?` | `array of string` |  |
 | `custom_install_url?` | `string` |  |
+
+### ApplicationAuthorization
+
+One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `application` | `Application` |  |
+| `guild` | `AuthorizationGuild` |  |
+| `scopes` | `array of "bot" or "applications.commands"` |  |
+| `permissions` | `PermissionBitset` | Effective server permissions acknowledged at the last authorization, not a live permission grant. |
+| `created_at` | `string (date-time)` |  |
+| `authorized_at` | `string (date-time)` |  |
 
 ### ApplicationCommand
 
@@ -489,6 +508,16 @@ A login session of the current user (one refresh-token family), as listed by GET
 | `created_at` | `string (date-time)` |  |
 | `last_used_at` | `string (date-time)` | When the session last logged in or refreshed its tokens. |
 | `current` | `boolean` | Whether this is the session making the request. |
+
+### AuthorizationGuild
+
+The server of a recorded bot authorization.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `icon` | `?string` |  |
 
 ### Ban
 
@@ -881,6 +910,16 @@ A guild with its full state (GUILD_CREATE payload and the internal guild state e
 | `threads` | `array of Channel` |  |
 | `presences?` | `array of PresenceUpdateEvent` |  |
 | `voice_states` | `array of VoiceState` |  |
+
+### GuildIntegration
+
+An application whose bot is currently installed in this server.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `application` | `Application` |  |
+| `permissions` | `PermissionBitset` | Current effective server permissions, including the everyone role. |
+| `installed_at` | `string (date-time)` |  |
 
 ### GuildMember
 
@@ -1547,9 +1586,9 @@ An incoming or application webhook.
 | `user?` | `User` |  |
 | `name` | `?string` |  |
 | `avatar` | `?string` |  |
-| `token?` | `string` |  |
+| `token?` | `string` | Execution credential returned only by create and reset-token; never stored in list/get/edit responses. |
 | `application_id` | `?Snowflake` |  |
-| `url?` | `string` |  |
+| `url?` | `string` | Execution URL returned only by create and reset-token. Treat as a secret. |
 
 ## Request and response bodies
 
@@ -2153,7 +2192,7 @@ PATCH /webhooks/{id} body.
 
 ### OAuth2AuthorizeInfo
 
-GET /oauth2/authorize response: what the bot invite screen shows.
+Bot-install consent information. Only bot and applications.commands are supported.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -2162,18 +2201,18 @@ GET /oauth2/authorize response: what the bot invite screen shows.
 | `user` | `User` |  |
 | `guilds` | `array of OAuth2Guild` |  |
 | `permissions` | `PermissionBitset` | Permissions requested by the invite URL. |
-| `scopes` | `array of string` |  |
+| `scopes` | `array of "bot" or "applications.commands"` |  |
 
 ### OAuth2AuthorizeRequest
 
-POST /oauth2/authorize body: add a bot to a guild.
+Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.
 
 | Field | Type | Description |
 | --- | --- | --- |
 | `client_id` | `Snowflake` |  |
 | `guild_id` | `Snowflake` |  |
 | `permissions` | `PermissionBitset` |  |
-| `scope` | `string` | Space-separated scopes, e.g. "bot applications.commands". |
+| `scope` | `string` | Space-separated bot and optionally applications.commands. bot is required. |
 
 ### OAuth2AuthorizeResponse
 
@@ -2181,7 +2220,7 @@ POST /oauth2/authorize response.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `location` | `string` | Where the client should navigate next. |
+| `location` | `string` | Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI. |
 
 ### OAuth2Guild
 
@@ -2193,6 +2232,7 @@ A guild the user can add the bot to.
 | `name` | `string` |  |
 | `icon` | `?string` |  |
 | `permissions` | `PermissionBitset` |  |
+| `bot_permissions` | `?PermissionBitset` | Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation. |
 
 ### Passkey
 

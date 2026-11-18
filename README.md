@@ -50,6 +50,13 @@ Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT ==
 
 ## Consuming
 
+`GET /oauth2/tokens` lists personal recorded bot-install consent, distinct from
+owned applications. Revoking a record does not uninstall the shared bot. Server
+managers remove actual installations through `/guilds/{id}/integrations`; this
+clears all associated consent. Only `bot` and `applications.commands` are supported.
+Webhook create/reset-token returns an ephemeral credential once with `no-store`;
+ordinary metadata edits and reads never expose or modify the execution credential.
+
 `GET /internal/v1/channels/{id}/notification-recipients?author_id=...` defines a
 token-independent directory for mention accounting. `limit` (1–200, default100)
 bounds candidates examined. Continue with `after=next_after` until null, including

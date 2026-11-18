@@ -934,6 +934,46 @@ export interface paths {
         patch: operations["modifyGuildEmoji"];
         trace?: never;
     };
+    "/guilds/{guild_id}/integrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List installed application bots
+         * @description Requires MANAGE_GUILD; returns actual current server installations, not owned applications or arbitrary bot accounts.
+         */
+        get: operations["listGuildIntegrations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/integrations/{application_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove an installed application bot
+         * @description Requires MANAGE_GUILD, KICK_MEMBERS and role hierarchy. Removes membership, managed bot roles and all consents for this installation. Leaves other servers and bot credentials unchanged.
+         */
+        delete: operations["removeGuildIntegration"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/invites": {
         parameters: {
             query?: never;
@@ -1267,9 +1307,52 @@ export interface paths {
         /** Get bot invite information */
         get: operations["getAuthorizeInfo"];
         put?: never;
-        /** Add a bot to a guild */
+        /**
+         * Install a bot and record explicit consent
+         * @description Supported scopes are bot and optionally applications.commands. Existing installations retain their current permissions; consent records those effective permissions.
+         */
         post: operations["authorizeBot"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/oauth2/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the current user's recorded bot consents
+         * @description Records explicit consent only; contains no access credentials. Application ownership is separate.
+         */
+        get: operations["listApplicationAuthorizations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/oauth2/tokens/{authorization_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke the current user's recorded consent
+         * @description Does not uninstall the shared server bot, delete an application or rotate bot credentials. Other users' records are not exposed.
+         */
+        delete: operations["revokeApplicationAuthorization"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1816,6 +1899,26 @@ export interface paths {
         patch: operations["editOriginalInteractionResponse"];
         trace?: never;
     };
+    "/webhooks/{webhook_id}/reset-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Regenerate an incoming webhook execution credential
+         * @description Requires MANAGE_WEBHOOKS. Invalidates the previous credential atomically and returns the new token and URL only in this response. Audit entries never contain credentials.
+         */
+        post: operations["resetWebhookToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1862,6 +1965,22 @@ export interface components {
             redirect_uris?: string[];
             tags?: string[];
             verify_key: string;
+        };
+        /**
+         * ApplicationAuthorization
+         * @description One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.
+         */
+        ApplicationAuthorization: {
+            application: components["schemas"]["Application"];
+            /** Format: date-time */
+            authorized_at: string;
+            /** Format: date-time */
+            created_at: string;
+            guild: components["schemas"]["AuthorizationGuild"];
+            id: components["schemas"]["Snowflake"];
+            /** @description Effective server permissions acknowledged at the last authorization, not a live permission grant. */
+            permissions: components["schemas"]["PermissionBitset"];
+            scopes: ("bot" | "applications.commands")[];
         };
         /**
          * ApplicationCommand
@@ -2059,6 +2178,15 @@ export interface components {
             reason?: string;
             target_id: string | null;
             user_id: components["schemas"]["Snowflake"] | null;
+        };
+        /**
+         * AuthorizationGuild
+         * @description The server of a recorded bot authorization.
+         */
+        AuthorizationGuild: {
+            icon: string | null;
+            id: components["schemas"]["Snowflake"];
+            name: string;
         };
         /**
          * AuthResponse
@@ -2706,6 +2834,17 @@ export interface components {
             name: string | null;
         };
         /**
+         * GuildIntegration
+         * @description An application whose bot is currently installed in this server.
+         */
+        GuildIntegration: {
+            application: components["schemas"]["Application"];
+            /** Format: date-time */
+            installed_at: string;
+            /** @description Current effective server permissions, including the everyone role. */
+            permissions: components["schemas"]["PermissionBitset"];
+        };
+        /**
          * GuildMember
          * @description A member of a guild.
          */
@@ -3225,7 +3364,7 @@ export interface components {
         };
         /**
          * OAuth2AuthorizeInfo
-         * @description GET /oauth2/authorize response: what the bot invite screen shows.
+         * @description Bot-install consent information. Only bot and applications.commands are supported.
          */
         OAuth2AuthorizeInfo: {
             application: components["schemas"]["Application"];
@@ -3233,18 +3372,18 @@ export interface components {
             guilds: components["schemas"]["OAuth2Guild"][];
             /** @description Permissions requested by the invite URL. */
             permissions: components["schemas"]["PermissionBitset"];
-            scopes: string[];
+            scopes: ("bot" | "applications.commands")[];
             user: components["schemas"]["User"];
         };
         /**
          * OAuth2AuthorizeRequest
-         * @description POST /oauth2/authorize body: add a bot to a guild.
+         * @description Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.
          */
         OAuth2AuthorizeRequest: {
             client_id: components["schemas"]["Snowflake"];
             guild_id: components["schemas"]["Snowflake"];
             permissions: components["schemas"]["PermissionBitset"];
-            /** @description Space-separated scopes, e.g. "bot applications.commands". */
+            /** @description Space-separated bot and optionally applications.commands. bot is required. */
             scope: string;
         };
         /**
@@ -3252,7 +3391,7 @@ export interface components {
          * @description POST /oauth2/authorize response.
          */
         OAuth2AuthorizeResponse: {
-            /** @description Where the client should navigate next. */
+            /** @description Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI. */
             location: string;
         };
         /**
@@ -3260,6 +3399,8 @@ export interface components {
          * @description A guild the user can add the bot to.
          */
         OAuth2Guild: {
+            /** @description Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation. */
+            bot_permissions: components["schemas"]["PermissionBitset"] | null;
             icon: string | null;
             id: components["schemas"]["Snowflake"];
             name: string;
@@ -3882,9 +4023,11 @@ export interface components {
             guild_id?: components["schemas"]["Snowflake"] | null;
             id: components["schemas"]["Snowflake"];
             name: string | null;
+            /** @description Execution credential returned only by create and reset-token; never stored in list/get/edit responses. */
             token?: string;
             /** @description WebhookType. */
             type: number;
+            /** @description Execution URL returned only by create and reset-token. Treat as a secret. */
             url?: string;
             user?: components["schemas"]["User"];
         };
@@ -5955,7 +6098,7 @@ export interface operations {
                 before?: components["schemas"]["Snowflake"];
                 /** @description Max number of results (1-100). */
                 limit?: number;
-                /** @description Discordy extra. Only entries about this user, including a member who was kicked or banned and is no longer in the guild. The response `users` still carry their summary. */
+                /** @description Discordy extra. Only entries about this target, including webhooks, roles and former members. The response `users` includes matching users when they exist. */
                 target_id?: components["schemas"]["Snowflake"];
                 /** @description Filter by acting user. */
                 user_id?: components["schemas"]["Snowflake"];
@@ -6409,6 +6552,71 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listGuildIntegrations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Installed applications. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildIntegration"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    removeGuildIntegration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Application ID. */
+                application_id: components["parameters"]["application_id"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Installation removed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description Installation changed while processing the request. Refresh consent information and retry. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
             429: components["responses"]["RateLimited"];
         };
     };
@@ -7395,6 +7603,75 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            /** @description Installation changed while processing the request. Refresh consent information and retry. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listApplicationAuthorizations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Personal authorizations. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationAuthorization"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    revokeApplicationAuthorization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Personal authorization ID. */
+                authorization_id: components["schemas"]["Snowflake"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Consent revoked. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description Installation changed while processing the request. Refresh consent information and retry. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
             429: components["responses"]["RateLimited"];
         };
     };
@@ -8475,6 +8752,36 @@ export interface operations {
                 };
             };
             400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    resetWebhookToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Webhook ID, or the application ID for interaction webhooks. */
+                webhook_id: components["parameters"]["webhook_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description New execution credential; discard after copying. */
+            200: {
+                headers: {
+                    /** @description Prevents caching the execution credential. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Webhook"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
         };
