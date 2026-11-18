@@ -1,0 +1,7 @@
+{
+  "schema": "objects/vanity-url.json",
+  "data": {
+    "code": "study-club",
+    "uses": 4
+  }
+}

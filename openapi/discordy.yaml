@@ -1938,6 +1938,60 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/vanity-url:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    get:
+      operationId: getGuildVanityUrl
+      summary: Get a guild's permanent invitation (requires MANAGE_GUILD)
+      tags:
+        - Guilds
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Current code and join count, or null and zero when unset.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/vanity-url.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyGuildVanityUrl
+      summary: Set or remove a guild's permanent invitation (requires MANAGE_GUILD)
+      description: Codes are case-insensitive and returned lowercase. Renaming resets uses. An @everyone-visible text channel is required. Changes create a GUILD_UPDATE audit entry. An occupied code returns 400 with a code field error.
+      tags:
+        - Guilds
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-vanity-url-request.json
+      responses:
+        "200":
+          description: Saved code and join count.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/vanity-url.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /guilds/{guild_id}/webhooks:
     get:
       operationId: listGuildWebhooks

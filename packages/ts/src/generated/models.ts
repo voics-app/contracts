@@ -1603,6 +1603,14 @@ export interface Guild {
    */
   voice_region: string;
   /**
+   * Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+   */
+  audit_log_enabled?: boolean;
+  /**
+   * Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+   */
+  audit_log_retention_days?: 30 | 90 | 365;
+  /**
    * Discordy: when true, only administrators may prune inactive members.
    */
   prune_admin_only?: boolean;
@@ -1742,6 +1750,14 @@ export interface GuildFull {
    * Discordy: voice region ID used to allocate voice nodes.
    */
   voice_region: string;
+  /**
+   * Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+   */
+  audit_log_enabled?: boolean;
+  /**
+   * Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+   */
+  audit_log_retention_days?: 30 | 90 | 365;
   /**
    * Discordy: when true, only administrators may prune inactive members.
    */
@@ -2694,6 +2710,14 @@ export interface ModifyGuildRequest {
   explicit_content_filter?: number;
   voice_region?: string;
   /**
+   * Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves.
+   */
+  audit_log_enabled?: boolean;
+  /**
+   * Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job.
+   */
+  audit_log_retention_days?: 30 | 90 | 365;
+  /**
    * Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD.
    */
   prune_admin_only?: boolean;
@@ -2844,6 +2868,12 @@ export interface UserPreferences {
     name: string;
     animated?: boolean;
   }[];
+}
+/**
+ * Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.
+ */
+export interface ModifyVanityUrlRequest {
+  code: string | null;
 }
 /**
  * PATCH /webhooks/{id} body.
@@ -3484,6 +3514,16 @@ export interface UserReadyState {
   notes: {
     [k: string]: string | undefined;
   };
+}
+/**
+ * A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.
+ */
+export interface VanityUrl {
+  code: string | null;
+  /**
+   * Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count.
+   */
+  uses: number;
 }
 /**
  * POST /auth/verify-email body.
