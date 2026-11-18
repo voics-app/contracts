@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/attachment-metadata-edit.json",
+  "title": "AttachmentMetadataEdit",
+  "description": "Updates metadata of one attachment already owned by this message. Omitted properties are unchanged; description null or blank clears alt text. Files, filenames, IDs and URLs are immutable. Only the author may edit attachment metadata.",
+  "type": "object",
+  "required": ["id"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "$ref": "../objects/snowflake.json" },
+    "description": {
+      "type": ["string", "null"],
+      "maxLength": 1024,
+      "description": "Trimmed alt text; null or blank clears it."
+    },
+    "flags": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295,
+      "description": "Only IS_SPOILER (8) is applied; other stored bits are preserved. Explicit 0 clears the spoiler even for a SPOILER_ filename."
+    }
+  }
+}

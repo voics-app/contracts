@@ -960,7 +960,7 @@
           },
           "flags": {
             "type": "integer",
-            "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler."
+            "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent."
           }
         }
       },
@@ -2206,6 +2206,11 @@
           },
           "content": {
             "type": "string"
+          },
+          "tts": {
+            "type": "boolean",
+            "default": false,
+            "description": "The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false."
           },
           "embeds": {
             "type": "array",

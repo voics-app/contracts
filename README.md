@@ -64,6 +64,13 @@ required; bans and membership limits apply to joins just as for ordinary invites
 
 ## Configuration
 
+Message edits accept partial attachment metadata changes by existing attachment ID. Omitted
+files and fields are retained; `description: null` clears alt text and `flags: 0` clears the
+spoiler without moving the stored object. Clients must treat an explicit attachment `flags`
+value as authoritative and infer spoilers from `SPOILER_` only when flags are absent.
+Message creation accepts `tts: true` with `SEND_TTS_MESSAGES`; messages store and return this
+value in history and gateway events. See the REST schemas for validation and permission rules.
+
 P7 presence accepts an optional `background` boolean on opcode 3 and IDENTIFY presence.
 It defaults to false, so existing clients retain their current behavior. Mobile user sessions
 may keep their effective presence across OS suspension for a bounded gateway lease (24 hours

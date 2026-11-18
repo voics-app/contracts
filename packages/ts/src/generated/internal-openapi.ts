@@ -340,7 +340,7 @@ export interface components {
             duration_secs?: number;
             ephemeral?: boolean;
             filename: string;
-            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. */
+            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent. */
             flags?: number;
             height?: number | null;
             id: components["schemas"]["Snowflake"];
@@ -761,6 +761,11 @@ export interface components {
             target_user_ids?: components["schemas"]["Snowflake"][];
             /** @description The thread a type 18 message announces (required for type 18). */
             thread_id?: components["schemas"]["Snowflake"];
+            /**
+             * @description The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false.
+             * @default false
+             */
+            tts: boolean;
             /** @description System message type (see description); omit or 0 for a normal message. */
             type?: number;
             username?: string;
