@@ -3226,7 +3226,7 @@ pub struct GuildTemplate {
     pub creator_id: ::std::option::Option<Snowflake>,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub description: ::std::option::Option<GuildTemplateDescription>,
-    ///Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
+    ///Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
     pub is_dirty: bool,
     pub name: GuildTemplateName,
     pub serialized_source_guild: TemplateSourceGuild,
@@ -5931,6 +5931,65 @@ impl<'de> ::serde::Deserialize<'de> for PasskeyRegisterStartRequestPassword {
             })
     }
 }
+///Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PasskeyRenameRequest {
+    pub name: PasskeyRenameRequestName,
+}
+///`PasskeyRenameRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyRenameRequestName(::std::string::String);
+impl ::std::ops::Deref for PasskeyRenameRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyRenameRequestName> for ::std::string::String {
+    fn from(value: PasskeyRenameRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyRenameRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 64usize {
+            return Err("longer than 64 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyRenameRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyRenameRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyRenameRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct PasswordConfirmationRequest {
@@ -8120,7 +8179,7 @@ pub struct VideoPayload {
     pub user_id: ::std::option::Option<Snowflake>,
     pub video_ssrc: u64,
 }
-///A codec offered by the client.
+///A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceCodec {
     pub name: VoiceCodecName,
@@ -8147,6 +8206,8 @@ pub struct VoiceCodec {
 pub enum VoiceCodecName {
     #[serde(rename = "opus")]
     Opus,
+    #[serde(rename = "VP8")]
+    Vp8,
     #[serde(rename = "VP9")]
     Vp9,
     #[serde(rename = "AV1")]
@@ -8157,6 +8218,7 @@ impl ::std::fmt::Display for VoiceCodecName {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
             Self::Opus => f.write_str("opus"),
+            Self::Vp8 => f.write_str("VP8"),
             Self::Vp9 => f.write_str("VP9"),
             Self::Av1 => f.write_str("AV1"),
             Self::H264 => f.write_str("H264"),
@@ -8168,6 +8230,7 @@ impl ::std::str::FromStr for VoiceCodecName {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         match value {
             "opus" => Ok(Self::Opus),
+            "VP8" => Ok(Self::Vp8),
             "VP9" => Ok(Self::Vp9),
             "AV1" => Ok(Self::Av1),
             "H264" => Ok(Self::H264),

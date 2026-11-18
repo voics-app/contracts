@@ -4304,7 +4304,7 @@
         },
         "is_dirty": {
           "type": "boolean",
-          "description": "Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
+          "description": "Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
         }
       }
     },
@@ -7153,6 +7153,22 @@
         }
       }
     },
+    "PasskeyRenameRequest": {
+      "title": "PasskeyRenameRequest",
+      "description": "Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "additionalProperties": false
+    },
     "PasswordConfirmationRequest": {
       "title": "PasswordConfirmationRequest",
       "description": "Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.",
@@ -9324,7 +9340,7 @@
     },
     "VoiceCodec": {
       "title": "VoiceCodec",
-      "description": "A codec offered by the client.",
+      "description": "A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.",
       "type": "object",
       "required": [
         "name",
@@ -9337,6 +9353,7 @@
           "type": "string",
           "enum": [
             "opus",
+            "VP8",
             "VP9",
             "AV1",
             "H264"

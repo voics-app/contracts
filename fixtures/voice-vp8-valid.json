@@ -1,0 +1,4 @@
+{
+  "schema": "voice/codec.json",
+  "data": {"name":"VP8","type":"video","priority":1000,"payload_type":96,"rtx_payload_type":97}
+}

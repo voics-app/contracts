@@ -1,0 +1,1 @@
+{"schema":"rest/passkey-rename-request.json","valid":false,"data":{"name":"","credential":{"id":"cannot-change"}}}

@@ -2019,7 +2019,7 @@ export interface GuildTemplate {
   source_guild_id: Snowflake | null;
   serialized_source_guild: TemplateSourceGuild;
   /**
-   * Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
+   * Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
    */
   is_dirty: boolean;
 }
@@ -3157,6 +3157,12 @@ export interface PasskeyRegisterStartRequest {
   name: string;
 }
 /**
+ * Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.
+ */
+export interface PasskeyRenameRequest {
+  name: string;
+}
+/**
  * Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
  */
 export interface PasswordConfirmationRequest {
@@ -3381,10 +3387,10 @@ export interface SelectProtocolPayload {
   codecs: VoiceCodec[];
 }
 /**
- * A codec offered by the client.
+ * A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.
  */
 export interface VoiceCodec {
-  name: "opus" | "VP9" | "AV1" | "H264";
+  name: "opus" | "VP8" | "VP9" | "AV1" | "H264";
   type: "audio" | "video";
   priority: number;
   payload_type: number;
