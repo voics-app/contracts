@@ -49,8 +49,10 @@
     },
     "attachments": {
       "type": "array",
+      "maxItems": 10,
+      "description": "Partial metadata edits of existing attachments. Unlisted files remain unchanged and an empty array does nothing. Unknown or duplicate attachment IDs reject the complete edit. This field cannot add or remove files.",
       "items": {
-        "$ref": "./attachment-reference.json"
+        "$ref": "./attachment-metadata-edit.json"
       }
     }
   }

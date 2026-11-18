@@ -30,6 +30,11 @@
     "content": {
       "type": "string"
     },
+    "tts": {
+      "type": "boolean",
+      "default": false,
+      "description": "The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false."
+    },
     "embeds": {
       "type": "array",
       "items": {

@@ -774,7 +774,35 @@
         },
         "flags": {
           "type": "integer",
-          "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler."
+          "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent."
+        }
+      }
+    },
+    "AttachmentMetadataEdit": {
+      "title": "AttachmentMetadataEdit",
+      "description": "Updates metadata of one attachment already owned by this message. Omitted properties are unchanged; description null or blank clears alt text. Files, filenames, IDs and URLs are immutable. Only the author may edit attachment metadata.",
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024,
+          "description": "Trimmed alt text; null or blank clears it."
+        },
+        "flags": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "Only IS_SPOILER (8) is applied; other stored bits are preserved. Explicit 0 clears the spoiler even for a SPOILER_ filename."
         }
       }
     },
@@ -2084,7 +2112,9 @@
           "maxLength": 25
         },
         "tts": {
-          "type": "boolean"
+          "type": "boolean",
+          "default": false,
+          "description": "Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events."
         },
         "embeds": {
           "type": "array",
@@ -2716,8 +2746,10 @@
         },
         "attachments": {
           "type": "array",
+          "maxItems": 10,
+          "description": "Partial metadata edits of existing attachments. Unlisted files remain unchanged and an empty array does nothing. Unknown or duplicate attachment IDs reject the complete edit. This field cannot add or remove files.",
           "items": {
-            "$ref": "#/$defs/AttachmentReference"
+            "$ref": "#/$defs/AttachmentMetadataEdit"
           }
         }
       }
@@ -4669,6 +4701,11 @@
         },
         "content": {
           "type": "string"
+        },
+        "tts": {
+          "type": "boolean",
+          "default": false,
+          "description": "The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false."
         },
         "embeds": {
           "type": "array",

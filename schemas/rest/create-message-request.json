@@ -14,7 +14,9 @@
       "maxLength": 25
     },
     "tts": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": false,
+      "description": "Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events."
     },
     "embeds": {
       "type": "array",
