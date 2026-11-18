@@ -25,13 +25,15 @@
       "type": [
         "string",
         "null"
-      ]
+      ],
+      "description": "Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif)."
     },
     "banner": {
       "type": [
         "string",
         "null"
-      ]
+      ],
+      "description": "Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif)."
     },
     "roles": {
       "type": "array",
@@ -72,6 +74,14 @@
         "null"
       ],
       "format": "date-time"
+    },
+    "bio": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 300,
+      "description": "Server-specific About me; trimmed, null or blank restores the global bio."
     }
   }
 }

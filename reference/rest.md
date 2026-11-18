@@ -890,8 +890,8 @@ A member of a guild.
 | --- | --- | --- |
 | `user?` | `User` |  |
 | `nick?` | `?string` |  |
-| `avatar?` | `?string` |  |
-| `banner?` | `?string` |  |
+| `avatar?` | `?string` | Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif). |
+| `banner?` | `?string` | Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif). |
 | `roles` | `array of Snowflake` |  |
 | `joined_at` | `string (date-time)` |  |
 | `premium_since?` | `?string (date-time)` |  |
@@ -901,6 +901,7 @@ A member of a guild.
 | `pending?` | `boolean` |  |
 | `permissions?` | `PermissionBitset` | Total permissions in the interaction channel; only in interaction payloads. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
+| `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |
 
 ### GuildNotificationSettings
 
@@ -1426,13 +1427,15 @@ A Discordy user (Discord v10 User object).
 | `bot?` | `boolean` |  |
 | `system?` | `boolean` |  |
 | `mfa_enabled?` | `boolean` |  |
-| `banner?` | `?string` |  |
+| `banner?` | `?string` | Profile banner hash. |
 | `accent_color?` | `?integer` |  |
 | `locale?` | `string` |  |
 | `verified?` | `boolean` |  |
 | `email?` | `?string` | Only returned for the current user. |
 | `flags?` | `integer` |  |
 | `public_flags?` | `integer` |  |
+| `pronouns?` | `?string` | Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. |
+| `theme_colors?` | `?array of integer` | Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. |
 
 ### UserNote
 
@@ -2033,11 +2036,13 @@ PATCH /users/@me body. `username`, `email` and `new_password` require the curren
 | `global_name?` | `?string` |  |
 | `avatar?` | `?string` | Data URI image. |
 | `bio?` | `?string` | About me text; null or blank clears it. Trimmed, at most 300 characters. |
-| `banner?` | `?string` |  |
+| `banner?` | `?string` | PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it. |
 | `accent_color?` | `?integer` |  |
 | `password?` | `string` | Current password; required with username, email or new_password. |
 | `new_password?` | `string` |  |
 | `email?` | `string (email)` |  |
+| `pronouns?` | `?string` | Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. |
+| `theme_colors?` | `?array of integer` | Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. |
 
 ### ModifyEmojiRequest
 
@@ -2100,7 +2105,7 @@ PATCH /guilds/{guild_id}/templates/{code} body.
 
 ### ModifyMemberRequest
 
-PATCH /guilds/{id}/members/{uid} body.
+PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -2111,6 +2116,9 @@ PATCH /guilds/{id}/members/{uid} body.
 | `channel_id?` | `?Snowflake` | Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
 | `flags?` | `integer` |  |
+| `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |
+| `avatar?` | `?string` | Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
+| `banner?` | `?string` | Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
 
 ### ModifyUserSettingsRequest
 

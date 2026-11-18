@@ -1,0 +1,10 @@
+{
+  "schema": "rest/modify-current-user-request.json",
+  "data": {
+    "theme_colors": [
+      0,
+      16777216
+    ]
+  },
+  "valid": false
+}
