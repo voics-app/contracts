@@ -3382,6 +3382,7 @@ export interface components {
         OAuth2AuthorizeRequest: {
             client_id: components["schemas"]["Snowflake"];
             guild_id: components["schemas"]["Snowflake"];
+            /** @description For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review. */
             permissions: components["schemas"]["PermissionBitset"];
             /** @description Space-separated bot and optionally applications.commands. bot is required. */
             scope: string;

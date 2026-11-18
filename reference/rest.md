@@ -2211,7 +2211,7 @@ Install a bot and record explicit consent, or acknowledge the current permission
 | --- | --- | --- |
 | `client_id` | `Snowflake` |  |
 | `guild_id` | `Snowflake` |  |
-| `permissions` | `PermissionBitset` |  |
+| `permissions` | `PermissionBitset` | For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review. |
 | `scope` | `string` | Space-separated bot and optionally applications.commands. bot is required. |
 
 ### OAuth2AuthorizeResponse

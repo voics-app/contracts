@@ -5538,6 +5538,7 @@ impl ::std::convert::TryFrom<::std::string::String> for OAuth2AuthorizeInfoScope
 pub struct OAuth2AuthorizeRequest {
     pub client_id: Snowflake,
     pub guild_id: Snowflake,
+    ///For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review.
     pub permissions: PermissionBitset,
     ///Space-separated bot and optionally applications.commands. bot is required.
     pub scope: ::std::string::String,

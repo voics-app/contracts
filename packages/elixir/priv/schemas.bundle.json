@@ -6959,7 +6959,8 @@
           "$ref": "#/$defs/Snowflake"
         },
         "permissions": {
-          "$ref": "#/$defs/PermissionBitset"
+          "$ref": "#/$defs/PermissionBitset",
+          "description": "For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review."
         },
         "scope": {
           "type": "string",
