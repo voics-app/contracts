@@ -209,6 +209,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{user_id}/read-states": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read-state snapshots for gateway identification and resume */
+        get: operations["getUserReadStates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/ready": {
         parameters: {
             query?: never;
@@ -1064,6 +1081,21 @@ export interface components {
             normal: number;
         };
         /**
+         * ReadState
+         * @description One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.
+         */
+        ReadState: {
+            id: components["schemas"]["Snowflake"];
+            last_message_id: components["schemas"]["Snowflake"] | null;
+            mention_count: number;
+            read_state_version?: components["schemas"]["ReadStateVersion"];
+        };
+        /**
+         * ReadStateVersion
+         * @description Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
+         */
+        ReadStateVersion: string;
+        /**
          * Relationship
          * @description A relationship with another user.
          */
@@ -1248,6 +1280,11 @@ export interface components {
             /** @description Allow the /tts command and read text-to-speech messages aloud. */
             tts_read_aloud?: boolean;
         };
+        /**
+         * UserReadStates
+         * @description Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.
+         */
+        UserReadStates: components["schemas"]["ReadState"][];
         /**
          * UserReadyState
          * @description GET /internal/v1/users/{user_id}/ready: the state used to build READY.
@@ -1725,6 +1762,39 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             /** @description Capacity exhausted, expired ownership, clock rollback, restore barrier or unavailable database. No new interval was granted. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getUserReadStates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array retained for legacy compatibility. Certified responses require a version on every entry. Snapshot reads are per channel, not one cross-channel transaction. */
+            200: {
+                headers: {
+                    /** @description Value 1 certifies authoritative versioned accounting even for an empty array. Absent means legacy; malformed certification must not become an empty successful snapshot. */
+                    "X-Read-State-Versioned"?: "1";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserReadStates"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Read-state dependency unavailable; gateway must not certify an empty state. */
             503: {
                 headers: {
                     [name: string]: unknown;

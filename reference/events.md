@@ -74,6 +74,7 @@ Redpanda event envelope. `data` is exactly the gateway DISPATCH payload for `typ
 | `MESSAGE_REACTION_REMOVE_ALL` | `discordy.message.v1` | `MessageReactionRemoveAllEvent` |
 | `CHANNEL_PINS_UPDATE` | `discordy.message.v1` | `ChannelPinsUpdateEvent` |
 | `MESSAGE_ACK` | `discordy.message.v1` | `MessageAckEvent` |
+| `READ_STATE_UPDATE` | `discordy.message.v1` | `ReadStateUpdateEvent` |
 | `USER_UPDATE` | `discordy.user.v1` | `User` |
 | `USER_SETTINGS_UPDATE` | `discordy.user.v1` | `UserSettings` |
 | `USER_GUILD_SETTINGS_UPDATE` | `discordy.user.v1` | `GuildNotificationSettings` |

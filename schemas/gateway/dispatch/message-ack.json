@@ -22,6 +22,10 @@
     },
     "version": {
       "type": "integer"
+    },
+    "read_state_version": {
+      "$ref": "../../objects/read-state-version.json",
+      "description": "Optional for legacy compatibility. Certified clients accept only a newer per-channel version, even for a backwards manual marker; this is independent of the legacy version field."
     }
   }
 }

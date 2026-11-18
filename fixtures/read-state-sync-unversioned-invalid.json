@@ -1,0 +1,14 @@
+{
+  "schema": "gateway/dispatch/read-state-sync.json",
+  "data": {
+    "read_state": [
+      {
+        "id": "200",
+        "last_message_id": "500",
+        "mention_count": 1
+      }
+    ],
+    "read_state_versioned": true
+  },
+  "valid": false
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/read-state-update.json",
+  "title": "ReadStateUpdateEvent",
+  "description": "Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.",
+  "type": "object",
+  "required": ["channel_id", "last_message_id", "mention_count", "read_state_version"],
+  "properties": {
+    "channel_id": { "$ref": "../../objects/snowflake.json" },
+    "last_message_id": { "oneOf": [{ "$ref": "../../objects/snowflake.json" }, { "type": "null" }] },
+    "mention_count": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+    "read_state_version": { "$ref": "../../objects/read-state-version.json" }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/read-state-sync.json",
+  "title": "ReadStateSyncEvent",
+  "description": "Certified snapshot fetched during resume, after subscription and before RESUMED. Merge each channel by version with replayed updates; an absent channel is not a deletion. A fresh READY, not this event, starts a new version history.",
+  "type": "object",
+  "required": ["read_state", "read_state_versioned"],
+  "properties": {
+    "read_state_versioned": { "const": true },
+    "read_state": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          { "$ref": "../../objects/read-state.json" },
+          { "type": "object", "required": ["read_state_version"], "properties": { "read_state_version": { "$ref": "../../objects/read-state-version.json" } } }
+        ]
+      }
+    }
+  }
+}

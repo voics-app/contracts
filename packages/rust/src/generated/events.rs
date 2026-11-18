@@ -89,6 +89,10 @@ pub enum DispatchEvent {
     ChannelPinsUpdate(ChannelPinsUpdateEvent),
     #[serde(rename = "MESSAGE_ACK")]
     MessageAck(MessageAckEvent),
+    #[serde(rename = "READ_STATE_UPDATE")]
+    ReadStateUpdate(ReadStateUpdateEvent),
+    #[serde(rename = "READ_STATE_SYNC")]
+    ReadStateSync(ReadStateSyncEvent),
     #[serde(rename = "USER_UPDATE")]
     UserUpdate(User),
     #[serde(rename = "USER_SETTINGS_UPDATE")]
@@ -159,6 +163,8 @@ impl DispatchEvent {
             Self::MessageReactionRemoveAll(_) => "MESSAGE_REACTION_REMOVE_ALL",
             Self::ChannelPinsUpdate(_) => "CHANNEL_PINS_UPDATE",
             Self::MessageAck(_) => "MESSAGE_ACK",
+            Self::ReadStateUpdate(_) => "READ_STATE_UPDATE",
+            Self::ReadStateSync(_) => "READ_STATE_SYNC",
             Self::UserUpdate(_) => "USER_UPDATE",
             Self::UserSettingsUpdate(_) => "USER_SETTINGS_UPDATE",
             Self::UserGuildSettingsUpdate(_) => "USER_GUILD_SETTINGS_UPDATE",
@@ -241,6 +247,8 @@ pub enum BusEvent {
     ChannelPinsUpdate(ChannelPinsUpdateEvent),
     #[serde(rename = "MESSAGE_ACK")]
     MessageAck(MessageAckEvent),
+    #[serde(rename = "READ_STATE_UPDATE")]
+    ReadStateUpdate(ReadStateUpdateEvent),
     #[serde(rename = "USER_UPDATE")]
     UserUpdate(User),
     #[serde(rename = "USER_SETTINGS_UPDATE")]
@@ -312,6 +320,7 @@ impl BusEvent {
             Self::MessageReactionRemoveAll(_) => "MESSAGE_REACTION_REMOVE_ALL",
             Self::ChannelPinsUpdate(_) => "CHANNEL_PINS_UPDATE",
             Self::MessageAck(_) => "MESSAGE_ACK",
+            Self::ReadStateUpdate(_) => "READ_STATE_UPDATE",
             Self::UserUpdate(_) => "USER_UPDATE",
             Self::UserSettingsUpdate(_) => "USER_SETTINGS_UPDATE",
             Self::UserGuildSettingsUpdate(_) => "USER_GUILD_SETTINGS_UPDATE",
