@@ -6,6 +6,7 @@
     "guild_id": "234",
     "scope": "bot",
     "permissions": "0",
+    "installation_revision": "absent:0",
     "redirect_uri": "https://example.invalid"
   }
 }

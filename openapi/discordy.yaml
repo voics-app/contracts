@@ -4307,7 +4307,7 @@ paths:
     post:
       operationId: authorizeBot
       summary: Install a bot and record explicit consent
-      description: Supported scopes are bot and optionally applications.commands. Existing installations retain their current permissions; consent records those effective permissions.
+      description: Supported scopes are bot and optionally applications.commands. Existing installations retain their current permissions; consent records those effective permissions. The required non-null installation_revision must echo the selected guild from the displayed GET preview. A changed installation or removal history returns 409 without writes and requires a fresh preview and consent.
       tags:
         - OAuth2
       x-discordy-service: api
@@ -4335,7 +4335,7 @@ paths:
         "429":
           $ref: "#/components/responses/RateLimited"
         "409":
-          description: Installation changed while processing the request. Refresh consent information and retry.
+          description: Installation or effective permissions changed since the displayed preview or while processing the request. No consent or installation writes occur. Refresh consent information and review again.
           content:
             application/json:
               schema:

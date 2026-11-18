@@ -7,6 +7,7 @@
   "required": [
     "client_id",
     "guild_id",
+    "installation_revision",
     "permissions",
     "scope"
   ],
@@ -16,6 +17,9 @@
     },
     "guild_id": {
       "$ref": "../objects/snowflake.json"
+    },
+    "installation_revision": {
+      "$ref": "../objects/bot-installation-revision.json"
     },
     "permissions": {
       "$ref": "../objects/permission-bitset.json",

@@ -55,7 +55,8 @@
         "name",
         "icon",
         "permissions",
-        "bot_permissions"
+        "bot_permissions",
+        "installation_revision"
       ],
       "properties": {
         "id": {
@@ -72,6 +73,9 @@
         },
         "permissions": {
           "$ref": "../objects/permission-bitset.json"
+        },
+        "installation_revision": {
+          "$ref": "../objects/bot-installation-revision.json"
         },
         "bot_permissions": {
           "anyOf": [
