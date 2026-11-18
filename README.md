@@ -72,6 +72,12 @@ required; bans and membership limits apply to joins just as for ordinary invites
 
 ## Configuration
 
+Community is configured through `PATCH /guilds/{guild_id}` with `features: ["COMMUNITY"]`
+and rules/updates channel IDs. Discovery requires Community; disabling it removes the
+listing. Signed-in users can report public listings with
+`POST /discovery/guilds/{guild_id}/reports`; only public listing text becomes evidence.
+Reports require moderation review and never automatically delist a guild.
+
 Message edits accept partial attachment metadata changes by existing attachment ID. Omitted
 files and fields are retained; `description: null` clears alt text and `flags: 0` clears the
 spoiler without moving the stored object. Clients must treat an explicit attachment `flags`

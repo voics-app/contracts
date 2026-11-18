@@ -2425,6 +2425,34 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /discovery/guilds/{guild_id}/reports:
+    post:
+      operationId: reportDiscoveryGuild
+      summary: Report a currently discoverable listing for moderation
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/report-listing-request.json
+      responses:
+        "204":
+          description: Report accepted or already open. Listing visibility is unchanged.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /guilds/{guild_id}/discovery:
     get:
       operationId: getGuildDiscovery

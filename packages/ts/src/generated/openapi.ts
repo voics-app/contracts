@@ -771,6 +771,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/discovery/guilds/{guild_id}/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Report a currently discoverable listing for moderation */
+        post: operations["reportDiscoveryGuild"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds": {
         parameters: {
             query?: never;
@@ -2679,10 +2696,10 @@ export interface components {
         };
         /**
          * GuildDiscoverySettings
-         * @description A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+         * @description A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
          */
         GuildDiscoverySettings: {
-            blockers: ("DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
+            blockers: ("COMMUNITY_REQUIRED" | "DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
             category: string | null;
             enabled: boolean;
             /** Format: date-time */
@@ -3127,13 +3144,17 @@ export interface components {
             default_message_notifications?: number;
             description?: string | null;
             explicit_content_filter?: number;
+            /** @description MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting. */
+            features?: "COMMUNITY"[];
             icon?: string | null;
             name?: string;
             owner_id?: components["schemas"]["Snowflake"];
             preferred_locale?: string;
             /** @description Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD. */
             prune_admin_only?: boolean;
+            /** @description Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id. */
             public_updates_channel_id?: components["schemas"]["Snowflake"] | null;
+            /** @description Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id. */
             rules_channel_id?: components["schemas"]["Snowflake"] | null;
             /** @description Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it. */
             splash?: string | null;
@@ -3465,6 +3486,15 @@ export interface components {
             /** @description RelationshipType. */
             type: number;
             user: components["schemas"]["User"];
+        };
+        /**
+         * ReportListingRequest
+         * @description Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.
+         */
+        ReportListingRequest: {
+            /** @enum {string} */
+            category: "spam" | "harassment" | "hate_speech" | "violence" | "sexual_content" | "self_harm" | "illegal" | "impersonation" | "other";
+            note?: string | null;
         };
         /**
          * ResetBotTokenResponse
@@ -5812,6 +5842,36 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    reportDiscoveryGuild: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportListingRequest"];
+            };
+        };
+        responses: {
+            /** @description Report accepted or already open. Listing visibility is unchanged. */
             204: {
                 headers: {
                     [name: string]: unknown;
