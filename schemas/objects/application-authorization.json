@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/application-authorization.json",
+  "title": "ApplicationAuthorization",
+  "description": "One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.",
+  "type": "object",
+  "required": [
+    "id",
+    "application",
+    "guild",
+    "scopes",
+    "permissions",
+    "created_at",
+    "authorized_at"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "application": {
+      "$ref": "./application.json"
+    },
+    "guild": {
+      "$ref": "#/$defs/AuthorizationGuild"
+    },
+    "scopes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "bot",
+          "applications.commands"
+        ]
+      }
+    },
+    "permissions": {
+      "$ref": "./permission-bitset.json",
+      "description": "Effective server permissions acknowledged at the last authorization, not a live permission grant."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "authorized_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "AuthorizationGuild": {
+      "title": "AuthorizationGuild",
+      "description": "The server of a recorded bot authorization.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "icon"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "./snowflake.json"
+        },
+        "name": {
+          "type": "string"
+        },
+        "icon": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

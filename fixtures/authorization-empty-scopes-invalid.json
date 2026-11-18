@@ -1,0 +1,26 @@
+{
+  "schema": "objects/application-authorization.json",
+  "valid": false,
+  "data": {
+    "id": "345",
+    "application": {
+      "id": "123",
+      "name": "Study helper",
+      "icon": null,
+      "description": "Study reminders",
+      "bot_public": true,
+      "bot_require_code_grant": false,
+      "verify_key": "test",
+      "flags": 0
+    },
+    "guild": {
+      "id": "234",
+      "name": "Study club",
+      "icon": null
+    },
+    "scopes": [],
+    "permissions": "2048",
+    "created_at": "2026-11-18T00:00:00Z",
+    "authorized_at": "2026-11-18T00:00:00Z"
+  }
+}

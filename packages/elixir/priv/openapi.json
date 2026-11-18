@@ -2716,7 +2716,7 @@
             "name": "target_id",
             "in": "query",
             "required": false,
-            "description": "Discordy extra. Only entries about this user, including a member who was kicked or banned and is no longer in the guild. The response `users` still carry their summary.",
+            "description": "Discordy extra. Only entries about this target, including webhooks, roles and former members. The response `users` includes matching users when they exist.",
             "schema": {
               "$ref": "#/components/schemas/Snowflake"
             }
@@ -6903,6 +6903,246 @@
         }
       }
     },
+    "/oauth2/tokens": {
+      "get": {
+        "operationId": "listApplicationAuthorizations",
+        "summary": "List the current user's recorded bot consents",
+        "description": "Records explicit consent only; contains no access credentials. Application ownership is separate.",
+        "tags": [
+          "OAuth2"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Personal authorizations.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationAuthorization"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/oauth2/tokens/{authorization_id}": {
+      "delete": {
+        "operationId": "revokeApplicationAuthorization",
+        "summary": "Revoke the current user's recorded consent",
+        "description": "Does not uninstall the shared server bot, delete an application or rotate bot credentials. Other users' records are not exposed.",
+        "tags": [
+          "OAuth2"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "name": "authorization_id",
+            "in": "path",
+            "required": true,
+            "description": "Personal authorization ID.",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Consent revoked."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Installation changed while processing the request. Refresh consent information and retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/integrations": {
+      "get": {
+        "operationId": "listGuildIntegrations",
+        "summary": "List installed application bots",
+        "description": "Requires MANAGE_GUILD; returns actual current server installations, not owned applications or arbitrary bot accounts.",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Installed applications.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuildIntegration"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/integrations/{application_id}": {
+      "delete": {
+        "operationId": "removeGuildIntegration",
+        "summary": "Remove an installed application bot",
+        "description": "Requires MANAGE_GUILD, KICK_MEMBERS and role hierarchy. Removes membership, managed bot roles and all consents for this installation. Leaves other servers and bot credentials unchanged.",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "$ref": "#/components/parameters/application_id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Installation removed."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Installation changed while processing the request. Refresh consent information and retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/webhooks/{webhook_id}/reset-token": {
+      "post": {
+        "operationId": "resetWebhookToken",
+        "summary": "Regenerate an incoming webhook execution credential",
+        "description": "Requires MANAGE_WEBHOOKS. Invalidates the previous credential atomically and returns the new token and URL only in this response. Audit entries never contain credentials.",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/webhook_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "New execution credential; discard after copying.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Prevents caching the execution credential.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Webhook"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/oauth2/authorize": {
       "get": {
         "operationId": "getAuthorizeInfo",
@@ -6979,7 +7219,8 @@
       },
       "post": {
         "operationId": "authorizeBot",
-        "summary": "Add a bot to a guild",
+        "summary": "Install a bot and record explicit consent",
+        "description": "Supported scopes are bot and optionally applications.commands. Existing installations retain their current permissions; consent records those effective permissions. The required non-null installation_revision must echo the selected guild from the displayed GET preview. A changed installation or removal history returns 409 without writes and requires a fresh preview and consent.",
         "tags": [
           "OAuth2"
         ],
@@ -7016,6 +7257,16 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Installation or effective permissions changed since the displayed preview or while processing the request. No consent or installation writes occur. Refresh consent information and review again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -7956,6 +8207,56 @@
           }
         }
       },
+      "ApplicationAuthorization": {
+        "title": "ApplicationAuthorization",
+        "description": "One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.",
+        "type": "object",
+        "required": [
+          "id",
+          "application",
+          "guild",
+          "scopes",
+          "permissions",
+          "created_at",
+          "authorized_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "application": {
+            "$ref": "#/components/schemas/Application"
+          },
+          "guild": {
+            "$ref": "#/components/schemas/AuthorizationGuild"
+          },
+          "scopes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "bot",
+                "applications.commands"
+              ]
+            }
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/PermissionBitset",
+            "description": "Effective server permissions acknowledged at the last authorization, not a live permission grant."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "authorized_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "ApplicationCommand": {
         "title": "ApplicationCommand",
         "description": "A slash, user or message command.",
@@ -8616,6 +8917,30 @@
           }
         }
       },
+      "AuthorizationGuild": {
+        "title": "AuthorizationGuild",
+        "description": "The server of a recorded bot authorization.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "icon"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
       "BackupCodesResponse": {
         "title": "BackupCodesResponse",
         "description": "Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.",
@@ -8681,6 +9006,13 @@
             "$ref": "#/components/schemas/User"
           }
         }
+      },
+      "BotInstallationRevision": {
+        "title": "BotInstallationRevision",
+        "description": "Opaque installation precondition from the selected guild in GET /oauth2/authorize. Echo it unchanged in POST. It distinguishes an active installation, initial absence and absence after removal. Missing or null is invalid; a changed revision returns 409 without writes and requires a fresh preview and consent.",
+        "type": "string",
+        "pattern": "^(absent:(0|[1-9][0-9]{0,18})|installed:[1-9][0-9]{0,18})$",
+        "maxLength": 29
       },
       "BulkDeleteRequest": {
         "title": "BulkDeleteRequest",
@@ -10453,6 +10785,29 @@
           }
         }
       },
+      "GuildIntegration": {
+        "title": "GuildIntegration",
+        "description": "An application whose bot is currently installed in this server.",
+        "type": "object",
+        "required": [
+          "application",
+          "permissions",
+          "installed_at"
+        ],
+        "properties": {
+          "application": {
+            "$ref": "#/components/schemas/Application"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/PermissionBitset",
+            "description": "Current effective server permissions, including the everyone role."
+          },
+          "installed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "GuildMember": {
         "title": "GuildMember",
         "description": "A member of a guild.",
@@ -12111,7 +12466,7 @@
       },
       "OAuth2AuthorizeInfo": {
         "title": "OAuth2AuthorizeInfo",
-        "description": "GET /oauth2/authorize response: what the bot invite screen shows.",
+        "description": "Bot-install consent information. Only bot and applications.commands are supported.",
         "type": "object",
         "required": [
           "application",
@@ -12142,19 +12497,27 @@
           },
           "scopes": {
             "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "uniqueItems": true,
             "items": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "bot",
+                "applications.commands"
+              ]
             }
           }
         }
       },
       "OAuth2AuthorizeRequest": {
         "title": "OAuth2AuthorizeRequest",
-        "description": "POST /oauth2/authorize body: add a bot to a guild.",
+        "description": "Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.",
         "type": "object",
         "required": [
           "client_id",
           "guild_id",
+          "installation_revision",
           "permissions",
           "scope"
         ],
@@ -12165,14 +12528,19 @@
           "guild_id": {
             "$ref": "#/components/schemas/Snowflake"
           },
+          "installation_revision": {
+            "$ref": "#/components/schemas/BotInstallationRevision"
+          },
           "permissions": {
-            "$ref": "#/components/schemas/PermissionBitset"
+            "$ref": "#/components/schemas/PermissionBitset",
+            "description": "For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review."
           },
           "scope": {
             "type": "string",
-            "description": "Space-separated scopes, e.g. \"bot applications.commands\"."
+            "description": "Space-separated bot and optionally applications.commands. bot is required."
           }
-        }
+        },
+        "additionalProperties": false
       },
       "OAuth2AuthorizeResponse": {
         "title": "OAuth2AuthorizeResponse",
@@ -12184,7 +12552,7 @@
         "properties": {
           "location": {
             "type": "string",
-            "description": "Where the client should navigate next."
+            "description": "Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI."
           }
         }
       },
@@ -12196,7 +12564,9 @@
           "id",
           "name",
           "icon",
-          "permissions"
+          "permissions",
+          "bot_permissions",
+          "installation_revision"
         ],
         "properties": {
           "id": {
@@ -12213,6 +12583,20 @@
           },
           "permissions": {
             "$ref": "#/components/schemas/PermissionBitset"
+          },
+          "installation_revision": {
+            "$ref": "#/components/schemas/BotInstallationRevision"
+          },
+          "bot_permissions": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PermissionBitset"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation."
           }
         }
       },
@@ -14215,7 +14599,8 @@
             ]
           },
           "token": {
-            "type": "string"
+            "type": "string",
+            "description": "Execution credential returned only by create and reset-token; never stored in list/get/edit responses."
           },
           "application_id": {
             "anyOf": [
@@ -14228,7 +14613,8 @@
             ]
           },
           "url": {
-            "type": "string"
+            "type": "string",
+            "description": "Execution URL returned only by create and reset-token. Treat as a secret."
           }
         }
       }

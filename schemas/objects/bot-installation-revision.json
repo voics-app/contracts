@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/bot-installation-revision.json",
+  "title": "BotInstallationRevision",
+  "description": "Opaque installation precondition from the selected guild in GET /oauth2/authorize. Echo it unchanged in POST. It distinguishes an active installation, initial absence and absence after removal. Missing or null is invalid; a changed revision returns 409 without writes and requires a fresh preview and consent.",
+  "type": "string",
+  "pattern": "^(absent:(0|[1-9][0-9]{0,18})|installed:[1-9][0-9]{0,18})$",
+  "maxLength": 29
+}

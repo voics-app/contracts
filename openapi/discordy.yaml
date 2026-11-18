@@ -1726,8 +1726,8 @@ paths:
           in: query
           required: false
           description: >-
-            Discordy extra. Only entries about this user, including a member who was kicked or
-            banned and is no longer in the guild. The response `users` still carry their summary.
+            Discordy extra. Only entries about this target, including webhooks, roles and former
+            members. The response `users` includes matching users when they exist.
           schema: *a1
         - name: action_type
           in: query
@@ -4312,6 +4312,153 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /oauth2/tokens:
+    get:
+      operationId: listApplicationAuthorizations
+      summary: List the current user's recorded bot consents
+      description: Records explicit consent only; contains no access credentials. Application ownership is separate.
+      tags: [OAuth2]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Personal authorizations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/application-authorization.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /oauth2/tokens/{authorization_id}:
+    delete:
+      operationId: revokeApplicationAuthorization
+      summary: Revoke the current user's recorded consent
+      description: Does not uninstall the shared server bot, delete an application or rotate bot credentials. Other users' records are not exposed.
+      tags: [OAuth2]
+      x-discordy-service: api
+      parameters:
+        - name: authorization_id
+          in: path
+          required: true
+          description: Personal authorization ID.
+          schema: *a1
+      responses:
+        "204":
+          description: Consent revoked.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "409":
+          description: Installation changed while processing the request. Refresh consent information and retry.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/error.json
+  /guilds/{guild_id}/integrations:
+    get:
+      operationId: listGuildIntegrations
+      summary: List installed application bots
+      description: Requires MANAGE_GUILD; returns actual current server installations, not owned applications or arbitrary bot accounts.
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Installed applications.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/guild-integration.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/integrations/{application_id}:
+    delete:
+      operationId: removeGuildIntegration
+      summary: Remove an installed application bot
+      description: Requires MANAGE_GUILD, KICK_MEMBERS and role hierarchy. Removes membership, managed bot roles and all consents for this installation. Leaves other servers and bot credentials unchanged.
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/application_id"
+      responses:
+        "204":
+          description: Installation removed.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "409":
+          description: Installation changed while processing the request. Refresh consent information and retry.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/error.json
+  /webhooks/{webhook_id}/reset-token:
+    post:
+      operationId: resetWebhookToken
+      summary: Regenerate an incoming webhook execution credential
+      description: Requires MANAGE_WEBHOOKS. Invalidates the previous credential atomically and returns the new token and URL only in this response. Audit entries never contain credentials.
+      tags: [Webhooks]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/webhook_id"
+      responses:
+        "200":
+          description: New execution credential; discard after copying.
+          headers:
+            Cache-Control:
+              description: Prevents caching the execution credential.
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/webhook.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /oauth2/authorize:
     get:
       operationId: getAuthorizeInfo
@@ -4361,7 +4508,8 @@ paths:
           $ref: "#/components/responses/RateLimited"
     post:
       operationId: authorizeBot
-      summary: Add a bot to a guild
+      summary: Install a bot and record explicit consent
+      description: Supported scopes are bot and optionally applications.commands. Existing installations retain their current permissions; consent records those effective permissions. The required non-null installation_revision must echo the selected guild from the displayed GET preview. A changed installation or removal history returns 409 without writes and requires a fresh preview and consent.
       tags:
         - OAuth2
       x-discordy-service: api
@@ -4388,6 +4536,12 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+        "409":
+          description: Installation or effective permissions changed since the displayed preview or while processing the request. No consent or installation writes occur. Refresh consent information and review again.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/error.json
   /webhooks/{webhook_id}:
     get:
       operationId: getWebhook
