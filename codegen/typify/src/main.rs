@@ -30,7 +30,8 @@ fn fail(message: &str) -> ExitCode {
 /// typify (schemars 0.8) reads draft-07 style `definitions`; the bundle uses 2020-12 `$defs`.
 fn to_draft07(bundle: &str) -> Result<RootSchema, String> {
     let rewritten = bundle.replace("#/$defs/", "#/definitions/");
-    let mut value: serde_json::Value = serde_json::from_str(&rewritten).map_err(|e| e.to_string())?;
+    let mut value: serde_json::Value =
+        serde_json::from_str(&rewritten).map_err(|e| e.to_string())?;
     let object = value.as_object_mut().ok_or("bundle is not an object")?;
     let defs = object.remove("$defs").ok_or("bundle has no $defs")?;
     object.remove("$schema");
@@ -42,7 +43,9 @@ fn generate(input: &str) -> Result<String, String> {
     let bundle = fs::read_to_string(input).map_err(|e| e.to_string())?;
     let schema = to_draft07(&bundle)?;
     let mut settings = TypeSpaceSettings::default();
-    settings.with_derive("PartialEq".into()).with_struct_builder(false);
+    settings
+        .with_derive("PartialEq".into())
+        .with_struct_builder(false);
     let mut space = TypeSpace::new(&settings);
     space.add_root_schema(schema).map_err(|e| e.to_string())?;
     let file: syn::File = syn::parse2(space.to_stream()).map_err(|e| e.to_string())?;
