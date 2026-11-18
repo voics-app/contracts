@@ -2539,9 +2539,13 @@ export interface MfaRequiredResponse {
   code: 60008;
   message: string;
   /**
-   * Present to POST /auth/mfa/totp together with a code.
+   * Present to /auth/mfa/totp with a TOTP/recovery code or to /auth/mfa/webauthn/start.
    */
   ticket: string;
+  /**
+   * Registered factors available for this ticket; older servers may omit it.
+   */
+  methods?: ("totp" | "webauthn" | "backup_code")[];
 }
 /**
  * PATCH /applications/{id} body.
@@ -2904,6 +2908,55 @@ export interface P2pSignalPayload {
    * Signature over the DTLS fingerprint by the sender's device identity key.
    */
   identity_sig_b64: string;
+}
+/**
+ * Registered second factor metadata. Credential public keys and challenges are never included.
+ */
+export interface Passkey {
+  id: string;
+  name: string;
+  created_at: string;
+  last_used_at: string | null;
+}
+/**
+ * Removing a passkey needs the password and a valid TOTP or one-time recovery code. Removing the last factor turns MFA off.
+ */
+export interface PasskeyDeleteRequest {
+  password: string;
+  code: string;
+}
+/**
+ * Finish the registration using navigator.credentials.create, serializing binary fields as unpadded base64url.
+ */
+export interface PasskeyRegisterFinishRequest {
+  challenge_id: string;
+  credential: {
+    id: string;
+    rawId: string;
+    type: "public-key";
+    response: {};
+    [k: string]: unknown | undefined;
+  };
+}
+/**
+ * The enrolled passkey. First-factor enrollment generates recovery codes; existing codes are retained when another factor is added.
+ */
+export interface PasskeyRegisterResponse {
+  passkey: Passkey;
+  backup_codes?: {
+    /**
+     * Plaintext code; omitted when only the consumed state is listed.
+     */
+    code?: string;
+    consumed: boolean;
+  }[];
+}
+/**
+ * Reauthenticate with the password before creating a passkey registration challenge.
+ */
+export interface PasskeyRegisterStartRequest {
+  password: string;
+  name: string;
 }
 /**
  * Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
@@ -3628,4 +3681,34 @@ export interface WatchTogetherPayload {
    * Server clock (unix ms) the position refers to.
    */
   at_server_ms: number;
+}
+/**
+ * A five-minute, single-use server-side ceremony. Finish requires the same account/session or password-authenticated login ticket.
+ */
+export interface WebauthnChallenge {
+  challenge_id: string;
+  /**
+   * WebAuthn PublicKeyCredentialCreationOptionsJSON or PublicKeyCredentialRequestOptionsJSON. Binary members use unpadded base64url.
+   */
+  publicKey: {};
+}
+/**
+ * Complete a passkey assertion. The assertion challenge and login ticket are single use, and the credential signature counter is checked.
+ */
+export interface WebauthnLoginFinishRequest {
+  ticket: string;
+  challenge_id: string;
+  credential: {
+    id: string;
+    rawId: string;
+    type: "public-key";
+    response: {};
+    [k: string]: unknown | undefined;
+  };
+}
+/**
+ * Begin passkey assertion after the password login returned MFA_REQUIRED.
+ */
+export interface WebauthnLoginStartRequest {
+  ticket: string;
 }

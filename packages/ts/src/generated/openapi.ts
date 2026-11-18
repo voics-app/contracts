@@ -204,6 +204,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/mfa/webauthn/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Exchange a verified passkey assertion for login tokens */
+        post: operations["finishWebauthnLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/mfa/webauthn/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start passkey assertion after the password step */
+        post: operations["startWebauthnLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/refresh": {
         parameters: {
             query?: never;
@@ -1413,6 +1447,74 @@ export interface paths {
          * @description Needs the password. Without `regenerate` it lists consumed states only (codes are hashed at rest); with it, the old codes die and the new plaintext codes are returned once.
          */
         post: operations["verifyBackupCodes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/mfa/passkeys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List registered passkey second factors */
+        get: operations["listPasskeys"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/mfa/passkeys/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a passkey after password and second-factor confirmation */
+        delete: operations["deletePasskey"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/mfa/passkeys/register/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify and save a passkey second factor */
+        post: operations["finishPasskeyRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/mfa/passkeys/register/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start passkey registration */
+        post: operations["startPasskeyRegistration"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2841,7 +2943,9 @@ export interface components {
             /** @constant */
             code: 60008;
             message: string;
-            /** @description Present to POST /auth/mfa/totp together with a code. */
+            /** @description Registered factors available for this ticket; older servers may omit it. */
+            methods?: ("totp" | "webauthn" | "backup_code")[];
+            /** @description Present to /auth/mfa/totp with a TOTP/recovery code or to /auth/mfa/webauthn/start. */
             ticket: string;
         };
         /**
@@ -3108,6 +3212,64 @@ export interface components {
             global_name?: string | null;
             id: components["schemas"]["Snowflake"];
             username?: string;
+        };
+        /**
+         * Passkey
+         * @description Registered second factor metadata. Credential public keys and challenges are never included.
+         */
+        Passkey: {
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            last_used_at: string | null;
+            name: string;
+        };
+        /**
+         * PasskeyDeleteRequest
+         * @description Removing a passkey needs the password and a valid TOTP or one-time recovery code. Removing the last factor turns MFA off.
+         */
+        PasskeyDeleteRequest: {
+            code: string;
+            password: string;
+        };
+        /**
+         * PasskeyRegisterFinishRequest
+         * @description Finish the registration using navigator.credentials.create, serializing binary fields as unpadded base64url.
+         */
+        PasskeyRegisterFinishRequest: {
+            /** Format: uuid */
+            challenge_id: string;
+            credential: {
+                id: string;
+                rawId: string;
+                response: Record<string, never>;
+                /** @constant */
+                type: "public-key";
+            } & {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * PasskeyRegisterResponse
+         * @description The enrolled passkey. First-factor enrollment generates recovery codes; existing codes are retained when another factor is added.
+         */
+        PasskeyRegisterResponse: {
+            backup_codes?: {
+                /** @description Plaintext code; omitted when only the consumed state is listed. */
+                code?: string;
+                consumed: boolean;
+            }[];
+            passkey: components["schemas"]["Passkey"];
+        };
+        /**
+         * PasskeyRegisterStartRequest
+         * @description Reauthenticate with the password before creating a passkey registration challenge.
+         */
+        PasskeyRegisterStartRequest: {
+            name: string;
+            password: string;
         };
         /**
          * PasswordConfirmationRequest
@@ -3580,6 +3742,41 @@ export interface components {
             id: string;
             name: string;
             optimal: boolean;
+        };
+        /**
+         * WebauthnChallenge
+         * @description A five-minute, single-use server-side ceremony. Finish requires the same account/session or password-authenticated login ticket.
+         */
+        WebauthnChallenge: {
+            /** Format: uuid */
+            challenge_id: string;
+            /** @description WebAuthn PublicKeyCredentialCreationOptionsJSON or PublicKeyCredentialRequestOptionsJSON. Binary members use unpadded base64url. */
+            publicKey: Record<string, never>;
+        };
+        /**
+         * WebauthnLoginFinishRequest
+         * @description Complete a passkey assertion. The assertion challenge and login ticket are single use, and the credential signature counter is checked.
+         */
+        WebauthnLoginFinishRequest: {
+            /** Format: uuid */
+            challenge_id: string;
+            credential: {
+                id: string;
+                rawId: string;
+                response: Record<string, never>;
+                /** @constant */
+                type: "public-key";
+            } & {
+                [key: string]: unknown;
+            };
+            ticket: string;
+        };
+        /**
+         * WebauthnLoginStartRequest
+         * @description Begin passkey assertion after the password login returned MFA_REQUIRED.
+         */
+        WebauthnLoginStartRequest: {
+            ticket: string;
         };
         /**
          * Webhook
@@ -4309,6 +4506,60 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    finishWebauthnLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WebauthnLoginFinishRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    startWebauthnLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WebauthnLoginStartRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebauthnChallenge"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -7361,6 +7612,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BackupCodesResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listPasskeys: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Passkey"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    deletePasskey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyDeleteRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    finishPasskeyRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyRegisterFinishRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasskeyRegisterResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    startPasskeyRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyRegisterStartRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebauthnChallenge"];
                 };
             };
             400: components["responses"]["BadRequest"];

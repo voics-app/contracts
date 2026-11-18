@@ -1,0 +1,10 @@
+{
+  "schema": "rest/passkey-register-finish-request.json",
+  "data": {
+    "credential": {
+      "id": "aWQ",
+      "type": "public-key"
+    }
+  },
+  "valid": false
+}

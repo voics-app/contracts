@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/webauthn-challenge.json",
+  "title": "WebauthnChallenge",
+  "description": "A five-minute, single-use server-side ceremony. Finish requires the same account/session or password-authenticated login ticket.",
+  "type": "object",
+  "required": [
+    "challenge_id",
+    "publicKey"
+  ],
+  "properties": {
+    "challenge_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "publicKey": {
+      "type": "object",
+      "description": "WebAuthn PublicKeyCredentialCreationOptionsJSON or PublicKeyCredentialRequestOptionsJSON. Binary members use unpadded base64url."
+    }
+  }
+}

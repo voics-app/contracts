@@ -4074,8 +4074,66 @@ pub struct MfaLoginRequest {
 pub struct MfaRequiredResponse {
     pub code: i64,
     pub message: ::std::string::String,
-    ///Present to POST /auth/mfa/totp together with a code.
+    ///Registered factors available for this ticket; older servers may omit it.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub methods: ::std::option::Option<::std::vec::Vec<MfaRequiredResponseMethodsItem>>,
+    ///Present to /auth/mfa/totp with a TOTP/recovery code or to /auth/mfa/webauthn/start.
     pub ticket: ::std::string::String,
+}
+///`MfaRequiredResponseMethodsItem`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum MfaRequiredResponseMethodsItem {
+    #[serde(rename = "totp")]
+    Totp,
+    #[serde(rename = "webauthn")]
+    Webauthn,
+    #[serde(rename = "backup_code")]
+    BackupCode,
+}
+impl ::std::fmt::Display for MfaRequiredResponseMethodsItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Totp => f.write_str("totp"),
+            Self::Webauthn => f.write_str("webauthn"),
+            Self::BackupCode => f.write_str("backup_code"),
+        }
+    }
+}
+impl ::std::str::FromStr for MfaRequiredResponseMethodsItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "totp" => Ok(Self::Totp),
+            "webauthn" => Ok(Self::Webauthn),
+            "backup_code" => Ok(Self::BackupCode),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for MfaRequiredResponseMethodsItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for MfaRequiredResponseMethodsItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
 }
 ///PATCH /applications/{id} body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
@@ -5052,6 +5110,416 @@ pub struct PartialUser {
     pub id: Snowflake,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub username: ::std::option::Option<::std::string::String>,
+}
+///Registered second factor metadata. Credential public keys and challenges are never included.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct Passkey {
+    pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub id: ::uuid::Uuid,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub last_used_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    pub name: PasskeyName,
+}
+///Removing a passkey needs the password and a valid TOTP or one-time recovery code. Removing the last factor turns MFA off.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyDeleteRequest {
+    pub code: PasskeyDeleteRequestCode,
+    pub password: PasskeyDeleteRequestPassword,
+}
+///`PasskeyDeleteRequestCode`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyDeleteRequestCode(::std::string::String);
+impl ::std::ops::Deref for PasskeyDeleteRequestCode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyDeleteRequestCode> for ::std::string::String {
+    fn from(value: PasskeyDeleteRequestCode) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyDeleteRequestCode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyDeleteRequestCode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyDeleteRequestCode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyDeleteRequestCode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`PasskeyDeleteRequestPassword`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyDeleteRequestPassword(::std::string::String);
+impl ::std::ops::Deref for PasskeyDeleteRequestPassword {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyDeleteRequestPassword> for ::std::string::String {
+    fn from(value: PasskeyDeleteRequestPassword) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyDeleteRequestPassword {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyDeleteRequestPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyDeleteRequestPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyDeleteRequestPassword {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`PasskeyName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyName(::std::string::String);
+impl ::std::ops::Deref for PasskeyName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyName> for ::std::string::String {
+    fn from(value: PasskeyName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 64usize {
+            return Err("longer than 64 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Finish the registration using navigator.credentials.create, serializing binary fields as unpadded base64url.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyRegisterFinishRequest {
+    pub challenge_id: ::uuid::Uuid,
+    pub credential: PasskeyRegisterFinishRequestCredential,
+}
+///`PasskeyRegisterFinishRequestCredential`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyRegisterFinishRequestCredential {
+    pub id: PasskeyRegisterFinishRequestCredentialId,
+    #[serde(rename = "rawId")]
+    pub raw_id: PasskeyRegisterFinishRequestCredentialRawId,
+    pub response: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+///`PasskeyRegisterFinishRequestCredentialId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyRegisterFinishRequestCredentialId(::std::string::String);
+impl ::std::ops::Deref for PasskeyRegisterFinishRequestCredentialId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyRegisterFinishRequestCredentialId> for ::std::string::String {
+    fn from(value: PasskeyRegisterFinishRequestCredentialId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyRegisterFinishRequestCredentialId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyRegisterFinishRequestCredentialId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyRegisterFinishRequestCredentialId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyRegisterFinishRequestCredentialId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`PasskeyRegisterFinishRequestCredentialRawId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyRegisterFinishRequestCredentialRawId(::std::string::String);
+impl ::std::ops::Deref for PasskeyRegisterFinishRequestCredentialRawId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyRegisterFinishRequestCredentialRawId> for ::std::string::String {
+    fn from(value: PasskeyRegisterFinishRequestCredentialRawId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyRegisterFinishRequestCredentialRawId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyRegisterFinishRequestCredentialRawId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for PasskeyRegisterFinishRequestCredentialRawId
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyRegisterFinishRequestCredentialRawId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///The enrolled passkey. First-factor enrollment generates recovery codes; existing codes are retained when another factor is added.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyRegisterResponse {
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub backup_codes: ::std::vec::Vec<PasskeyRegisterResponseBackupCodesItem>,
+    pub passkey: Passkey,
+}
+///`PasskeyRegisterResponseBackupCodesItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyRegisterResponseBackupCodesItem {
+    ///Plaintext code; omitted when only the consumed state is listed.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub code: ::std::option::Option<::std::string::String>,
+    pub consumed: bool,
+}
+///Reauthenticate with the password before creating a passkey registration challenge.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyRegisterStartRequest {
+    pub name: PasskeyRegisterStartRequestName,
+    pub password: PasskeyRegisterStartRequestPassword,
+}
+///`PasskeyRegisterStartRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyRegisterStartRequestName(::std::string::String);
+impl ::std::ops::Deref for PasskeyRegisterStartRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyRegisterStartRequestName> for ::std::string::String {
+    fn from(value: PasskeyRegisterStartRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyRegisterStartRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 64usize {
+            return Err("longer than 64 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyRegisterStartRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyRegisterStartRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyRegisterStartRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`PasskeyRegisterStartRequestPassword`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyRegisterStartRequestPassword(::std::string::String);
+impl ::std::ops::Deref for PasskeyRegisterStartRequestPassword {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyRegisterStartRequestPassword> for ::std::string::String {
+    fn from(value: PasskeyRegisterStartRequestPassword) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyRegisterStartRequestPassword {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyRegisterStartRequestPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyRegisterStartRequestPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyRegisterStartRequestPassword {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -7594,6 +8062,236 @@ impl ::std::convert::TryFrom<::std::string::String> for WatchTogetherPayloadActi
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///A five-minute, single-use server-side ceremony. Finish requires the same account/session or password-authenticated login ticket.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WebauthnChallenge {
+    pub challenge_id: ::uuid::Uuid,
+    ///WebAuthn PublicKeyCredentialCreationOptionsJSON or PublicKeyCredentialRequestOptionsJSON. Binary members use unpadded base64url.
+    #[serde(rename = "publicKey")]
+    pub public_key: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+}
+///Complete a passkey assertion. The assertion challenge and login ticket are single use, and the credential signature counter is checked.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WebauthnLoginFinishRequest {
+    pub challenge_id: ::uuid::Uuid,
+    pub credential: WebauthnLoginFinishRequestCredential,
+    pub ticket: WebauthnLoginFinishRequestTicket,
+}
+///`WebauthnLoginFinishRequestCredential`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WebauthnLoginFinishRequestCredential {
+    pub id: WebauthnLoginFinishRequestCredentialId,
+    #[serde(rename = "rawId")]
+    pub raw_id: WebauthnLoginFinishRequestCredentialRawId,
+    pub response: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+///`WebauthnLoginFinishRequestCredentialId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WebauthnLoginFinishRequestCredentialId(::std::string::String);
+impl ::std::ops::Deref for WebauthnLoginFinishRequestCredentialId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WebauthnLoginFinishRequestCredentialId> for ::std::string::String {
+    fn from(value: WebauthnLoginFinishRequestCredentialId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WebauthnLoginFinishRequestCredentialId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WebauthnLoginFinishRequestCredentialId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WebauthnLoginFinishRequestCredentialId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WebauthnLoginFinishRequestCredentialId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`WebauthnLoginFinishRequestCredentialRawId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WebauthnLoginFinishRequestCredentialRawId(::std::string::String);
+impl ::std::ops::Deref for WebauthnLoginFinishRequestCredentialRawId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WebauthnLoginFinishRequestCredentialRawId> for ::std::string::String {
+    fn from(value: WebauthnLoginFinishRequestCredentialRawId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WebauthnLoginFinishRequestCredentialRawId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WebauthnLoginFinishRequestCredentialRawId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WebauthnLoginFinishRequestCredentialRawId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WebauthnLoginFinishRequestCredentialRawId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`WebauthnLoginFinishRequestTicket`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WebauthnLoginFinishRequestTicket(::std::string::String);
+impl ::std::ops::Deref for WebauthnLoginFinishRequestTicket {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WebauthnLoginFinishRequestTicket> for ::std::string::String {
+    fn from(value: WebauthnLoginFinishRequestTicket) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WebauthnLoginFinishRequestTicket {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WebauthnLoginFinishRequestTicket {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WebauthnLoginFinishRequestTicket {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WebauthnLoginFinishRequestTicket {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Begin passkey assertion after the password login returned MFA_REQUIRED.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WebauthnLoginStartRequest {
+    pub ticket: WebauthnLoginStartRequestTicket,
+}
+///`WebauthnLoginStartRequestTicket`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WebauthnLoginStartRequestTicket(::std::string::String);
+impl ::std::ops::Deref for WebauthnLoginStartRequestTicket {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WebauthnLoginStartRequestTicket> for ::std::string::String {
+    fn from(value: WebauthnLoginStartRequestTicket) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WebauthnLoginStartRequestTicket {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WebauthnLoginStartRequestTicket {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WebauthnLoginStartRequestTicket {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WebauthnLoginStartRequestTicket {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 ///An incoming or application webhook.

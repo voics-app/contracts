@@ -19,7 +19,20 @@
     },
     "ticket": {
       "type": "string",
-      "description": "Present to POST /auth/mfa/totp together with a code."
+      "description": "Present to /auth/mfa/totp with a TOTP/recovery code or to /auth/mfa/webauthn/start."
+    },
+    "methods": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "totp",
+          "webauthn",
+          "backup_code"
+        ]
+      },
+      "uniqueItems": true,
+      "description": "Registered factors available for this ticket; older servers may omit it."
     }
   }
 }

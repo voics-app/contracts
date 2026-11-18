@@ -1,0 +1,15 @@
+{
+  "schema": "rest/passkey-register-finish-request.json",
+  "data": {
+    "challenge_id": "b69dc58d-137e-4c99-ae61-9c1c691040f4",
+    "credential": {
+      "id": "aWQ",
+      "rawId": "aWQ",
+      "type": "public-key",
+      "response": {
+        "clientDataJSON": "e30",
+        "attestationObject": "e30"
+      }
+    }
+  }
+}
