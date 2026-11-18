@@ -7,6 +7,10 @@ Rust and Elixir, and into the protocol reference docs.
 
 ## Layout
 
+Template links can resolve `GET /guilds/templates/{code}` without a session;
+creating a guild remains authenticated. `GuildTemplate.is_dirty` compares the
+current template-visible structure with the saved snapshot until explicit sync.
+
 | Path | Content |
 | --- | --- |
 | `openapi/discordy.yaml`, `openapi/internal.yaml` | OpenAPI 3.1 (public / service-to-service) |
