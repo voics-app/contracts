@@ -60,7 +60,7 @@
     },
     "flags": {
       "type": "integer",
-      "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler."
+      "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent."
     }
   }
 }

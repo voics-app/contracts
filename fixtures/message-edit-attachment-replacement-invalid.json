@@ -1,0 +1,5 @@
+{
+  "schema": "rest/edit-message-request.json",
+  "valid": false,
+  "data": {"attachments": [{"id": "77", "uploaded_filename": "attachments/1/2/new.png"}]}
+}
