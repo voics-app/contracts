@@ -12,6 +12,11 @@ Its evidence is server-owned channel metadata only (ID, guild, parent, name, typ
 age-restricted flag); it never snapshots messages or a member list. The `guild`
 target remains exclusive to public discovery listing reports.
 
+`preferences.hide_age_restricted_channels` is an optional account preference for client#76.
+Missing means false. It uses the existing key-by-key settings PATCH and settings events;
+it does not attest age or change server permissions. Clients still require explicit
+per-channel confirmation before loading age-restricted content when the preference is false.
+
 Template links can resolve `GET /guilds/templates/{code}` without a session;
 creating a guild remains authenticated. `GuildTemplate.is_dirty` compares the
 current template-visible structure with the saved snapshot until explicit sync.

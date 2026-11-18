@@ -1254,6 +1254,8 @@ export interface components {
             animate_stickers?: boolean;
             /** @description Chat font scale. */
             font_scale?: number;
+            /** @description Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization. */
+            hide_age_restricted_channels?: boolean;
             /** @description Increase contrast of text and borders. */
             high_contrast?: boolean;
             /** @description Show previews (embeds) of links in messages. */

@@ -8684,6 +8684,9 @@ pub struct UserPreferences {
     ///Chat font scale.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub font_scale: ::std::option::Option<f64>,
+    ///Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub hide_age_restricted_channels: ::std::option::Option<bool>,
     ///Increase contrast of text and borders.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub high_contrast: ::std::option::Option<bool>,
