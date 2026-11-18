@@ -7,6 +7,11 @@ Rust and Elixir, and into the protocol reference docs.
 
 ## Layout
 
+`POST /reports` accepts the explicit `channel` target for a visible guild channel.
+Its evidence is server-owned channel metadata only (ID, guild, parent, name, type,
+age-restricted flag); it never snapshots messages or a member list. The `guild`
+target remains exclusive to public discovery listing reports.
+
 `preferences.hide_age_restricted_channels` is an optional account preference for client#76.
 Missing means false. It uses the existing key-by-key settings PATCH and settings events;
 it does not attest age or change server permissions. Clients still require explicit

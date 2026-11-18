@@ -49,6 +49,35 @@ tags:
   - name: Voice
     description: Voice regions.
 paths:
+  /reports:
+    post:
+      operationId: createReport
+      summary: Report a message, user or visible guild channel
+      description: Channel reports capture only the channel ID, server ID, parent ID, name, type and age-restricted flag from server data. No messages or member list are fetched. Current channel visibility is required. Guild listing reports use the dedicated discovery route.
+      tags:
+        - Users
+      x-discordy-service: api
+      security:
+        - UserBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-report-request.json
+      responses:
+        "204":
+          description: Report accepted or already open. No moderation action is automatic.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /auth/register:
     post:
       operationId: register

@@ -1,0 +1,1 @@
+{ "schema": "rest/create-report-request.json", "data": { "target": "channel", "channel_id": "123456789012345678", "category": "sexual_content", "note": "Please review the channel settings." } }

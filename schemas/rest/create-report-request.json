@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-report-request.json",
+  "title": "CreateReportRequest",
+  "description": "File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.",
+  "type": "object",
+  "required": ["target", "category"],
+  "properties": {
+    "target": { "type": "string", "enum": ["message", "user", "channel"] },
+    "category": { "type": "string", "enum": ["spam", "harassment", "hate_speech", "violence", "sexual_content", "self_harm", "illegal", "impersonation", "other"] },
+    "note": { "type": ["string", "null"], "maxLength": 500 },
+    "channel_id": { "$ref": "../objects/snowflake.json" },
+    "message_id": { "$ref": "../objects/snowflake.json" },
+    "user_id": { "$ref": "../objects/snowflake.json" },
+    "author_id": { "$ref": "../objects/snowflake.json" },
+    "content": { "type": ["string", "null"], "maxLength": 4000 }
+  },
+  "allOf": [
+    { "if": { "properties": { "target": { "const": "message" } } }, "then": { "properties": { "channel_id": {}, "message_id": {} }, "required": ["channel_id", "message_id"] } },
+    { "if": { "properties": { "target": { "const": "user" } } }, "then": { "properties": { "user_id": {} }, "required": ["user_id"] } },
+    { "if": { "properties": { "target": { "const": "channel" } } }, "then": {
+      "required": ["channel_id"],
+      "properties": { "channel_id": {}, "content": { "type": "null" }, "message_id": false, "user_id": false, "author_id": false }
+    } }
+  ]
+}
