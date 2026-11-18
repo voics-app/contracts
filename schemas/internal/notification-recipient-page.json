@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/notification-recipient-page.json",
+  "title": "NotificationRecipientPage",
+  "description": "A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "channel_id",
+        "guild_id",
+        "delivery_mode",
+        "evaluated_at",
+        "recipients",
+        "next_after"
+      ],
+      "properties": {
+        "channel_id": {
+          "$ref": "../objects/snowflake.json"
+        },
+        "guild_id": {
+          "anyOf": [
+            {
+              "$ref": "../objects/snowflake.json"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "delivery_mode": {
+          "type": "string",
+          "const": "standard"
+        },
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "recipients": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "$ref": "notification-recipient.json"
+          }
+        },
+        "next_after": {
+          "anyOf": [
+            {
+              "$ref": "../objects/snowflake.json"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue."
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "channel_id",
+        "guild_id",
+        "delivery_mode",
+        "evaluated_at",
+        "recipients",
+        "next_after"
+      ],
+      "properties": {
+        "channel_id": {
+          "$ref": "../objects/snowflake.json"
+        },
+        "guild_id": {
+          "anyOf": [
+            {
+              "$ref": "../objects/snowflake.json"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "delivery_mode": {
+          "type": "string",
+          "enum": [
+            "ephemeral",
+            "p2p"
+          ]
+        },
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "recipients": {
+          "type": "array",
+          "maxItems": 0,
+          "items": {
+            "$ref": "notification-recipient.json"
+          }
+        },
+        "next_after": {
+          "type": "null"
+        }
+      }
+    }
+  ]
+}

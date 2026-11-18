@@ -5263,6 +5263,133 @@ pub struct MuteConfig {
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub end_time: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
 }
+///A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct NotificationRecipient {
+    ///Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing.
+    pub level: NotificationRecipientLevel,
+    ///A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired.
+    pub muted: bool,
+    ///Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground.
+    pub online: bool,
+    pub role_ids: ::std::vec::Vec<Snowflake>,
+    pub suppress_everyone: bool,
+    pub suppress_roles: bool,
+    pub user_id: Snowflake,
+}
+///Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct NotificationRecipientLevel(i64);
+impl ::std::ops::Deref for NotificationRecipientLevel {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<NotificationRecipientLevel> for i64 {
+    fn from(value: NotificationRecipientLevel) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for NotificationRecipientLevel {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![0_i64, 1_i64, 2_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for NotificationRecipientLevel {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(untagged, deny_unknown_fields)]
+pub enum NotificationRecipientPage {
+    Variant0 {
+        channel_id: Snowflake,
+        delivery_mode: ::std::string::String,
+        evaluated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        #[serde(deserialize_with = "::std::option::Option::deserialize")]
+        guild_id: ::std::option::Option<Snowflake>,
+        ///Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue.
+        #[serde(deserialize_with = "::std::option::Option::deserialize")]
+        next_after: ::std::option::Option<Snowflake>,
+        recipients: ::std::vec::Vec<NotificationRecipient>,
+    },
+    Variant1 {
+        channel_id: Snowflake,
+        delivery_mode: NotificationRecipientPageVariant1DeliveryMode,
+        evaluated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        #[serde(deserialize_with = "::std::option::Option::deserialize")]
+        guild_id: ::std::option::Option<Snowflake>,
+        next_after: (),
+        recipients: ::std::vec::Vec<NotificationRecipient>,
+    },
+}
+///`NotificationRecipientPageVariant1DeliveryMode`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum NotificationRecipientPageVariant1DeliveryMode {
+    #[serde(rename = "ephemeral")]
+    Ephemeral,
+    #[serde(rename = "p2p")]
+    P2p,
+}
+impl ::std::fmt::Display for NotificationRecipientPageVariant1DeliveryMode {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Ephemeral => f.write_str("ephemeral"),
+            Self::P2p => f.write_str("p2p"),
+        }
+    }
+}
+impl ::std::str::FromStr for NotificationRecipientPageVariant1DeliveryMode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "ephemeral" => Ok(Self::Ephemeral),
+            "p2p" => Ok(Self::P2p),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for NotificationRecipientPageVariant1DeliveryMode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for NotificationRecipientPageVariant1DeliveryMode
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
 ///GET /oauth2/authorize response: what the bot invite screen shows.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct OAuth2AuthorizeInfo {

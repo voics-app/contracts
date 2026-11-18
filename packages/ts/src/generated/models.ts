@@ -38,6 +38,35 @@ export type IdReservationRequest =
  */
 export type InvalidSessionPayload = boolean;
 /**
+ * A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
+ */
+export type NotificationRecipientPage =
+  | {
+      channel_id: Snowflake;
+      guild_id: Snowflake | null;
+      delivery_mode: "standard";
+      evaluated_at: string;
+      /**
+       * @maxItems 200
+       */
+      recipients: NotificationRecipient[];
+      /**
+       * Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue.
+       */
+      next_after: Snowflake | null;
+    }
+  | {
+      channel_id: Snowflake;
+      guild_id: Snowflake | null;
+      delivery_mode: "ephemeral" | "p2p";
+      evaluated_at: string;
+      /**
+       * @maxItems 0
+       */
+      recipients: [];
+      next_after: null;
+    };
+/**
  * SESSIONS_REPLACE dispatch: every active session of the user.
  */
 export type SessionsReplaceEvent = Session[];
@@ -2996,6 +3025,27 @@ export interface ModifyWebhookRequest {
   name?: string;
   avatar?: string | null;
   channel_id?: Snowflake;
+}
+/**
+ * A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.
+ */
+export interface NotificationRecipient {
+  user_id: Snowflake;
+  role_ids: Snowflake[];
+  /**
+   * Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground.
+   */
+  online: boolean;
+  /**
+   * Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing.
+   */
+  level: 0 | 1 | 2;
+  /**
+   * A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired.
+   */
+  muted: boolean;
+  suppress_everyone: boolean;
+  suppress_roles: boolean;
 }
 /**
  * GET /oauth2/authorize response: what the bot invite screen shows.
