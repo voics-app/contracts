@@ -2727,8 +2727,12 @@ export interface components {
          * @description A member of a guild.
          */
         GuildMember: {
+            /** @description Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif). */
             avatar?: string | null;
+            /** @description Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif). */
             banner?: string | null;
+            /** @description Server-specific About me; trimmed, null or blank restores the global bio. */
+            bio?: string | null;
             /** Format: date-time */
             communication_disabled_until?: string | null;
             deaf: boolean;
@@ -3073,6 +3077,7 @@ export interface components {
             accent_color?: number | null;
             /** @description Data URI image. */
             avatar?: string | null;
+            /** @description PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it. */
             banner?: string | null;
             /** @description About me text; null or blank clears it. Trimmed, at most 300 characters. */
             bio?: string | null;
@@ -3082,6 +3087,10 @@ export interface components {
             new_password?: string;
             /** @description Current password; required with username, email or new_password. */
             password?: string;
+            /** @description Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. */
+            pronouns?: string | null;
+            /** @description Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. */
+            theme_colors?: number[] | null;
             username?: string;
         };
         /**
@@ -3177,9 +3186,15 @@ export interface components {
         };
         /**
          * ModifyMemberRequest
-         * @description PATCH /guilds/{id}/members/{uid} body.
+         * @description PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.
          */
         ModifyMemberRequest: {
+            /** @description Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. */
+            avatar?: string | null;
+            /** @description Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. */
+            banner?: string | null;
+            /** @description Server-specific About me; trimmed, null or blank restores the global bio. */
+            bio?: string | null;
             /** @description Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice. */
             channel_id?: components["schemas"]["Snowflake"] | null;
             /** Format: date-time */
@@ -3701,6 +3716,7 @@ export interface components {
             accent_color?: number | null;
             /** @description Avatar hash. */
             avatar: string | null;
+            /** @description Profile banner hash. */
             banner?: string | null;
             /** @description Profile About me text, at most 300 characters. */
             bio?: string | null;
@@ -3714,8 +3730,12 @@ export interface components {
             id: components["schemas"]["Snowflake"];
             locale?: string;
             mfa_enabled?: boolean;
+            /** @description Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. */
+            pronouns?: string | null;
             public_flags?: number;
             system?: boolean;
+            /** @description Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. */
+            theme_colors?: number[] | null;
             username: string;
             verified?: boolean;
         };

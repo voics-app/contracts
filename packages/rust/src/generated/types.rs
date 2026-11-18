@@ -3080,10 +3080,15 @@ impl<'de> ::serde::Deserialize<'de> for GuildFullAuditLogRetentionDays {
 ///A member of a guild.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildMember {
+    ///Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar: ::std::option::Option<::std::string::String>,
+    ///Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
+    ///Server-specific About me; trimmed, null or blank restores the global bio.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bio: ::std::option::Option<GuildMemberBio>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub communication_disabled_until:
         ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
@@ -3104,13 +3109,68 @@ pub struct GuildMember {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user: ::std::option::Option<User>,
 }
+///Server-specific About me; trimmed, null or blank restores the global bio.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildMemberBio(::std::string::String);
+impl ::std::ops::Deref for GuildMemberBio {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildMemberBio> for ::std::string::String {
+    fn from(value: GuildMemberBio) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildMemberBio {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildMemberBio {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildMemberBio {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildMemberBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///GUILD_MEMBER_ADD / GUILD_MEMBER_UPDATE dispatch: a guild member plus guild_id.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildMemberEvent {
+    ///Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar: ::std::option::Option<::std::string::String>,
+    ///Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
+    ///Server-specific About me; trimmed, null or blank restores the global bio.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bio: ::std::option::Option<GuildMemberEventBio>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub communication_disabled_until:
         ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
@@ -3131,6 +3191,56 @@ pub struct GuildMemberEvent {
     pub roles: ::std::vec::Vec<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user: ::std::option::Option<User>,
+}
+///Server-specific About me; trimmed, null or blank restores the global bio.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildMemberEventBio(::std::string::String);
+impl ::std::ops::Deref for GuildMemberEventBio {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildMemberEventBio> for ::std::string::String {
+    fn from(value: GuildMemberEventBio) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildMemberEventBio {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildMemberEventBio {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildMemberEventBio {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildMemberEventBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///GUILD_MEMBER_REMOVE dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -4453,6 +4563,7 @@ pub struct ModifyCurrentUserRequest {
     ///Data URI image.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar: ::std::option::Option<::std::string::String>,
+    ///PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
     ///About me text; null or blank clears it. Trimmed, at most 300 characters.
@@ -4467,6 +4578,12 @@ pub struct ModifyCurrentUserRequest {
     ///Current password; required with username, email or new_password.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub password: ::std::option::Option<::std::string::String>,
+    ///Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub pronouns: ::std::option::Option<ModifyCurrentUserRequestPronouns>,
+    ///Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub theme_colors: ::std::option::Option<[i64; 2usize]>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub username: ::std::option::Option<ModifyCurrentUserRequestUsername>,
 }
@@ -4562,6 +4679,56 @@ impl ::std::convert::TryFrom<::std::string::String> for ModifyCurrentUserRequest
     }
 }
 impl<'de> ::serde::Deserialize<'de> for ModifyCurrentUserRequestNewPassword {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyCurrentUserRequestPronouns(::std::string::String);
+impl ::std::ops::Deref for ModifyCurrentUserRequestPronouns {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyCurrentUserRequestPronouns> for ::std::string::String {
+    fn from(value: ModifyCurrentUserRequestPronouns) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyCurrentUserRequestPronouns {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 40usize {
+            return Err("longer than 40 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyCurrentUserRequestPronouns {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyCurrentUserRequestPronouns {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyCurrentUserRequestPronouns {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -5068,9 +5235,18 @@ impl<'de> ::serde::Deserialize<'de> for ModifyGuildTemplateRequestName {
             })
     }
 }
-///PATCH /guilds/{id}/members/{uid} body.
+///PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyMemberRequest {
+    ///Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub avatar: ::std::option::Option<::std::string::String>,
+    ///Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub banner: ::std::option::Option<::std::string::String>,
+    ///Server-specific About me; trimmed, null or blank restores the global bio.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bio: ::std::option::Option<ModifyMemberRequestBio>,
     ///Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub channel_id: ::std::option::Option<Snowflake>,
@@ -5087,6 +5263,56 @@ pub struct ModifyMemberRequest {
     pub nick: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub roles: ::std::vec::Vec<Snowflake>,
+}
+///Server-specific About me; trimmed, null or blank restores the global bio.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyMemberRequestBio(::std::string::String);
+impl ::std::ops::Deref for ModifyMemberRequestBio {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyMemberRequestBio> for ::std::string::String {
+    fn from(value: ModifyMemberRequestBio) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyMemberRequestBio {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyMemberRequestBio {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyMemberRequestBio {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyMemberRequestBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///PATCH /users/@me/settings body (partial).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
@@ -7589,6 +7815,7 @@ pub struct User {
     ///Avatar hash.
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub avatar: ::std::option::Option<::std::string::String>,
+    ///Profile banner hash.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
     ///Profile About me text, at most 300 characters.
@@ -7610,10 +7837,16 @@ pub struct User {
     pub locale: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub mfa_enabled: ::std::option::Option<bool>,
+    ///Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub pronouns: ::std::option::Option<UserPronouns>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub public_flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub system: ::std::option::Option<bool>,
+    ///Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub theme_colors: ::std::option::Option<[i64; 2usize]>,
     pub username: ::std::string::String,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub verified: ::std::option::Option<bool>,
@@ -8151,6 +8384,56 @@ pub struct UserProfileMutualGuildsItem {
     pub id: Snowflake,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub nick: ::std::option::Option<::std::string::String>,
+}
+///Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserPronouns(::std::string::String);
+impl ::std::ops::Deref for UserPronouns {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserPronouns> for ::std::string::String {
+    fn from(value: UserPronouns) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserPronouns {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 40usize {
+            return Err("longer than 40 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPronouns {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPronouns {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserPronouns {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///GET /internal/v1/users/{user_id}/ready: the state used to build READY.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

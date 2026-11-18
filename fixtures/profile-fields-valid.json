@@ -1,0 +1,12 @@
+{
+  "schema": "rest/modify-current-user-request.json",
+  "data": {
+    "pronouns": "they / them",
+    "theme_colors": [
+      0,
+      16777215
+    ],
+    "accent_color": 0,
+    "banner": null
+  }
+}

@@ -243,6 +243,9 @@ export interface User {
   bot?: boolean;
   system?: boolean;
   mfa_enabled?: boolean;
+  /**
+   * Profile banner hash.
+   */
   banner?: string | null;
   accent_color?: number | null;
   locale?: string;
@@ -253,6 +256,17 @@ export interface User {
   email?: string | null;
   flags?: number;
   public_flags?: number;
+  /**
+   * Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+   */
+  pronouns?: string | null;
+  /**
+   * Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  theme_colors?: [number, number] | null;
 }
 /**
  * Default scopes and permissions for the bot invite.
@@ -576,7 +590,13 @@ export interface ThreadMember {
 export interface GuildMember {
   user?: User;
   nick?: string | null;
+  /**
+   * Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif).
+   */
   avatar?: string | null;
+  /**
+   * Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif).
+   */
   banner?: string | null;
   roles: Snowflake[];
   joined_at: string;
@@ -587,6 +607,10 @@ export interface GuildMember {
   pending?: boolean;
   permissions?: PermissionBitset;
   communication_disabled_until?: string | null;
+  /**
+   * Server-specific About me; trimmed, null or blank restores the global bio.
+   */
+  bio?: string | null;
 }
 /**
  * A tag that can be applied to forum threads.
@@ -1929,7 +1953,13 @@ export interface PartialUser {
 export interface GuildMemberEvent {
   user?: User;
   nick?: string | null;
+  /**
+   * Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif).
+   */
   avatar?: string | null;
+  /**
+   * Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif).
+   */
   banner?: string | null;
   roles: Snowflake[];
   joined_at: string;
@@ -1940,6 +1970,10 @@ export interface GuildMemberEvent {
   pending?: boolean;
   permissions?: PermissionBitset;
   communication_disabled_until?: string | null;
+  /**
+   * Server-specific About me; trimmed, null or blank restores the global bio.
+   */
+  bio?: string | null;
   guild_id: Snowflake;
 }
 /**
@@ -2770,6 +2804,9 @@ export interface ModifyCurrentUserRequest {
    * About me text; null or blank clears it. Trimmed, at most 300 characters.
    */
   bio?: string | null;
+  /**
+   * PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it.
+   */
   banner?: string | null;
   accent_color?: number | null;
   /**
@@ -2778,6 +2815,17 @@ export interface ModifyCurrentUserRequest {
   password?: string;
   new_password?: string;
   email?: string;
+  /**
+   * Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+   */
+  pronouns?: string | null;
+  /**
+   * Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  theme_colors?: [number, number] | null;
 }
 /**
  * PATCH /guilds/{id}/emojis/{eid} body.
@@ -2885,7 +2933,7 @@ export interface ModifyGuildTemplateRequest {
   description?: string | null;
 }
 /**
- * PATCH /guilds/{id}/members/{uid} body.
+ * PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.
  */
 export interface ModifyMemberRequest {
   nick?: string | null;
@@ -2898,6 +2946,18 @@ export interface ModifyMemberRequest {
   channel_id?: Snowflake | null;
   communication_disabled_until?: string | null;
   flags?: number;
+  /**
+   * Server-specific About me; trimmed, null or blank restores the global bio.
+   */
+  bio?: string | null;
+  /**
+   * Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image.
+   */
+  avatar?: string | null;
+  /**
+   * Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image.
+   */
+  banner?: string | null;
 }
 /**
  * PATCH /users/@me/settings body (partial).

@@ -684,8 +684,12 @@ export interface components {
          * @description A member of a guild.
          */
         GuildMember: {
+            /** @description Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif). */
             avatar?: string | null;
+            /** @description Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif). */
             banner?: string | null;
+            /** @description Server-specific About me; trimmed, null or blank restores the global bio. */
+            bio?: string | null;
             /** Format: date-time */
             communication_disabled_until?: string | null;
             deaf: boolean;
@@ -1174,6 +1178,7 @@ export interface components {
             accent_color?: number | null;
             /** @description Avatar hash. */
             avatar: string | null;
+            /** @description Profile banner hash. */
             banner?: string | null;
             /** @description Profile About me text, at most 300 characters. */
             bio?: string | null;
@@ -1187,8 +1192,12 @@ export interface components {
             id: components["schemas"]["Snowflake"];
             locale?: string;
             mfa_enabled?: boolean;
+            /** @description Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. */
+            pronouns?: string | null;
             public_flags?: number;
             system?: boolean;
+            /** @description Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. */
+            theme_colors?: number[] | null;
             username: string;
             verified?: boolean;
         };
