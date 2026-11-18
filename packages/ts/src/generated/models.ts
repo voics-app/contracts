@@ -18,6 +18,22 @@ export type DeliveryMode = "standard" | "ephemeral" | "p2p";
  */
 export type HeartbeatPayload = number | null;
 /**
+ * One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.
+ */
+export type IdReservationRequest =
+  | {
+      action: "acquire";
+      service: "messages";
+      owner_id: string;
+      preferred_worker: number;
+    }
+  | {
+      action: "renew";
+      service: "messages";
+      owner_id: string;
+      worker_id: number;
+    };
+/**
  * Op 9 INVALID_SESSION: whether the session can be resumed.
  */
 export type InvalidSessionPayload = boolean;
@@ -331,7 +347,21 @@ export interface Attachment {
   duration_secs?: number;
   waveform?: string;
   /**
-   * AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler.
+   * AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent.
+   */
+  flags?: number;
+}
+/**
+ * Updates metadata of one attachment already owned by this message. Omitted properties are unchanged; description null or blank clears alt text. Files, filenames, IDs and URLs are immutable. Only the author may edit attachment metadata.
+ */
+export interface AttachmentMetadataEdit {
+  id: Snowflake;
+  /**
+   * Trimmed alt text; null or blank clears it.
+   */
+  description?: string | null;
+  /**
+   * Only IS_SPOILER (8) is applied; other stored bits are preserved. Explicit 0 clears the spoiler even for a SPOILER_ filename.
    */
   flags?: number;
 }
@@ -1039,6 +1069,9 @@ export interface CreateInviteRequest {
 export interface CreateMessageRequest {
   content?: string;
   nonce?: string;
+  /**
+   * Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events.
+   */
   tts?: boolean;
   /**
    * @maxItems 10
@@ -1406,7 +1439,74 @@ export interface EditMessageRequest {
   flags?: number | null;
   allowed_mentions?: AllowedMentions | null;
   components?: MessageComponent[] | null;
-  attachments?: AttachmentReference[];
+  /**
+   * Partial metadata edits of existing attachments. Unlisted files remain unchanged and an empty array does nothing. Unknown or duplicate attachment IDs reject the complete edit. This field cannot add or remove files.
+   *
+   * @maxItems 10
+   */
+  attachments?:
+    | []
+    | [AttachmentMetadataEdit]
+    | [AttachmentMetadataEdit, AttachmentMetadataEdit]
+    | [AttachmentMetadataEdit, AttachmentMetadataEdit, AttachmentMetadataEdit]
+    | [AttachmentMetadataEdit, AttachmentMetadataEdit, AttachmentMetadataEdit, AttachmentMetadataEdit]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ];
 }
 /**
  * PUT /channels/{id}/permissions/{overwrite_id} body.
@@ -1978,6 +2078,16 @@ export interface IceCandidate {
   protocol: "udp";
 }
 /**
+ * Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.
+ */
+export interface IdReservation {
+  worker_id: number;
+  owner_id: string;
+  start_ms: number;
+  end_ms: number;
+  issued_at_ms: number;
+}
+/**
  * Op 2 IDENTIFY.
  */
 export interface IdentifyPayload {
@@ -2269,6 +2379,10 @@ export interface InternalCreateMessageRequest {
   interaction_id?: Snowflake;
   application_id?: Snowflake;
   content?: string;
+  /**
+   * The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false.
+   */
+  tts?: boolean;
   embeds?: Embed[];
   components?: MessageComponent[];
   /**

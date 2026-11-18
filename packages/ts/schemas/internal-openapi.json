@@ -43,6 +43,46 @@
     }
   ],
   "paths": {
+    "/id-reservations": {
+      "post": {
+        "operationId": "reserveMessageIds",
+        "summary": "Acquire or renew a committed Snowflake interval for one messages process",
+        "tags": [
+          "api"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdReservationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Committed interval. Timestamp and monotonic deadline checks are mandatory.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdReservation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid service, owner, worker or request shape."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "description": "Capacity exhausted, expired ownership, clock rollback, restore barrier or unavailable database. No new interval was granted."
+          }
+        }
+      }
+    },
     "/auth/introspect": {
       "post": {
         "operationId": "introspectToken",
@@ -920,7 +960,7 @@
           },
           "flags": {
             "type": "integer",
-            "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler."
+            "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent."
           }
         }
       },
@@ -2040,6 +2080,103 @@
           }
         }
       },
+      "IdReservation": {
+        "title": "IdReservation",
+        "description": "Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "worker_id",
+          "owner_id",
+          "start_ms",
+          "end_ms",
+          "issued_at_ms"
+        ],
+        "properties": {
+          "worker_id": {
+            "type": "integer",
+            "minimum": 65,
+            "maximum": 127
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "start_ms": {
+            "type": "integer",
+            "minimum": 1767225600000
+          },
+          "end_ms": {
+            "type": "integer",
+            "minimum": 1767225600001,
+            "maximum": 3966248855551
+          },
+          "issued_at_ms": {
+            "type": "integer",
+            "minimum": 1767225600000
+          }
+        }
+      },
+      "IdReservationRequest": {
+        "title": "IdReservationRequest",
+        "description": "One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.",
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "action",
+              "service",
+              "owner_id",
+              "preferred_worker"
+            ],
+            "properties": {
+              "action": {
+                "const": "acquire"
+              },
+              "service": {
+                "const": "messages"
+              },
+              "owner_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "preferred_worker": {
+                "type": "integer",
+                "minimum": 64,
+                "maximum": 127
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "action",
+              "service",
+              "owner_id",
+              "worker_id"
+            ],
+            "properties": {
+              "action": {
+                "const": "renew"
+              },
+              "service": {
+                "const": "messages"
+              },
+              "owner_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "worker_id": {
+                "type": "integer",
+                "minimum": 65,
+                "maximum": 127
+              }
+            }
+          }
+        ]
+      },
       "InternalCreateMessageRequest": {
         "title": "InternalCreateMessageRequest",
         "description": "POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.",
@@ -2069,6 +2206,11 @@
           },
           "content": {
             "type": "string"
+          },
+          "tts": {
+            "type": "boolean",
+            "default": false,
+            "description": "The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false."
           },
           "embeds": {
             "type": "array",

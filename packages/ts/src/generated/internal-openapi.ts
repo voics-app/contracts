@@ -172,6 +172,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/id-reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Acquire or renew a committed Snowflake interval for one messages process */
+        post: operations["reserveMessageIds"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/ready": {
         parameters: {
             query?: never;
@@ -323,7 +340,7 @@ export interface components {
             duration_secs?: number;
             ephemeral?: boolean;
             filename: string;
-            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. */
+            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent. */
             flags?: number;
             height?: number | null;
             id: components["schemas"]["Snowflake"];
@@ -689,6 +706,39 @@ export interface components {
             suppress_roles: boolean;
         };
         /**
+         * IdReservation
+         * @description Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.
+         */
+        IdReservation: {
+            end_ms: number;
+            issued_at_ms: number;
+            /** Format: uuid */
+            owner_id: string;
+            start_ms: number;
+            worker_id: number;
+        };
+        /**
+         * IdReservationRequest
+         * @description One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.
+         */
+        IdReservationRequest: {
+            /** @constant */
+            action: "acquire";
+            /** Format: uuid */
+            owner_id: string;
+            preferred_worker: number;
+            /** @constant */
+            service: "messages";
+        } | {
+            /** @constant */
+            action: "renew";
+            /** Format: uuid */
+            owner_id: string;
+            /** @constant */
+            service: "messages";
+            worker_id: number;
+        };
+        /**
          * InternalCreateMessageRequest
          * @description POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.
          */
@@ -711,6 +761,11 @@ export interface components {
             target_user_ids?: components["schemas"]["Snowflake"][];
             /** @description The thread a type 18 message announces (required for type 18). */
             thread_id?: components["schemas"]["Snowflake"];
+            /**
+             * @description The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false.
+             * @default false
+             */
+            tts: boolean;
             /** @description System message type (see description); omit or 0 for a normal message. */
             type?: number;
             username?: string;
@@ -1529,6 +1584,45 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
+        };
+    };
+    reserveMessageIds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IdReservationRequest"];
+            };
+        };
+        responses: {
+            /** @description Committed interval. Timestamp and monotonic deadline checks are mandatory. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdReservation"];
+                };
+            };
+            /** @description Invalid service, owner, worker or request shape. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Capacity exhausted, expired ownership, clock rollback, restore barrier or unavailable database. No new interval was granted. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     getUserReadyState: {

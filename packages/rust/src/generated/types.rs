@@ -716,7 +716,7 @@ pub struct Attachment {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ephemeral: ::std::option::Option<bool>,
     pub filename: ::std::string::String,
-    ///AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler.
+    ///AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -731,6 +731,68 @@ pub struct Attachment {
     pub waveform: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub width: ::std::option::Option<i64>,
+}
+///Updates metadata of one attachment already owned by this message. Omitted properties are unchanged; description null or blank clears alt text. Files, filenames, IDs and URLs are immutable. Only the author may edit attachment metadata.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct AttachmentMetadataEdit {
+    ///Trimmed alt text; null or blank clears it.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub description: ::std::option::Option<AttachmentMetadataEditDescription>,
+    ///Only IS_SPOILER (8) is applied; other stored bits are preserved. Explicit 0 clears the spoiler even for a SPOILER_ filename.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub flags: ::std::option::Option<u32>,
+    pub id: Snowflake,
+}
+///Trimmed alt text; null or blank clears it.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct AttachmentMetadataEditDescription(::std::string::String);
+impl ::std::ops::Deref for AttachmentMetadataEditDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<AttachmentMetadataEditDescription> for ::std::string::String {
+    fn from(value: AttachmentMetadataEditDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for AttachmentMetadataEditDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 1024usize {
+            return Err("longer than 1024 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for AttachmentMetadataEditDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for AttachmentMetadataEditDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for AttachmentMetadataEditDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///An uploaded attachment referenced when creating or editing a message.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -1660,8 +1722,9 @@ pub struct CreateMessageRequest {
     pub message_reference: ::std::option::Option<MessageReference>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub nonce: ::std::option::Option<CreateMessageRequestNonce>,
-    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub tts: ::std::option::Option<bool>,
+    ///Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events.
+    #[serde(default)]
+    pub tts: bool,
 }
 ///`CreateMessageRequestContent`
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -2251,8 +2314,9 @@ pub struct E2eeRecipient {
 pub struct EditMessageRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub allowed_mentions: ::std::option::Option<AllowedMentions>,
+    ///Partial metadata edits of existing attachments. Unlisted files remain unchanged and an empty array does nothing. Unknown or duplicate attachment IDs reject the complete edit. This field cannot add or remove files.
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub attachments: ::std::vec::Vec<AttachmentReference>,
+    pub attachments: ::std::vec::Vec<AttachmentMetadataEdit>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub components: ::std::option::Option<::std::vec::Vec<MessageComponent>>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3304,6 +3368,33 @@ pub struct IceCandidate {
     pub port: u64,
     pub protocol: ::serde_json::Value,
 }
+///Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct IdReservation {
+    pub end_ms: i64,
+    pub issued_at_ms: i64,
+    pub owner_id: ::uuid::Uuid,
+    pub start_ms: i64,
+    pub worker_id: i64,
+}
+///One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(tag = "action", deny_unknown_fields)]
+pub enum IdReservationRequest {
+    #[serde(rename = "acquire")]
+    Acquire {
+        owner_id: ::uuid::Uuid,
+        preferred_worker: i64,
+        service: ::serde_json::Value,
+    },
+    #[serde(rename = "renew")]
+    Renew {
+        owner_id: ::uuid::Uuid,
+        service: ::serde_json::Value,
+        worker_id: i64,
+    },
+}
 ///Op 2 IDENTIFY.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct IdentifyPayload {
@@ -3510,6 +3601,9 @@ pub struct InternalCreateMessageRequest {
     ///The thread a type 18 message announces (required for type 18).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub thread_id: ::std::option::Option<Snowflake>,
+    ///The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false.
+    #[serde(default)]
+    pub tts: bool,
     ///System message type (see description); omit or 0 for a normal message.
     #[serde(
         rename = "type",

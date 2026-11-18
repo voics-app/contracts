@@ -16,6 +16,7 @@ Rust and Elixir, and into the protocol reference docs.
 | `codegen/` | Validation and generation pipeline (TypeScript, Clean Architecture) |
 | `packages/ts` | npm `@discordy-voics/contracts` |
 | `packages/rust` | crate `discordy-contracts` |
+| `packages/snowflake` | shared fallible `voics-snowflake` interval issuer (API/messages) |
 | `packages/elixir` | Hex-style package `discordy_contracts` (`Discordy.Contracts.*`) |
 | `reference/*.md` | Generated protocol docs (`rest`, `gateway`, `events`, `voice`) to copy into the docs repo |
 | `dist/` | Generated bundles (`openapi.json`, `schemas.bundle.json`, registries) |
@@ -70,6 +71,13 @@ required; bans and membership limits apply to joins just as for ordinary invites
 - Elixir: `{:discordy_contracts, github: "discordy-voics/contracts", tag: "vX.Y.Z", sparse: "packages/elixir"}`.
 
 ## Configuration
+
+Message edits accept partial attachment metadata changes by existing attachment ID. Omitted
+files and fields are retained; `description: null` clears alt text and `flags: 0` clears the
+spoiler without moving the stored object. Clients must treat an explicit attachment `flags`
+value as authoritative and infer spoilers from `SPOILER_` only when flags are absent.
+Message creation accepts `tts: true` with `SEND_TTS_MESSAGES`; messages store and return this
+value in history and gateway events. See the REST schemas for validation and permission rules.
 
 P7 presence accepts an optional `background` boolean on opcode 3 and IDENTIFY presence.
 It defaults to false, so existing clients retain their current behavior. Mobile user sessions
