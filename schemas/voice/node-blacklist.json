@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/node-blacklist.json",
+  "title": "VoiceNodeBlacklist",
+  "description": "Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.",
+  "type": "object",
+  "required": ["reason", "operator", "created_at_ms"],
+  "properties": {
+    "reason": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "operator": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "created_at_ms": { "type": "integer", "minimum": 0 }
+  },
+  "additionalProperties": false
+}
