@@ -3467,6 +3467,21 @@
           "type": "string",
           "description": "Discordy: voice region ID used to allocate voice nodes."
         },
+        "audit_log_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention."
+        },
+        "audit_log_retention_days": {
+          "type": "integer",
+          "enum": [
+            30,
+            90,
+            365
+          ],
+          "default": 90,
+          "description": "Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job."
+        },
         "prune_admin_only": {
           "type": "boolean",
           "description": "Discordy: when true, only administrators may prune inactive members."
@@ -3823,6 +3838,21 @@
         "voice_region": {
           "type": "string",
           "description": "Discordy: voice region ID used to allocate voice nodes."
+        },
+        "audit_log_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention."
+        },
+        "audit_log_retention_days": {
+          "type": "integer",
+          "enum": [
+            30,
+            90,
+            365
+          ],
+          "default": 90,
+          "description": "Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job."
         },
         "prune_admin_only": {
           "type": "boolean",
@@ -6282,6 +6312,19 @@
         "voice_region": {
           "type": "string"
         },
+        "audit_log_enabled": {
+          "type": "boolean",
+          "description": "Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves."
+        },
+        "audit_log_retention_days": {
+          "type": "integer",
+          "enum": [
+            30,
+            90,
+            365
+          ],
+          "description": "Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job."
+        },
         "prune_admin_only": {
           "type": "boolean",
           "description": "Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD."
@@ -6444,6 +6487,24 @@
         "preferences": {
           "$ref": "#/$defs/UserPreferences",
           "description": "Merged key by key into the stored preferences."
+        }
+      }
+    },
+    "ModifyVanityUrlRequest": {
+      "title": "ModifyVanityUrlRequest",
+      "description": "Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.",
+      "type": "object",
+      "required": [
+        "code"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[A-Za-z0-9-]{2,32}$"
         }
       }
     },
@@ -8913,6 +8974,29 @@
         "preferences": {
           "$ref": "#/$defs/UserPreferences",
           "description": "Synced client preferences (appearance, chat, notification sounds, emoji). Sparse."
+        }
+      }
+    },
+    "VanityUrl": {
+      "title": "VanityUrl",
+      "description": "A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.",
+      "type": "object",
+      "required": [
+        "code",
+        "uses"
+      ],
+      "properties": {
+        "code": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9-]{2,32}$"
+        },
+        "uses": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count."
         }
       }
     },

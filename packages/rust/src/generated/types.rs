@@ -2707,6 +2707,12 @@ pub struct Guild {
     pub approximate_member_count: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub approximate_presence_count: ::std::option::Option<i64>,
+    ///Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub audit_log_enabled: bool,
+    ///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+    #[serde(default = "defaults::guild_audit_log_retention_days")]
+    pub audit_log_retention_days: GuildAuditLogRetentionDays,
     ///Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
@@ -2763,6 +2769,45 @@ pub struct GuildApplicationCommandPermissions {
     ///Command ID, or the application ID for app-wide permissions.
     pub id: Snowflake,
     pub permissions: ::std::vec::Vec<ApplicationCommandPermission>,
+}
+///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct GuildAuditLogRetentionDays(i64);
+impl ::std::ops::Deref for GuildAuditLogRetentionDays {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildAuditLogRetentionDays> for i64 {
+    fn from(value: GuildAuditLogRetentionDays) -> Self {
+        value.0
+    }
+}
+impl ::std::default::Default for GuildAuditLogRetentionDays {
+    fn default() -> Self {
+        GuildAuditLogRetentionDays(90_i64)
+    }
+}
+impl ::std::convert::TryFrom<i64> for GuildAuditLogRetentionDays {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![30_i64, 90_i64, 365_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildAuditLogRetentionDays {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
 }
 ///GUILD_BAN_ADD / GUILD_BAN_REMOVE dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -2922,6 +2967,12 @@ pub struct GuildFull {
     pub approximate_member_count: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub approximate_presence_count: ::std::option::Option<i64>,
+    ///Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub audit_log_enabled: bool,
+    ///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+    #[serde(default = "defaults::guild_full_audit_log_retention_days")]
+    pub audit_log_retention_days: GuildFullAuditLogRetentionDays,
     ///Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
@@ -2982,6 +3033,45 @@ pub struct GuildFull {
     ///Discordy: voice region ID used to allocate voice nodes.
     pub voice_region: ::std::string::String,
     pub voice_states: ::std::vec::Vec<VoiceState>,
+}
+///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct GuildFullAuditLogRetentionDays(i64);
+impl ::std::ops::Deref for GuildFullAuditLogRetentionDays {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildFullAuditLogRetentionDays> for i64 {
+    fn from(value: GuildFullAuditLogRetentionDays) -> Self {
+        value.0
+    }
+}
+impl ::std::default::Default for GuildFullAuditLogRetentionDays {
+    fn default() -> Self {
+        GuildFullAuditLogRetentionDays(90_i64)
+    }
+}
+impl ::std::convert::TryFrom<i64> for GuildFullAuditLogRetentionDays {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![30_i64, 90_i64, 365_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildFullAuditLogRetentionDays {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
 }
 ///A member of a guild.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -4654,6 +4744,12 @@ pub struct ModifyGuildRequest {
     pub afk_channel_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub afk_timeout: ::std::option::Option<i64>,
+    ///Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub audit_log_enabled: ::std::option::Option<bool>,
+    ///Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub audit_log_retention_days: ::std::option::Option<ModifyGuildRequestAuditLogRetentionDays>,
     ///Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
@@ -4690,6 +4786,40 @@ pub struct ModifyGuildRequest {
     pub verification_level: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub voice_region: ::std::option::Option<::std::string::String>,
+}
+///Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ModifyGuildRequestAuditLogRetentionDays(i64);
+impl ::std::ops::Deref for ModifyGuildRequestAuditLogRetentionDays {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyGuildRequestAuditLogRetentionDays> for i64 {
+    fn from(value: ModifyGuildRequestAuditLogRetentionDays) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for ModifyGuildRequestAuditLogRetentionDays {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![30_i64, 90_i64, 365_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyGuildRequestAuditLogRetentionDays {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
 }
 ///`ModifyGuildRequestName`
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -5029,6 +5159,65 @@ impl ::std::convert::TryFrom<::std::string::String> for ModifyUserSettingsReques
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ModifyVanityUrlRequest {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub code: ::std::option::Option<ModifyVanityUrlRequestCode>,
+}
+///`ModifyVanityUrlRequestCode`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyVanityUrlRequestCode(::std::string::String);
+impl ::std::ops::Deref for ModifyVanityUrlRequestCode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyVanityUrlRequestCode> for ::std::string::String {
+    fn from(value: ModifyVanityUrlRequestCode) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyVanityUrlRequestCode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[A-Za-z0-9-]{2,32}$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[A-Za-z0-9-]{2,32}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyVanityUrlRequestCode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyVanityUrlRequestCode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyVanityUrlRequestCode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 ///PATCH /webhooks/{id} body.
@@ -7640,6 +7829,66 @@ impl ::std::convert::TryFrom<::std::string::String> for UserSettingsTheme {
         value.parse()
     }
 }
+///A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct VanityUrl {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub code: ::std::option::Option<VanityUrlCode>,
+    ///Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count.
+    pub uses: u64,
+}
+///`VanityUrlCode`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VanityUrlCode(::std::string::String);
+impl ::std::ops::Deref for VanityUrlCode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VanityUrlCode> for ::std::string::String {
+    fn from(value: VanityUrlCode) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VanityUrlCode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[a-z0-9-]{2,32}$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[a-z0-9-]{2,32}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VanityUrlCode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VanityUrlCode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VanityUrlCode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///POST /auth/verify-email body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VerifyEmailRequest {
@@ -8390,12 +8639,21 @@ pub struct Webhook {
 }
 /// Generation of default values for serde.
 pub mod defaults {
+    pub(super) fn default_bool<const V: bool>() -> bool {
+        V
+    }
     pub(super) fn default_nzu64<T, const V: u64>() -> T
     where
         T: ::std::convert::TryFrom<::std::num::NonZeroU64>,
         <T as ::std::convert::TryFrom<::std::num::NonZeroU64>>::Error: ::std::fmt::Debug,
     {
         T::try_from(::std::num::NonZeroU64::try_from(V).unwrap()).unwrap()
+    }
+    pub(super) fn guild_audit_log_retention_days() -> super::GuildAuditLogRetentionDays {
+        super::GuildAuditLogRetentionDays(90_i64)
+    }
+    pub(super) fn guild_full_audit_log_retention_days() -> super::GuildFullAuditLogRetentionDays {
+        super::GuildFullAuditLogRetentionDays(90_i64)
     }
 }
 /// Error types.

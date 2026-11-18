@@ -1142,6 +1142,30 @@ export interface paths {
         patch: operations["modifyGuildTemplate"];
         trace?: never;
     };
+    "/guilds/{guild_id}/vanity-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get a guild's permanent invitation (requires MANAGE_GUILD) */
+        get: operations["getGuildVanityUrl"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set or remove a guild's permanent invitation (requires MANAGE_GUILD)
+         * @description Codes are case-insensitive and returned lowercase. Renaming resets uses. An @everyone-visible text channel is required. Changes create a GUILD_UPDATE audit entry. An occupied code returns 400 with a code field error.
+         */
+        patch: operations["modifyGuildVanityUrl"];
+        trace?: never;
+    };
     "/guilds/{guild_id}/webhooks": {
         parameters: {
             query?: never;
@@ -2604,6 +2628,17 @@ export interface components {
             application_id?: components["schemas"]["Snowflake"] | null;
             approximate_member_count?: number;
             approximate_presence_count?: number;
+            /**
+             * @description Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+             * @default true
+             */
+            audit_log_enabled: boolean;
+            /**
+             * @description Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+             * @default 90
+             * @enum {integer}
+             */
+            audit_log_retention_days: 30 | 90 | 365;
             /** @description Banner image hash (CDN path banners/{guild_id}/{hash}), or null. */
             banner?: string | null;
             default_message_notifications: number;
@@ -3076,6 +3111,13 @@ export interface components {
         ModifyGuildRequest: {
             afk_channel_id?: components["schemas"]["Snowflake"] | null;
             afk_timeout?: number;
+            /** @description Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves. */
+            audit_log_enabled?: boolean;
+            /**
+             * @description Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job.
+             * @enum {integer}
+             */
+            audit_log_retention_days?: 30 | 90 | 365;
             /** @description Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it. */
             banner?: string | null;
             default_message_notifications?: number;
@@ -3149,6 +3191,13 @@ export interface components {
             status?: "online" | "idle" | "dnd" | "invisible";
             /** @enum {string} */
             theme?: "dark" | "light" | "oled";
+        };
+        /**
+         * ModifyVanityUrlRequest
+         * @description Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.
+         */
+        ModifyVanityUrlRequest: {
+            code: string | null;
         };
         /**
          * ModifyWebhookRequest
@@ -3732,6 +3781,15 @@ export interface components {
             status: "online" | "idle" | "dnd" | "invisible";
             /** @enum {string} */
             theme: "dark" | "light" | "oled";
+        };
+        /**
+         * VanityUrl
+         * @description A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.
+         */
+        VanityUrl: {
+            code: string | null;
+            /** @description Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count. */
+            uses: number;
         };
         /**
          * VerifyEmailRequest
@@ -6963,6 +7021,65 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GuildTemplate"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildVanityUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current code and join count, or null and zero when unset. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VanityUrl"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    modifyGuildVanityUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModifyVanityUrlRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved code and join count. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VanityUrl"];
                 };
             };
             400: components["responses"]["BadRequest"];

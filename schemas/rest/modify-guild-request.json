@@ -103,6 +103,15 @@
     "voice_region": {
       "type": "string"
     },
+    "audit_log_enabled": {
+      "type": "boolean",
+      "description": "Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves."
+    },
+    "audit_log_retention_days": {
+      "type": "integer",
+      "enum": [30, 90, 365],
+      "description": "Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job."
+    },
     "prune_admin_only": {
       "type": "boolean",
       "description": "Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD."

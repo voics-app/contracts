@@ -45,6 +45,18 @@ Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT ==
 
 ## Consuming
 
+Guild audit policy is exposed as optional `audit_log_enabled` (default true)
+and `audit_log_retention_days` (30, 90 or 365; default 90) fields. Only owners
+and administrators can change them with `PATCH /guilds/{id}`. Policy changes
+are always audited. `VIEW_AUDIT_LOG` continues to control reads, including
+existing entries while logging is disabled.
+
+Guild administrators can read or change a permanent invitation through
+`GET|PATCH /guilds/{guild_id}/vanity-url`. The required `code` is null to remove
+it, or 2–32 ASCII letters, digits and hyphens. Codes resolve case-insensitively
+through the existing invite preview and accept routes. A public text channel is
+required; bans and membership limits apply to joins just as for ordinary invites.
+
 - TypeScript: `@discordy-voics/contracts` from GitHub Packages (`import { Permissions, type User } from "@discordy-voics/contracts"`).
 - Rust: `discordy-contracts = { git = "https://github.com/discordy-voics/contracts", tag = "vX.Y.Z" }`.
 - Elixir: `{:discordy_contracts, github: "discordy-voics/contracts", tag: "vX.Y.Z", sparse: "packages/elixir"}`.
