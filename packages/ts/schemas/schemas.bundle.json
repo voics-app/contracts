@@ -1326,6 +1326,13 @@
         }
       }
     },
+    "BotInstallationRevision": {
+      "title": "BotInstallationRevision",
+      "description": "Opaque installation precondition from the selected guild in GET /oauth2/authorize. Echo it unchanged in POST. It distinguishes an active installation, initial absence and absence after removal. Missing or null is invalid; a changed revision returns 409 without writes and requires a fresh preview and consent.",
+      "type": "string",
+      "pattern": "^(absent:(0|[1-9][0-9]{0,18})|installed:[1-9][0-9]{0,18})$",
+      "maxLength": 29
+    },
     "BulkDeleteRequest": {
       "title": "BulkDeleteRequest",
       "description": "POST /channels/{id}/messages/bulk-delete body.",
@@ -1627,7 +1634,7 @@
     },
     "ChannelAccess": {
       "title": "ChannelAccess",
-      "description": "GET /internal/v1/channels/{channel_id}/access/{user_id}.",
+      "description": "GET /internal/v1/channels/{channel_id}/access/{user_id}. Current account eligibility is required: missing, disabled, pending-deletion or currently suspended users receive 403. Eligible bots and expired suspensions keep existing membership/permission behavior. No user session is required; fresh scheduled dispatch checks bypass caches and older in-flight requests. The response shape is unchanged, and the check/write race remains cross-service.",
       "type": "object",
       "required": [
         "permissions",
@@ -2218,6 +2225,29 @@
         "flags": {
           "type": "integer",
           "description": "MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped."
+        }
+      }
+    },
+    "CreateScheduledMessageRequest": {
+      "title": "CreateScheduledMessageRequest",
+      "description": "POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "scheduled_at",
+        "message"
+      ],
+      "properties": {
+        "request_id": {
+          "$ref": "#/$defs/ScheduledMessageId"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "message": {
+          "$ref": "#/$defs/ScheduledMessageDraft"
         }
       }
     },
@@ -2859,6 +2889,28 @@
         "type": {
           "type": "integer",
           "description": "OverwriteType."
+        }
+      }
+    },
+    "EditScheduledMessageRequest": {
+      "title": "EditScheduledMessageRequest",
+      "description": "PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_revision"
+      ],
+      "minProperties": 2,
+      "properties": {
+        "expected_revision": {
+          "$ref": "#/$defs/ScheduledMessageRevision"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "message": {
+          "$ref": "#/$defs/ScheduledMessageDraft"
         }
       }
     },
@@ -3610,7 +3662,7 @@
     },
     "GuildDiscoverySettings": {
       "title": "GuildDiscoverySettings",
-      "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.",
+      "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.",
       "type": "object",
       "required": [
         "enabled",
@@ -3652,6 +3704,7 @@
           "items": {
             "type": "string",
             "enum": [
+              "COMMUNITY_REQUIRED",
               "DESCRIPTION_REQUIRED",
               "MEMBER_COUNT_TOO_LOW",
               "GUILD_TOO_NEW",
@@ -4025,13 +4078,15 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif)."
         },
         "banner": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif)."
         },
         "roles": {
           "type": "array",
@@ -4072,6 +4127,14 @@
             "null"
           ],
           "format": "date-time"
+        },
+        "bio": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300,
+          "description": "Server-specific About me; trimmed, null or blank restores the global bio."
         }
       }
     },
@@ -4101,13 +4164,15 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif)."
         },
         "banner": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif)."
         },
         "roles": {
           "type": "array",
@@ -4148,6 +4213,14 @@
             "null"
           ],
           "format": "date-time"
+        },
+        "bio": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300,
+          "description": "Server-specific About me; trimmed, null or blank restores the global bio."
         },
         "guild_id": {
           "$ref": "#/$defs/Snowflake"
@@ -5420,6 +5493,10 @@
         },
         "version": {
           "type": "integer"
+        },
+        "read_state_version": {
+          "$ref": "#/$defs/ReadStateVersion",
+          "description": "Optional for legacy compatibility. Certified clients accept only a newer per-channel version, even for a backwards manual marker; this is independent of the legacy version field."
         }
       }
     },
@@ -6244,13 +6321,16 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it."
         },
         "accent_color": {
           "type": [
             "integer",
             "null"
-          ]
+          ],
+          "minimum": 0,
+          "maximum": 16777215
         },
         "password": {
           "type": "string",
@@ -6264,6 +6344,28 @@
         "email": {
           "type": "string",
           "format": "email"
+        },
+        "pronouns": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 40,
+          "description": "Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters."
+        },
+        "theme_colors": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16777215
+          },
+          "description": "Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme."
         }
       }
     },
@@ -6408,6 +6510,17 @@
       "description": "PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.",
       "type": "object",
       "properties": {
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "COMMUNITY"
+            ]
+          },
+          "uniqueItems": true,
+          "description": "MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting."
+        },
         "name": {
           "type": "string",
           "minLength": 2,
@@ -6472,6 +6585,7 @@
           "description": "Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear."
         },
         "rules_channel_id": {
+          "description": "Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id.",
           "anyOf": [
             {
               "$ref": "#/$defs/Snowflake"
@@ -6482,6 +6596,7 @@
           ]
         },
         "public_updates_channel_id": {
+          "description": "Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id.",
           "anyOf": [
             {
               "$ref": "#/$defs/Snowflake"
@@ -6546,7 +6661,7 @@
     },
     "ModifyMemberRequest": {
       "title": "ModifyMemberRequest",
-      "description": "PATCH /guilds/{id}/members/{uid} body.",
+      "description": "PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.",
       "type": "object",
       "properties": {
         "nick": {
@@ -6587,6 +6702,28 @@
         },
         "flags": {
           "type": "integer"
+        },
+        "bio": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300,
+          "description": "Server-specific About me; trimmed, null or blank restores the global bio."
+        },
+        "avatar": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image."
+        },
+        "banner": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image."
         }
       }
     },
@@ -6948,6 +7085,7 @@
       "required": [
         "client_id",
         "guild_id",
+        "installation_revision",
         "permissions",
         "scope"
       ],
@@ -6957,6 +7095,9 @@
         },
         "guild_id": {
           "$ref": "#/$defs/Snowflake"
+        },
+        "installation_revision": {
+          "$ref": "#/$defs/BotInstallationRevision"
         },
         "permissions": {
           "$ref": "#/$defs/PermissionBitset",
@@ -6992,7 +7133,8 @@
         "name",
         "icon",
         "permissions",
-        "bot_permissions"
+        "bot_permissions",
+        "installation_revision"
       ],
       "properties": {
         "id": {
@@ -7009,6 +7151,9 @@
         },
         "permissions": {
           "$ref": "#/$defs/PermissionBitset"
+        },
+        "installation_revision": {
+          "$ref": "#/$defs/BotInstallationRevision"
         },
         "bot_permissions": {
           "anyOf": [
@@ -7416,6 +7561,70 @@
         }
       }
     },
+    "ProbeVoiceTokenClaims": {
+      "title": "ProbeVoiceTokenClaims",
+      "description": "Mandatory additional validation for a voice token signed with VOICE_PROBE_TOKEN_SECRET and purpose=probe. The call-signing key must not authorize probe tokens, nor the probe key call tokens. The live node lease must match, video must be disabled, and the server derives an isolated room from node_lease plus probe_id. Never authorize an ordinary user room from a probe token's srv/chn values.",
+      "type": "object",
+      "required": [
+        "sub",
+        "sid",
+        "srv",
+        "chn",
+        "node",
+        "e2ee",
+        "iat",
+        "exp",
+        "purpose",
+        "node_lease",
+        "probe_id"
+      ],
+      "properties": {
+        "sub": {
+          "$ref": "#/$defs/Snowflake",
+          "description": "User ID."
+        },
+        "sid": {
+          "type": "string",
+          "description": "Gateway session ID."
+        },
+        "srv": {
+          "$ref": "#/$defs/Snowflake",
+          "description": "guild_id, or the DM channel_id for DM calls."
+        },
+        "chn": {
+          "$ref": "#/$defs/Snowflake",
+          "description": "Voice channel ID."
+        },
+        "node": {
+          "type": "string",
+          "description": "Allocated voice node ID."
+        },
+        "e2ee": {
+          "type": "boolean",
+          "const": false
+        },
+        "iat": {
+          "type": "integer"
+        },
+        "exp": {
+          "type": "integer"
+        },
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "probe"
+          ]
+        },
+        "node_lease": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "probe_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "PruneRequest": {
       "title": "PruneRequest",
       "description": "POST /guilds/{id}/prune body.",
@@ -7544,6 +7753,115 @@
         }
       }
     },
+    "ReadState": {
+      "title": "ReadState",
+      "description": "One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.",
+      "type": "object",
+      "required": [
+        "id",
+        "last_message_id",
+        "mention_count"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "last_message_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mention_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "read_state_version": {
+          "$ref": "#/$defs/ReadStateVersion"
+        }
+      }
+    },
+    "ReadStateSyncEvent": {
+      "title": "ReadStateSyncEvent",
+      "description": "Certified snapshot fetched during resume, after subscription and before RESUMED. Merge each channel by version with replayed updates; an absent channel is not a deletion. An equal version may restore the known authoritative snapshot over local optimistic state, but conflicting equal-version data and older versions are ignored. A fresh READY, not this event, starts a new version history.",
+      "type": "object",
+      "required": [
+        "read_state",
+        "read_state_versioned"
+      ],
+      "properties": {
+        "read_state_versioned": {
+          "const": true
+        },
+        "read_state": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/ReadState"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "read_state_version"
+                ],
+                "properties": {
+                  "read_state_version": {
+                    "$ref": "#/$defs/ReadStateVersion"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "ReadStateUpdateEvent": {
+      "title": "ReadStateUpdateEvent",
+      "description": "Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.",
+      "type": "object",
+      "required": [
+        "channel_id",
+        "last_message_id",
+        "mention_count",
+        "read_state_version"
+      ],
+      "properties": {
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "last_message_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mention_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "read_state_version": {
+          "$ref": "#/$defs/ReadStateVersion"
+        }
+      }
+    },
+    "ReadStateVersion": {
+      "title": "ReadStateVersion",
+      "description": "Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6]|9223372036854775807)$",
+      "maxLength": 19
+    },
     "ReadyApplication": {
       "title": "ReadyApplication",
       "description": "The bot's application.",
@@ -7629,8 +7947,53 @@
         },
         "application": {
           "$ref": "#/$defs/ReadyApplication"
+        },
+        "read_state": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReadState"
+          }
+        },
+        "read_state_versioned": {
+          "const": true,
+          "description": "Present only after successful certified messages hydration. Standard counts use authoritative snapshots rather than CREATE increments; private decrypted traffic stays local. Absent means legacy behavior."
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "read_state_versioned"
+            ],
+            "properties": {
+              "read_state_versioned": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "read_state"
+            ],
+            "properties": {
+              "read_state": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "read_state_version"
+                  ],
+                  "properties": {
+                    "read_state_version": {
+                      "$ref": "#/$defs/ReadStateVersion"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "RefreshRequest": {
       "title": "RefreshRequest",
@@ -7723,6 +8086,38 @@
         },
         "type": {
           "type": "integer"
+        }
+      }
+    },
+    "ReportListingRequest": {
+      "title": "ReportListingRequest",
+      "description": "Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.",
+      "type": "object",
+      "required": [
+        "category"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": [
+            "spam",
+            "harassment",
+            "hate_speech",
+            "violence",
+            "sexual_content",
+            "self_harm",
+            "illegal",
+            "impersonation",
+            "other"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
         }
       }
     },
@@ -7969,6 +8364,342 @@
           "$ref": "#/$defs/Snowflake"
         }
       }
+    },
+    "ScheduledMessage": {
+      "title": "ScheduledMessage",
+      "description": "Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "channel_id",
+        "author_id",
+        "revision",
+        "status",
+        "scheduled_at",
+        "created_at",
+        "updated_at",
+        "message",
+        "message_id",
+        "failure"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ScheduledMessageId"
+        },
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "author_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "revision": {
+          "$ref": "#/$defs/ScheduledMessageRevision"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "dispatching",
+            "sent",
+            "failed",
+            "cancelled",
+            "delivery_unknown"
+          ]
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "message": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScheduledMessageDraft"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "failure": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "access_denied",
+            "channel_missing",
+            "delivery_mode_changed",
+            "invalid_message",
+            "dependency_unavailable",
+            "delivery_unknown",
+            null
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "pending"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "message": {
+                "$ref": "#/$defs/ScheduledMessageDraft"
+              },
+              "message_id": {
+                "type": "null"
+              },
+              "failure": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "dispatching"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "message": {
+                "$ref": "#/$defs/ScheduledMessageDraft"
+              },
+              "message_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "failure": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "sent"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "message": {
+                "type": "null"
+              },
+              "message_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "failure": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "failed"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "message": {
+                "type": "null"
+              },
+              "message_id": {
+                "type": "null"
+              },
+              "failure": {
+                "type": "string",
+                "enum": [
+                  "access_denied",
+                  "channel_missing",
+                  "delivery_mode_changed",
+                  "invalid_message",
+                  "dependency_unavailable"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "cancelled"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "message": {
+                "type": "null"
+              },
+              "message_id": {
+                "type": "null"
+              },
+              "failure": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "delivery_unknown"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "message": {
+                "type": "null"
+              },
+              "message_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "failure": {
+                "const": "delivery_unknown"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ScheduledMessageDraft": {
+      "title": "ScheduledMessageDraft",
+      "description": "Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "pattern": "\\S"
+        },
+        "tts": {
+          "type": "boolean",
+          "default": false,
+          "description": "Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch."
+        },
+        "reply_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Same-channel reply target, revalidated at dispatch."
+        },
+        "replied_user": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether a reply mentions its target author; ignored when reply_to is absent."
+        },
+        "silent": {
+          "type": "boolean",
+          "default": false,
+          "description": "Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics."
+        }
+      }
+    },
+    "ScheduledMessageId": {
+      "title": "ScheduledMessageId",
+      "description": "Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.",
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "ScheduledMessageList": {
+      "title": "ScheduledMessageList",
+      "description": "Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "next_after"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/ScheduledMessage"
+          }
+        },
+        "next_after": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScheduledMessageId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ScheduledMessageRevision": {
+      "title": "ScheduledMessageRevision",
+      "description": "Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
     },
     "SelectOption": {
       "title": "SelectOption",
@@ -8946,13 +9677,16 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Profile banner hash."
         },
         "accent_color": {
           "type": [
             "integer",
             "null"
-          ]
+          ],
+          "minimum": 0,
+          "maximum": 16777215
         },
         "locale": {
           "type": "string"
@@ -8972,6 +9706,28 @@
         },
         "public_flags": {
           "type": "integer"
+        },
+        "pronouns": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 40,
+          "description": "Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters."
+        },
+        "theme_colors": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16777215
+          },
+          "description": "Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme."
         }
       }
     },
@@ -9203,6 +9959,14 @@
             "$ref": "#/$defs/User"
           }
         }
+      }
+    },
+    "UserReadStates": {
+      "title": "UserReadStates",
+      "description": "Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ReadState"
       }
     },
     "UserReadyState": {
@@ -9615,6 +10379,105 @@
         }
       }
     },
+    "VoiceNodeBlacklist": {
+      "title": "VoiceNodeBlacklist",
+      "description": "Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.",
+      "type": "object",
+      "required": [
+        "reason",
+        "operator",
+        "created_at_ms"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "operator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "created_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "VoiceNodeHealth": {
+      "title": "VoiceNodeHealth",
+      "description": "Leased etcd value at /discordy/voice/health/<node_id>. A writer must atomically compare both the node registration lease and its exclusive /discordy/voice/probers/<node_id> claim before writing. The health value shares the prober claim's lease, expiring within two probe intervals if not renewed. Readers match registration_lease; a previous incarnation's result must never authorize or exclude its successor.",
+      "type": "object",
+      "required": [
+        "node_id",
+        "registration_lease",
+        "prober_id",
+        "status",
+        "consecutive_failures",
+        "consecutive_passes",
+        "checked_at_ms"
+      ],
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "registration_lease": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "prober_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "healthy",
+            "unhealthy"
+          ],
+          "description": "Unknown until M consecutive passes or N consecutive failures. Defaults N=2, M=2. A healthy node survives fewer than N failures; an unhealthy node remains excluded until M passes."
+        },
+        "consecutive_failures": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "consecutive_passes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "checked_at_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Unix time for diagnostics only; freshness follows the etcd lease, not synchronized wall clocks."
+        },
+        "loss_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "rtt_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "failure": {
+          "type": "string",
+          "enum": [
+            "signaling",
+            "transport",
+            "rtp_loss",
+            "rtt",
+            "timeout",
+            "registration_changed"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "VoiceNodeRegistration": {
       "title": "VoiceNodeRegistration",
       "description": "etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).",
@@ -9664,6 +10527,11 @@
         },
         "version": {
           "type": "string"
+        },
+        "probe_required": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, new allocation requires a fresh healthy probe record for this registration's etcd lease. Omitted/false preserves legacy rollout behavior; an explicit matching unhealthy result or manual blacklist still excludes the node."
         }
       }
     },
@@ -10008,7 +10876,7 @@
     },
     "VoiceTokenClaims": {
       "title": "VoiceTokenClaims",
-      "description": "Claims of a voice JWT (HS256 with VOICE_TOKEN_SECRET, 60 seconds).",
+      "description": "Shared claims of a voice JWT (HS256, 60 seconds). Call tokens use VOICE_TOKEN_SECRET. A verifier that sees purpose=probe MUST verify with the separate VOICE_PROBE_TOKEN_SECRET, additionally validate ProbeVoiceTokenClaims and compare the receiving node's live registration lease before admitting it. No configured probe key means probe admission is disabled.",
       "type": "object",
       "required": [
         "sub",
@@ -10049,6 +10917,24 @@
         },
         "exp": {
           "type": "integer"
+        },
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "call",
+            "probe"
+          ],
+          "description": "Absent means call. A probe token is restricted to an isolated synthetic room, never an ordinary user channel. It may bypass draining, but never node identity or registration ownership checks."
+        },
+        "node_lease": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$",
+          "description": "Required for probes: exact current etcd registration lease ID as a decimal string. The receiving node must compare it to its live registration before admitting the probe."
+        },
+        "probe_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Required for probes: random UUID shared by the two synthetic peers of one run. The server derives the isolated room from node_lease and probe_id, not from the caller's channel ID."
         }
       }
     },

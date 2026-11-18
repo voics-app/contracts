@@ -62,6 +62,40 @@ and ask for consent again. Legacy POSTs without the field are rejected with 400.
 Webhook create/reset-token returns an ephemeral credential once with `no-store`;
 ordinary metadata edits and reads never expose or modify the execution credential.
 
+Generated DTOs describe field shapes, not every validation rule. The published JSON
+Schemas and OpenAPI retain conditional status/certification constraints. Typify cannot
+generate these `if`/`then`/`else` validations, so only its private type-generation input
+omits them. Validate wire payloads against the schemas and enforce domain rules at the
+service boundary; successful Rust deserialization alone is not schema validation.
+
+Read-state certification is additive: `GET /internal/v1/users/{user_id}/read-states`
+keeps its array shape and adds `read_state_version` strings plus header
+`X-Read-State-Versioned: 1`. Gateway subscribes before fetching for READY and
+refreshes during resume, emitting READ_STATE_SYNC before RESUMED. Certified
+clients compare per-channel versions in MESSAGE_ACK, READ_STATE_UPDATE and sync;
+they do not increment standard counts from MESSAGE_CREATE. Legacy peers retain
+the existing behavior. Private decrypted counts remain local. Lost publication
+converges on a newer snapshot or successful reconnect; failed accounting before
+commit is not repaired. Fence unversioned writers during rollout, and invalidate
+gateway sessions/resume buffers after database restore before fresh READY.
+
+Scheduled-message contracts propose user-only Standard text/TTS/reply/silent
+drafts under `/channels/{channel_id}/messages/scheduled`. A random UUID request
+key identifies one intent, and revisions fence edits/cancellation against dispatch.
+The scheduler must recheck current permissions/mode at send time. Ambiguous sends
+become `delivery_unknown`; this contract does not permit automatic redispatch or
+claim exactly-once event delivery. No scheduled-state gateway event is introduced.
+Schemas and fixtures prepare messages#61; they do not implement or enable a scheduler.
+
+Voice discovery supports optional `probe_required` rollout, leased `VoiceNodeHealth`
+observations fenced to the node registration's etcd lease, and persistent node/region
+blacklists. `purpose: "probe"` voice tokens use the separate `VOICE_PROBE_TOKEN_SECRET`
+and require the stricter `ProbeVoiceTokenClaims` schema, including `node_lease` and a
+random `probe_id`. Signaling must isolate those sessions from user rooms and reject stale node leases.
+Probe success does not override draining or a manual blacklist. See the generated
+[voice protocol](reference/voice.md) for paths and compatibility rules. These contracts
+prepare active probing; publishing them does not deploy a prober or enable enforcement.
+
 `GET /internal/v1/channels/{id}/notification-recipients?author_id=...` defines a
 token-independent directory for mention accounting. `limit` (1–200, default100)
 bounds candidates examined. Continue with `after=next_after` until null, including
@@ -99,6 +133,12 @@ required; bans and membership limits apply to joins just as for ordinary invites
 
 ## Configuration
 
+Community is configured through `PATCH /guilds/{guild_id}` with `features: ["COMMUNITY"]`
+and rules/updates channel IDs. Discovery requires Community; disabling it removes the
+listing. Signed-in users can report public listings with
+`POST /discovery/guilds/{guild_id}/reports`; only public listing text becomes evidence.
+Reports require moderation review and never automatically delist a guild.
+
 Message edits accept partial attachment metadata changes by existing attachment ID. Omitted
 files and fields are retained; `description: null` clears alt text and `flags: 0` clears the
 spoiler without moving the stored object. Clients must treat an explicit attachment `flags`
@@ -114,6 +154,12 @@ availability, not a guarantee that an iOS process is still running. Explicit Onl
 device choice; DND and Invisible retain their existing aggregation semantics.
 
 This repository reads no environment variables and holds no secrets.
+
+Profile customization adds public pronouns (40 characters), two RGB theme colors and validated
+profile accent colors. User and guild-member banner/avatar writes use image data URIs; responses
+carry CDN hashes. Members may change only their own server avatar, banner and bio, with existing
+nickname permissions retained. Omitted fields stay unchanged and null restores global/default
+appearance. Member changes use the existing `GUILD_MEMBER_UPDATE` dispatch.
 
 ## Releases
 

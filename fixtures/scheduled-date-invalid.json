@@ -1,0 +1,11 @@
+{
+  "schema": "rest/create-scheduled-message-request.json",
+  "valid": false,
+  "data": {
+    "request_id": "d71cf4c0-2a63-49b5-85de-3c3cbe407820",
+    "scheduled_at": "tomorrow",
+    "message": {
+      "content": "See you tomorrow"
+    }
+  }
+}

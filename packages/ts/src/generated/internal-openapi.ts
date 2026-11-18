@@ -94,7 +94,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Permissions and effective delivery mode of a user in a channel */
+        /**
+         * Permissions and effective delivery mode of a user in a channel
+         * @description Resolves current account eligibility as well as membership and channel permissions. Missing, disabled, pending-deletion or currently suspended users receive 403. Expired suspensions and eligible bots retain ordinary channel access. No user session/token is required by this internal lookup; an offline scheduled author can remain eligible. Consumers needing fresh dispatch authorization must bypass cached and already in-flight lookups. This check and a later message write are not one cross-service transaction.
+         */
         get: operations["getChannelAccess"];
         put?: never;
         post?: never;
@@ -203,6 +206,23 @@ export interface paths {
         put?: never;
         /** Acquire or renew a committed Snowflake interval for one messages process */
         post: operations["reserveMessageIds"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/read-states": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read-state snapshots for gateway identification and resume */
+        get: operations["getUserReadStates"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -424,7 +444,7 @@ export interface components {
         };
         /**
          * ChannelAccess
-         * @description GET /internal/v1/channels/{channel_id}/access/{user_id}.
+         * @description GET /internal/v1/channels/{channel_id}/access/{user_id}. Current account eligibility is required: missing, disabled, pending-deletion or currently suspended users receive 403. Eligible bots and expired suspensions keep existing membership/permission behavior. No user session is required; fresh scheduled dispatch checks bypass caches and older in-flight requests. The response shape is unchanged, and the check/write race remains cross-service.
          */
         ChannelAccess: {
             channel_type: number;
@@ -684,8 +704,12 @@ export interface components {
          * @description A member of a guild.
          */
         GuildMember: {
+            /** @description Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif). */
             avatar?: string | null;
+            /** @description Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif). */
             banner?: string | null;
+            /** @description Server-specific About me; trimmed, null or blank restores the global bio. */
+            bio?: string | null;
             /** Format: date-time */
             communication_disabled_until?: string | null;
             deaf: boolean;
@@ -1064,6 +1088,21 @@ export interface components {
             normal: number;
         };
         /**
+         * ReadState
+         * @description One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.
+         */
+        ReadState: {
+            id: components["schemas"]["Snowflake"];
+            last_message_id: components["schemas"]["Snowflake"] | null;
+            mention_count: number;
+            read_state_version?: components["schemas"]["ReadStateVersion"];
+        };
+        /**
+         * ReadStateVersion
+         * @description Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
+         */
+        ReadStateVersion: string;
+        /**
          * Relationship
          * @description A relationship with another user.
          */
@@ -1174,6 +1213,7 @@ export interface components {
             accent_color?: number | null;
             /** @description Avatar hash. */
             avatar: string | null;
+            /** @description Profile banner hash. */
             banner?: string | null;
             /** @description Profile About me text, at most 300 characters. */
             bio?: string | null;
@@ -1187,8 +1227,12 @@ export interface components {
             id: components["schemas"]["Snowflake"];
             locale?: string;
             mfa_enabled?: boolean;
+            /** @description Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. */
+            pronouns?: string | null;
             public_flags?: number;
             system?: boolean;
+            /** @description Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. */
+            theme_colors?: number[] | null;
             username: string;
             verified?: boolean;
         };
@@ -1248,6 +1292,11 @@ export interface components {
             /** @description Allow the /tts command and read text-to-speech messages aloud. */
             tts_read_aloud?: boolean;
         };
+        /**
+         * UserReadStates
+         * @description Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.
+         */
+        UserReadStates: components["schemas"]["ReadState"][];
         /**
          * UserReadyState
          * @description GET /internal/v1/users/{user_id}/ready: the state used to build READY.
@@ -1725,6 +1774,39 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             /** @description Capacity exhausted, expired ownership, clock rollback, restore barrier or unavailable database. No new interval was granted. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getUserReadStates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array retained for legacy compatibility. Certified responses require a version on every entry. Snapshot reads are per channel, not one cross-channel transaction. */
+            200: {
+                headers: {
+                    /** @description Value 1 certifies authoritative versioned accounting even for an empty array. Absent means legacy; malformed certification must not become an empty successful snapshot. */
+                    "X-Read-State-Versioned"?: "1";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserReadStates"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Read-state dependency unavailable; gateway must not certify an empty state. */
             503: {
                 headers: {
                     [name: string]: unknown;

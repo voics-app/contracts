@@ -1,0 +1,5 @@
+{
+  "schema": "objects/read-state-version.json",
+  "data": "9223372036854775808",
+  "valid": false
+}

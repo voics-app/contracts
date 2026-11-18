@@ -154,6 +154,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/discovery/guilds` | api | — | `DiscoveryPage` | Browse and search public servers that opted in to discovery |
 | `GET` | `/discovery/categories` | api | — | `DiscoveryCategories` | List discovery categories |
 | `POST` | `/discovery/guilds/{guild_id}/join` | api | — | 204 No Content | Join a publicly listed server |
+| `POST` | `/discovery/guilds/{guild_id}/reports` | api | `ReportListingRequest` | 204 No Content | Report a currently discoverable listing for moderation |
 | `GET` | `/guilds/{guild_id}/discovery` | api | — | `GuildDiscoverySettings` | Get a guild discovery settings (requires MANAGE_GUILD) |
 | `PUT` | `/guilds/{guild_id}/discovery` | api | `UpdateGuildDiscoveryRequest` | `GuildDiscoverySettings` | List or delist a guild in discovery (requires MANAGE_GUILD) |
 | `GET` | `/guilds/templates` | api | — | `array of GuildTemplate` | List the built-in server templates |
@@ -208,6 +209,11 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/channels/{channel_id}/messages` | messages | — | `array of Message` | Get channel message history |
 | `POST` | `/channels/{channel_id}/messages` | messages | `CreateMessageRequest` | `Message` | Send a standard-mode message |
+| `GET` | `/channels/{channel_id}/messages/scheduled` | messages | — | `ScheduledMessageList` | List your scheduled messages in a channel |
+| `POST` | `/channels/{channel_id}/messages/scheduled` | messages | `CreateScheduledMessageRequest` | 200 No Content | Schedule a Standard text message |
+| `GET` | `/channels/{channel_id}/messages/scheduled/{schedule_id}` | messages | — | 200 No Content | Read one of your scheduled messages |
+| `PATCH` | `/channels/{channel_id}/messages/scheduled/{schedule_id}` | messages | `EditScheduledMessageRequest` | 200 No Content | Edit your pending scheduled message |
+| `DELETE` | `/channels/{channel_id}/messages/scheduled/{schedule_id}` | messages | — | 200 No Content | Cancel your pending scheduled message |
 | `GET` | `/guilds/{guild_id}/messages/search` | messages | — | `MessageSearchResponse` | Search guild messages |
 | `GET` | `/channels/{channel_id}/messages/search` | messages | — | `MessageSearchResponse` | Search channel messages |
 | `GET` | `/channels/{channel_id}/messages/{message_id}` | messages | — | `Message` | Get a message |
@@ -528,6 +534,12 @@ A guild ban.
 | `reason` | `?string` |  |
 | `user` | `User` |  |
 
+### BotInstallationRevision
+
+Opaque installation precondition from the selected guild in GET /oauth2/authorize. Echo it unchanged in POST. It distinguishes an active installation, initial absence and absence after removal. Missing or null is invalid; a changed revision returns 409 without writes and requires a fresh preview and consent.
+
+Type: `string`
+
 ### Call
 
 A DM or group DM call: its voice states and the recipients still ringing for it. Carried by CALL_CREATE and CALL_UPDATE.
@@ -839,7 +851,7 @@ Permissions of an application's command(s) in a guild.
 
 ### GuildDiscoverySettings
 
-A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -848,7 +860,7 @@ A guild opt-in discovery listing and the rules that currently block listing it. 
 | `tags` | `array of string` |  |
 | `listed_at` | `?string (date-time)` |  |
 | `member_count` | `integer` |  |
-| `blockers` | `array of "DESCRIPTION_REQUIRED" or "MEMBER_COUNT_TOO_LOW" or "GUILD_TOO_NEW" or "NSFW_NOT_ALLOWED"` |  |
+| `blockers` | `array of "COMMUNITY_REQUIRED" or "DESCRIPTION_REQUIRED" or "MEMBER_COUNT_TOO_LOW" or "GUILD_TOO_NEW" or "NSFW_NOT_ALLOWED"` |  |
 
 ### GuildFolder
 
@@ -929,8 +941,8 @@ A member of a guild.
 | --- | --- | --- |
 | `user?` | `User` |  |
 | `nick?` | `?string` |  |
-| `avatar?` | `?string` |  |
-| `banner?` | `?string` |  |
+| `avatar?` | `?string` | Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif). |
+| `banner?` | `?string` | Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif). |
 | `roles` | `array of Snowflake` |  |
 | `joined_at` | `string (date-time)` |  |
 | `premium_since?` | `?string (date-time)` |  |
@@ -940,6 +952,7 @@ A member of a guild.
 | `pending?` | `boolean` |  |
 | `permissions?` | `PermissionBitset` | Total permissions in the interaction channel; only in interaction payloads. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
+| `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |
 
 ### GuildNotificationSettings
 
@@ -1265,6 +1278,23 @@ Normal and burst reaction counts.
 | `burst` | `integer` |  |
 | `normal` | `integer` |  |
 
+### ReadState
+
+One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `last_message_id` | `any` |  |
+| `mention_count` | `integer` |  |
+| `read_state_version?` | `ReadStateVersion` |  |
+
+### ReadStateVersion
+
+Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
+
+Type: `string`
+
 ### Relationship
 
 A relationship with another user.
@@ -1317,6 +1347,48 @@ Tags of a managed role.
 | --- | --- | --- |
 | `bot_id?` | `Snowflake` |  |
 | `integration_id?` | `Snowflake` |  |
+
+### ScheduledMessage
+
+Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `ScheduledMessageId` |  |
+| `channel_id` | `Snowflake` |  |
+| `author_id` | `Snowflake` |  |
+| `revision` | `ScheduledMessageRevision` |  |
+| `status` | `"pending" or "dispatching" or "sent" or "failed" or "cancelled" or "delivery_unknown"` |  |
+| `scheduled_at` | `string (date-time)` |  |
+| `created_at` | `string (date-time)` |  |
+| `updated_at` | `string (date-time)` |  |
+| `message` | `?ScheduledMessageDraft` |  |
+| `message_id` | `?Snowflake` |  |
+| `failure` | `"access_denied" or "channel_missing" or "delivery_mode_changed" or "invalid_message" or "dependency_unavailable" or "delivery_unknown" or null` |  |
+
+### ScheduledMessageDraft
+
+Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `content` | `string` |  |
+| `tts?` | `boolean` | Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch. |
+| `reply_to?` | `?Snowflake` | Same-channel reply target, revalidated at dispatch. |
+| `replied_user?` | `boolean` | Whether a reply mentions its target author; ignored when reply_to is absent. |
+| `silent?` | `boolean` | Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics. |
+
+### ScheduledMessageId
+
+Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.
+
+Type: `string (uuid)`
+
+### ScheduledMessageRevision
+
+Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.
+
+Type: `integer`
 
 ### SelectOption
 
@@ -1465,13 +1537,15 @@ A Discordy user (Discord v10 User object).
 | `bot?` | `boolean` |  |
 | `system?` | `boolean` |  |
 | `mfa_enabled?` | `boolean` |  |
-| `banner?` | `?string` |  |
+| `banner?` | `?string` | Profile banner hash. |
 | `accent_color?` | `?integer` |  |
 | `locale?` | `string` |  |
 | `verified?` | `boolean` |  |
 | `email?` | `?string` | Only returned for the current user. |
 | `flags?` | `integer` |  |
 | `public_flags?` | `integer` |  |
+| `pronouns?` | `?string` | Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. |
+| `theme_colors?` | `?array of integer` | Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. |
 
 ### UserNote
 
@@ -1862,6 +1936,16 @@ POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies w
 | `attachments?` | `array of AttachmentReference` |  |
 | `flags?` | `integer` | MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. |
 
+### CreateScheduledMessageRequest
+
+POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `request_id` | `ScheduledMessageId` |  |
+| `scheduled_at` | `string (date-time)` |  |
+| `message` | `ScheduledMessageDraft` |  |
+
 ### CreateThreadRequest
 
 POST /channels/{id}/threads body. Forum channels require `message`.
@@ -1926,6 +2010,16 @@ PUT /channels/{id}/permissions/{overwrite_id} body.
 | `allow?` | `?PermissionBitset` |  |
 | `deny?` | `?PermissionBitset` |  |
 | `type` | `integer` | OverwriteType. |
+
+### EditScheduledMessageRequest
+
+PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `expected_revision` | `ScheduledMessageRevision` |  |
+| `scheduled_at?` | `string (date-time)` |  |
+| `message?` | `ScheduledMessageDraft` |  |
 
 ### EditWebhookMessageRequest
 
@@ -2072,11 +2166,13 @@ PATCH /users/@me body. `username`, `email` and `new_password` require the curren
 | `global_name?` | `?string` |  |
 | `avatar?` | `?string` | Data URI image. |
 | `bio?` | `?string` | About me text; null or blank clears it. Trimmed, at most 300 characters. |
-| `banner?` | `?string` |  |
+| `banner?` | `?string` | PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it. |
 | `accent_color?` | `?integer` |  |
 | `password?` | `string` | Current password; required with username, email or new_password. |
 | `new_password?` | `string` |  |
 | `email?` | `string (email)` |  |
+| `pronouns?` | `?string` | Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. |
+| `theme_colors?` | `?array of integer` | Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. |
 
 ### ModifyEmojiRequest
 
@@ -2107,6 +2203,7 @@ PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
 
 | Field | Type | Description |
 | --- | --- | --- |
+| `features?` | `array of "COMMUNITY"` | MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting. |
 | `name?` | `string` |  |
 | `icon?` | `?string` |  |
 | `banner?` | `?string` | Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it. |
@@ -2117,8 +2214,8 @@ PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
 | `afk_timeout?` | `integer` |  |
 | `system_channel_id?` | `?Snowflake` |  |
 | `system_channel_flags?` | `integer` | Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. |
-| `rules_channel_id?` | `?Snowflake` |  |
-| `public_updates_channel_id?` | `?Snowflake` |  |
+| `rules_channel_id?` | `?Snowflake` | Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id. |
+| `public_updates_channel_id?` | `?Snowflake` | Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id. |
 | `preferred_locale?` | `string` |  |
 | `verification_level?` | `integer` |  |
 | `default_message_notifications?` | `integer` |  |
@@ -2139,7 +2236,7 @@ PATCH /guilds/{guild_id}/templates/{code} body.
 
 ### ModifyMemberRequest
 
-PATCH /guilds/{id}/members/{uid} body.
+PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -2150,6 +2247,9 @@ PATCH /guilds/{id}/members/{uid} body.
 | `channel_id?` | `?Snowflake` | Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
 | `flags?` | `integer` |  |
+| `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |
+| `avatar?` | `?string` | Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
+| `banner?` | `?string` | Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
 
 ### ModifyUserSettingsRequest
 
@@ -2211,6 +2311,7 @@ Install a bot and record explicit consent, or acknowledge the current permission
 | --- | --- | --- |
 | `client_id` | `Snowflake` |  |
 | `guild_id` | `Snowflake` |  |
+| `installation_revision` | `BotInstallationRevision` |  |
 | `permissions` | `PermissionBitset` | For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review. |
 | `scope` | `string` | Space-separated bot and optionally applications.commands. bot is required. |
 
@@ -2232,6 +2333,7 @@ A guild the user can add the bot to.
 | `name` | `string` |  |
 | `icon` | `?string` |  |
 | `permissions` | `PermissionBitset` |  |
+| `installation_revision` | `BotInstallationRevision` |  |
 | `bot_permissions` | `?PermissionBitset` | Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation. |
 
 ### Passkey
@@ -2358,6 +2460,15 @@ POST /auth/register body.
 | `username` | `string` |  |
 | `password` | `string` |  |
 
+### ReportListingRequest
+
+Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `category` | `"spam" or "harassment" or "hate_speech" or "violence" or "sexual_content" or "self_harm" or "illegal" or "impersonation" or "other"` |  |
+| `note?` | `?string` |  |
+
 ### ResetBotTokenResponse
 
 POST /applications/{id}/bot/reset-token response. The token is shown once.
@@ -2389,6 +2500,15 @@ POST /guilds/{id}/roles and PATCH /guilds/{id}/roles/{rid} body.
 | `unicode_emoji?` | `?string` |  |
 | `mentionable?` | `boolean` |  |
 | `position?` | `integer` | Only honoured on PATCH. |
+
+### ScheduledMessageList
+
+Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `items` | `array of ScheduledMessage` |  |
+| `next_after` | `?ScheduledMessageId` |  |
 
 ### SetDeliveryModeRequest
 

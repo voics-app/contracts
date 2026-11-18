@@ -1,0 +1,4 @@
+{
+  "schema": "voice/node-blacklist.json",
+  "data": { "reason": "scheduled route investigation", "operator": "fixture-operator", "created_at_ms": 1800000000000 }
+}

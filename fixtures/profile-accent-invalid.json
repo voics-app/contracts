@@ -1,0 +1,7 @@
+{
+  "schema": "rest/modify-current-user-request.json",
+  "data": {
+    "accent_color": -1
+  },
+  "valid": false
+}

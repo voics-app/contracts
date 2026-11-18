@@ -124,6 +124,12 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec message_ack() :: String.t()
   def message_ack, do: "MESSAGE_ACK"
 
+  @spec read_state_update() :: String.t()
+  def read_state_update, do: "READ_STATE_UPDATE"
+
+  @spec read_state_sync() :: String.t()
+  def read_state_sync, do: "READ_STATE_SYNC"
+
   @spec user_update() :: String.t()
   def user_update, do: "USER_UPDATE"
 
@@ -201,6 +207,8 @@ defmodule Discordy.Contracts.DispatchEvents do
       message_reaction_remove_all: "MESSAGE_REACTION_REMOVE_ALL",
       channel_pins_update: "CHANNEL_PINS_UPDATE",
       message_ack: "MESSAGE_ACK",
+      read_state_update: "READ_STATE_UPDATE",
+      read_state_sync: "READ_STATE_SYNC",
       user_update: "USER_UPDATE",
       user_settings_update: "USER_SETTINGS_UPDATE",
       user_guild_settings_update: "USER_GUILD_SETTINGS_UPDATE",

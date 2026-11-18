@@ -3,7 +3,7 @@
   "info": {
     "title": "Discordy REST API",
     "version": "0.1.0",
-    "description": "Public REST API of Discordy (`/api/v1`). JSON, snake_case, Discord API v10 object shapes plus Discordy extras (Channel.delivery_mode, Channel.voice_region, Guild.voice_region, UserSettings.default_delivery_mode, Device).\n\nIDs are Snowflakes serialized as decimal strings. Permission sets are decimal strings.\n\nOperations tagged `x-discordy-service: messages` are served by the messages service (routed for `/api/v1/channels/{id}/messages*`, pins and attachments); everything else by api.\n\nEvery response may carry the rate-limit headers `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `X-RateLimit-Reset-After` and `X-RateLimit-Bucket`.",
+    "description": "Public REST API of Discordy (`/api/v1`). JSON, snake_case, Discord API v10 object shapes plus Discordy extras (Channel.delivery_mode, Channel.voice_region, Guild.voice_region, UserSettings.default_delivery_mode, Device).\n\nIDs are Snowflakes serialized as decimal strings, except scheduled-message request/resource IDs, which are lowercase UUIDv4 keys. Permission sets are decimal strings.\n\nOperations tagged `x-discordy-service: messages` are served by the messages service (routed for `/api/v1/channels/{id}/messages*`, pins and attachments); everything else by api.\n\nEvery response may carry the rate-limit headers `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `X-RateLimit-Reset-After` and `X-RateLimit-Bucket`.",
     "license": {
       "name": "UNLICENSED",
       "identifier": "UNLICENSED"
@@ -3838,6 +3838,51 @@
         }
       }
     },
+    "/discovery/guilds/{guild_id}/reports": {
+      "post": {
+        "operationId": "reportDiscoveryGuild",
+        "summary": "Report a currently discoverable listing for moderation",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportListingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Report accepted or already open. Listing visibility is unchanged."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/discovery": {
       "get": {
         "operationId": "getGuildDiscovery",
@@ -4581,6 +4626,290 @@
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/messages/scheduled": {
+      "get": {
+        "operationId": "listScheduledMessages",
+        "summary": "List your scheduled messages in a channel",
+        "description": "Author-private UUID-ordered page of active/unknown schedules and terminal jobs from the last seven days. Remains available after send permission or membership loss, without granting channel history access. Follow every non-null next_after, including after an empty filtered page. This additive proposal requires scheduler implementation before use.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "description": "Exclusive last examined schedule UUID from next_after.",
+            "schema": {
+              "$ref": "#/components/schemas/ScheduledMessageId"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum rows examined in this page.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Your schedules only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledMessageList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/ScheduledMessageUnavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createScheduledMessage",
+        "summary": "Schedule a Standard text message",
+        "description": "Fresh VIEW_CHANNEL and send permission are required now and after the dispatch claim, including SEND_TTS_MESSAGES when requested. Private delivery returns 409/50160. A new instant must be 1 minute to 30 days ahead of the server clock. At most 100 active intents per author and 25 per channel are allowed, including preparing/dispatching reservations. Persist the exact request and random request_id before sending; identical author/key requests return the current job even after edits or dispatch, without rechecking original time/current access. Another original body or channel conflicts. One durable dispatch claim permits one send attempt; ambiguous outcomes become delivery_unknown without automatic redispatch. Bots, webhooks and application tokens are excluded.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScheduledMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ScheduledMessageResult"
+          },
+          "201": {
+            "$ref": "#/components/responses/ScheduledMessageResult"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/ScheduledMessageConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/ScheduledMessageUnavailable"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/messages/scheduled/{schedule_id}": {
+      "get": {
+        "operationId": "getScheduledMessage",
+        "summary": "Read one of your scheduled messages",
+        "description": "Only the author can read it. Another author or channel returns 404. Remains available after membership/send access loss. Terminal records retain no draft text, even after their seven-day list visibility expires.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/schedule_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ScheduledMessageResult"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/ScheduledMessageUnavailable"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "editScheduledMessage",
+        "summary": "Edit your pending scheduled message",
+        "description": "Requires current Standard send access and a matching expected_revision. At least one field replacement is required; message replaces the complete draft. A new time must be 1 minute to 30 days ahead. Already-dispatching and terminal schedules conflict. Refetch a stale revision instead of overwriting another device's edit.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/schedule_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditScheduledMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ScheduledMessageResult"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/ScheduledMessageConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/ScheduledMessageUnavailable"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "cancelScheduledMessage",
+        "summary": "Cancel your pending scheduled message",
+        "description": "Author-only; works after membership/send access loss. CAS with expected_revision competes with dispatch, so a successful cancellation guarantees no first dispatch claim. An already-cancelled job returns its current state regardless of the supplied revision. Other non-pending or stale states conflict. This does not delete a sent message.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/schedule_id"
+          },
+          {
+            "name": "expected_revision",
+            "in": "query",
+            "required": true,
+            "description": "Revision observed before cancellation.",
+            "schema": {
+              "$ref": "#/components/schemas/ScheduledMessageRevision"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ScheduledMessageResult"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/ScheduledMessageConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/ScheduledMessageUnavailable"
           }
         }
       }
@@ -6891,7 +7220,7 @@
       "post": {
         "operationId": "authorizeBot",
         "summary": "Install a bot and record explicit consent",
-        "description": "Supported scopes are bot and optionally applications.commands. Existing installations retain their current permissions; consent records those effective permissions.",
+        "description": "Supported scopes are bot and optionally applications.commands. Existing installations retain their current permissions; consent records those effective permissions. The required non-null installation_revision must echo the selected guild from the displayed GET preview. A changed installation or removal history returns 409 without writes and requires a fresh preview and consent.",
         "tags": [
           "OAuth2"
         ],
@@ -6930,7 +7259,7 @@
             "$ref": "#/components/responses/NotFound"
           },
           "409": {
-            "description": "Installation changed while processing the request. Refresh consent information and retry.",
+            "description": "Installation or effective permissions changed since the displayed preview or while processing the request. No consent or installation writes occur. Refresh consent information and review again.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7439,6 +7768,15 @@
       }
     },
     "parameters": {
+      "schedule_id": {
+        "name": "schedule_id",
+        "in": "path",
+        "required": true,
+        "description": "Author-private schedule UUID, equal to its original request_id.",
+        "schema": {
+          "$ref": "#/components/schemas/ScheduledMessageId"
+        }
+      },
       "user_id": {
         "name": "user_id",
         "in": "path",
@@ -7627,6 +7965,36 @@
       }
     },
     "responses": {
+      "ScheduledMessageResult": {
+        "description": "Current author-private scheduled-message state.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ScheduledMessage"
+            }
+          }
+        }
+      },
+      "ScheduledMessageConflict": {
+        "description": "Private delivery mode (50160), or active-intent quota exhaustion/stale revision/non-pending mutation/conflicting request key (50035 with a field error). No mutation occurred.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ScheduledMessageUnavailable": {
+        "description": "Temporary dependency failure. Retry the exact request/key after a lost or failed creation response; never substitute a new request_id automatically.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
       "BadRequest": {
         "description": "Invalid request (code 50035 invalid form body).",
         "content": {
@@ -8639,6 +9007,13 @@
           }
         }
       },
+      "BotInstallationRevision": {
+        "title": "BotInstallationRevision",
+        "description": "Opaque installation precondition from the selected guild in GET /oauth2/authorize. Echo it unchanged in POST. It distinguishes an active installation, initial absence and absence after removal. Missing or null is invalid; a changed revision returns 409 without writes and requires a fresh preview and consent.",
+        "type": "string",
+        "pattern": "^(absent:(0|[1-9][0-9]{0,18})|installed:[1-9][0-9]{0,18})$",
+        "maxLength": 29
+      },
       "BulkDeleteRequest": {
         "title": "BulkDeleteRequest",
         "description": "POST /channels/{id}/messages/bulk-delete body.",
@@ -9317,6 +9692,29 @@
           }
         }
       },
+      "CreateScheduledMessageRequest": {
+        "title": "CreateScheduledMessageRequest",
+        "description": "POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "request_id",
+          "scheduled_at",
+          "message"
+        ],
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ScheduledMessageId"
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "message": {
+            "$ref": "#/components/schemas/ScheduledMessageDraft"
+          }
+        }
+      },
       "CreateThreadRequest": {
         "title": "CreateThreadRequest",
         "description": "POST /channels/{id}/threads body. Forum channels require `message`.",
@@ -9697,6 +10095,28 @@
           "type": {
             "type": "integer",
             "description": "OverwriteType."
+          }
+        }
+      },
+      "EditScheduledMessageRequest": {
+        "title": "EditScheduledMessageRequest",
+        "description": "PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_revision"
+        ],
+        "minProperties": 2,
+        "properties": {
+          "expected_revision": {
+            "$ref": "#/components/schemas/ScheduledMessageRevision"
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "message": {
+            "$ref": "#/components/schemas/ScheduledMessageDraft"
           }
         }
       },
@@ -10272,7 +10692,7 @@
       },
       "GuildDiscoverySettings": {
         "title": "GuildDiscoverySettings",
-        "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.",
+        "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.",
         "type": "object",
         "required": [
           "enabled",
@@ -10314,6 +10734,7 @@
             "items": {
               "type": "string",
               "enum": [
+                "COMMUNITY_REQUIRED",
                 "DESCRIPTION_REQUIRED",
                 "MEMBER_COUNT_TOO_LOW",
                 "GUILD_TOO_NEW",
@@ -10412,13 +10833,15 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif)."
           },
           "banner": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif)."
           },
           "roles": {
             "type": "array",
@@ -10459,6 +10882,14 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "bio": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 300,
+            "description": "Server-specific About me; trimmed, null or blank restores the global bio."
           }
         }
       },
@@ -11479,13 +11910,16 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it."
           },
           "accent_color": {
             "type": [
               "integer",
               "null"
-            ]
+            ],
+            "minimum": 0,
+            "maximum": 16777215
           },
           "password": {
             "type": "string",
@@ -11499,6 +11933,28 @@
           "email": {
             "type": "string",
             "format": "email"
+          },
+          "pronouns": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 40,
+            "description": "Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters."
+          },
+          "theme_colors": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 16777215
+            },
+            "description": "Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme."
           }
         }
       },
@@ -11643,6 +12099,17 @@
         "description": "PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.",
         "type": "object",
         "properties": {
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "COMMUNITY"
+              ]
+            },
+            "uniqueItems": true,
+            "description": "MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting."
+          },
           "name": {
             "type": "string",
             "minLength": 2,
@@ -11707,6 +12174,7 @@
             "description": "Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear."
           },
           "rules_channel_id": {
+            "description": "Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id.",
             "anyOf": [
               {
                 "$ref": "#/components/schemas/Snowflake"
@@ -11717,6 +12185,7 @@
             ]
           },
           "public_updates_channel_id": {
+            "description": "Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id.",
             "anyOf": [
               {
                 "$ref": "#/components/schemas/Snowflake"
@@ -11781,7 +12250,7 @@
       },
       "ModifyMemberRequest": {
         "title": "ModifyMemberRequest",
-        "description": "PATCH /guilds/{id}/members/{uid} body.",
+        "description": "PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.",
         "type": "object",
         "properties": {
           "nick": {
@@ -11822,6 +12291,28 @@
           },
           "flags": {
             "type": "integer"
+          },
+          "bio": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 300,
+            "description": "Server-specific About me; trimmed, null or blank restores the global bio."
+          },
+          "avatar": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image."
+          },
+          "banner": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image."
           }
         }
       },
@@ -12026,6 +12517,7 @@
         "required": [
           "client_id",
           "guild_id",
+          "installation_revision",
           "permissions",
           "scope"
         ],
@@ -12035,6 +12527,9 @@
           },
           "guild_id": {
             "$ref": "#/components/schemas/Snowflake"
+          },
+          "installation_revision": {
+            "$ref": "#/components/schemas/BotInstallationRevision"
           },
           "permissions": {
             "$ref": "#/components/schemas/PermissionBitset",
@@ -12070,7 +12565,8 @@
           "name",
           "icon",
           "permissions",
-          "bot_permissions"
+          "bot_permissions",
+          "installation_revision"
         ],
         "properties": {
           "id": {
@@ -12087,6 +12583,9 @@
           },
           "permissions": {
             "$ref": "#/components/schemas/PermissionBitset"
+          },
+          "installation_revision": {
+            "$ref": "#/components/schemas/BotInstallationRevision"
           },
           "bot_permissions": {
             "anyOf": [
@@ -12569,6 +13068,38 @@
           }
         }
       },
+      "ReportListingRequest": {
+        "title": "ReportListingRequest",
+        "description": "Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.",
+        "type": "object",
+        "required": [
+          "category"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "spam",
+              "harassment",
+              "hate_speech",
+              "violence",
+              "sexual_content",
+              "self_harm",
+              "illegal",
+              "impersonation",
+              "other"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 500
+          }
+        }
+      },
       "ResetBotTokenResponse": {
         "title": "ResetBotTokenResponse",
         "description": "POST /applications/{id}/bot/reset-token response. The token is shown once.",
@@ -12713,6 +13244,342 @@
             "$ref": "#/components/schemas/Snowflake"
           }
         }
+      },
+      "ScheduledMessage": {
+        "title": "ScheduledMessage",
+        "description": "Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "channel_id",
+          "author_id",
+          "revision",
+          "status",
+          "scheduled_at",
+          "created_at",
+          "updated_at",
+          "message",
+          "message_id",
+          "failure"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/ScheduledMessageId"
+          },
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "author_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/ScheduledMessageRevision"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "dispatching",
+              "sent",
+              "failed",
+              "cancelled",
+              "delivery_unknown"
+            ]
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScheduledMessageDraft"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "failure": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "access_denied",
+              "channel_missing",
+              "delivery_mode_changed",
+              "invalid_message",
+              "dependency_unavailable",
+              "delivery_unknown",
+              null
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "pending"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "message": {
+                  "$ref": "#/components/schemas/ScheduledMessageDraft"
+                },
+                "message_id": {
+                  "type": "null"
+                },
+                "failure": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "dispatching"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "message": {
+                  "$ref": "#/components/schemas/ScheduledMessageDraft"
+                },
+                "message_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "failure": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "sent"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "message": {
+                  "type": "null"
+                },
+                "message_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "failure": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "failed"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "message": {
+                  "type": "null"
+                },
+                "message_id": {
+                  "type": "null"
+                },
+                "failure": {
+                  "type": "string",
+                  "enum": [
+                    "access_denied",
+                    "channel_missing",
+                    "delivery_mode_changed",
+                    "invalid_message",
+                    "dependency_unavailable"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "cancelled"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "message": {
+                  "type": "null"
+                },
+                "message_id": {
+                  "type": "null"
+                },
+                "failure": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "delivery_unknown"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "message": {
+                  "type": "null"
+                },
+                "message_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "failure": {
+                  "const": "delivery_unknown"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ScheduledMessageDraft": {
+        "title": "ScheduledMessageDraft",
+        "description": "Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "pattern": "\\S"
+          },
+          "tts": {
+            "type": "boolean",
+            "default": false,
+            "description": "Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch."
+          },
+          "reply_to": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Same-channel reply target, revalidated at dispatch."
+          },
+          "replied_user": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether a reply mentions its target author; ignored when reply_to is absent."
+          },
+          "silent": {
+            "type": "boolean",
+            "default": false,
+            "description": "Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics."
+          }
+        }
+      },
+      "ScheduledMessageId": {
+        "title": "ScheduledMessageId",
+        "description": "Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.",
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "ScheduledMessageList": {
+        "title": "ScheduledMessageList",
+        "description": "Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_after"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/ScheduledMessage"
+            }
+          },
+          "next_after": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScheduledMessageId"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ScheduledMessageRevision": {
+        "title": "ScheduledMessageRevision",
+        "description": "Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2147483647
       },
       "SelectOption": {
         "title": "SelectOption",
@@ -13144,13 +14011,16 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Profile banner hash."
           },
           "accent_color": {
             "type": [
               "integer",
               "null"
-            ]
+            ],
+            "minimum": 0,
+            "maximum": 16777215
           },
           "locale": {
             "type": "string"
@@ -13170,6 +14040,28 @@
           },
           "public_flags": {
             "type": "integer"
+          },
+          "pronouns": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 40,
+            "description": "Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters."
+          },
+          "theme_colors": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 16777215
+            },
+            "description": "Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme."
           }
         }
       },

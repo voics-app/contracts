@@ -1,0 +1,7 @@
+{
+  "schema": "rest/modify-current-user-request.json",
+  "data": {
+    "pronouns": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  "valid": false
+}

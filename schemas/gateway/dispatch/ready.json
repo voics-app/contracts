@@ -27,6 +27,24 @@
         },
         "application": {
           "$ref": "#/$defs/ReadyApplication"
+        },
+        "read_state": {
+          "type": "array",
+          "items": { "$ref": "../../objects/read-state.json" }
+        },
+        "read_state_versioned": {
+          "const": true,
+          "description": "Present only after successful certified messages hydration. Standard counts use authoritative snapshots rather than CREATE increments; private decrypted traffic stays local. Absent means legacy behavior."
+        }
+      },
+      "if": { "required": ["read_state_versioned"], "properties": { "read_state_versioned": { "const": true } } },
+      "then": {
+        "required": ["read_state"],
+        "properties": {
+          "read_state": {
+            "type": "array",
+            "items": { "type": "object", "required": ["read_state_version"], "properties": { "read_state_version": { "$ref": "../../objects/read-state-version.json" } } }
+          }
         }
       }
     }

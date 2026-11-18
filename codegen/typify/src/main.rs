@@ -36,7 +36,54 @@ fn to_draft07(bundle: &str) -> Result<RootSchema, String> {
     let defs = object.remove("$defs").ok_or("bundle has no $defs")?;
     object.remove("$schema");
     object.insert("definitions".into(), defs);
+    // typify models field shapes, but cannot merge conditional validation rules.
+    // Keep those rules in the published JSON Schemas/OpenAPI; the DTOs still
+    // require boundary validation and are not a replacement schema validator.
+    omit_conditional_validation(&mut value);
     serde_json::from_value(value).map_err(|e| e.to_string())
+}
+
+fn omit_conditional_validation(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Object(object) => {
+            for keyword in ["if", "then", "else"] {
+                object.remove(keyword);
+            }
+            for (keyword, child) in object.iter_mut() {
+                match keyword.as_str() {
+                    "$defs" | "definitions" | "properties" | "patternProperties"
+                    | "dependentSchemas" => {
+                        if let Some(schemas) = child.as_object_mut() {
+                            for schema in schemas.values_mut() {
+                                omit_conditional_validation(schema);
+                            }
+                        }
+                    }
+                    "allOf"
+                    | "anyOf"
+                    | "oneOf"
+                    | "prefixItems"
+                    | "items"
+                    | "additionalItems"
+                    | "additionalProperties"
+                    | "propertyNames"
+                    | "contains"
+                    | "not"
+                    | "unevaluatedProperties"
+                    | "unevaluatedItems" => {
+                        omit_conditional_validation(child);
+                    }
+                    _ => {}
+                }
+            }
+        }
+        serde_json::Value::Array(items) => {
+            for child in items {
+                omit_conditional_validation(child);
+            }
+        }
+        _ => {}
+    }
 }
 
 fn generate(input: &str) -> Result<String, String> {
@@ -50,4 +97,34 @@ fn generate(input: &str) -> Result<String, String> {
     space.add_root_schema(schema).map_err(|e| e.to_string())?;
     let file: syn::File = syn::parse2(space.to_stream()).map_err(|e| e.to_string())?;
     Ok(format!("{NOTICE}\n{}", prettyplease::unparse(&file)))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn conditional_validation_projection_retains_the_dto_field_types() {
+        let bundle = r##"{"$defs":{"State":{"type":"object","required":["status"],"properties":{"status":{"type":"string"}},"allOf":[{"if":{"properties":{"status":{"const":"sent"}}},"then":{"required":["message_id"]}}]}}}"##;
+        let schema = to_draft07(bundle).unwrap();
+        let mut space = TypeSpace::new(&TypeSpaceSettings::default());
+        space.add_root_schema(schema).unwrap();
+        let source = space.to_stream().to_string();
+        assert!(source.contains("status : :: std :: string :: String"));
+        assert!(bundle.contains("\"if\""));
+    }
+
+    #[test]
+    fn conditional_projection_does_not_remove_named_properties_or_literal_data() {
+        let mut schema = serde_json::json!({
+            "properties": { "if": { "type": "string" }, "then": { "type": "string" } },
+            "default": { "if": "kept", "then": "kept" },
+            "if": { "required": ["if"] },
+            "then": { "required": ["then"] }
+        });
+        omit_conditional_validation(&mut schema);
+        assert!(schema.get("if").is_none());
+        assert_eq!(schema["properties"]["if"]["type"], "string");
+        assert_eq!(schema["default"]["then"], "kept");
+    }
 }

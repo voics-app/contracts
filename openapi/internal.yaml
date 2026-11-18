@@ -87,6 +87,30 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+  /users/{user_id}/read-states:
+    get:
+      operationId: getUserReadStates
+      summary: Read-state snapshots for gateway identification and resume
+      tags: [messages]
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: Array retained for legacy compatibility. Certified responses require a version on every entry. Snapshot reads are per channel, not one cross-channel transaction.
+          headers:
+            X-Read-State-Versioned:
+              description: Value 1 certifies authoritative versioned accounting even for an empty array. Absent means legacy; malformed certification must not become an empty successful snapshot.
+              schema:
+                type: string
+                const: "1"
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/internal/user-read-states.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          description: Read-state dependency unavailable; gateway must not certify an empty state.
   /guilds/{guild_id}/state:
     get:
       operationId: getGuildState
@@ -110,6 +134,7 @@ paths:
     get:
       operationId: getChannelAccess
       summary: Permissions and effective delivery mode of a user in a channel
+      description: "Resolves current account eligibility as well as membership and channel permissions. Missing, disabled, pending-deletion or currently suspended users receive 403. Expired suspensions and eligible bots retain ordinary channel access. No user session/token is required by this internal lookup; an offline scheduled author can remain eligible. Consumers needing fresh dispatch authorization must bypass cached and already in-flight lookups. This check and a later message write are not one cross-service transaction."
       tags:
         - api
       parameters:

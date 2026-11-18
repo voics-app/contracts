@@ -5,6 +5,12 @@
   "description": "PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.",
   "type": "object",
   "properties": {
+    "features": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["COMMUNITY"] },
+      "uniqueItems": true,
+      "description": "MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting."
+    },
     "name": {
       "type": "string",
       "minLength": 2,
@@ -69,6 +75,7 @@
       "description": "Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear."
     },
     "rules_channel_id": {
+      "description": "Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id.",
       "anyOf": [
         {
           "$ref": "../objects/snowflake.json"
@@ -79,6 +86,7 @@
       ]
     },
     "public_updates_channel_id": {
+      "description": "Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id.",
       "anyOf": [
         {
           "$ref": "../objects/snowflake.json"
