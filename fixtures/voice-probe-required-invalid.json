@@ -1,0 +1,10 @@
+{
+  "schema": "voice/node-registration.json",
+  "valid": false,
+  "data": {
+    "node_id": "fixture-node", "region": "fixture-region",
+    "ws_url": "wss://fixture.invalid/voice", "public_ip": "192.0.2.1", "udp_port": 50000,
+    "users": 0, "cpu_pct": 0, "egress_bps": 0, "draining": false, "version": "fixture",
+    "probe_required": "true"
+  }
+}

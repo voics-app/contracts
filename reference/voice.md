@@ -359,6 +359,72 @@ etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed 
 | `egress_bps` | `integer` |  |
 | `draining` | `boolean` |  |
 | `version` | `string` |  |
+| `probe_required?` | `boolean` | When true, new allocation requires a fresh healthy probe record for this registration's etcd lease. Omitted/false preserves legacy rollout behavior; an explicit matching unhealthy result or manual blacklist still excludes the node. |
+
+### VoiceNodeHealth
+
+Leased etcd value at /discordy/voice/health/<node_id>. A writer must atomically compare both the node registration lease and its exclusive /discordy/voice/probers/<node_id> claim before writing. The health value shares the prober claim's lease, expiring within two probe intervals if not renewed. Readers match registration_lease; a previous incarnation's result must never authorize or exclude its successor.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `node_id` | `string` |  |
+| `registration_lease` | `string` |  |
+| `prober_id` | `string` |  |
+| `status` | `"unknown" or "healthy" or "unhealthy"` | Unknown until M consecutive passes or N consecutive failures. Defaults N=2, M=2. A healthy node survives fewer than N failures; an unhealthy node remains excluded until M passes. |
+| `consecutive_failures` | `integer` |  |
+| `consecutive_passes` | `integer` |  |
+| `checked_at_ms` | `integer` | Unix time for diagnostics only; freshness follows the etcd lease, not synchronized wall clocks. |
+| `loss_pct?` | `number` |  |
+| `rtt_ms?` | `number` |  |
+| `failure?` | `"signaling" or "transport" or "rtp_loss" or "rtt" or "timeout" or "registration_changed"` |  |
+
+### VoiceNodeBlacklist
+
+Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `reason` | `string` |  |
+| `operator` | `string` |  |
+| `created_at_ms` | `integer` |  |
+
+## Voice token claims
+
+### VoiceTokenClaims
+
+Shared claims of a voice JWT (HS256, 60 seconds). Call tokens use VOICE_TOKEN_SECRET. A verifier that sees purpose=probe MUST verify with the separate VOICE_PROBE_TOKEN_SECRET, additionally validate ProbeVoiceTokenClaims and compare the receiving node's live registration lease before admitting it. No configured probe key means probe admission is disabled.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `sub` | `Snowflake` | User ID. |
+| `sid` | `string` | Gateway session ID. |
+| `srv` | `Snowflake` | guild_id, or the DM channel_id for DM calls. |
+| `chn` | `Snowflake` | Voice channel ID. |
+| `node` | `string` | Allocated voice node ID. |
+| `e2ee` | `boolean` |  |
+| `iat` | `integer` |  |
+| `exp` | `integer` |  |
+| `purpose?` | `"call" or "probe"` | Absent means call. A probe token is restricted to an isolated synthetic room, never an ordinary user channel. It may bypass draining, but never node identity or registration ownership checks. |
+| `node_lease?` | `string` | Required for probes: exact current etcd registration lease ID as a decimal string. The receiving node must compare it to its live registration before admitting the probe. |
+| `probe_id?` | `string (uuid)` | Required for probes: random UUID shared by the two synthetic peers of one run. The server derives the isolated room from node_lease and probe_id, not from the caller's channel ID. |
+
+### ProbeVoiceTokenClaims
+
+Mandatory additional validation for a voice token signed with VOICE_PROBE_TOKEN_SECRET and purpose=probe. The call-signing key must not authorize probe tokens, nor the probe key call tokens. The live node lease must match, video must be disabled, and the server derives an isolated room from node_lease plus probe_id. Never authorize an ordinary user room from a probe token's srv/chn values.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `sub` | `Snowflake` | User ID. |
+| `sid` | `string` | Gateway session ID. |
+| `srv` | `Snowflake` | guild_id, or the DM channel_id for DM calls. |
+| `chn` | `Snowflake` | Voice channel ID. |
+| `node` | `string` | Allocated voice node ID. |
+| `e2ee` | `false` |  |
+| `iat` | `integer` |  |
+| `exp` | `integer` |  |
+| `purpose` | `"probe"` |  |
+| `node_lease` | `string` |  |
+| `probe_id` | `string (uuid)` |  |
 
 ## Supporting types
 
