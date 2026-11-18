@@ -1,0 +1,1 @@
+{"schema":"internal/id-reservation-request.json","valid":false,"data":{"action":"acquire","service":"api","owner_id":"01e95855-837b-458d-8d86-23c67c5c8357","preferred_worker":0}}

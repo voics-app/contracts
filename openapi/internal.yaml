@@ -23,6 +23,30 @@ tags:
   - name: gateway
     description: Served by gateway (port 4000).
 paths:
+  /id-reservations:
+    post:
+      operationId: reserveMessageIds
+      summary: Acquire or renew a committed Snowflake interval for one messages process
+      tags: [api]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/internal/id-reservation-request.json
+      responses:
+        "200":
+          description: Committed interval. Timestamp and monotonic deadline checks are mandatory.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/internal/id-reservation.json
+        "400":
+          description: Invalid service, owner, worker or request shape.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          description: Capacity exhausted, expired ownership, clock rollback, restore barrier or unavailable database. No new interval was granted.
   /auth/introspect:
     post:
       operationId: introspectToken
