@@ -3301,10 +3301,10 @@ export interface SelectProtocolPayload {
   codecs: VoiceCodec[];
 }
 /**
- * A codec offered by the client.
+ * A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.
  */
 export interface VoiceCodec {
-  name: "opus" | "VP9" | "AV1" | "H264";
+  name: "opus" | "VP8" | "VP9" | "AV1" | "H264";
   type: "audio" | "video";
   priority: number;
   payload_type: number;

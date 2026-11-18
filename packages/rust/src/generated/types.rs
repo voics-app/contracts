@@ -7963,7 +7963,7 @@ pub struct VideoPayload {
     pub user_id: ::std::option::Option<Snowflake>,
     pub video_ssrc: u64,
 }
-///A codec offered by the client.
+///A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceCodec {
     pub name: VoiceCodecName,
@@ -7990,6 +7990,8 @@ pub struct VoiceCodec {
 pub enum VoiceCodecName {
     #[serde(rename = "opus")]
     Opus,
+    #[serde(rename = "VP8")]
+    Vp8,
     #[serde(rename = "VP9")]
     Vp9,
     #[serde(rename = "AV1")]
@@ -8000,6 +8002,7 @@ impl ::std::fmt::Display for VoiceCodecName {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
             Self::Opus => f.write_str("opus"),
+            Self::Vp8 => f.write_str("VP8"),
             Self::Vp9 => f.write_str("VP9"),
             Self::Av1 => f.write_str("AV1"),
             Self::H264 => f.write_str("H264"),
@@ -8011,6 +8014,7 @@ impl ::std::str::FromStr for VoiceCodecName {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         match value {
             "opus" => Ok(Self::Opus),
+            "VP8" => Ok(Self::Vp8),
             "VP9" => Ok(Self::Vp9),
             "AV1" => Ok(Self::Av1),
             "H264" => Ok(Self::H264),

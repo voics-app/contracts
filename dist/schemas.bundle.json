@@ -9065,7 +9065,7 @@
     },
     "VoiceCodec": {
       "title": "VoiceCodec",
-      "description": "A codec offered by the client.",
+      "description": "A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.",
       "type": "object",
       "required": [
         "name",
@@ -9078,6 +9078,7 @@
           "type": "string",
           "enum": [
             "opus",
+            "VP8",
             "VP9",
             "AV1",
             "H264"
