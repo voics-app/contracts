@@ -1,0 +1,6 @@
+{
+  "schema": "internal/notification-recipient.json", "valid": false,
+  "data": { "user_id": "20", "role_ids": [], "online": false,
+    "level": 1, "muted": false, "suppress_everyone": false, "suppress_roles": false,
+    "token": "device-data-must-not-be-in-this-directory" }
+}

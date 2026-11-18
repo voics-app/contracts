@@ -1,0 +1,8 @@
+{
+  "schema": "voice/node-health.json",
+  "data": {
+    "node_id": "fixture-node", "registration_lease": "9007199254740993", "prober_id": "probe-fixture",
+    "status": "healthy", "consecutive_failures": 0, "consecutive_passes": 2,
+    "checked_at_ms": 1800000000000, "loss_pct": 0, "rtt_ms": 14.5
+  }
+}

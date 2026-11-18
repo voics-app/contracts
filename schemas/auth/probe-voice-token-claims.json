@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/auth/probe-voice-token-claims.json",
+  "title": "ProbeVoiceTokenClaims",
+  "description": "Mandatory additional validation for a voice token signed with VOICE_PROBE_TOKEN_SECRET and purpose=probe. The call-signing key must not authorize probe tokens, nor the probe key call tokens. The live node lease must match, video must be disabled, and the server derives an isolated room from node_lease plus probe_id. Never authorize an ordinary user room from a probe token's srv/chn values.",
+  "allOf": [
+    { "$ref": "voice-token-claims.json" },
+    {
+      "type": "object",
+      "required": ["purpose", "node_lease", "probe_id"],
+      "properties": {
+        "purpose": { "type": "string", "enum": ["probe"] },
+        "node_lease": { "type": "string", "pattern": "^[1-9][0-9]*$" },
+        "probe_id": { "type": "string", "format": "uuid" },
+        "e2ee": { "type": "boolean", "const": false }
+      }
+    }
+  ]
+}

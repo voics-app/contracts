@@ -7,6 +7,10 @@ Rust and Elixir, and into the protocol reference docs.
 
 ## Layout
 
+Template links can resolve `GET /guilds/templates/{code}` without a session;
+creating a guild remains authenticated. `GuildTemplate.is_dirty` compares the
+current template-visible structure with the saved snapshot until explicit sync.
+
 | Path | Content |
 | --- | --- |
 | `openapi/discordy.yaml`, `openapi/internal.yaml` | OpenAPI 3.1 (public / service-to-service) |
@@ -45,6 +49,26 @@ make check-generated   # regenerate and fail when the working tree drifts
 Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT == 1048576` in all three languages.
 
 ## Consuming
+
+Voice discovery supports optional `probe_required` rollout, leased `VoiceNodeHealth`
+observations fenced to the node registration's etcd lease, and persistent node/region
+blacklists. `purpose: "probe"` voice tokens use the separate `VOICE_PROBE_TOKEN_SECRET`
+and require the stricter `ProbeVoiceTokenClaims` schema, including `node_lease` and a
+random `probe_id`. Signaling must isolate those sessions from user rooms and reject stale node leases.
+Probe success does not override draining or a manual blacklist. See the generated
+[voice protocol](reference/voice.md) for paths and compatibility rules. These contracts
+prepare active probing; publishing them does not deploy a prober or enable enforcement.
+
+`GET /internal/v1/channels/{id}/notification-recipients?author_id=...` defines a
+token-independent directory for mention accounting. `limit` (1–200, default100)
+bounds candidates examined. Continue with `after=next_after` until null, including
+after an empty page filtered by channel permissions. Only current channel viewers
+other than the author are returned; private delivery modes return no recipients.
+Each page resolves level, active mutes, role/everyone suppression and presence at
+its reported `evaluated_at`; it is not a historical or cross-page snapshot.
+No push tokens or other device identifiers are exposed. Consumers still apply
+message eligibility, mention/silent/reply policy and idempotent counter updates.
+This contract does not by itself implement or migrate stored mention counts.
 
 Refresh requests may include a random `request_id` UUID. Persist it with the
 current refresh token before sending and reuse the exact pair after response

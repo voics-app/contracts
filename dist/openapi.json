@@ -4019,6 +4019,8 @@
       "get": {
         "operationId": "getGuildTemplate",
         "summary": "Resolve a server template by code (built-in or shared)",
+        "description": "Public preview of the saved snapshot. Possession of the code grants read access; creating a guild still requires authentication.",
+        "security": [],
         "tags": [
           "Guilds"
         ],
@@ -10309,7 +10311,7 @@
           },
           "is_dirty": {
             "type": "boolean",
-            "description": "Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
+            "description": "Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
           }
         }
       },

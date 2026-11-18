@@ -99,7 +99,8 @@ function renderVoice(input: ReferenceInput): string {
       ]),
       payloadSections(3, sfuTitles, input.bundle),
     ),
-    section(2, "Node discovery", schemaSection(3, "VoiceNodeRegistration", input.bundle)),
+    section(2, "Node discovery", payloadSections(3, ["VoiceNodeRegistration", "VoiceNodeHealth", "VoiceNodeBlacklist"], input.bundle)),
+    section(2, "Voice token claims", payloadSections(3, ["VoiceTokenClaims", "ProbeVoiceTokenClaims"], input.bundle)),
     support.length ? section(2, "Supporting types", payloadSections(3, support, input.bundle)) : "",
   );
 }
