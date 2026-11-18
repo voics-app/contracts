@@ -1,0 +1,15 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://discordy.voics.nl/contracts/schemas/internal/id-reservation.json",
+  "title":"IdReservation",
+  "description":"Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.",
+  "type":"object", "additionalProperties":false,
+  "required":["worker_id","owner_id","start_ms","end_ms","issued_at_ms"],
+  "properties":{
+    "worker_id":{"type":"integer","minimum":65,"maximum":127},
+    "owner_id":{"type":"string","format":"uuid"},
+    "start_ms":{"type":"integer","minimum":1767225600000},
+    "end_ms":{"type":"integer","minimum":1767225600001,"maximum":3966248855551},
+    "issued_at_ms":{"type":"integer","minimum":1767225600000}
+  }
+}

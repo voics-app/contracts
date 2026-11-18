@@ -18,6 +18,22 @@ export type DeliveryMode = "standard" | "ephemeral" | "p2p";
  */
 export type HeartbeatPayload = number | null;
 /**
+ * One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.
+ */
+export type IdReservationRequest =
+  | {
+      action: "acquire";
+      service: "messages";
+      owner_id: string;
+      preferred_worker: number;
+    }
+  | {
+      action: "renew";
+      service: "messages";
+      owner_id: string;
+      worker_id: number;
+    };
+/**
  * Op 9 INVALID_SESSION: whether the session can be resumed.
  */
 export type InvalidSessionPayload = boolean;
@@ -2060,6 +2076,16 @@ export interface IceCandidate {
   ip: string;
   port: number;
   protocol: "udp";
+}
+/**
+ * Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.
+ */
+export interface IdReservation {
+  worker_id: number;
+  owner_id: string;
+  start_ms: number;
+  end_ms: number;
+  issued_at_ms: number;
 }
 /**
  * Op 2 IDENTIFY.

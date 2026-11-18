@@ -429,6 +429,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "voics-snowflake"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
 name = "wasm-bindgen"
 version = "0.2.129"
 source = "registry+https://github.com/rust-lang/crates.io-index"
