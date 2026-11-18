@@ -2612,6 +2612,17 @@ export interface components {
             application_id?: components["schemas"]["Snowflake"] | null;
             approximate_member_count?: number;
             approximate_presence_count?: number;
+            /**
+             * @description Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+             * @default true
+             */
+            audit_log_enabled: boolean;
+            /**
+             * @description Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+             * @default 90
+             * @enum {integer}
+             */
+            audit_log_retention_days: 30 | 90 | 365;
             /** @description Banner image hash (CDN path banners/{guild_id}/{hash}), or null. */
             banner?: string | null;
             default_message_notifications: number;
@@ -3084,6 +3095,13 @@ export interface components {
         ModifyGuildRequest: {
             afk_channel_id?: components["schemas"]["Snowflake"] | null;
             afk_timeout?: number;
+            /** @description Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves. */
+            audit_log_enabled?: boolean;
+            /**
+             * @description Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job.
+             * @enum {integer}
+             */
+            audit_log_retention_days?: 30 | 90 | 365;
             /** @description Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it. */
             banner?: string | null;
             default_message_notifications?: number;

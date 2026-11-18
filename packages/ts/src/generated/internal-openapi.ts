@@ -587,6 +587,17 @@ export interface components {
             application_id?: components["schemas"]["Snowflake"] | null;
             approximate_member_count?: number;
             approximate_presence_count?: number;
+            /**
+             * @description Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+             * @default true
+             */
+            audit_log_enabled: boolean;
+            /**
+             * @description Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+             * @default 90
+             * @enum {integer}
+             */
+            audit_log_retention_days: 30 | 90 | 365;
             /** @description Banner image hash (CDN path banners/{guild_id}/{hash}), or null. */
             banner?: string | null;
             channels: components["schemas"]["Channel"][];

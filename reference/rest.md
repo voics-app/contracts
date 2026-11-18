@@ -792,6 +792,8 @@ A guild (server). `voice_region` is a Discordy extra.
 | `approximate_member_count?` | `integer` |  |
 | `approximate_presence_count?` | `integer` |  |
 | `voice_region` | `string` | Discordy: voice region ID used to allocate voice nodes. |
+| `audit_log_enabled?` | `boolean` | Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention. |
+| `audit_log_retention_days?` | `30 or 90 or 365` | Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job. |
 | `prune_admin_only?` | `boolean` | Discordy: when true, only administrators may prune inactive members. |
 
 ### GuildApplicationCommandPermissions
@@ -866,6 +868,8 @@ A guild with its full state (GUILD_CREATE payload and the internal guild state e
 | `approximate_member_count?` | `integer` |  |
 | `approximate_presence_count?` | `integer` |  |
 | `voice_region` | `string` | Discordy: voice region ID used to allocate voice nodes. |
+| `audit_log_enabled?` | `boolean` | Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention. |
+| `audit_log_retention_days?` | `30 or 90 or 365` | Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job. |
 | `prune_admin_only?` | `boolean` | Discordy: when true, only administrators may prune inactive members. |
 | `joined_at?` | `string (date-time)` |  |
 | `large?` | `boolean` |  |
@@ -2070,6 +2074,8 @@ PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
 | `default_message_notifications?` | `integer` |  |
 | `explicit_content_filter?` | `integer` |  |
 | `voice_region?` | `string` |  |
+| `audit_log_enabled?` | `boolean` | Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves. |
+| `audit_log_retention_days?` | `30 or 90 or 365` | Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job. |
 | `prune_admin_only?` | `boolean` | Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD. |
 
 ### ModifyGuildTemplateRequest
