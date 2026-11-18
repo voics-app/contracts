@@ -221,6 +221,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/channels/{channel_id}/messages` | messages | — | `array of Message` | Get channel message history |
 | `POST` | `/channels/{channel_id}/messages` | messages | `CreateMessageRequest` | `Message` | Send a standard-mode message |
+| `GET` | `/channels/{channel_id}/polls/{message_id}` | messages | — | 200 No Content | Get an authoritative poll snapshot for the current viewer |
+| `PUT` | `/channels/{channel_id}/polls/{message_id}/answers/{answer_id}/@me` | messages | `PollVoteRequest` | 200 No Content | Select a poll answer with your current vote revision |
+| `DELETE` | `/channels/{channel_id}/polls/{message_id}/answers/{answer_id}/@me` | messages | — | 200 No Content | Retract a poll answer with your current vote revision |
+| `POST` | `/channels/{channel_id}/polls/{message_id}/expire` | messages | — | `Message` | End your own poll early |
 | `GET` | `/channels/{channel_id}/messages/scheduled` | messages | — | `ScheduledMessageList` | List your scheduled messages in a channel |
 | `POST` | `/channels/{channel_id}/messages/scheduled` | messages | `CreateScheduledMessageRequest` | 200 No Content | Schedule a Standard text message |
 | `GET` | `/channels/{channel_id}/messages/scheduled/{schedule_id}` | messages | — | 200 No Content | Read one of your scheduled messages |
@@ -1147,6 +1151,7 @@ A standard-mode message.
 | `components?` | `array of MessageComponent` |  |
 | `position?` | `integer` |  |
 | `message_snapshots?` | `array of MessageSnapshot` | Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. |
+| `poll?` | `Poll` |  |
 
 ### MessageCall
 
@@ -1268,6 +1273,108 @@ A channel permission overwrite for a role or member.
 | `type` | `integer` | OverwriteType: 0 role, 1 member. |
 | `allow` | `PermissionBitset` |  |
 | `deny` | `PermissionBitset` |  |
+
+### Poll
+
+A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `question` | `PollQuestion` |  |
+| `answers` | `array of PollAnswer` |  |
+| `expiry` | `string (date-time)` |  |
+| `allow_multiselect` | `boolean` |  |
+| `layout_type` | `1` |  |
+| `results?` | `PollResults` |  |
+
+### PollAnswer
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `answer_id` | `integer` |  |
+| `poll_media` | `PollMedia` |  |
+
+### PollAnswerCount
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `integer` |  |
+| `count` | `integer` |  |
+| `me_voted?` | `boolean` | Absent in public events: unknown, not false. |
+
+### PollEmoji
+
+Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
+
+### PollMedia
+
+An answer label, optionally decorated with a Unicode emoji.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `text` | `string` |  |
+| `emoji?` | `PollEmoji` |  |
+
+### PollQuestion
+
+Plain text. Does not produce mentions or embeds.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `text` | `string` |  |
+
+### PollResults
+
+Authoritative counts. Replace by results version; never add/subtract event deltas.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `version` | `PollVersion` |  |
+| `is_finalized` | `boolean` |  |
+| `answer_counts` | `array of PollAnswerCount` | Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer. |
+| `vote_version?` | `PollVersion` | Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts. |
+
+### PollSnapshot
+
+Viewer-authorized poll snapshot. GET is side-effect-free. Refresh visible polls on foreground/reconnect to repair missed publication.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `question` | `PollQuestion` |  |
+| `answers` | `array of PollAnswer` |  |
+| `expiry` | `string (date-time)` |  |
+| `allow_multiselect` | `boolean` |  |
+| `layout_type` | `1` |  |
+| `results` | `PollViewerResults` |  |
+
+### PollVersion
+
+Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed.
+
+Type: `string`
+
+### PollViewerAnswerCount
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `integer` |  |
+| `count` | `integer` |  |
+| `me_voted` | `boolean` | Absent in public events: unknown, not false. |
+
+### PollViewerResults
+
+Authenticated snapshot with explicit selection for every answer and the viewer revision, including zero for a first-time viewer.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `version` | `PollVersion` |  |
+| `is_finalized` | `boolean` |  |
+| `answer_counts` | `array of PollViewerAnswerCount` | Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer. |
+| `vote_version` | `PollVersion` | Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts. |
 
 ### Reaction
 
@@ -1946,7 +2053,7 @@ POST /channels/{id}/invites body.
 
 ### CreateMessageRequest
 
-POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
+POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160). A poll requires fresh SEND_POLLS in addition to normal send permissions. Its definition cannot be edited or forwarded; public bots use the same permissions, and internal/webhook/interaction poll creation is rejected. Poll-only messages are valid. Private delivery never stores polls.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -1959,6 +2066,7 @@ POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies w
 | `components?` | `array of MessageComponent` |  |
 | `attachments?` | `array of AttachmentReference` |  |
 | `flags?` | `integer` | MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components. |
+| `poll?` | `PollCreate` |  |
 
 ### CreateReportRequest
 
@@ -2437,6 +2545,26 @@ Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enabl
 | Field | Type | Description |
 | --- | --- | --- |
 | `password` | `string` |  |
+
+### PollCreate
+
+Immutable poll definition for a Standard public message. Answer IDs and expiry are server assigned. Unsupported internal/webhook/interaction, scheduled and forward creation is rejected.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `question` | `PollQuestion` |  |
+| `answers` | `array of object` |  |
+| `duration?` | `integer` | Whole hours from server acceptance. |
+| `allow_multiselect?` | `boolean` |  |
+| `layout_type?` | `1` |  |
+
+### PollVoteRequest
+
+The revision of your own vote, not the global results. An already-satisfied retry is a no-op; any stale request that changes your selection conflicts.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `expected_vote_version` | `PollVersion` |  |
 
 ### ProfileBadge
 

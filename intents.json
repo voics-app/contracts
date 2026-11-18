@@ -18,6 +18,8 @@
     { "name": "DIRECT_MESSAGES", "bit": 12, "value": 4096, "privileged": false, "scope": "direct", "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "MESSAGE_DELETE", "CHANNEL_PINS_UPDATE"] },
     { "name": "DIRECT_MESSAGE_REACTIONS", "bit": 13, "value": 8192, "privileged": false, "scope": "direct", "events": ["MESSAGE_REACTION_ADD", "MESSAGE_REACTION_REMOVE", "MESSAGE_REACTION_REMOVE_ALL"] },
     { "name": "DIRECT_MESSAGE_TYPING", "bit": 14, "value": 16384, "privileged": false, "scope": "direct", "events": ["TYPING_START"] },
+    {"name":"GUILD_MESSAGE_POLLS","bit":24,"scope":"guild","value":16777216,"privileged":false,"events":["MESSAGE_POLL_VOTE_ADD","MESSAGE_POLL_VOTE_REMOVE"]},
+    {"name":"DIRECT_MESSAGE_POLLS","bit":25,"scope":"direct","value":33554432,"privileged":false,"events":["MESSAGE_POLL_VOTE_ADD","MESSAGE_POLL_VOTE_REMOVE"]},
     { "name": "MESSAGE_CONTENT", "bit": 15, "value": 32768, "privileged": true, "scope": "content", "events": [] }
   ]
 }

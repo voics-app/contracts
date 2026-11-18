@@ -70,6 +70,8 @@ Redpanda event envelope. `data` is exactly the gateway DISPATCH payload for `typ
 | `MESSAGE_UPDATE` | `discordy.message.v1` | `MessageEvent` |
 | `MESSAGE_DELETE` | `discordy.message.v1` | `MessageDeleteEvent` |
 | `MESSAGE_DELETE_BULK` | `discordy.message.v1` | `MessageDeleteBulkEvent` |
+| `MESSAGE_POLL_VOTE_ADD` | `discordy.message.v1` | `MessagePollVoteAddEvent` |
+| `MESSAGE_POLL_VOTE_REMOVE` | `discordy.message.v1` | `MessagePollVoteRemoveEvent` |
 | `MESSAGE_REACTION_ADD` | `discordy.message.v1` | `MessageReactionAddEvent` |
 | `MESSAGE_REACTION_REMOVE` | `discordy.message.v1` | `MessageReactionRemoveEvent` |
 | `MESSAGE_REACTION_REMOVE_ALL` | `discordy.message.v1` | `MessageReactionRemoveAllEvent` |

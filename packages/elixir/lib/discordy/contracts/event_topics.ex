@@ -85,6 +85,12 @@ defmodule Discordy.Contracts.EventTopics do
   @spec message_delete_bulk() :: String.t()
   def message_delete_bulk, do: "discordy.message.v1"
 
+  @spec message_poll_vote_add() :: String.t()
+  def message_poll_vote_add, do: "discordy.message.v1"
+
+  @spec message_poll_vote_remove() :: String.t()
+  def message_poll_vote_remove, do: "discordy.message.v1"
+
   @spec message_reaction_add() :: String.t()
   def message_reaction_add, do: "discordy.message.v1"
 
@@ -182,6 +188,8 @@ defmodule Discordy.Contracts.EventTopics do
       message_update: "discordy.message.v1",
       message_delete: "discordy.message.v1",
       message_delete_bulk: "discordy.message.v1",
+      message_poll_vote_add: "discordy.message.v1",
+      message_poll_vote_remove: "discordy.message.v1",
       message_reaction_add: "discordy.message.v1",
       message_reaction_remove: "discordy.message.v1",
       message_reaction_remove_all: "discordy.message.v1",

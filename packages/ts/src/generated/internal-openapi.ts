@@ -881,6 +881,7 @@ export interface components {
             /** @description Client nonce used to resolve optimistic sends. */
             nonce?: string;
             pinned: boolean;
+            poll?: components["schemas"]["Poll"];
             position?: number;
             reactions?: components["schemas"]["Reaction"][];
             referenced_message?: components["schemas"]["Message"] | null;
@@ -1063,6 +1064,71 @@ export interface components {
             /** @description OverwriteType: 0 role, 1 member. */
             type: number;
         };
+        /**
+         * Poll
+         * @description A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit.
+         */
+        Poll: {
+            allow_multiselect: boolean;
+            answers: components["schemas"]["PollAnswer"][];
+            /** Format: date-time */
+            expiry: string;
+            /** @enum {integer} */
+            layout_type: 1;
+            question: components["schemas"]["PollQuestion"];
+            results?: components["schemas"]["PollResults"];
+        };
+        /** PollAnswer */
+        PollAnswer: {
+            answer_id: number;
+            poll_media: components["schemas"]["PollMedia"];
+        };
+        /** PollAnswerCount */
+        PollAnswerCount: {
+            count: number;
+            id: number;
+            /** @description Absent in public events: unknown, not false. */
+            me_voted?: boolean;
+        };
+        /**
+         * PollEmoji
+         * @description Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names.
+         */
+        PollEmoji: {
+            name: string;
+        };
+        /**
+         * PollMedia
+         * @description An answer label, optionally decorated with a Unicode emoji.
+         */
+        PollMedia: {
+            emoji?: components["schemas"]["PollEmoji"];
+            text: string;
+        };
+        /**
+         * PollQuestion
+         * @description Plain text. Does not produce mentions or embeds.
+         */
+        PollQuestion: {
+            text: string;
+        };
+        /**
+         * PollResults
+         * @description Authoritative counts. Replace by results version; never add/subtract event deltas.
+         */
+        PollResults: {
+            /** @description Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer. */
+            answer_counts: components["schemas"]["PollAnswerCount"][];
+            is_finalized: boolean;
+            version: components["schemas"]["PollVersion"];
+            /** @description Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts. */
+            vote_version?: components["schemas"]["PollVersion"];
+        };
+        /**
+         * PollVersion
+         * @description Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed.
+         */
+        PollVersion: string;
         /**
          * PresenceUpdateEvent
          * @description PRESENCE_UPDATE dispatch.

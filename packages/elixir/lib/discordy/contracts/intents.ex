@@ -95,6 +95,18 @@ defmodule Discordy.Contracts.Intents do
   def direct_message_typing, do: 16_384
 
   @doc ~S"""
+  Events: MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE.
+  """
+  @spec guild_message_polls() :: non_neg_integer()
+  def guild_message_polls, do: 16_777_216
+
+  @doc ~S"""
+  Events: MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE.
+  """
+  @spec direct_message_polls() :: non_neg_integer()
+  def direct_message_polls, do: 33_554_432
+
+  @doc ~S"""
   Privileged. Events: none (gates data, not events).
   """
   @spec message_content() :: non_neg_integer()
@@ -119,6 +131,8 @@ defmodule Discordy.Contracts.Intents do
       direct_messages: 4096,
       direct_message_reactions: 8192,
       direct_message_typing: 16_384,
+      guild_message_polls: 16_777_216,
+      direct_message_polls: 33_554_432,
       message_content: 32_768
     }
   end
