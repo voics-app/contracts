@@ -16,6 +16,7 @@ Rust and Elixir, and into the protocol reference docs.
 | `codegen/` | Validation and generation pipeline (TypeScript, Clean Architecture) |
 | `packages/ts` | npm `@discordy-voics/contracts` |
 | `packages/rust` | crate `discordy-contracts` |
+| `packages/snowflake` | shared fallible `voics-snowflake` interval issuer (API/messages) |
 | `packages/elixir` | Hex-style package `discordy_contracts` (`Discordy.Contracts.*`) |
 | `reference/*.md` | Generated protocol docs (`rest`, `gateway`, `events`, `voice`) to copy into the docs repo |
 | `dist/` | Generated bundles (`openapi.json`, `schemas.bundle.json`, registries) |

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/id-reservation-request.json",
+  "title": "IdReservationRequest",
+  "description": "One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.",
+  "oneOf": [
+    {"type":"object", "additionalProperties":false, "required":["action","service","owner_id","preferred_worker"], "properties":{
+      "action":{"const":"acquire"}, "service":{"const":"messages"}, "owner_id":{"type":"string","format":"uuid"},
+      "preferred_worker":{"type":"integer","minimum":64,"maximum":127}
+    }},
+    {"type":"object", "additionalProperties":false, "required":["action","service","owner_id","worker_id"], "properties":{
+      "action":{"const":"renew"}, "service":{"const":"messages"}, "owner_id":{"type":"string","format":"uuid"},
+      "worker_id":{"type":"integer","minimum":65,"maximum":127}
+    }}
+  ]
+}
