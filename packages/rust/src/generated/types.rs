@@ -3304,6 +3304,33 @@ pub struct IceCandidate {
     pub port: u64,
     pub protocol: ::serde_json::Value,
 }
+///Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct IdReservation {
+    pub end_ms: i64,
+    pub issued_at_ms: i64,
+    pub owner_id: ::uuid::Uuid,
+    pub start_ms: i64,
+    pub worker_id: i64,
+}
+///One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(tag = "action", deny_unknown_fields)]
+pub enum IdReservationRequest {
+    #[serde(rename = "acquire")]
+    Acquire {
+        owner_id: ::uuid::Uuid,
+        preferred_worker: i64,
+        service: ::serde_json::Value,
+    },
+    #[serde(rename = "renew")]
+    Renew {
+        owner_id: ::uuid::Uuid,
+        service: ::serde_json::Value,
+        worker_id: i64,
+    },
+}
 ///Op 2 IDENTIFY.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct IdentifyPayload {

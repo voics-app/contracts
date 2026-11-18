@@ -4,6 +4,13 @@
 2026-01-01 epoch, 10 worker bits and 12 sequence bits. The signed PostgreSQL bigint ceiling
 limits the timestamp to 41 bits. It does not allocate workers or open database connections.
 
+Services import a revision-pinned snapshot into `crates/snowflake` so ordinary CI and container
+builds require no cross-repository credentials. Their `scripts/check-snowflake.py` checks the
+source, manifest, README and formatter configuration against `UPSTREAM.json` SHA-256 digests;
+`--canonical PATH` also verifies those bytes against the exact canonical Git commit. Update
+both services together with `--canonical PATH --import-revision FULL_SHA`, then run all tests.
+Never edit the imported crate directly.
+
 API reserves workers 1–63 and messages 65–127. Workers 0 and 64 remain permanently excluded
 for legacy binaries. A configured worker is a preference, so replicas can use the same config.
 At most 63 live owners per service can hold ranges. A fresh process creates a fresh UUID owner

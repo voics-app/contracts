@@ -228,6 +228,12 @@ impl LeasedIds {
 
     pub fn renew(&self, reservation: Reservation, requested_at: Instant) -> Result<(), IdError> {
         let mut state = self.state.lock().map_err(|_| IdError::StateUnavailable)?;
+        let current = state.generator.reservation;
+        if state.requested_at.elapsed()
+            >= Duration::from_millis(current.end_ms - current.issued_at_ms)
+        {
+            return Err(IdError::Expired);
+        }
         // Never let a replayed response restart the expiry timer.
         if requested_at <= state.requested_at {
             return Err(IdError::StaleRenewal);
@@ -362,5 +368,19 @@ mod tests {
             ids.next_at(NOW + 1, start + Duration::from_millis(100)),
             Err(IdError::Expired)
         );
+    }
+
+    #[test]
+    fn an_expired_runtime_cannot_be_revived_by_a_late_renewal() {
+        let now = Instant::now();
+        let current = reservation(65, 1, NOW, NOW + 100);
+        let ids = LeasedIds::new(current, now - Duration::from_millis(101)).unwrap();
+        let next = Reservation {
+            end_ms: NOW + 200,
+            issued_at_ms: NOW + 90,
+            ..current
+        };
+        assert_eq!(ids.renew(next, now), Err(IdError::Expired));
+        assert_eq!(ids.reservation().unwrap(), current);
     }
 }

@@ -172,6 +172,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/id-reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Acquire or renew a committed Snowflake interval for one messages process */
+        post: operations["reserveMessageIds"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/ready": {
         parameters: {
             query?: never;
@@ -687,6 +704,39 @@ export interface components {
             suppress_everyone: boolean;
             /** @description Suppress all role @mentions. */
             suppress_roles: boolean;
+        };
+        /**
+         * IdReservation
+         * @description Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.
+         */
+        IdReservation: {
+            end_ms: number;
+            issued_at_ms: number;
+            /** Format: uuid */
+            owner_id: string;
+            start_ms: number;
+            worker_id: number;
+        };
+        /**
+         * IdReservationRequest
+         * @description One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.
+         */
+        IdReservationRequest: {
+            /** @constant */
+            action: "acquire";
+            /** Format: uuid */
+            owner_id: string;
+            preferred_worker: number;
+            /** @constant */
+            service: "messages";
+        } | {
+            /** @constant */
+            action: "renew";
+            /** Format: uuid */
+            owner_id: string;
+            /** @constant */
+            service: "messages";
+            worker_id: number;
         };
         /**
          * InternalCreateMessageRequest
@@ -1529,6 +1579,45 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
+        };
+    };
+    reserveMessageIds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IdReservationRequest"];
+            };
+        };
+        responses: {
+            /** @description Committed interval. Timestamp and monotonic deadline checks are mandatory. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdReservation"];
+                };
+            };
+            /** @description Invalid service, owner, worker or request shape. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Capacity exhausted, expired ownership, clock rollback, restore barrier or unavailable database. No new interval was granted. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     getUserReadyState: {
