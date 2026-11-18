@@ -56,7 +56,8 @@
       ]
     },
     "token": {
-      "type": "string"
+      "type": "string",
+      "description": "Execution credential returned only by create and reset-token; never stored in list/get/edit responses."
     },
     "application_id": {
       "anyOf": [
@@ -69,7 +70,8 @@
       ]
     },
     "url": {
-      "type": "string"
+      "type": "string",
+      "description": "Execution URL returned only by create and reset-token. Treat as a secret."
     }
   }
 }

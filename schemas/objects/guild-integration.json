@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/guild-integration.json",
+  "title": "GuildIntegration",
+  "description": "An application whose bot is currently installed in this server.",
+  "type": "object",
+  "required": ["application", "permissions", "installed_at"],
+  "properties": {
+    "application": { "$ref": "./application.json" },
+    "permissions": { "$ref": "./permission-bitset.json", "description": "Current effective server permissions, including the everyone role." },
+    "installed_at": { "type": "string", "format": "date-time" }
+  }
+}

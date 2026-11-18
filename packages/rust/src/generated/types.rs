@@ -458,6 +458,69 @@ pub struct Application {
     pub tags: ::std::vec::Vec<::std::string::String>,
     pub verify_key: ::std::string::String,
 }
+///One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ApplicationAuthorization {
+    pub application: Application,
+    pub authorized_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub guild: AuthorizationGuild,
+    pub id: Snowflake,
+    ///Effective server permissions acknowledged at the last authorization, not a live permission grant.
+    pub permissions: PermissionBitset,
+    pub scopes: ::std::vec::Vec<ApplicationAuthorizationScopesItem>,
+}
+///`ApplicationAuthorizationScopesItem`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ApplicationAuthorizationScopesItem {
+    #[serde(rename = "bot")]
+    Bot,
+    #[serde(rename = "applications.commands")]
+    ApplicationsCommands,
+}
+impl ::std::fmt::Display for ApplicationAuthorizationScopesItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Bot => f.write_str("bot"),
+            Self::ApplicationsCommands => f.write_str("applications.commands"),
+        }
+    }
+}
+impl ::std::str::FromStr for ApplicationAuthorizationScopesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "bot" => Ok(Self::Bot),
+            "applications.commands" => Ok(Self::ApplicationsCommands),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ApplicationAuthorizationScopesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ApplicationAuthorizationScopesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
 ///A slash, user or message command.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct ApplicationCommand {
@@ -984,6 +1047,14 @@ pub struct AuthSession {
     ///Operating system derived from the User-Agent (for example `Windows`), or `Unknown`.
     pub os: ::std::string::String,
 }
+///The server of a recorded bot authorization.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct AuthorizationGuild {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub icon: ::std::option::Option<::std::string::String>,
+    pub id: Snowflake,
+    pub name: ::std::string::String,
+}
 ///Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct BackupCodesResponse {
@@ -1023,6 +1094,67 @@ pub struct BanMessagePurgeEvent {
     pub since_ms: u64,
     ///The banned user whose messages are purged.
     pub user_id: Snowflake,
+}
+///Opaque installation precondition from the selected guild in GET /oauth2/authorize. Echo it unchanged in POST. It distinguishes an active installation, initial absence and absence after removal. Missing or null is invalid; a changed revision returns 409 without writes and requires a fresh preview and consent.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct BotInstallationRevision(::std::string::String);
+impl ::std::ops::Deref for BotInstallationRevision {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<BotInstallationRevision> for ::std::string::String {
+    fn from(value: BotInstallationRevision) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for BotInstallationRevision {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 29usize {
+            return Err("longer than 29 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| {
+                ::regress::Regex::new("^(absent:(0|[1-9][0-9]{0,18})|installed:[1-9][0-9]{0,18})$")
+                    .unwrap()
+            });
+        if PATTERN.find(value).is_none() {
+            return Err(
+                "doesn't match pattern \"^(absent:(0|[1-9][0-9]{0,18})|installed:[1-9][0-9]{0,18})$\""
+                    .into(),
+            );
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for BotInstallationRevision {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for BotInstallationRevision {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for BotInstallationRevision {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///POST /channels/{id}/messages/bulk-delete body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -3094,6 +3226,14 @@ impl<'de> ::serde::Deserialize<'de> for GuildFullAuditLogRetentionDays {
         Self::try_from(<i64>::deserialize(deserializer)?)
             .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
     }
+}
+///An application whose bot is currently installed in this server.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildIntegration {
+    pub application: Application,
+    pub installed_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    ///Current effective server permissions, including the everyone role.
+    pub permissions: PermissionBitset,
 }
 ///A member of a guild.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -5693,7 +5833,7 @@ impl ::std::convert::TryFrom<::std::string::String>
         value.parse()
     }
 }
-///GET /oauth2/authorize response: what the bot invite screen shows.
+///Bot-install consent information. Only bot and applications.commands are supported.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct OAuth2AuthorizeInfo {
     pub application: Application,
@@ -5702,30 +5842,88 @@ pub struct OAuth2AuthorizeInfo {
     pub guilds: ::std::vec::Vec<OAuth2Guild>,
     ///Permissions requested by the invite URL.
     pub permissions: PermissionBitset,
-    pub scopes: ::std::vec::Vec<::std::string::String>,
+    pub scopes: ::std::vec::Vec<OAuth2AuthorizeInfoScopesItem>,
     pub user: User,
 }
-///POST /oauth2/authorize body: add a bot to a guild.
+///`OAuth2AuthorizeInfoScopesItem`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum OAuth2AuthorizeInfoScopesItem {
+    #[serde(rename = "bot")]
+    Bot,
+    #[serde(rename = "applications.commands")]
+    ApplicationsCommands,
+}
+impl ::std::fmt::Display for OAuth2AuthorizeInfoScopesItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Bot => f.write_str("bot"),
+            Self::ApplicationsCommands => f.write_str("applications.commands"),
+        }
+    }
+}
+impl ::std::str::FromStr for OAuth2AuthorizeInfoScopesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "bot" => Ok(Self::Bot),
+            "applications.commands" => Ok(Self::ApplicationsCommands),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for OAuth2AuthorizeInfoScopesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for OAuth2AuthorizeInfoScopesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct OAuth2AuthorizeRequest {
     pub client_id: Snowflake,
     pub guild_id: Snowflake,
+    pub installation_revision: BotInstallationRevision,
+    ///For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review.
     pub permissions: PermissionBitset,
-    ///Space-separated scopes, e.g. "bot applications.commands".
+    ///Space-separated bot and optionally applications.commands. bot is required.
     pub scope: ::std::string::String,
 }
 ///POST /oauth2/authorize response.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct OAuth2AuthorizeResponse {
-    ///Where the client should navigate next.
+    ///Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI.
     pub location: ::std::string::String,
 }
 ///A guild the user can add the bot to.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct OAuth2Guild {
+    ///Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub bot_permissions: ::std::option::Option<PermissionBitset>,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub icon: ::std::option::Option<::std::string::String>,
     pub id: Snowflake,
+    pub installation_revision: BotInstallationRevision,
     pub name: ::std::string::String,
     pub permissions: PermissionBitset,
 }
@@ -10435,11 +10633,13 @@ pub struct Webhook {
     pub id: Snowflake,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub name: ::std::option::Option<::std::string::String>,
+    ///Execution credential returned only by create and reset-token; never stored in list/get/edit responses.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub token: ::std::option::Option<::std::string::String>,
     ///WebhookType.
     #[serde(rename = "type")]
     pub type_: i64,
+    ///Execution URL returned only by create and reset-token. Treat as a secret.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub url: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]

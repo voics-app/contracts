@@ -1,0 +1,18 @@
+{
+  "schema": "objects/guild-integration.json",
+  "valid": true,
+  "data": {
+    "application": {
+      "id": "123",
+      "name": "Study helper",
+      "icon": null,
+      "description": "Study reminders",
+      "bot_public": true,
+      "bot_require_code_grant": false,
+      "verify_key": "test",
+      "flags": 0
+    },
+    "permissions": "3072",
+    "installed_at": "2026-11-18T00:00:00Z"
+  }
+}

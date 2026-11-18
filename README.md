@@ -55,6 +55,18 @@ Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT ==
 
 ## Consuming
 
+`GET /oauth2/tokens` lists personal recorded bot-install consent, distinct from
+owned applications. Revoking a record does not uninstall the shared bot. Server
+managers remove actual installations through `/guilds/{id}/integrations`; this
+clears all associated consent. Only `bot` and `applications.commands` are supported.
+Every authorization POST must echo the selected guild's `installation_revision`
+from its displayed GET preview. This required, non-null precondition binds consent
+to that exact installed or absent state, including a retained removal revision.
+An intervening install/removal returns 409 without writes; fetch a new preview
+and ask for consent again. Legacy POSTs without the field are rejected with 400.
+Webhook create/reset-token returns an ephemeral credential once with `no-store`;
+ordinary metadata edits and reads never expose or modify the execution credential.
+
 Generated DTOs describe field shapes, not every validation rule. The published JSON
 Schemas and OpenAPI retain conditional status/certification constraints. Typify cannot
 generate these `if`/`then`/`else` validations, so only its private type-generation input

@@ -10,7 +10,7 @@
   "properties": {
     "location": {
       "type": "string",
-      "description": "Where the client should navigate next."
+      "description": "Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI."
     }
   }
 }
