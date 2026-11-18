@@ -4360,6 +4360,40 @@ paths:
         "429":
           $ref: "#/components/responses/RateLimited"
   /users/@me/mfa/passkeys/{id}:
+    patch:
+      operationId: renamePasskey
+      summary: Rename a passkey owned by the current account
+      description: Trims the label and rejects empty, overlong or control-character names. This changes only the label, never credential material, counters, recovery codes or MFA state.
+      tags: [Auth]
+      x-discordy-service: api
+      security:
+        - UserBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/passkey-rename-request.json
+      responses:
+        '200':
+          description: Updated passkey metadata
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/passkey.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
     delete:
       operationId: deletePasskey
       summary: Remove a passkey after password and second-factor confirmation
