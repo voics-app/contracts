@@ -854,7 +854,7 @@ export interface CallRingPayload {
     | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake];
 }
 /**
- * GET /internal/v1/channels/{channel_id}/access/{user_id}.
+ * GET /internal/v1/channels/{channel_id}/access/{user_id}. Current account eligibility is required: missing, disabled, pending-deletion or currently suspended users receive 403. Eligible bots and expired suspensions keep existing membership/permission behavior. No user session is required; fresh scheduled dispatch checks bypass caches and older in-flight requests. The response shape is unchanged, and the check/write race remains cross-service.
  */
 export interface ChannelAccess {
   permissions: PermissionBitset;
