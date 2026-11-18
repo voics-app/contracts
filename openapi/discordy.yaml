@@ -4227,6 +4227,165 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/passkeys:
+    get:
+      operationId: listPasskeys
+      summary: List registered passkey second factors
+      tags: [Auth]
+      x-discordy-service: api
+      security:
+        - UserBearer: []
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/rest/passkey.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/passkeys/register/start:
+    post:
+      operationId: startPasskeyRegistration
+      summary: Start passkey registration
+      tags: [Auth]
+      x-discordy-service: api
+      security:
+        - UserBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/passkey-register-start-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/webauthn-challenge.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/passkeys/register/finish:
+    post:
+      operationId: finishPasskeyRegistration
+      summary: Verify and save a passkey second factor
+      tags: [Auth]
+      x-discordy-service: api
+      security:
+        - UserBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/passkey-register-finish-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/passkey-register-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/mfa/passkeys/{id}:
+    delete:
+      operationId: deletePasskey
+      summary: Remove a passkey after password and second-factor confirmation
+      tags: [Auth]
+      x-discordy-service: api
+      security:
+        - UserBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/passkey-delete-request.json
+      responses:
+        "204":
+          description: Success.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/mfa/webauthn/start:
+    post:
+      operationId: startWebauthnLogin
+      summary: Start passkey assertion after the password step
+      tags: [Auth]
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/webauthn-login-start-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/webauthn-challenge.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/mfa/webauthn/finish:
+    post:
+      operationId: finishWebauthnLogin
+      summary: Exchange a verified passkey assertion for login tokens
+      tags: [Auth]
+      x-discordy-service: api
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/webauthn-login-finish-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/auth-response.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
 components:
   securitySchemes:
     UserBearer:

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/passkey-delete-request.json",
+  "title": "PasskeyDeleteRequest",
+  "description": "Removing a passkey needs the password and a valid TOTP or one-time recovery code. Removing the last factor turns MFA off.",
+  "type": "object",
+  "required": [
+    "password",
+    "code"
+  ],
+  "properties": {
+    "password": {
+      "type": "string",
+      "minLength": 1
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

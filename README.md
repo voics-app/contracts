@@ -73,3 +73,7 @@ publishes the npm package; the tag itself is the Rust and Elixir release.
 ## Git hooks
 
 Tests run locally, not in CI. Install [lefthook](https://github.com/evilmartians/lefthook) once and run `make hooks` (or `lefthook install`) to enable the pre-push hook in `lefthook.yml`: it runs this repository's lint and unit tests before every push. CI repeats only the slim gate on pull requests. Skip once with `LEFTHOOK=0 git push`.
+
+## Passkey second factors
+
+The additive WebAuthn MFA routes retain password login, TOTP and hashed, single-use recovery codes. See the generated REST reference for registration and login ceremonies. Clients convert WebAuthn binary fields to/from unpadded base64url; the API stores ceremony state with a five-minute expiry and consumes it atomically. Passkey names and last-used timestamps are account-private.

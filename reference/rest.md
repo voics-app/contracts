@@ -65,6 +65,12 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/auth/reset-password` | api | `ResetPasswordRequest` | 204 No Content | Set a new password with a reset token |
 | `POST` | `/auth/verify-email` | api | `VerifyEmailRequest` | 204 No Content | Verify an email address with an emailed token |
 | `POST` | `/auth/resend-verification` | api | — | 204 No Content | Resend the verification email |
+| `GET` | `/users/@me/mfa/passkeys` | api | — | `array of Passkey` | List registered passkey second factors |
+| `POST` | `/users/@me/mfa/passkeys/register/start` | api | `PasskeyRegisterStartRequest` | `WebauthnChallenge` | Start passkey registration |
+| `POST` | `/users/@me/mfa/passkeys/register/finish` | api | `PasskeyRegisterFinishRequest` | `PasskeyRegisterResponse` | Verify and save a passkey second factor |
+| `DELETE` | `/users/@me/mfa/passkeys/{id}` | api | `PasskeyDeleteRequest` | 204 No Content | Remove a passkey after password and second-factor confirmation |
+| `POST` | `/auth/mfa/webauthn/start` | api | `WebauthnLoginStartRequest` | `WebauthnChallenge` | Start passkey assertion after the password step |
+| `POST` | `/auth/mfa/webauthn/finish` | api | `WebauthnLoginFinishRequest` | `AuthResponse` | Exchange a verified passkey assertion for login tokens |
 
 ### Devices
 
@@ -1946,7 +1952,8 @@ POST /auth/mfa/totp body: completes a login that answered 60008.
 | --- | --- | --- |
 | `code` | `60008` |  |
 | `message` | `string` |  |
-| `ticket` | `string` | Present to POST /auth/mfa/totp together with a code. |
+| `ticket` | `string` | Present to /auth/mfa/totp with a TOTP/recovery code or to /auth/mfa/webauthn/start. |
+| `methods?` | `array of "totp" or "webauthn" or "backup_code"` | Registered factors available for this ticket; older servers may omit it. |
 
 ### ModifyApplicationRequest
 
@@ -2151,6 +2158,53 @@ A guild the user can add the bot to.
 | `icon` | `?string` |  |
 | `permissions` | `PermissionBitset` |  |
 
+### Passkey
+
+Registered second factor metadata. Credential public keys and challenges are never included.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string (uuid)` |  |
+| `name` | `string` |  |
+| `created_at` | `string (date-time)` |  |
+| `last_used_at` | `?string (date-time)` |  |
+
+### PasskeyDeleteRequest
+
+Removing a passkey needs the password and a valid TOTP or one-time recovery code. Removing the last factor turns MFA off.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `password` | `string` |  |
+| `code` | `string` |  |
+
+### PasskeyRegisterFinishRequest
+
+Finish the registration using navigator.credentials.create, serializing binary fields as unpadded base64url.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `challenge_id` | `string (uuid)` |  |
+| `credential` | `object` |  |
+
+### PasskeyRegisterResponse
+
+The enrolled passkey. First-factor enrollment generates recovery codes; existing codes are retained when another factor is added.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `passkey` | `Passkey` |  |
+| `backup_codes?` | `array of object` |  |
+
+### PasskeyRegisterStartRequest
+
+Reauthenticate with the password before creating a passkey registration challenge.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `password` | `string` |  |
+| `name` | `string` |  |
+
 ### PasswordConfirmationRequest
 
 Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
@@ -2311,3 +2365,30 @@ POST /users/@me/mfa/totp/verify body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `code` | `string` |  |
+
+### WebauthnChallenge
+
+A five-minute, single-use server-side ceremony. Finish requires the same account/session or password-authenticated login ticket.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `challenge_id` | `string (uuid)` |  |
+| `publicKey` | `object` | WebAuthn PublicKeyCredentialCreationOptionsJSON or PublicKeyCredentialRequestOptionsJSON. Binary members use unpadded base64url. |
+
+### WebauthnLoginFinishRequest
+
+Complete a passkey assertion. The assertion challenge and login ticket are single use, and the credential signature counter is checked.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `ticket` | `string` |  |
+| `challenge_id` | `string (uuid)` |  |
+| `credential` | `object` |  |
+
+### WebauthnLoginStartRequest
+
+Begin passkey assertion after the password login returned MFA_REQUIRED.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `ticket` | `string` |  |

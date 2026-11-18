@@ -6762,6 +6762,271 @@
           }
         }
       }
+    },
+    "/users/@me/mfa/passkeys": {
+      "get": {
+        "operationId": "listPasskeys",
+        "summary": "List registered passkey second factors",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Passkey"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/mfa/passkeys/register/start": {
+      "post": {
+        "operationId": "startPasskeyRegistration",
+        "summary": "Start passkey registration",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyRegisterStartRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebauthnChallenge"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/mfa/passkeys/register/finish": {
+      "post": {
+        "operationId": "finishPasskeyRegistration",
+        "summary": "Verify and save a passkey second factor",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyRegisterFinishRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyRegisterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/mfa/passkeys/{id}": {
+      "delete": {
+        "operationId": "deletePasskey",
+        "summary": "Remove a passkey after password and second-factor confirmation",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyDeleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Success."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/auth/mfa/webauthn/start": {
+      "post": {
+        "operationId": "startWebauthnLogin",
+        "summary": "Start passkey assertion after the password step",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebauthnLoginStartRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebauthnChallenge"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/auth/mfa/webauthn/finish": {
+      "post": {
+        "operationId": "finishWebauthnLogin",
+        "summary": "Exchange a verified passkey assertion for login tokens",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebauthnLoginFinishRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -10479,7 +10744,20 @@
           },
           "ticket": {
             "type": "string",
-            "description": "Present to POST /auth/mfa/totp together with a code."
+            "description": "Present to /auth/mfa/totp with a TOTP/recovery code or to /auth/mfa/webauthn/start."
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "totp",
+                "webauthn",
+                "backup_code"
+              ]
+            },
+            "uniqueItems": true,
+            "description": "Registered factors available for this ticket; older servers may omit it."
           }
         }
       },
@@ -11285,6 +11563,150 @@
           },
           "bot": {
             "type": "boolean"
+          }
+        }
+      },
+      "Passkey": {
+        "title": "Passkey",
+        "description": "Registered second factor metadata. Credential public keys and challenges are never included.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "last_used_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_used_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "PasskeyDeleteRequest": {
+        "title": "PasskeyDeleteRequest",
+        "description": "Removing a passkey needs the password and a valid TOTP or one-time recovery code. Removing the last factor turns MFA off.",
+        "type": "object",
+        "required": [
+          "password",
+          "code"
+        ],
+        "properties": {
+          "password": {
+            "type": "string",
+            "minLength": 1
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "PasskeyRegisterFinishRequest": {
+        "title": "PasskeyRegisterFinishRequest",
+        "description": "Finish the registration using navigator.credentials.create, serializing binary fields as unpadded base64url.",
+        "type": "object",
+        "required": [
+          "challenge_id",
+          "credential"
+        ],
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "credential": {
+            "type": "object",
+            "required": [
+              "id",
+              "rawId",
+              "type",
+              "response"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rawId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": {
+                "const": "public-key"
+              },
+              "response": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "PasskeyRegisterResponse": {
+        "title": "PasskeyRegisterResponse",
+        "description": "The enrolled passkey. First-factor enrollment generates recovery codes; existing codes are retained when another factor is added.",
+        "type": "object",
+        "required": [
+          "passkey"
+        ],
+        "properties": {
+          "passkey": {
+            "$ref": "#/components/schemas/Passkey"
+          },
+          "backup_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "consumed"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "Plaintext code; omitted when only the consumed state is listed."
+                },
+                "consumed": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "PasskeyRegisterStartRequest": {
+        "title": "PasskeyRegisterStartRequest",
+        "description": "Reauthenticate with the password before creating a passkey registration challenge.",
+        "type": "object",
+        "required": [
+          "password",
+          "name"
+        ],
+        "properties": {
+          "password": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           }
         }
       },
@@ -12513,6 +12935,85 @@
           },
           "custom": {
             "type": "boolean"
+          }
+        }
+      },
+      "WebauthnChallenge": {
+        "title": "WebauthnChallenge",
+        "description": "A five-minute, single-use server-side ceremony. Finish requires the same account/session or password-authenticated login ticket.",
+        "type": "object",
+        "required": [
+          "challenge_id",
+          "publicKey"
+        ],
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "publicKey": {
+            "type": "object",
+            "description": "WebAuthn PublicKeyCredentialCreationOptionsJSON or PublicKeyCredentialRequestOptionsJSON. Binary members use unpadded base64url."
+          }
+        }
+      },
+      "WebauthnLoginFinishRequest": {
+        "title": "WebauthnLoginFinishRequest",
+        "description": "Complete a passkey assertion. The assertion challenge and login ticket are single use, and the credential signature counter is checked.",
+        "type": "object",
+        "required": [
+          "ticket",
+          "challenge_id",
+          "credential"
+        ],
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "minLength": 1
+          },
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "credential": {
+            "type": "object",
+            "required": [
+              "id",
+              "rawId",
+              "type",
+              "response"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rawId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": {
+                "const": "public-key"
+              },
+              "response": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "WebauthnLoginStartRequest": {
+        "title": "WebauthnLoginStartRequest",
+        "description": "Begin passkey assertion after the password login returned MFA_REQUIRED.",
+        "type": "object",
+        "required": [
+          "ticket"
+        ],
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "minLength": 1
           }
         }
       },

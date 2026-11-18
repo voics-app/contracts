@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/passkey-register-response.json",
+  "title": "PasskeyRegisterResponse",
+  "description": "The enrolled passkey. First-factor enrollment generates recovery codes; existing codes are retained when another factor is added.",
+  "type": "object",
+  "required": [
+    "passkey"
+  ],
+  "properties": {
+    "passkey": {
+      "$ref": "./passkey.json"
+    },
+    "backup_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "consumed"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Plaintext code; omitted when only the consumed state is listed."
+          },
+          "consumed": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}
