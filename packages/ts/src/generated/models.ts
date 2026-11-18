@@ -3169,6 +3169,28 @@ export interface PasswordConfirmationRequest {
   password: string;
 }
 /**
+ * Mandatory additional validation for a voice token signed with VOICE_PROBE_TOKEN_SECRET and purpose=probe. The call-signing key must not authorize probe tokens, nor the probe key call tokens. The live node lease must match, video must be disabled, and the server derives an isolated room from node_lease plus probe_id. Never authorize an ordinary user room from a probe token's srv/chn values.
+ */
+export interface ProbeVoiceTokenClaims {
+  sub: Snowflake;
+  /**
+   * Gateway session ID.
+   */
+  sid: string;
+  srv: Snowflake;
+  chn: Snowflake;
+  /**
+   * Allocated voice node ID.
+   */
+  node: string;
+  e2ee: false;
+  iat: number;
+  exp: number;
+  purpose: "probe";
+  node_lease: string;
+  probe_id: string;
+}
+/**
  * POST /guilds/{id}/prune body.
  */
 export interface PruneRequest {
@@ -3782,6 +3804,35 @@ export interface VoiceMemberMoveEvent {
   channel_id: Snowflake | null;
 }
 /**
+ * Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
+ */
+export interface VoiceNodeBlacklist {
+  reason: string;
+  operator: string;
+  created_at_ms: number;
+}
+/**
+ * Leased etcd value at /discordy/voice/health/<node_id>. A writer must atomically compare both the node registration lease and its exclusive /discordy/voice/probers/<node_id> claim before writing. The health value shares the prober claim's lease, expiring within two probe intervals if not renewed. Readers match registration_lease; a previous incarnation's result must never authorize or exclude its successor.
+ */
+export interface VoiceNodeHealth {
+  node_id: string;
+  registration_lease: string;
+  prober_id: string;
+  /**
+   * Unknown until M consecutive passes or N consecutive failures. Defaults N=2, M=2. A healthy node survives fewer than N failures; an unhealthy node remains excluded until M passes.
+   */
+  status: "unknown" | "healthy" | "unhealthy";
+  consecutive_failures: number;
+  consecutive_passes: number;
+  /**
+   * Unix time for diagnostics only; freshness follows the etcd lease, not synchronized wall clocks.
+   */
+  checked_at_ms: number;
+  loss_pct?: number;
+  rtt_ms?: number;
+  failure?: "signaling" | "transport" | "rtp_loss" | "rtt" | "timeout" | "registration_changed";
+}
+/**
  * etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).
  */
 export interface VoiceNodeRegistration {
@@ -3795,6 +3846,10 @@ export interface VoiceNodeRegistration {
   egress_bps: number;
   draining: boolean;
   version: string;
+  /**
+   * When true, new allocation requires a fresh healthy probe record for this registration's etcd lease. Omitted/false preserves legacy rollout behavior; an explicit matching unhealthy result or manual blacklist still excludes the node.
+   */
+  probe_required?: boolean;
 }
 /**
  * VOICE_QUALITY telemetry sample (discordy.telemetry.v1).
@@ -3869,7 +3924,7 @@ export interface VoiceTelemetryPayload {
   bitrate_kbps: number;
 }
 /**
- * Claims of a voice JWT (HS256 with VOICE_TOKEN_SECRET, 60 seconds).
+ * Shared claims of a voice JWT (HS256, 60 seconds). Call tokens use VOICE_TOKEN_SECRET. A verifier that sees purpose=probe MUST verify with the separate VOICE_PROBE_TOKEN_SECRET, additionally validate ProbeVoiceTokenClaims and compare the receiving node's live registration lease before admitting it. No configured probe key means probe admission is disabled.
  */
 export interface VoiceTokenClaims {
   sub: Snowflake;
@@ -3886,6 +3941,18 @@ export interface VoiceTokenClaims {
   e2ee: boolean;
   iat: number;
   exp: number;
+  /**
+   * Absent means call. A probe token is restricted to an isolated synthetic room, never an ordinary user channel. It may bypass draining, but never node identity or registration ownership checks.
+   */
+  purpose?: "call" | "probe";
+  /**
+   * Required for probes: exact current etcd registration lease ID as a decimal string. The receiving node must compare it to its live registration before admitting the probe.
+   */
+  node_lease?: string;
+  /**
+   * Required for probes: random UUID shared by the two synthetic peers of one run. The server derives the isolated room from node_lease and probe_id, not from the caller's channel ID.
+   */
+  probe_id?: string;
 }
 /**
  * Op 24 WATCH_TOGETHER.

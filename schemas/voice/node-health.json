@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/node-health.json",
+  "title": "VoiceNodeHealth",
+  "description": "Leased etcd value at /discordy/voice/health/<node_id>. A writer must atomically compare both the node registration lease and its exclusive /discordy/voice/probers/<node_id> claim before writing. The health value shares the prober claim's lease, expiring within two probe intervals if not renewed. Readers match registration_lease; a previous incarnation's result must never authorize or exclude its successor.",
+  "type": "object",
+  "required": ["node_id", "registration_lease", "prober_id", "status", "consecutive_failures", "consecutive_passes", "checked_at_ms"],
+  "properties": {
+    "node_id": { "type": "string", "minLength": 1 },
+    "registration_lease": { "type": "string", "pattern": "^[1-9][0-9]*$" },
+    "prober_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "status": { "type": "string", "enum": ["unknown", "healthy", "unhealthy"], "description": "Unknown until M consecutive passes or N consecutive failures. Defaults N=2, M=2. A healthy node survives fewer than N failures; an unhealthy node remains excluded until M passes." },
+    "consecutive_failures": { "type": "integer", "minimum": 0 },
+    "consecutive_passes": { "type": "integer", "minimum": 0 },
+    "checked_at_ms": { "type": "integer", "minimum": 0, "description": "Unix time for diagnostics only; freshness follows the etcd lease, not synchronized wall clocks." },
+    "loss_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+    "rtt_ms": { "type": "number", "minimum": 0 },
+    "failure": { "type": "string", "enum": ["signaling", "transport", "rtp_loss", "rtt", "timeout", "registration_changed"] }
+  },
+  "additionalProperties": false
+}

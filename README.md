@@ -50,6 +50,15 @@ Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT ==
 
 ## Consuming
 
+Voice discovery supports optional `probe_required` rollout, leased `VoiceNodeHealth`
+observations fenced to the node registration's etcd lease, and persistent node/region
+blacklists. `purpose: "probe"` voice tokens use the separate `VOICE_PROBE_TOKEN_SECRET`
+and require the stricter `ProbeVoiceTokenClaims` schema, including `node_lease` and a
+random `probe_id`. Signaling must isolate those sessions from user rooms and reject stale node leases.
+Probe success does not override draining or a manual blacklist. See the generated
+[voice protocol](reference/voice.md) for paths and compatibility rules. These contracts
+prepare active probing; publishing them does not deploy a prober or enable enforcement.
+
 `GET /internal/v1/channels/{id}/notification-recipients?author_id=...` defines a
 token-independent directory for mention accounting. `limit` (1–200, default100)
 bounds candidates examined. Continue with `after=next_after` until null, including
