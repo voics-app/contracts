@@ -451,11 +451,11 @@ Client ICE/DTLS parameters.
 
 ### VoiceCodec
 
-A codec offered by the client.
+A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `name` | `"opus" or "VP9" or "AV1" or "H264"` |  |
+| `name` | `"opus" or "VP8" or "VP9" or "AV1" or "H264"` |  |
 | `type` | `"audio" or "video"` |  |
 | `priority` | `integer` |  |
 | `payload_type` | `integer` |  |

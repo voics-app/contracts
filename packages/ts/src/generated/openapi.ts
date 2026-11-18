@@ -1207,7 +1207,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Resolve a server template by code (built-in or shared) */
+        /**
+         * Resolve a server template by code (built-in or shared)
+         * @description Public preview of the saved snapshot. Possession of the code grants read access; creating a guild still requires authentication.
+         */
         get: operations["getGuildTemplate"];
         put?: never;
         /** Create a guild from a template */
@@ -1508,7 +1511,11 @@ export interface paths {
         delete: operations["deletePasskey"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Rename a passkey owned by the current account
+         * @description Trims the label and rejects empty, overlong or control-character names. This changes only the label, never credential material, counters, recovery codes or MFA state.
+         */
+        patch: operations["renamePasskey"];
         trace?: never;
     };
     "/users/@me/mfa/passkeys/register/finish": {
@@ -2755,7 +2762,7 @@ export interface components {
             creator: components["schemas"]["User"] | null;
             creator_id: components["schemas"]["Snowflake"] | null;
             description: string | null;
-            /** @description Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`). */
+            /** @description Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`). */
             is_dirty: boolean;
             name: string;
             serialized_source_guild: components["schemas"]["TemplateSourceGuild"];
@@ -3335,6 +3342,13 @@ export interface components {
         PasskeyRegisterStartRequest: {
             name: string;
             password: string;
+        };
+        /**
+         * PasskeyRenameRequest
+         * @description Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.
+         */
+        PasskeyRenameRequest: {
+            name: string;
         };
         /**
          * PasswordConfirmationRequest
@@ -7801,6 +7815,35 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    renamePasskey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyRenameRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated passkey metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Passkey"];
+                };
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];

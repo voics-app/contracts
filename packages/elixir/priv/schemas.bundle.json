@@ -4304,7 +4304,7 @@
         },
         "is_dirty": {
           "type": "boolean",
-          "description": "Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
+          "description": "Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
         }
       }
     },
@@ -6641,6 +6641,163 @@
         }
       }
     },
+    "NotificationRecipient": {
+      "title": "NotificationRecipient",
+      "description": "A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_id",
+        "role_ids",
+        "online",
+        "level",
+        "muted",
+        "suppress_everyone",
+        "suppress_roles"
+      ],
+      "properties": {
+        "user_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "role_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
+        },
+        "online": {
+          "type": "boolean",
+          "description": "Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground."
+        },
+        "level": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2
+          ],
+          "description": "Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing."
+        },
+        "muted": {
+          "type": "boolean",
+          "description": "A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired."
+        },
+        "suppress_everyone": {
+          "type": "boolean"
+        },
+        "suppress_roles": {
+          "type": "boolean"
+        }
+      }
+    },
+    "NotificationRecipientPage": {
+      "title": "NotificationRecipientPage",
+      "description": "A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "channel_id",
+            "guild_id",
+            "delivery_mode",
+            "evaluated_at",
+            "recipients",
+            "next_after"
+          ],
+          "properties": {
+            "channel_id": {
+              "$ref": "#/$defs/Snowflake"
+            },
+            "guild_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Snowflake"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "delivery_mode": {
+              "type": "string",
+              "const": "standard"
+            },
+            "evaluated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "recipients": {
+              "type": "array",
+              "maxItems": 200,
+              "items": {
+                "$ref": "#/$defs/NotificationRecipient"
+              }
+            },
+            "next_after": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Snowflake"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "channel_id",
+            "guild_id",
+            "delivery_mode",
+            "evaluated_at",
+            "recipients",
+            "next_after"
+          ],
+          "properties": {
+            "channel_id": {
+              "$ref": "#/$defs/Snowflake"
+            },
+            "guild_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Snowflake"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "delivery_mode": {
+              "type": "string",
+              "enum": [
+                "ephemeral",
+                "p2p"
+              ]
+            },
+            "evaluated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "recipients": {
+              "type": "array",
+              "maxItems": 0,
+              "items": {
+                "$ref": "#/$defs/NotificationRecipient"
+              }
+            },
+            "next_after": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    },
     "OAuth2AuthorizeInfo": {
       "title": "OAuth2AuthorizeInfo",
       "description": "GET /oauth2/authorize response: what the bot invite screen shows.",
@@ -6995,6 +7152,22 @@
           "maxLength": 64
         }
       }
+    },
+    "PasskeyRenameRequest": {
+      "title": "PasskeyRenameRequest",
+      "description": "Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "additionalProperties": false
     },
     "PasswordConfirmationRequest": {
       "title": "PasswordConfirmationRequest",
@@ -9231,7 +9404,7 @@
     },
     "VoiceCodec": {
       "title": "VoiceCodec",
-      "description": "A codec offered by the client.",
+      "description": "A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.",
       "type": "object",
       "required": [
         "name",
@@ -9244,6 +9417,7 @@
           "type": "string",
           "enum": [
             "opus",
+            "VP8",
             "VP9",
             "AV1",
             "H264"

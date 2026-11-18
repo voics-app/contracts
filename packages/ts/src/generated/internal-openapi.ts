@@ -155,6 +155,26 @@ export interface paths {
         patch: operations["updateMessageCall"];
         trace?: never;
     };
+    "/channels/{channel_id}/notification-recipients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Page permitted recipients and resolved preferences independently of push tokens
+         * @description For messages mention accounting. Includes users without a mobile push token, excludes the author and users without VIEW_CHANNEL, and returns an empty terminal page for private delivery modes. limit bounds candidates examined, so a page filtered by permissions can be empty while next_after is non-null. Follow next_after until null; it strictly advances by candidate user ID. Policy is current per request, not a historical or cross-page snapshot. The consumer still applies message kind, mentions, silent/reply flags and idempotent read-state accounting.
+         */
+        get: operations["listNotificationRecipients"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/state": {
         parameters: {
             query?: never;
@@ -941,6 +961,49 @@ export interface components {
             end_time: string | null;
         };
         /**
+         * NotificationRecipient
+         * @description A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.
+         */
+        NotificationRecipient: {
+            /**
+             * @description Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing.
+             * @enum {integer}
+             */
+            level: 0 | 1 | 2;
+            /** @description A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired. */
+            muted: boolean;
+            /** @description Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground. */
+            online: boolean;
+            role_ids: components["schemas"]["Snowflake"][];
+            suppress_everyone: boolean;
+            suppress_roles: boolean;
+            user_id: components["schemas"]["Snowflake"];
+        };
+        /**
+         * NotificationRecipientPage
+         * @description A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
+         */
+        NotificationRecipientPage: {
+            channel_id: components["schemas"]["Snowflake"];
+            /** @constant */
+            delivery_mode: "standard";
+            /** Format: date-time */
+            evaluated_at: string;
+            guild_id: components["schemas"]["Snowflake"] | null;
+            /** @description Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue. */
+            next_after: components["schemas"]["Snowflake"] | null;
+            recipients: components["schemas"]["NotificationRecipient"][];
+        } | {
+            channel_id: components["schemas"]["Snowflake"];
+            /** @enum {string} */
+            delivery_mode: "ephemeral" | "p2p";
+            /** Format: date-time */
+            evaluated_at: string;
+            guild_id: components["schemas"]["Snowflake"] | null;
+            next_after: null;
+            recipients: components["schemas"]["NotificationRecipient"][];
+        };
+        /**
          * PartialUser
          * @description A user reference that only guarantees the ID (presence updates, audit logs).
          */
@@ -1559,6 +1622,51 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
+        };
+    };
+    listNotificationRecipients: {
+        parameters: {
+            query: {
+                /** @description Continue strictly after this candidate user ID. Decimal ID in 0..9223372036854775807; values outside the database range are rejected rather than wrapped. */
+                after?: components["schemas"]["Snowflake"];
+                /** @description Message author to exclude, including a webhook author ID. Decimal ID in 0..9223372036854775807. */
+                author_id: components["schemas"]["Snowflake"];
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current permitted recipients; empty pages can still have a continuation. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationRecipientPage"];
+                };
+            };
+            /** @description Invalid author, continuation or page size. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            /** @description Recipient or preference lookup failed; no fallback to unfiltered users. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     getGuildState: {
