@@ -49,6 +49,11 @@
     },
     "version": {
       "type": "string"
+    },
+    "probe_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, new allocation requires a fresh healthy probe record for this registration's etcd lease. Omitted/false preserves legacy rollout behavior; an explicit matching unhealthy result or manual blacklist still excludes the node."
     }
   }
 }

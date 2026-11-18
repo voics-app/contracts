@@ -38,6 +38,35 @@ export type IdReservationRequest =
  */
 export type InvalidSessionPayload = boolean;
 /**
+ * A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
+ */
+export type NotificationRecipientPage =
+  | {
+      channel_id: Snowflake;
+      guild_id: Snowflake | null;
+      delivery_mode: "standard";
+      evaluated_at: string;
+      /**
+       * @maxItems 200
+       */
+      recipients: NotificationRecipient[];
+      /**
+       * Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue.
+       */
+      next_after: Snowflake | null;
+    }
+  | {
+      channel_id: Snowflake;
+      guild_id: Snowflake | null;
+      delivery_mode: "ephemeral" | "p2p";
+      evaluated_at: string;
+      /**
+       * @maxItems 0
+       */
+      recipients: [];
+      next_after: null;
+    };
+/**
  * SESSIONS_REPLACE dispatch: every active session of the user.
  */
 export type SessionsReplaceEvent = Session[];
@@ -1780,7 +1809,7 @@ export interface GuildBanEvent {
   user: User;
 }
 /**
- * A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+ * A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
  */
 export interface GuildDiscoverySettings {
   enabled: boolean;
@@ -1797,7 +1826,9 @@ export interface GuildDiscoverySettings {
     | [string, string, string, string, string];
   listed_at: string | null;
   member_count: number;
-  blockers: ("DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
+  blockers: (
+    "COMMUNITY_REQUIRED" | "DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED"
+  )[];
 }
 /**
  * GUILD_EMOJIS_UPDATE dispatch.
@@ -2024,7 +2055,7 @@ export interface GuildTemplate {
   source_guild_id: Snowflake | null;
   serialized_source_guild: TemplateSourceGuild;
   /**
-   * Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
+   * Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
    */
   is_dirty: boolean;
 }
@@ -2845,6 +2876,10 @@ export interface ModifyGuildNotificationSettingsRequest {
  * PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
  */
 export interface ModifyGuildRequest {
+  /**
+   * MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting.
+   */
+  features?: "COMMUNITY"[];
   name?: string;
   icon?: string | null;
   /**
@@ -2864,7 +2899,13 @@ export interface ModifyGuildRequest {
    * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
    */
   system_channel_flags?: number;
+  /**
+   * Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id.
+   */
   rules_channel_id?: Snowflake | null;
+  /**
+   * Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id.
+   */
   public_updates_channel_id?: Snowflake | null;
   preferred_locale?: string;
   verification_level?: number;
@@ -3058,6 +3099,27 @@ export interface ModifyWebhookRequest {
   channel_id?: Snowflake;
 }
 /**
+ * A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.
+ */
+export interface NotificationRecipient {
+  user_id: Snowflake;
+  role_ids: Snowflake[];
+  /**
+   * Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground.
+   */
+  online: boolean;
+  /**
+   * Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing.
+   */
+  level: 0 | 1 | 2;
+  /**
+   * A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired.
+   */
+  muted: boolean;
+  suppress_everyone: boolean;
+  suppress_roles: boolean;
+}
+/**
  * GET /oauth2/authorize response: what the bot invite screen shows.
  */
 export interface OAuth2AuthorizeInfo {
@@ -3177,6 +3239,28 @@ export interface PasskeyRenameRequest {
  */
 export interface PasswordConfirmationRequest {
   password: string;
+}
+/**
+ * Mandatory additional validation for a voice token signed with VOICE_PROBE_TOKEN_SECRET and purpose=probe. The call-signing key must not authorize probe tokens, nor the probe key call tokens. The live node lease must match, video must be disabled, and the server derives an isolated room from node_lease plus probe_id. Never authorize an ordinary user room from a probe token's srv/chn values.
+ */
+export interface ProbeVoiceTokenClaims {
+  sub: Snowflake;
+  /**
+   * Gateway session ID.
+   */
+  sid: string;
+  srv: Snowflake;
+  chn: Snowflake;
+  /**
+   * Allocated voice node ID.
+   */
+  node: string;
+  e2ee: false;
+  iat: number;
+  exp: number;
+  purpose: "probe";
+  node_lease: string;
+  probe_id: string;
 }
 /**
  * POST /guilds/{id}/prune body.
@@ -3327,6 +3411,22 @@ export interface RegisterRequest {
 export interface RelationshipRemoveEvent {
   id: Snowflake;
   type: number;
+}
+/**
+ * Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.
+ */
+export interface ReportListingRequest {
+  category:
+    | "spam"
+    | "harassment"
+    | "hate_speech"
+    | "violence"
+    | "sexual_content"
+    | "self_harm"
+    | "illegal"
+    | "impersonation"
+    | "other";
+  note?: string | null;
 }
 /**
  * Op 8 REQUEST_GUILD_MEMBERS.
@@ -3792,6 +3892,35 @@ export interface VoiceMemberMoveEvent {
   channel_id: Snowflake | null;
 }
 /**
+ * Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
+ */
+export interface VoiceNodeBlacklist {
+  reason: string;
+  operator: string;
+  created_at_ms: number;
+}
+/**
+ * Leased etcd value at /discordy/voice/health/<node_id>. A writer must atomically compare both the node registration lease and its exclusive /discordy/voice/probers/<node_id> claim before writing. The health value shares the prober claim's lease, expiring within two probe intervals if not renewed. Readers match registration_lease; a previous incarnation's result must never authorize or exclude its successor.
+ */
+export interface VoiceNodeHealth {
+  node_id: string;
+  registration_lease: string;
+  prober_id: string;
+  /**
+   * Unknown until M consecutive passes or N consecutive failures. Defaults N=2, M=2. A healthy node survives fewer than N failures; an unhealthy node remains excluded until M passes.
+   */
+  status: "unknown" | "healthy" | "unhealthy";
+  consecutive_failures: number;
+  consecutive_passes: number;
+  /**
+   * Unix time for diagnostics only; freshness follows the etcd lease, not synchronized wall clocks.
+   */
+  checked_at_ms: number;
+  loss_pct?: number;
+  rtt_ms?: number;
+  failure?: "signaling" | "transport" | "rtp_loss" | "rtt" | "timeout" | "registration_changed";
+}
+/**
  * etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).
  */
 export interface VoiceNodeRegistration {
@@ -3805,6 +3934,10 @@ export interface VoiceNodeRegistration {
   egress_bps: number;
   draining: boolean;
   version: string;
+  /**
+   * When true, new allocation requires a fresh healthy probe record for this registration's etcd lease. Omitted/false preserves legacy rollout behavior; an explicit matching unhealthy result or manual blacklist still excludes the node.
+   */
+  probe_required?: boolean;
 }
 /**
  * VOICE_QUALITY telemetry sample (discordy.telemetry.v1).
@@ -3879,7 +4012,7 @@ export interface VoiceTelemetryPayload {
   bitrate_kbps: number;
 }
 /**
- * Claims of a voice JWT (HS256 with VOICE_TOKEN_SECRET, 60 seconds).
+ * Shared claims of a voice JWT (HS256, 60 seconds). Call tokens use VOICE_TOKEN_SECRET. A verifier that sees purpose=probe MUST verify with the separate VOICE_PROBE_TOKEN_SECRET, additionally validate ProbeVoiceTokenClaims and compare the receiving node's live registration lease before admitting it. No configured probe key means probe admission is disabled.
  */
 export interface VoiceTokenClaims {
   sub: Snowflake;
@@ -3896,6 +4029,18 @@ export interface VoiceTokenClaims {
   e2ee: boolean;
   iat: number;
   exp: number;
+  /**
+   * Absent means call. A probe token is restricted to an isolated synthetic room, never an ordinary user channel. It may bypass draining, but never node identity or registration ownership checks.
+   */
+  purpose?: "call" | "probe";
+  /**
+   * Required for probes: exact current etcd registration lease ID as a decimal string. The receiving node must compare it to its live registration before admitting the probe.
+   */
+  node_lease?: string;
+  /**
+   * Required for probes: random UUID shared by the two synthetic peers of one run. The server derives the isolated room from node_lease and probe_id, not from the caller's channel ID.
+   */
+  probe_id?: string;
 }
 /**
  * Op 24 WATCH_TOGETHER.

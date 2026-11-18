@@ -1,0 +1,24 @@
+{
+  "schema": "internal/notification-recipient-page.json",
+  "data": {
+    "channel_id": "200",
+    "guild_id": null,
+    "delivery_mode": "ephemeral",
+    "evaluated_at": "2026-11-18T10:00:00Z",
+    "next_after": null,
+    "recipients": [
+      {
+        "user_id": "20",
+        "role_ids": [
+          "300"
+        ],
+        "online": false,
+        "level": 1,
+        "muted": false,
+        "suppress_everyone": true,
+        "suppress_roles": false
+      }
+    ]
+  },
+  "valid": false
+}

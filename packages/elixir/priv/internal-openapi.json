@@ -219,6 +219,74 @@
         }
       }
     },
+    "/channels/{channel_id}/notification-recipients": {
+      "get": {
+        "operationId": "listNotificationRecipients",
+        "summary": "Page permitted recipients and resolved preferences independently of push tokens",
+        "description": "For messages mention accounting. Includes users without a mobile push token, excludes the author and users without VIEW_CHANNEL, and returns an empty terminal page for private delivery modes. limit bounds candidates examined, so a page filtered by permissions can be empty while next_after is non-null. Follow next_after until null; it strictly advances by candidate user ID. Policy is current per request, not a historical or cross-page snapshot. The consumer still applies message kind, mentions, silent/reply flags and idempotent read-state accounting.",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "author_id",
+            "in": "query",
+            "required": true,
+            "description": "Message author to exclude, including a webhook author ID. Decimal ID in 0..9223372036854775807.",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Continue strictly after this candidate user ID. Decimal ID in 0..9223372036854775807; values outside the database range are rejected rather than wrapped.",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current permitted recipients; empty pages can still have a continuation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationRecipientPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid author, continuation or page size."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "description": "Recipient or preference lookup failed; no fallback to unfiltered users."
+          }
+        }
+      }
+    },
     "/admin/stats": {
       "get": {
         "operationId": "getApiAdminStats",
@@ -2762,6 +2830,163 @@
             "format": "date-time"
           }
         }
+      },
+      "NotificationRecipient": {
+        "title": "NotificationRecipient",
+        "description": "A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "user_id",
+          "role_ids",
+          "online",
+          "level",
+          "muted",
+          "suppress_everyone",
+          "suppress_roles"
+        ],
+        "properties": {
+          "user_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "role_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "online": {
+            "type": "boolean",
+            "description": "Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground."
+          },
+          "level": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ],
+            "description": "Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing."
+          },
+          "muted": {
+            "type": "boolean",
+            "description": "A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired."
+          },
+          "suppress_everyone": {
+            "type": "boolean"
+          },
+          "suppress_roles": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NotificationRecipientPage": {
+        "title": "NotificationRecipientPage",
+        "description": "A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.",
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "channel_id",
+              "guild_id",
+              "delivery_mode",
+              "evaluated_at",
+              "recipients",
+              "next_after"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              "guild_id": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "delivery_mode": {
+                "type": "string",
+                "const": "standard"
+              },
+              "evaluated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "recipients": {
+                "type": "array",
+                "maxItems": 200,
+                "items": {
+                  "$ref": "#/components/schemas/NotificationRecipient"
+                }
+              },
+              "next_after": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "channel_id",
+              "guild_id",
+              "delivery_mode",
+              "evaluated_at",
+              "recipients",
+              "next_after"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              "guild_id": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "delivery_mode": {
+                "type": "string",
+                "enum": [
+                  "ephemeral",
+                  "p2p"
+                ]
+              },
+              "evaluated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "recipients": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "$ref": "#/components/schemas/NotificationRecipient"
+                }
+              },
+              "next_after": {
+                "type": "null"
+              }
+            }
+          }
+        ]
       },
       "PartialUser": {
         "title": "PartialUser",
