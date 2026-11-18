@@ -51,6 +51,13 @@ Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT ==
 
 ## Configuration
 
+P7 presence accepts an optional `background` boolean on opcode 3 and IDENTIFY presence.
+It defaults to false, so existing clients retain their current behavior. Mobile user sessions
+may keep their effective presence across OS suspension for a bounded gateway lease (24 hours
+by default); foreground/resume, logout, revocation and expiry clear the lease. This indicates
+availability, not a guarantee that an iOS process is still running. Explicit Online is a mobile
+device choice; DND and Invisible retain their existing aggregation semantics.
+
 This repository reads no environment variables and holds no secrets.
 
 ## Releases

@@ -69,6 +69,7 @@ Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY). `activities` ar
 | `status` | `"online" or "idle" or "dnd" or "invisible"` |  |
 | `activities` | `array of Activity` | At most 5 activities, at most one with type 4. Violations close the socket with 4002. |
 | `afk` | `boolean` |  |
+| `background?` | `boolean` | Mobile lifecycle hint. True means this app entered the background; false (also the default when omitted) means foreground. Only authenticated mobile user sessions may retain their effective presence after transport suspension, for a bounded server-configured lease (24 hours by default). This does not prove the app is still running. Logout or session revocation removes it immediately, and foreground/resume cancels the lease. Clients send their chosen effective status: automatic background idle must not replace explicitly selected Online, Idle, DND or Invisible. Desktop and bot sessions do not gain a background lease. |
 | `since?` | `?integer` | Unix ms since the client went idle. |
 
 ### VoiceStateUpdatePayload
