@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/notification-recipient.json",
+  "title": "NotificationRecipient",
+  "description": "A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["user_id", "role_ids", "online", "level", "muted", "suppress_everyone", "suppress_roles"],
+  "properties": {
+    "user_id": { "$ref": "../objects/snowflake.json" },
+    "role_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "../objects/snowflake.json" } },
+    "online": { "type": "boolean", "description": "Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground." },
+    "level": { "type": "integer", "enum": [0, 1, 2], "description": "Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing." },
+    "muted": { "type": "boolean", "description": "A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired." },
+    "suppress_everyone": { "type": "boolean" },
+    "suppress_roles": { "type": "boolean" }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "schema": "internal/notification-recipient-page.json",
+  "valid": false,
+  "data": {
+    "channel_id": "200", "guild_id": null, "delivery_mode": "p2p",
+    "evaluated_at": "2026-11-18T10:00:00Z", "next_after": "20", "recipients": []
+  }
+}

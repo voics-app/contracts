@@ -128,6 +128,49 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /channels/{channel_id}/notification-recipients:
+    get:
+      operationId: listNotificationRecipients
+      summary: Page permitted recipients and resolved preferences independently of push tokens
+      description: "For messages mention accounting. Includes users without a mobile push token, excludes the author and users without VIEW_CHANNEL, and returns an empty terminal page for private delivery modes. limit bounds candidates examined, so a page filtered by permissions can be empty while next_after is non-null. Follow next_after until null; it strictly advances by candidate user ID. Policy is current per request, not a historical or cross-page snapshot. The consumer still applies message kind, mentions, silent/reply flags and idempotent read-state accounting."
+      tags: [api]
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - name: author_id
+          in: query
+          required: true
+          description: Message author to exclude, including a webhook author ID. Decimal ID in 0..9223372036854775807.
+          schema:
+            $ref: ../schemas/objects/snowflake.json
+        - name: after
+          in: query
+          required: false
+          description: Continue strictly after this candidate user ID. Decimal ID in 0..9223372036854775807; values outside the database range are rejected rather than wrapped.
+          schema:
+            $ref: ../schemas/objects/snowflake.json
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 100
+      responses:
+        "200":
+          description: Current permitted recipients; empty pages can still have a continuation.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/internal/notification-recipient-page.json
+        "400":
+          description: Invalid author, continuation or page size.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          description: Recipient or preference lookup failed; no fallback to unfiltered users.
   /admin/stats:
     get:
       operationId: getApiAdminStats
