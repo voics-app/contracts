@@ -82,6 +82,52 @@
     }
   ],
   "paths": {
+    "/reports": {
+      "post": {
+        "operationId": "createReport",
+        "summary": "Report a message, user or visible guild channel",
+        "description": "Channel reports capture only the channel ID, server ID, parent ID, name, type and age-restricted flag from server data. No messages or member list are fetched. Current channel visibility is required. Guild listing reports use the dedicated discovery route.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Report accepted or already open. No moderation action is automatic."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/auth/register": {
       "post": {
         "operationId": "register",
@@ -9691,6 +9737,126 @@
             "description": "MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped."
           }
         }
+      },
+      "CreateReportRequest": {
+        "title": "CreateReportRequest",
+        "description": "File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.",
+        "type": "object",
+        "required": [
+          "target",
+          "category"
+        ],
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "message",
+              "user",
+              "channel"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "spam",
+              "harassment",
+              "hate_speech",
+              "violence",
+              "sexual_content",
+              "self_harm",
+              "illegal",
+              "impersonation",
+              "other"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 500
+          },
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "message_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "author_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "content": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 4000
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "target": {
+                  "const": "message"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "channel_id": {},
+                "message_id": {}
+              },
+              "required": [
+                "channel_id",
+                "message_id"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "target": {
+                  "const": "user"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "user_id": {}
+              },
+              "required": [
+                "user_id"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "target": {
+                  "const": "channel"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "channel_id"
+              ],
+              "properties": {
+                "channel_id": {},
+                "content": {
+                  "type": "null"
+                },
+                "message_id": false,
+                "user_id": false,
+                "author_id": false
+              }
+            }
+          }
+        ]
       },
       "CreateScheduledMessageRequest": {
         "title": "CreateScheduledMessageRequest",

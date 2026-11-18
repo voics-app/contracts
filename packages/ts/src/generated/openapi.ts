@@ -1427,6 +1427,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Report a message, user or visible guild channel
+         * @description Channel reports capture only the channel ID, server ID, parent ID, name, type and age-restricted flag from server data. No messages or member list are fetched. Current channel visibility is required. Guild listing reports use the dedicated discovery route.
+         */
+        post: operations["createReport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}": {
         parameters: {
             query?: never;
@@ -2568,6 +2588,22 @@ export interface components {
              */
             tts: boolean;
         };
+        /**
+         * CreateReportRequest
+         * @description File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
+         */
+        CreateReportRequest: {
+            author_id?: components["schemas"]["Snowflake"];
+            /** @enum {string} */
+            category: "spam" | "harassment" | "hate_speech" | "violence" | "sexual_content" | "self_harm" | "illegal" | "impersonation" | "other";
+            channel_id?: components["schemas"]["Snowflake"];
+            content?: string | null;
+            message_id?: components["schemas"]["Snowflake"];
+            note?: string | null;
+            /** @enum {string} */
+            target: "message" | "user" | "channel";
+            user_id?: components["schemas"]["Snowflake"];
+        } & (unknown & unknown & unknown);
         /**
          * CreateScheduledMessageRequest
          * @description POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.
@@ -8065,6 +8101,33 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    createReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateReportRequest"];
+            };
+        };
+        responses: {
+            /** @description Report accepted or already open. No moderation action is automatic. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
         };
     };

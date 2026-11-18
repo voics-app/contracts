@@ -18,6 +18,10 @@ export type DeliveryMode = "standard" | "ephemeral" | "p2p";
  */
 export type BotInstallationRevision = string;
 /**
+ * File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
+ */
+export type CreateReportRequest = CreateReportRequest1;
+/**
  * Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.
  */
 export type ScheduledMessageId = string;
@@ -1330,6 +1334,25 @@ export interface SelectOption {
   description?: string;
   emoji?: Emoji;
   default?: boolean;
+}
+export interface CreateReportRequest1 {
+  target: "message" | "user" | "channel";
+  category:
+    | "spam"
+    | "harassment"
+    | "hate_speech"
+    | "violence"
+    | "sexual_content"
+    | "self_harm"
+    | "illegal"
+    | "impersonation"
+    | "other";
+  note?: string | null;
+  channel_id?: Snowflake;
+  message_id?: Snowflake;
+  user_id?: Snowflake;
+  author_id?: Snowflake;
+  content?: string | null;
 }
 /**
  * POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.

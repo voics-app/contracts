@@ -52,6 +52,39 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 
 ## Endpoints
 
+### Users
+
+| Method | Path | Service | Request | Response | Summary |
+| --- | --- | --- | --- | --- | --- |
+| `POST` | `/reports` | api | `CreateReportRequest` | 204 No Content | Report a message, user or visible guild channel |
+| `GET` | `/users/@me` | api | — | `User` | Get the current user |
+| `PATCH` | `/users/@me` | api | `ModifyCurrentUserRequest` | `User` | Modify the current user |
+| `POST` | `/users/@me/disable` | api | `PasswordConfirmationRequest` | 204 No Content | Disable the account |
+| `POST` | `/users/@me/delete` | api | `PasswordConfirmationRequest` | 204 No Content | Schedule account deletion |
+| `POST` | `/users/@me/mfa/totp/enable` | api | `PasswordConfirmationRequest` | `TotpEnrollmentResponse` | Start TOTP enrolment |
+| `POST` | `/users/@me/mfa/totp/verify` | api | `VerifyTotpRequest` | `BackupCodesResponse` | Confirm TOTP enrolment |
+| `POST` | `/users/@me/mfa/totp/disable` | api | `DisableTotpRequest` | 204 No Content | Disable TOTP |
+| `POST` | `/users/@me/mfa/codes-verification` | api | `BackupCodesVerificationRequest` | `BackupCodesResponse` | List or regenerate backup codes |
+| `GET` | `/users/{user_id}` | api | — | `User` | Get a user |
+| `GET` | `/users/{user_id}/profile` | api | — | `UserProfile` | Get a user's profile with mutual servers and mutual friends |
+| `GET` | `/users/@me/sessions` | api | — | `array of AuthSession` | List the current user's login sessions |
+| `POST` | `/users/@me/sessions/logout-all` | api | — | 204 No Content | Log out every other session |
+| `DELETE` | `/users/@me/sessions/{session_id}` | api | — | 204 No Content | Log out one session |
+| `GET` | `/users/@me/settings` | api | — | `UserSettings` | Get the current user's settings |
+| `PATCH` | `/users/@me/settings` | api | `ModifyUserSettingsRequest` | `UserSettings` | Modify the current user's settings (including default_delivery_mode) |
+| `GET` | `/users/@me/guilds/{guild_id}/settings` | api | — | `GuildNotificationSettings` | Get the current user's notification settings for a guild (or `@me` for DMs) |
+| `PATCH` | `/users/@me/guilds/{guild_id}/settings` | api | `ModifyGuildNotificationSettingsRequest` | `GuildNotificationSettings` | Modify the current user's notification settings for a guild (or `@me` for DMs) |
+| `GET` | `/users/@me/notes/{user_id}` | api | — | `UserNote` | Get the current user's private note about a user (404 when none) |
+| `PUT` | `/users/@me/notes/{user_id}` | api | `PutNoteRequest` | 204 No Content | Set the current user's private note about a user (empty deletes it) |
+| `DELETE` | `/users/@me/notes/{user_id}` | api | — | 204 No Content | Delete the current user's private note about a user |
+| `GET` | `/users/@me/channels` | api | — | `array of Channel` | List DMs and group DMs |
+| `POST` | `/users/@me/channels` | api | `CreateDmRequest` | `Channel` | Open a DM or create a group DM |
+| `GET` | `/users/@me/relationships` | api | — | `array of Relationship` | List relationships |
+| `GET` | `/users/@me/relationships/{user_id}` | api | — | `Relationship` | Get the relationship with a user |
+| `PUT` | `/users/@me/relationships/{user_id}` | api | `PutRelationshipRequest` | 204 No Content | Send or accept a friend request, or block a user |
+| `DELETE` | `/users/@me/relationships/{user_id}` | api | — | 204 No Content | Remove a friend, cancel a request or unblock |
+| `PUT` | `/users/@me/channels/{channel_id}/delivery-mode` | api | `SetDeliveryModeRequest` | `DeliveryModeOverride` | Set the caller's per-chat delivery-mode override |
+
 ### Auth
 
 | Method | Path | Service | Request | Response | Summary |
@@ -81,38 +114,6 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/devices/{device_id}/key-packages` | api | `UploadKeyPackagesRequest` | 204 No Content | Upload MLS key packages for a device |
 | `GET` | `/users/{user_id}/devices` | api | — | `array of PublicDevice` | List a user's devices and identity keys |
 | `POST` | `/users/{user_id}/devices/{device_id}/key-packages/claim` | api | — | `ClaimKeyPackageResponse` | Claim one MLS key package of a device |
-
-### Users
-
-| Method | Path | Service | Request | Response | Summary |
-| --- | --- | --- | --- | --- | --- |
-| `GET` | `/users/@me` | api | — | `User` | Get the current user |
-| `PATCH` | `/users/@me` | api | `ModifyCurrentUserRequest` | `User` | Modify the current user |
-| `POST` | `/users/@me/disable` | api | `PasswordConfirmationRequest` | 204 No Content | Disable the account |
-| `POST` | `/users/@me/delete` | api | `PasswordConfirmationRequest` | 204 No Content | Schedule account deletion |
-| `POST` | `/users/@me/mfa/totp/enable` | api | `PasswordConfirmationRequest` | `TotpEnrollmentResponse` | Start TOTP enrolment |
-| `POST` | `/users/@me/mfa/totp/verify` | api | `VerifyTotpRequest` | `BackupCodesResponse` | Confirm TOTP enrolment |
-| `POST` | `/users/@me/mfa/totp/disable` | api | `DisableTotpRequest` | 204 No Content | Disable TOTP |
-| `POST` | `/users/@me/mfa/codes-verification` | api | `BackupCodesVerificationRequest` | `BackupCodesResponse` | List or regenerate backup codes |
-| `GET` | `/users/{user_id}` | api | — | `User` | Get a user |
-| `GET` | `/users/{user_id}/profile` | api | — | `UserProfile` | Get a user's profile with mutual servers and mutual friends |
-| `GET` | `/users/@me/sessions` | api | — | `array of AuthSession` | List the current user's login sessions |
-| `POST` | `/users/@me/sessions/logout-all` | api | — | 204 No Content | Log out every other session |
-| `DELETE` | `/users/@me/sessions/{session_id}` | api | — | 204 No Content | Log out one session |
-| `GET` | `/users/@me/settings` | api | — | `UserSettings` | Get the current user's settings |
-| `PATCH` | `/users/@me/settings` | api | `ModifyUserSettingsRequest` | `UserSettings` | Modify the current user's settings (including default_delivery_mode) |
-| `GET` | `/users/@me/guilds/{guild_id}/settings` | api | — | `GuildNotificationSettings` | Get the current user's notification settings for a guild (or `@me` for DMs) |
-| `PATCH` | `/users/@me/guilds/{guild_id}/settings` | api | `ModifyGuildNotificationSettingsRequest` | `GuildNotificationSettings` | Modify the current user's notification settings for a guild (or `@me` for DMs) |
-| `GET` | `/users/@me/notes/{user_id}` | api | — | `UserNote` | Get the current user's private note about a user (404 when none) |
-| `PUT` | `/users/@me/notes/{user_id}` | api | `PutNoteRequest` | 204 No Content | Set the current user's private note about a user (empty deletes it) |
-| `DELETE` | `/users/@me/notes/{user_id}` | api | — | 204 No Content | Delete the current user's private note about a user |
-| `GET` | `/users/@me/channels` | api | — | `array of Channel` | List DMs and group DMs |
-| `POST` | `/users/@me/channels` | api | `CreateDmRequest` | `Channel` | Open a DM or create a group DM |
-| `GET` | `/users/@me/relationships` | api | — | `array of Relationship` | List relationships |
-| `GET` | `/users/@me/relationships/{user_id}` | api | — | `Relationship` | Get the relationship with a user |
-| `PUT` | `/users/@me/relationships/{user_id}` | api | `PutRelationshipRequest` | 204 No Content | Send or accept a friend request, or block a user |
-| `DELETE` | `/users/@me/relationships/{user_id}` | api | — | 204 No Content | Remove a friend, cancel a request or unblock |
-| `PUT` | `/users/@me/channels/{channel_id}/delivery-mode` | api | `SetDeliveryModeRequest` | `DeliveryModeOverride` | Set the caller's per-chat delivery-mode override |
 
 ### Guilds
 
@@ -1936,6 +1937,21 @@ POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies w
 | `components?` | `array of MessageComponent` |  |
 | `attachments?` | `array of AttachmentReference` |  |
 | `flags?` | `integer` | MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. |
+
+### CreateReportRequest
+
+File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `target` | `"message" or "user" or "channel"` |  |
+| `category` | `"spam" or "harassment" or "hate_speech" or "violence" or "sexual_content" or "self_harm" or "illegal" or "impersonation" or "other"` |  |
+| `note?` | `?string` |  |
+| `channel_id?` | `Snowflake` |  |
+| `message_id?` | `Snowflake` |  |
+| `user_id?` | `Snowflake` |  |
+| `author_id?` | `Snowflake` |  |
+| `content?` | `?string` |  |
 
 ### CreateScheduledMessageRequest
 

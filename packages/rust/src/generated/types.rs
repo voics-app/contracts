@@ -1958,6 +1958,258 @@ impl<'de> ::serde::Deserialize<'de> for CreateMessageRequestNonce {
             })
     }
 }
+///File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateReportRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub author_id: ::std::option::Option<Snowflake>,
+    pub category: CreateReportRequestCategory,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub content: ::std::option::Option<CreateReportRequestContent>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub message_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub note: ::std::option::Option<CreateReportRequestNote>,
+    pub target: CreateReportRequestTarget,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub user_id: ::std::option::Option<Snowflake>,
+}
+///`CreateReportRequestCategory`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum CreateReportRequestCategory {
+    #[serde(rename = "spam")]
+    Spam,
+    #[serde(rename = "harassment")]
+    Harassment,
+    #[serde(rename = "hate_speech")]
+    HateSpeech,
+    #[serde(rename = "violence")]
+    Violence,
+    #[serde(rename = "sexual_content")]
+    SexualContent,
+    #[serde(rename = "self_harm")]
+    SelfHarm,
+    #[serde(rename = "illegal")]
+    Illegal,
+    #[serde(rename = "impersonation")]
+    Impersonation,
+    #[serde(rename = "other")]
+    Other,
+}
+impl ::std::fmt::Display for CreateReportRequestCategory {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Spam => f.write_str("spam"),
+            Self::Harassment => f.write_str("harassment"),
+            Self::HateSpeech => f.write_str("hate_speech"),
+            Self::Violence => f.write_str("violence"),
+            Self::SexualContent => f.write_str("sexual_content"),
+            Self::SelfHarm => f.write_str("self_harm"),
+            Self::Illegal => f.write_str("illegal"),
+            Self::Impersonation => f.write_str("impersonation"),
+            Self::Other => f.write_str("other"),
+        }
+    }
+}
+impl ::std::str::FromStr for CreateReportRequestCategory {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "spam" => Ok(Self::Spam),
+            "harassment" => Ok(Self::Harassment),
+            "hate_speech" => Ok(Self::HateSpeech),
+            "violence" => Ok(Self::Violence),
+            "sexual_content" => Ok(Self::SexualContent),
+            "self_harm" => Ok(Self::SelfHarm),
+            "illegal" => Ok(Self::Illegal),
+            "impersonation" => Ok(Self::Impersonation),
+            "other" => Ok(Self::Other),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateReportRequestCategory {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateReportRequestCategory {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`CreateReportRequestContent`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateReportRequestContent(::std::string::String);
+impl ::std::ops::Deref for CreateReportRequestContent {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateReportRequestContent> for ::std::string::String {
+    fn from(value: CreateReportRequestContent) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateReportRequestContent {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 4000usize {
+            return Err("longer than 4000 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateReportRequestContent {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateReportRequestContent {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateReportRequestContent {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`CreateReportRequestNote`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateReportRequestNote(::std::string::String);
+impl ::std::ops::Deref for CreateReportRequestNote {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateReportRequestNote> for ::std::string::String {
+    fn from(value: CreateReportRequestNote) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateReportRequestNote {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 500usize {
+            return Err("longer than 500 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateReportRequestNote {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateReportRequestNote {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateReportRequestNote {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`CreateReportRequestTarget`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum CreateReportRequestTarget {
+    #[serde(rename = "message")]
+    Message,
+    #[serde(rename = "user")]
+    User,
+    #[serde(rename = "channel")]
+    Channel,
+}
+impl ::std::fmt::Display for CreateReportRequestTarget {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Message => f.write_str("message"),
+            Self::User => f.write_str("user"),
+            Self::Channel => f.write_str("channel"),
+        }
+    }
+}
+impl ::std::str::FromStr for CreateReportRequestTarget {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "message" => Ok(Self::Message),
+            "user" => Ok(Self::User),
+            "channel" => Ok(Self::Channel),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateReportRequestTarget {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateReportRequestTarget {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
 ///POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 #[serde(deny_unknown_fields)]
