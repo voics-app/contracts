@@ -1508,7 +1508,11 @@ export interface paths {
         delete: operations["deletePasskey"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Rename a passkey owned by the current account
+         * @description Trims the label and rejects empty, overlong or control-character names. This changes only the label, never credential material, counters, recovery codes or MFA state.
+         */
+        patch: operations["renamePasskey"];
         trace?: never;
     };
     "/users/@me/mfa/passkeys/register/finish": {
@@ -3335,6 +3339,13 @@ export interface components {
         PasskeyRegisterStartRequest: {
             name: string;
             password: string;
+        };
+        /**
+         * PasskeyRenameRequest
+         * @description Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.
+         */
+        PasskeyRenameRequest: {
+            name: string;
         };
         /**
          * PasswordConfirmationRequest
@@ -7796,6 +7807,35 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    renamePasskey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyRenameRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated passkey metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Passkey"];
+                };
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];

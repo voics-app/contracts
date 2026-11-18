@@ -3081,6 +3081,12 @@ export interface PasskeyRegisterStartRequest {
   name: string;
 }
 /**
+ * Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.
+ */
+export interface PasskeyRenameRequest {
+  name: string;
+}
+/**
  * Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
  */
 export interface PasswordConfirmationRequest {

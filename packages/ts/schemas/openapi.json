@@ -6980,6 +6980,62 @@
       }
     },
     "/users/@me/mfa/passkeys/{id}": {
+      "patch": {
+        "operationId": "renamePasskey",
+        "summary": "Rename a passkey owned by the current account",
+        "description": "Trims the label and rejects empty, overlong or control-character names. This changes only the label, never credential material, counters, recovery codes or MFA state.",
+        "tags": [
+          "Auth"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyRenameRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated passkey metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Passkey"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
       "delete": {
         "operationId": "deletePasskey",
         "summary": "Remove a passkey after password and second-factor confirmation",
@@ -11872,6 +11928,22 @@
             "maxLength": 64
           }
         }
+      },
+      "PasskeyRenameRequest": {
+        "title": "PasskeyRenameRequest",
+        "description": "Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "additionalProperties": false
       },
       "PasswordConfirmationRequest": {
         "title": "PasswordConfirmationRequest",

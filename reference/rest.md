@@ -68,6 +68,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/users/@me/mfa/passkeys` | api | — | `array of Passkey` | List registered passkey second factors |
 | `POST` | `/users/@me/mfa/passkeys/register/start` | api | `PasskeyRegisterStartRequest` | `WebauthnChallenge` | Start passkey registration |
 | `POST` | `/users/@me/mfa/passkeys/register/finish` | api | `PasskeyRegisterFinishRequest` | `PasskeyRegisterResponse` | Verify and save a passkey second factor |
+| `PATCH` | `/users/@me/mfa/passkeys/{id}` | api | `PasskeyRenameRequest` | `Passkey` | Rename a passkey owned by the current account |
 | `DELETE` | `/users/@me/mfa/passkeys/{id}` | api | `PasskeyDeleteRequest` | 204 No Content | Remove a passkey after password and second-factor confirmation |
 | `POST` | `/auth/mfa/webauthn/start` | api | `WebauthnLoginStartRequest` | `WebauthnChallenge` | Start passkey assertion after the password step |
 | `POST` | `/auth/mfa/webauthn/finish` | api | `WebauthnLoginFinishRequest` | `AuthResponse` | Exchange a verified passkey assertion for login tokens |
@@ -2238,6 +2239,14 @@ Reauthenticate with the password before creating a passkey registration challeng
 | Field | Type | Description |
 | --- | --- | --- |
 | `password` | `string` |  |
+| `name` | `string` |  |
+
+### PasskeyRenameRequest
+
+Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.
+
+| Field | Type | Description |
+| --- | --- | --- |
 | `name` | `string` |  |
 
 ### PasswordConfirmationRequest
