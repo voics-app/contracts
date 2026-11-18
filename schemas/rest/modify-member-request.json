@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-member-request.json",
   "title": "ModifyMemberRequest",
-  "description": "PATCH /guilds/{id}/members/{uid} body.",
+  "description": "PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.",
   "type": "object",
   "properties": {
     "nick": {
@@ -43,6 +43,28 @@
     },
     "flags": {
       "type": "integer"
+    },
+    "bio": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 300,
+      "description": "Server-specific About me; trimmed, null or blank restores the global bio."
+    },
+    "avatar": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image."
+    },
+    "banner": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image."
     }
   }
 }

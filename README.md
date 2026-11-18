@@ -129,6 +129,12 @@ device choice; DND and Invisible retain their existing aggregation semantics.
 
 This repository reads no environment variables and holds no secrets.
 
+Profile customization adds public pronouns (40 characters), two RGB theme colors and validated
+profile accent colors. User and guild-member banner/avatar writes use image data URIs; responses
+carry CDN hashes. Members may change only their own server avatar, banner and bio, with existing
+nickname permissions retained. Omitted fields stay unchanged and null restores global/default
+appearance. Member changes use the existing `GUILD_MEMBER_UPDATE` dispatch.
+
 ## Releases
 
 release-please keeps `packages/ts`, `packages/rust` and `packages/elixir` versions aligned. A `vX.Y.Z` tag

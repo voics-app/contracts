@@ -3929,13 +3929,15 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif)."
         },
         "banner": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif)."
         },
         "roles": {
           "type": "array",
@@ -3976,6 +3978,14 @@
             "null"
           ],
           "format": "date-time"
+        },
+        "bio": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300,
+          "description": "Server-specific About me; trimmed, null or blank restores the global bio."
         }
       }
     },
@@ -4005,13 +4015,15 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif)."
         },
         "banner": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif)."
         },
         "roles": {
           "type": "array",
@@ -4052,6 +4064,14 @@
             "null"
           ],
           "format": "date-time"
+        },
+        "bio": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300,
+          "description": "Server-specific About me; trimmed, null or blank restores the global bio."
         },
         "guild_id": {
           "$ref": "#/$defs/Snowflake"
@@ -6152,13 +6172,16 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it."
         },
         "accent_color": {
           "type": [
             "integer",
             "null"
-          ]
+          ],
+          "minimum": 0,
+          "maximum": 16777215
         },
         "password": {
           "type": "string",
@@ -6172,6 +6195,28 @@
         "email": {
           "type": "string",
           "format": "email"
+        },
+        "pronouns": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 40,
+          "description": "Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters."
+        },
+        "theme_colors": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16777215
+          },
+          "description": "Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme."
         }
       }
     },
@@ -6467,7 +6512,7 @@
     },
     "ModifyMemberRequest": {
       "title": "ModifyMemberRequest",
-      "description": "PATCH /guilds/{id}/members/{uid} body.",
+      "description": "PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.",
       "type": "object",
       "properties": {
         "nick": {
@@ -6508,6 +6553,28 @@
         },
         "flags": {
           "type": "integer"
+        },
+        "bio": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300,
+          "description": "Server-specific About me; trimmed, null or blank restores the global bio."
+        },
+        "avatar": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image."
+        },
+        "banner": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image."
         }
       }
     },
@@ -9061,13 +9128,16 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Profile banner hash."
         },
         "accent_color": {
           "type": [
             "integer",
             "null"
-          ]
+          ],
+          "minimum": 0,
+          "maximum": 16777215
         },
         "locale": {
           "type": "string"
@@ -9087,6 +9157,28 @@
         },
         "public_flags": {
           "type": "integer"
+        },
+        "pronouns": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 40,
+          "description": "Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters."
+        },
+        "theme_colors": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16777215
+          },
+          "description": "Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme."
         }
       }
     },

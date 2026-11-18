@@ -404,8 +404,8 @@ GUILD_MEMBER_ADD / GUILD_MEMBER_UPDATE dispatch: a guild member plus guild_id.
 | --- | --- | --- |
 | `user?` | `User` |  |
 | `nick?` | `?string` |  |
-| `avatar?` | `?string` |  |
-| `banner?` | `?string` |  |
+| `avatar?` | `?string` | Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif). |
+| `banner?` | `?string` | Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif). |
 | `roles` | `array of Snowflake` |  |
 | `joined_at` | `string (date-time)` |  |
 | `premium_since?` | `?string (date-time)` |  |
@@ -415,6 +415,7 @@ GUILD_MEMBER_ADD / GUILD_MEMBER_UPDATE dispatch: a guild member plus guild_id.
 | `pending?` | `boolean` |  |
 | `permissions?` | `PermissionBitset` | Total permissions in the interaction channel; only in interaction payloads. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
+| `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |
 | `guild_id` | `Snowflake` |  |
 
 ### GuildMemberRemoveEvent

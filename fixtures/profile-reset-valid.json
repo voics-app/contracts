@@ -1,0 +1,8 @@
+{
+  "schema": "rest/modify-current-user-request.json",
+  "data": {
+    "pronouns": null,
+    "theme_colors": null,
+    "accent_color": null
+  }
+}
