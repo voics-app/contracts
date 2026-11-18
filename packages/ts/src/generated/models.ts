@@ -2846,6 +2846,12 @@ export interface UserPreferences {
   }[];
 }
 /**
+ * Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.
+ */
+export interface ModifyVanityUrlRequest {
+  code: string | null;
+}
+/**
  * PATCH /webhooks/{id} body.
  */
 export interface ModifyWebhookRequest {
@@ -3484,6 +3490,16 @@ export interface UserReadyState {
   notes: {
     [k: string]: string | undefined;
   };
+}
+/**
+ * A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.
+ */
+export interface VanityUrl {
+  code: string | null;
+  /**
+   * Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count.
+   */
+  uses: number;
 }
 /**
  * POST /auth/verify-email body.

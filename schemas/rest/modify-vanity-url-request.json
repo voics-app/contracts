@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-vanity-url-request.json",
+  "title": "ModifyVanityUrlRequest",
+  "description": "Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.",
+  "type": "object",
+  "required": [
+    "code"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Za-z0-9-]{2,32}$"
+    }
+  }
+}

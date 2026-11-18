@@ -1142,6 +1142,30 @@ export interface paths {
         patch: operations["modifyGuildTemplate"];
         trace?: never;
     };
+    "/guilds/{guild_id}/vanity-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get a guild's permanent invitation (requires MANAGE_GUILD) */
+        get: operations["getGuildVanityUrl"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set or remove a guild's permanent invitation (requires MANAGE_GUILD)
+         * @description Codes are case-insensitive and returned lowercase. Renaming resets uses. An @everyone-visible text channel is required. Changes create a GUILD_UPDATE audit entry. An occupied code returns 400 with a code field error.
+         */
+        patch: operations["modifyGuildVanityUrl"];
+        trace?: never;
+    };
     "/guilds/{guild_id}/webhooks": {
         parameters: {
             query?: never;
@@ -3135,6 +3159,13 @@ export interface components {
             theme?: "dark" | "light" | "oled";
         };
         /**
+         * ModifyVanityUrlRequest
+         * @description Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.
+         */
+        ModifyVanityUrlRequest: {
+            code: string | null;
+        };
+        /**
          * ModifyWebhookRequest
          * @description PATCH /webhooks/{id} body.
          */
@@ -3716,6 +3747,15 @@ export interface components {
             status: "online" | "idle" | "dnd" | "invisible";
             /** @enum {string} */
             theme: "dark" | "light" | "oled";
+        };
+        /**
+         * VanityUrl
+         * @description A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.
+         */
+        VanityUrl: {
+            code: string | null;
+            /** @description Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count. */
+            uses: number;
         };
         /**
          * VerifyEmailRequest
@@ -6947,6 +6987,65 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GuildTemplate"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildVanityUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current code and join count, or null and zero when unset. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VanityUrl"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    modifyGuildVanityUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModifyVanityUrlRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved code and join count. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VanityUrl"];
                 };
             };
             400: components["responses"]["BadRequest"];

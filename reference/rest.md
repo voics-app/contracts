@@ -148,6 +148,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PATCH` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | `ModifyEmojiRequest` | `Emoji` | Modify a custom emoji |
 | `DELETE` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | 204 No Content | Delete a custom emoji |
 | `GET` | `/guilds/{guild_id}/invites` | api | — | `array of Invite` | List a guild's invites |
+| `GET` | `/guilds/{guild_id}/vanity-url` | api | — | `VanityUrl` | Get a guild's permanent invitation (requires MANAGE_GUILD) |
+| `PATCH` | `/guilds/{guild_id}/vanity-url` | api | `ModifyVanityUrlRequest` | `VanityUrl` | Set or remove a guild's permanent invitation (requires MANAGE_GUILD) |
 | `GET` | `/discovery/guilds` | api | — | `DiscoveryPage` | Browse and search public servers that opted in to discovery |
 | `GET` | `/discovery/categories` | api | — | `DiscoveryCategories` | List discovery categories |
 | `POST` | `/discovery/guilds/{guild_id}/join` | api | — | 204 No Content | Join a publicly listed server |
@@ -1486,6 +1488,15 @@ Account-wide settings of the current user. `default_delivery_mode` is a Discordy
 | `guild_positions` | `array of Snowflake` | Flat server order (legacy mirror of guild_folders). |
 | `preferences` | `UserPreferences` | Synced client preferences (appearance, chat, notification sounds, emoji). Sparse. |
 
+### VanityUrl
+
+A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `code` | `?string` |  |
+| `uses` | `integer` | Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count. |
+
 ### VoiceRegion
 
 A voice region.
@@ -2104,6 +2115,14 @@ PATCH /users/@me/settings body (partial).
 | `pinned_dm_channel_ids?` | `array of Snowflake` | DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices. |
 | `pinned_channel_ids?` | `map of array of Snowflake` | Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices. |
 | `preferences?` | `UserPreferences` | Merged key by key into the stored preferences. |
+
+### ModifyVanityUrlRequest
+
+Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `code` | `?string` |  |
 
 ### ModifyWebhookRequest
 

@@ -45,6 +45,12 @@ Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT ==
 
 ## Consuming
 
+Guild administrators can read or change a permanent invitation through
+`GET|PATCH /guilds/{guild_id}/vanity-url`. The required `code` is null to remove
+it, or 2–32 ASCII letters, digits and hyphens. Codes resolve case-insensitively
+through the existing invite preview and accept routes. A public text channel is
+required; bans and membership limits apply to joins just as for ordinary invites.
+
 - TypeScript: `@discordy-voics/contracts` from GitHub Packages (`import { Permissions, type User } from "@discordy-voics/contracts"`).
 - Rust: `discordy-contracts = { git = "https://github.com/discordy-voics/contracts", tag = "vX.Y.Z" }`.
 - Elixir: `{:discordy_contracts, github: "discordy-voics/contracts", tag: "vX.Y.Z", sparse: "packages/elixir"}`.
