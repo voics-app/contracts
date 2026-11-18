@@ -6108,6 +6108,9 @@ impl<'de> ::serde::Deserialize<'de> for ReadyEventNotesValue {
 pub struct RefreshRequest {
     ///Opaque 256-bit token, base64url.
     pub refresh_token: ::std::string::String,
+    ///Optional random UUID saved durably with the current refresh token before sending. Retrying this exact pair for up to five minutes recovers its immediate unused, unexpired successor in a live session without extending expiry. Keep the UUID until successor credentials are saved, then generate a new UUID for the next rotation. Omission retains strict single-use rotation.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub request_id: ::std::option::Option<::uuid::Uuid>,
 }
 ///POST /auth/register body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

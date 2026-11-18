@@ -174,7 +174,7 @@
       "post": {
         "operationId": "refreshToken",
         "summary": "Rotate a refresh token",
-        "description": "Reusing an already-rotated refresh token revokes the whole session family.",
+        "description": "Reusing an already-rotated refresh token revokes the whole session family, except a bounded retry of the same durably saved request_id and token. For five minutes after rotation, that exact pair may recover only its immediate unused, unexpired successor while the original token and session remain live. Retries do not extend expiry. Missing or mismatched request IDs, elapsed windows and used or expired successors retain reuse detection. Revoked sessions cannot be recovered. Never log tokens or request IDs.",
         "tags": [
           "Auth"
         ],
@@ -12028,6 +12028,11 @@
           "refresh_token": {
             "type": "string",
             "description": "Opaque 256-bit token, base64url."
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional random UUID saved durably with the current refresh token before sending. Retrying this exact pair for up to five minutes recovers its immediate unused, unexpired successor in a live session without extending expiry. Keep the UUID until successor credentials are saved, then generate a new UUID for the next rotation. Omission retains strict single-use rotation."
           }
         }
       },

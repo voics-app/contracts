@@ -3128,6 +3128,10 @@ export interface RefreshRequest {
    * Opaque 256-bit token, base64url.
    */
   refresh_token: string;
+  /**
+   * Optional random UUID saved durably with the current refresh token before sending. Retrying this exact pair for up to five minutes recovers its immediate unused, unexpired successor in a live session without extending expiry. Keep the UUID until successor credentials are saved, then generate a new UUID for the next rotation. Omission retains strict single-use rotation.
+   */
+  request_id?: string;
 }
 /**
  * POST /auth/register body.
