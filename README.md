@@ -7,6 +7,11 @@ Rust and Elixir, and into the protocol reference docs.
 
 ## Layout
 
+`POST /reports` accepts the explicit `channel` target for a visible guild channel.
+Its evidence is server-owned channel metadata only (ID, guild, parent, name, type,
+age-restricted flag); it never snapshots messages or a member list. The `guild`
+target remains exclusive to public discovery listing reports.
+
 Template links can resolve `GET /guilds/templates/{code}` without a session;
 creating a guild remains authenticated. `GuildTemplate.is_dirty` compares the
 current template-visible structure with the saved snapshot until explicit sync.

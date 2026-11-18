@@ -1,0 +1,1 @@
+{ "schema": "rest/create-report-request.json", "valid": false, "data": { "target": "channel", "category": "other" } }
