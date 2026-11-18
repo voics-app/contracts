@@ -3109,6 +3109,10 @@ export interface ModifyUserSettingsRequest {
  */
 export interface UserPreferences {
   /**
+   * Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization.
+   */
+  hide_age_restricted_channels?: boolean;
+  /**
    * Accent colour preset.
    */
   accent?: "iris" | "aurora" | "ember" | "rose" | "citrine" | "sky";

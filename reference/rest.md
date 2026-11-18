@@ -1563,6 +1563,7 @@ Client preferences that follow the account across devices (client#123). Sparse: 
 
 | Field | Type | Description |
 | --- | --- | --- |
+| `hide_age_restricted_channels?` | `boolean` | Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization. |
 | `accent?` | `"iris" or "aurora" or "ember" or "rose" or "citrine" or "sky"` | Accent colour preset. |
 | `reduce_motion?` | `boolean` |  |
 | `font_scale?` | `number` | Chat font scale. |
