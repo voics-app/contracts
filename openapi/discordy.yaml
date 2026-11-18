@@ -109,7 +109,8 @@ paths:
     post:
       operationId: refreshToken
       summary: Rotate a refresh token
-      description: Reusing an already-rotated refresh token revokes the whole session family.
+      description: |-
+        Reusing an already-rotated refresh token revokes the whole session family, except a bounded retry of the same durably saved request_id and token. For five minutes after rotation, that exact pair may recover only its immediate unused, unexpired successor while the original token and session remain live. Retries do not extend expiry. Missing or mismatched request IDs, elapsed windows and used or expired successors retain reuse detection. Revoked sessions cannot be recovered. Never log tokens or request IDs.
       tags:
         - Auth
       x-discordy-service: api

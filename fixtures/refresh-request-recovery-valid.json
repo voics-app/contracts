@@ -1,0 +1,7 @@
+{
+  "schema": "rest/refresh-request.json",
+  "data": {
+    "refresh_token": "opaque-fixture",
+    "request_id": "ae4b0d8e-06d1-4b72-9401-44f83fc966bf"
+  }
+}

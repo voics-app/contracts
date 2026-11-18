@@ -46,6 +46,14 @@ Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT ==
 
 ## Consuming
 
+Refresh requests may include a random `request_id` UUID. Persist it with the
+current refresh token before sending and reuse the exact pair after response
+loss. For five minutes, a live session can recover only its immediate unused,
+unexpired successor without extending expiry. Remove the ID only after durably
+saving successor credentials. Missing/mismatched IDs and stale or used successors
+retain strict reuse detection; revoked sessions cannot recover. Do not log these
+IDs or tokens. The optional field keeps legacy clients compatible.
+
 Guild audit policy is exposed as optional `audit_log_enabled` (default true)
 and `audit_log_retention_days` (30, 90 or 365; default 90) fields. Only owners
 and administrators can change them with `PATCH /guilds/{id}`. Policy changes
