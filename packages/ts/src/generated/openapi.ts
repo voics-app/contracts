@@ -1925,7 +1925,7 @@ export interface components {
             duration_secs?: number;
             ephemeral?: boolean;
             filename: string;
-            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. */
+            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent. */
             flags?: number;
             height?: number | null;
             id: components["schemas"]["Snowflake"];
@@ -1935,6 +1935,17 @@ export interface components {
             url: string;
             waveform?: string;
             width?: number | null;
+        };
+        /**
+         * AttachmentMetadataEdit
+         * @description Updates metadata of one attachment already owned by this message. Omitted properties are unchanged; description null or blank clears alt text. Files, filenames, IDs and URLs are immutable. Only the author may edit attachment metadata.
+         */
+        AttachmentMetadataEdit: {
+            /** @description Trimmed alt text; null or blank clears it. */
+            description?: string | null;
+            /** @description Only IS_SPOILER (8) is applied; other stored bits are preserved. Explicit 0 clears the spoiler even for a SPOILER_ filename. */
+            flags?: number;
+            id: components["schemas"]["Snowflake"];
         };
         /**
          * AttachmentReference
@@ -2318,7 +2329,11 @@ export interface components {
             flags?: number;
             message_reference?: components["schemas"]["MessageReference"];
             nonce?: string;
-            tts?: boolean;
+            /**
+             * @description Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events.
+             * @default false
+             */
+            tts: boolean;
         };
         /**
          * CreateThreadRequest
@@ -2425,7 +2440,8 @@ export interface components {
          */
         EditMessageRequest: {
             allowed_mentions?: components["schemas"]["AllowedMentions"] | null;
-            attachments?: components["schemas"]["AttachmentReference"][];
+            /** @description Partial metadata edits of existing attachments. Unlisted files remain unchanged and an empty array does nothing. Unknown or duplicate attachment IDs reject the complete edit. This field cannot add or remove files. */
+            attachments?: components["schemas"]["AttachmentMetadataEdit"][];
             components?: components["schemas"]["MessageComponent"][] | null;
             content?: string | null;
             embeds?: components["schemas"]["Embed"][] | null;

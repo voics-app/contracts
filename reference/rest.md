@@ -419,7 +419,7 @@ A file attached to a message.
 | `ephemeral?` | `boolean` |  |
 | `duration_secs?` | `number` |  |
 | `waveform?` | `string` |  |
-| `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. |
+| `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent. |
 
 ### AuditEntryInfo
 
@@ -1564,6 +1564,16 @@ Create, overwrite or edit an application command.
 | `contexts?` | `?array of integer` |  |
 | `integration_types?` | `array of integer` |  |
 
+### AttachmentMetadataEdit
+
+Updates metadata of one attachment already owned by this message. Omitted properties are unchanged; description null or blank clears alt text. Files, filenames, IDs and URLs are immutable. Only the author may edit attachment metadata.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `description?` | `?string` | Trimmed alt text; null or blank clears it. |
+| `flags?` | `integer` | Only IS_SPOILER (8) is applied; other stored bits are preserved. Explicit 0 clears the spoiler even for a SPOILER_ filename. |
+
 ### AttachmentReference
 
 An uploaded attachment referenced when creating or editing a message.
@@ -1789,7 +1799,7 @@ POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies w
 | --- | --- | --- |
 | `content?` | `string` |  |
 | `nonce?` | `string` |  |
-| `tts?` | `boolean` |  |
+| `tts?` | `boolean` | Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events. |
 | `embeds?` | `array of Embed` |  |
 | `allowed_mentions?` | `AllowedMentions` |  |
 | `message_reference?` | `MessageReference` |  |
@@ -1850,7 +1860,7 @@ PATCH /channels/{id}/messages/{mid} body.
 | `flags?` | `?integer` |  |
 | `allowed_mentions?` | `?AllowedMentions` |  |
 | `components?` | `?array of MessageComponent` |  |
-| `attachments?` | `array of AttachmentReference` |  |
+| `attachments?` | `array of AttachmentMetadataEdit` | Partial metadata edits of existing attachments. Unlisted files remain unchanged and an empty array does nothing. Unknown or duplicate attachment IDs reject the complete edit. This field cannot add or remove files. |
 
 ### EditOverwriteRequest
 
