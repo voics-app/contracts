@@ -1,0 +1,4 @@
+{
+  "schema": "rest/modify-user-settings-request.json",
+  "data": { "preferences": { "hide_age_restricted_channels": false } }
+}
