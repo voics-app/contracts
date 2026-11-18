@@ -1228,6 +1228,23 @@ Normal and burst reaction counts.
 | `burst` | `integer` |  |
 | `normal` | `integer` |  |
 
+### ReadState
+
+One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `last_message_id` | `any` |  |
+| `mention_count` | `integer` |  |
+| `read_state_version?` | `ReadStateVersion` |  |
+
+### ReadStateVersion
+
+Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
+
+Type: `string`
+
 ### Relationship
 
 A relationship with another user.

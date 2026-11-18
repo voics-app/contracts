@@ -1,0 +1,7 @@
+{
+  "schema": "gateway/dispatch/read-state-sync.json",
+  "data": {
+    "read_state": [],
+    "read_state_versioned": true
+  }
+}

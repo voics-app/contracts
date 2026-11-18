@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/read-state.json",
+  "title": "ReadState",
+  "description": "One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.",
+  "type": "object",
+  "required": ["id", "last_message_id", "mention_count"],
+  "properties": {
+    "id": { "$ref": "snowflake.json" },
+    "last_message_id": { "oneOf": [{ "$ref": "snowflake.json" }, { "type": "null" }] },
+    "mention_count": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+    "read_state_version": { "$ref": "read-state-version.json" }
+  }
+}

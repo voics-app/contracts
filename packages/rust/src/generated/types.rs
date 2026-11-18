@@ -4020,6 +4020,9 @@ pub struct MessageAckEvent {
     pub channel_id: Snowflake,
     pub mention_count: u64,
     pub message_id: Snowflake,
+    ///Optional for legacy compatibility. Certified clients accept only a newer per-channel version, even for a backwards manual marker; this is independent of the legacy version field.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub read_state_version: ::std::option::Option<ReadStateVersion>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub version: ::std::option::Option<i64>,
 }
@@ -6709,6 +6712,104 @@ pub struct ReactionCountDetails {
     pub burst: i64,
     pub normal: i64,
 }
+///One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ReadState {
+    pub id: Snowflake,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub last_message_id: ::std::option::Option<Snowflake>,
+    pub mention_count: u32,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub read_state_version: ::std::option::Option<ReadStateVersion>,
+}
+///Certified snapshot fetched during resume, after subscription and before RESUMED. Merge each channel by version with replayed updates; an absent channel is not a deletion. An equal version may restore the known authoritative snapshot over local optimistic state, but conflicting equal-version data and older versions are ignored. A fresh READY, not this event, starts a new version history.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ReadStateSyncEvent {
+    pub read_state: ::std::vec::Vec<ReadStateSyncEventReadStateItem>,
+    pub read_state_versioned: ::serde_json::Value,
+}
+///`ReadStateSyncEventReadStateItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ReadStateSyncEventReadStateItem {
+    pub id: Snowflake,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub last_message_id: ::std::option::Option<Snowflake>,
+    pub mention_count: u32,
+    pub read_state_version: ReadStateVersion,
+}
+///Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ReadStateUpdateEvent {
+    pub channel_id: Snowflake,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub last_message_id: ::std::option::Option<Snowflake>,
+    pub mention_count: u32,
+    pub read_state_version: ReadStateVersion,
+}
+///Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ReadStateVersion(::std::string::String);
+impl ::std::ops::Deref for ReadStateVersion {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ReadStateVersion> for ::std::string::String {
+    fn from(value: ReadStateVersion) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ReadStateVersion {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 19usize {
+            return Err("longer than 19 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> = ::std::sync::LazyLock::new(
+            || {
+                ::regress::Regex::new(
+                    "^(0|[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6]|9223372036854775807)$",
+                )
+                .unwrap()
+            },
+        );
+        if PATTERN.find(value).is_none() {
+            return Err(
+                "doesn't match pattern \"^(0|[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6]|9223372036854775807)$\""
+                    .into(),
+            );
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ReadStateVersion {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ReadStateVersion {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ReadStateVersion {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///The bot's application.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct ReadyApplication {
@@ -6724,6 +6825,11 @@ pub struct ReadyEvent {
     ///The user's private notes keyed by the noted user's id.
     pub notes: ::std::collections::HashMap<::std::string::String, ReadyEventNotesValue>,
     pub private_channels: ::std::vec::Vec<Channel>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub read_state: ::std::vec::Vec<ReadState>,
+    ///Present only after successful certified messages hydration. Standard counts use authoritative snapshots rather than CREATE increments; private decrypted traffic stays local. Absent means legacy behavior.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub read_state_versioned: ::std::option::Option<::serde_json::Value>,
     pub relationships: ::std::vec::Vec<Relationship>,
     pub resume_gateway_url: ::std::string::String,
     pub session_id: ::std::string::String,
@@ -8433,6 +8539,26 @@ impl<'de> ::serde::Deserialize<'de> for UserPronouns {
             .map_err(|e: self::error::ConversionError| {
                 <D::Error as ::serde::de::Error>::custom(e.to_string())
             })
+    }
+}
+///Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct UserReadStates(pub ::std::vec::Vec<ReadState>);
+impl ::std::ops::Deref for UserReadStates {
+    type Target = ::std::vec::Vec<ReadState>;
+    fn deref(&self) -> &::std::vec::Vec<ReadState> {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserReadStates> for ::std::vec::Vec<ReadState> {
+    fn from(value: UserReadStates) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<::std::vec::Vec<ReadState>> for UserReadStates {
+    fn from(value: ::std::vec::Vec<ReadState>) -> Self {
+        Self(value)
     }
 }
 ///GET /internal/v1/users/{user_id}/ready: the state used to build READY.

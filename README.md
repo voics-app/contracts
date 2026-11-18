@@ -50,6 +50,17 @@ Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT ==
 
 ## Consuming
 
+Read-state certification is additive: `GET /internal/v1/users/{user_id}/read-states`
+keeps its array shape and adds `read_state_version` strings plus header
+`X-Read-State-Versioned: 1`. Gateway subscribes before fetching for READY and
+refreshes during resume, emitting READ_STATE_SYNC before RESUMED. Certified
+clients compare per-channel versions in MESSAGE_ACK, READ_STATE_UPDATE and sync;
+they do not increment standard counts from MESSAGE_CREATE. Legacy peers retain
+the existing behavior. Private decrypted counts remain local. Lost publication
+converges on a newer snapshot or successful reconnect; failed accounting before
+commit is not repaired. Fence unversioned writers during rollout, and invalidate
+gateway sessions/resume buffers after database restore before fresh READY.
+
 Voice discovery supports optional `probe_required` rollout, leased `VoiceNodeHealth`
 observations fenced to the node registration's etcd lease, and persistent node/region
 blacklists. `purpose: "probe"` voice tokens use the separate `VOICE_PROBE_TOKEN_SECRET`

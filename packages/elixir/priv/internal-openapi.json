@@ -149,6 +149,47 @@
         }
       }
     },
+    "/users/{user_id}/read-states": {
+      "get": {
+        "operationId": "getUserReadStates",
+        "summary": "Read-state snapshots for gateway identification and resume",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array retained for legacy compatibility. Certified responses require a version on every entry. Snapshot reads are per channel, not one cross-channel transaction.",
+            "headers": {
+              "X-Read-State-Versioned": {
+                "description": "Value 1 certifies authoritative versioned accounting even for an empty array. Absent means legacy; malformed certification must not become an empty successful snapshot.",
+                "schema": {
+                  "type": "string",
+                  "const": "1"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserReadStates"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "description": "Read-state dependency unavailable; gateway must not certify an empty state."
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/state": {
       "get": {
         "operationId": "getGuildState",
@@ -3144,6 +3185,46 @@
           }
         }
       },
+      "ReadState": {
+        "title": "ReadState",
+        "description": "One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.",
+        "type": "object",
+        "required": [
+          "id",
+          "last_message_id",
+          "mention_count"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "last_message_id": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mention_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "read_state_version": {
+            "$ref": "#/components/schemas/ReadStateVersion"
+          }
+        }
+      },
+      "ReadStateVersion": {
+        "title": "ReadStateVersion",
+        "description": "Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.",
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6]|9223372036854775807)$",
+        "maxLength": 19
+      },
       "Relationship": {
         "title": "Relationship",
         "description": "A relationship with another user.",
@@ -3637,6 +3718,14 @@
               }
             }
           }
+        }
+      },
+      "UserReadStates": {
+        "title": "UserReadStates",
+        "description": "Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ReadState"
         }
       },
       "UserReadyState": {

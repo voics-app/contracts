@@ -38,6 +38,10 @@ export type IdReservationRequest =
  */
 export type InvalidSessionPayload = boolean;
 /**
+ * Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
+ */
+export type ReadStateVersion = string;
+/**
  * A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
  */
 export type NotificationRecipientPage =
@@ -70,6 +74,10 @@ export type NotificationRecipientPage =
  * SESSIONS_REPLACE dispatch: every active session of the user.
  */
 export type SessionsReplaceEvent = Session[];
+/**
+ * Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.
+ */
+export type UserReadStates = ReadState[];
 
 /**
  * Claims of a user access JWT (EdDSA, 15 minutes).
@@ -2580,6 +2588,7 @@ export interface MessageAckEvent {
   message_id: Snowflake;
   mention_count: number;
   version?: number;
+  read_state_version?: ReadStateVersion;
 }
 /**
  * MESSAGE_DELETE_BULK dispatch.
@@ -3298,6 +3307,33 @@ export interface PutRelationshipRequest {
   type?: number;
 }
 /**
+ * One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.
+ */
+export interface ReadState {
+  id: Snowflake;
+  last_message_id: Snowflake | null;
+  mention_count: number;
+  read_state_version?: ReadStateVersion;
+}
+/**
+ * Certified snapshot fetched during resume, after subscription and before RESUMED. Merge each channel by version with replayed updates; an absent channel is not a deletion. An equal version may restore the known authoritative snapshot over local optimistic state, but conflicting equal-version data and older versions are ignored. A fresh READY, not this event, starts a new version history.
+ */
+export interface ReadStateSyncEvent {
+  read_state_versioned: true;
+  read_state: (ReadState & {
+    read_state_version: ReadStateVersion;
+  })[];
+}
+/**
+ * Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
+ */
+export interface ReadStateUpdateEvent {
+  channel_id: Snowflake;
+  last_message_id: Snowflake | null;
+  mention_count: number;
+  read_state_version: ReadStateVersion;
+}
+/**
  * The bot's application.
  */
 export interface ReadyApplication {
@@ -3330,6 +3366,11 @@ export interface ReadyEvent {
   session_id: string;
   resume_gateway_url: string;
   application?: ReadyApplication;
+  read_state?: ReadState[];
+  /**
+   * Present only after successful certified messages hydration. Standard counts use authoritative snapshots rather than CREATE increments; private decrypted traffic stays local. Absent means legacy behavior.
+   */
+  read_state_versioned?: true;
 }
 /**
  * A relationship with another user.

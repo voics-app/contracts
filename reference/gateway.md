@@ -283,6 +283,8 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `MESSAGE_REACTION_REMOVE_ALL` | `MessageReactionRemoveAllEvent` | messages | `discordy.message.v1` | All reactions were removed from a message. |
 | `CHANNEL_PINS_UPDATE` | `ChannelPinsUpdateEvent` | messages | `discordy.message.v1` | A message was pinned or unpinned. |
 | `MESSAGE_ACK` | `MessageAckEvent` | messages | `discordy.message.v1` | The user's read state advanced on another device. |
+| `READ_STATE_UPDATE` | `ReadStateUpdateEvent` | messages | `discordy.message.v1` | Complete versioned read-state snapshot targeted to the owning user's sessions; compare channel versions, never increment from this event. |
+| `READ_STATE_SYNC` | `ReadStateSyncEvent` | gateway | — | Fresh certified read-state snapshots after resume replay and before RESUMED; merge by version to recover lost publication. |
 | `USER_UPDATE` | `User` | api | `discordy.user.v1` | The current user was updated. |
 | `USER_SETTINGS_UPDATE` | `UserSettings` | api | `discordy.user.v1` | The current user's settings changed. |
 | `USER_GUILD_SETTINGS_UPDATE` | `GuildNotificationSettings` | api | `discordy.user.v1` | The current user's notification settings for a guild or their DMs changed (sent to that user only). |
@@ -314,6 +316,8 @@ READY: the internal ready state plus session details.
 | `session_id` | `string` |  |
 | `resume_gateway_url` | `string` |  |
 | `application?` | `ReadyApplication` |  |
+| `read_state?` | `array of ReadState` |  |
+| `read_state_versioned?` | `true` | Present only after successful certified messages hydration. Standard counts use authoritative snapshots rather than CREATE increments; private decrypted traffic stays local. Absent means legacy behavior. |
 
 ### PresenceUpdateEvent
 
@@ -586,6 +590,27 @@ MESSAGE_ACK dispatch (read-state sync across the user's devices).
 | `message_id` | `Snowflake` |  |
 | `mention_count` | `integer` |  |
 | `version?` | `integer` |  |
+| `read_state_version?` | `ReadStateVersion` | Optional for legacy compatibility. Certified clients accept only a newer per-channel version, even for a backwards manual marker; this is independent of the legacy version field. |
+
+### ReadStateUpdateEvent
+
+Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `channel_id` | `Snowflake` |  |
+| `last_message_id` | `any` |  |
+| `mention_count` | `integer` |  |
+| `read_state_version` | `ReadStateVersion` |  |
+
+### ReadStateSyncEvent
+
+Certified snapshot fetched during resume, after subscription and before RESUMED. Merge each channel by version with replayed updates; an absent channel is not a deletion. An equal version may restore the known authoritative snapshot over local optimistic state, but conflicting equal-version data and older versions are ignored. A fresh READY, not this event, starts a new version history.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `read_state_versioned` | `true` |  |
+| `read_state` | `array of any` |  |
 
 ### UserNoteUpdateEvent
 

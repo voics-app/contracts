@@ -97,6 +97,9 @@ defmodule Discordy.Contracts.EventTopics do
   @spec message_ack() :: String.t()
   def message_ack, do: "discordy.message.v1"
 
+  @spec read_state_update() :: String.t()
+  def read_state_update, do: "discordy.message.v1"
+
   @spec user_update() :: String.t()
   def user_update, do: "discordy.user.v1"
 
@@ -180,6 +183,7 @@ defmodule Discordy.Contracts.EventTopics do
       message_reaction_remove_all: "discordy.message.v1",
       channel_pins_update: "discordy.message.v1",
       message_ack: "discordy.message.v1",
+      read_state_update: "discordy.message.v1",
       user_update: "discordy.user.v1",
       user_settings_update: "discordy.user.v1",
       user_guild_settings_update: "discordy.user.v1",

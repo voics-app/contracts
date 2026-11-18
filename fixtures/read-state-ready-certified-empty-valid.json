@@ -1,0 +1,38 @@
+{
+  "schema": "gateway/dispatch/ready.json",
+  "valid": true,
+  "data": {
+    "v": 1,
+    "user": {
+      "id": "1",
+      "username": "user",
+      "discriminator": "0",
+      "global_name": null,
+      "avatar": null
+    },
+    "session_id": "session",
+    "resume_gateway_url": "wss://gateway.test/gateway",
+    "guilds": [],
+    "private_channels": [],
+    "relationships": [],
+    "user_settings": {
+      "locale": "en-US",
+      "theme": "dark",
+      "status": "online",
+      "custom_status": null,
+      "default_delivery_mode": "standard",
+      "e2ee_calls_default": false,
+      "developer_mode": false,
+      "message_display_compact": false,
+      "guild_folders": [],
+      "guild_positions": [],
+      "pinned_dm_channel_ids": [],
+      "pinned_channel_ids": {},
+      "preferences": {}
+    },
+    "user_guild_settings": [],
+    "notes": {},
+    "read_state": [],
+    "read_state_versioned": true
+  }
+}

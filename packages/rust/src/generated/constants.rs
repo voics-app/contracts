@@ -392,6 +392,8 @@ pub mod dispatch_events {
     pub const MESSAGE_REACTION_REMOVE_ALL: &str = "MESSAGE_REACTION_REMOVE_ALL";
     pub const CHANNEL_PINS_UPDATE: &str = "CHANNEL_PINS_UPDATE";
     pub const MESSAGE_ACK: &str = "MESSAGE_ACK";
+    pub const READ_STATE_UPDATE: &str = "READ_STATE_UPDATE";
+    pub const READ_STATE_SYNC: &str = "READ_STATE_SYNC";
     pub const USER_UPDATE: &str = "USER_UPDATE";
     pub const USER_SETTINGS_UPDATE: &str = "USER_SETTINGS_UPDATE";
     pub const USER_GUILD_SETTINGS_UPDATE: &str = "USER_GUILD_SETTINGS_UPDATE";
@@ -449,6 +451,8 @@ pub mod dispatch_events {
         ("MESSAGE_REACTION_REMOVE_ALL", MESSAGE_REACTION_REMOVE_ALL),
         ("CHANNEL_PINS_UPDATE", CHANNEL_PINS_UPDATE),
         ("MESSAGE_ACK", MESSAGE_ACK),
+        ("READ_STATE_UPDATE", READ_STATE_UPDATE),
+        ("READ_STATE_SYNC", READ_STATE_SYNC),
         ("USER_UPDATE", USER_UPDATE),
         ("USER_SETTINGS_UPDATE", USER_SETTINGS_UPDATE),
         ("USER_GUILD_SETTINGS_UPDATE", USER_GUILD_SETTINGS_UPDATE),
@@ -653,6 +657,7 @@ pub mod event_topics {
     pub const MESSAGE_REACTION_REMOVE_ALL: &str = "discordy.message.v1";
     pub const CHANNEL_PINS_UPDATE: &str = "discordy.message.v1";
     pub const MESSAGE_ACK: &str = "discordy.message.v1";
+    pub const READ_STATE_UPDATE: &str = "discordy.message.v1";
     pub const USER_UPDATE: &str = "discordy.user.v1";
     pub const USER_SETTINGS_UPDATE: &str = "discordy.user.v1";
     pub const USER_GUILD_SETTINGS_UPDATE: &str = "discordy.user.v1";
@@ -706,6 +711,7 @@ pub mod event_topics {
         ("MESSAGE_REACTION_REMOVE_ALL", MESSAGE_REACTION_REMOVE_ALL),
         ("CHANNEL_PINS_UPDATE", CHANNEL_PINS_UPDATE),
         ("MESSAGE_ACK", MESSAGE_ACK),
+        ("READ_STATE_UPDATE", READ_STATE_UPDATE),
         ("USER_UPDATE", USER_UPDATE),
         ("USER_SETTINGS_UPDATE", USER_SETTINGS_UPDATE),
         ("USER_GUILD_SETTINGS_UPDATE", USER_GUILD_SETTINGS_UPDATE),

@@ -531,6 +531,20 @@
         "description": "The user's read state advanced on another device."
       },
       {
+        "name": "READ_STATE_UPDATE",
+        "payload": "gateway/dispatch/read-state-update.json",
+        "source": "messages",
+        "topic": "discordy.message.v1",
+        "description": "Complete versioned read-state snapshot targeted to the owning user's sessions; compare channel versions, never increment from this event."
+      },
+      {
+        "name": "READ_STATE_SYNC",
+        "payload": "gateway/dispatch/read-state-sync.json",
+        "source": "gateway",
+        "topic": null,
+        "description": "Fresh certified read-state snapshots after resume replay and before RESUMED; merge by version to recover lost publication."
+      },
+      {
         "name": "USER_UPDATE",
         "payload": "objects/user.json",
         "source": "api",

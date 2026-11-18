@@ -1,0 +1,9 @@
+{
+  "schema": "gateway/dispatch/read-state-update.json",
+  "data": {
+    "channel_id": "200",
+    "last_message_id": null,
+    "mention_count": 1
+  },
+  "valid": false
+}
