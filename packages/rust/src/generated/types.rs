@@ -2815,7 +2815,7 @@ pub struct GuildBanEvent {
     pub guild_id: Snowflake,
     pub user: User,
 }
-///A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+///A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildDiscoverySettings {
     pub blockers: ::std::vec::Vec<GuildDiscoverySettingsBlockersItem>,
@@ -2841,6 +2841,8 @@ pub struct GuildDiscoverySettings {
     PartialOrd,
 )]
 pub enum GuildDiscoverySettingsBlockersItem {
+    #[serde(rename = "COMMUNITY_REQUIRED")]
+    CommunityRequired,
     #[serde(rename = "DESCRIPTION_REQUIRED")]
     DescriptionRequired,
     #[serde(rename = "MEMBER_COUNT_TOO_LOW")]
@@ -2853,6 +2855,7 @@ pub enum GuildDiscoverySettingsBlockersItem {
 impl ::std::fmt::Display for GuildDiscoverySettingsBlockersItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
+            Self::CommunityRequired => f.write_str("COMMUNITY_REQUIRED"),
             Self::DescriptionRequired => f.write_str("DESCRIPTION_REQUIRED"),
             Self::MemberCountTooLow => f.write_str("MEMBER_COUNT_TOO_LOW"),
             Self::GuildTooNew => f.write_str("GUILD_TOO_NEW"),
@@ -2864,6 +2867,7 @@ impl ::std::str::FromStr for GuildDiscoverySettingsBlockersItem {
     type Err = self::error::ConversionError;
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         match value {
+            "COMMUNITY_REQUIRED" => Ok(Self::CommunityRequired),
             "DESCRIPTION_REQUIRED" => Ok(Self::DescriptionRequired),
             "MEMBER_COUNT_TOO_LOW" => Ok(Self::MemberCountTooLow),
             "GUILD_TOO_NEW" => Ok(Self::GuildTooNew),
@@ -4786,6 +4790,9 @@ pub struct ModifyGuildRequest {
     pub description: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub explicit_content_filter: ::std::option::Option<i64>,
+    ///MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub features: ::std::option::Option<::std::vec::Vec<ModifyGuildRequestFeaturesItem>>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub icon: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -4797,8 +4804,10 @@ pub struct ModifyGuildRequest {
     ///Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub prune_admin_only: ::std::option::Option<bool>,
+    ///Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub public_updates_channel_id: ::std::option::Option<Snowflake>,
+    ///Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rules_channel_id: ::std::option::Option<Snowflake>,
     ///Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it.
@@ -4846,6 +4855,53 @@ impl<'de> ::serde::Deserialize<'de> for ModifyGuildRequestAuditLogRetentionDays 
     {
         Self::try_from(<i64>::deserialize(deserializer)?)
             .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`ModifyGuildRequestFeaturesItem`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ModifyGuildRequestFeaturesItem {
+    #[serde(rename = "COMMUNITY")]
+    Community,
+}
+impl ::std::fmt::Display for ModifyGuildRequestFeaturesItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Community => f.write_str("COMMUNITY"),
+        }
+    }
+}
+impl ::std::str::FromStr for ModifyGuildRequestFeaturesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "COMMUNITY" => Ok(Self::Community),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyGuildRequestFeaturesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyGuildRequestFeaturesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
     }
 }
 ///`ModifyGuildRequestName`
@@ -6643,6 +6699,143 @@ pub struct RelationshipRemoveEvent {
     pub id: Snowflake,
     #[serde(rename = "type")]
     pub type_: i64,
+}
+///Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ReportListingRequest {
+    pub category: ReportListingRequestCategory,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub note: ::std::option::Option<ReportListingRequestNote>,
+}
+///`ReportListingRequestCategory`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ReportListingRequestCategory {
+    #[serde(rename = "spam")]
+    Spam,
+    #[serde(rename = "harassment")]
+    Harassment,
+    #[serde(rename = "hate_speech")]
+    HateSpeech,
+    #[serde(rename = "violence")]
+    Violence,
+    #[serde(rename = "sexual_content")]
+    SexualContent,
+    #[serde(rename = "self_harm")]
+    SelfHarm,
+    #[serde(rename = "illegal")]
+    Illegal,
+    #[serde(rename = "impersonation")]
+    Impersonation,
+    #[serde(rename = "other")]
+    Other,
+}
+impl ::std::fmt::Display for ReportListingRequestCategory {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Spam => f.write_str("spam"),
+            Self::Harassment => f.write_str("harassment"),
+            Self::HateSpeech => f.write_str("hate_speech"),
+            Self::Violence => f.write_str("violence"),
+            Self::SexualContent => f.write_str("sexual_content"),
+            Self::SelfHarm => f.write_str("self_harm"),
+            Self::Illegal => f.write_str("illegal"),
+            Self::Impersonation => f.write_str("impersonation"),
+            Self::Other => f.write_str("other"),
+        }
+    }
+}
+impl ::std::str::FromStr for ReportListingRequestCategory {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "spam" => Ok(Self::Spam),
+            "harassment" => Ok(Self::Harassment),
+            "hate_speech" => Ok(Self::HateSpeech),
+            "violence" => Ok(Self::Violence),
+            "sexual_content" => Ok(Self::SexualContent),
+            "self_harm" => Ok(Self::SelfHarm),
+            "illegal" => Ok(Self::Illegal),
+            "impersonation" => Ok(Self::Impersonation),
+            "other" => Ok(Self::Other),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ReportListingRequestCategory {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ReportListingRequestCategory {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`ReportListingRequestNote`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ReportListingRequestNote(::std::string::String);
+impl ::std::ops::Deref for ReportListingRequestNote {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ReportListingRequestNote> for ::std::string::String {
+    fn from(value: ReportListingRequestNote) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ReportListingRequestNote {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 500usize {
+            return Err("longer than 500 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ReportListingRequestNote {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ReportListingRequestNote {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ReportListingRequestNote {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Op 8 REQUEST_GUILD_MEMBERS.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

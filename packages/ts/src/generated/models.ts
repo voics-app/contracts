@@ -1785,7 +1785,7 @@ export interface GuildBanEvent {
   user: User;
 }
 /**
- * A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+ * A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
  */
 export interface GuildDiscoverySettings {
   enabled: boolean;
@@ -1802,7 +1802,9 @@ export interface GuildDiscoverySettings {
     | [string, string, string, string, string];
   listed_at: string | null;
   member_count: number;
-  blockers: ("DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
+  blockers: (
+    "COMMUNITY_REQUIRED" | "DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED"
+  )[];
 }
 /**
  * GUILD_EMOJIS_UPDATE dispatch.
@@ -2826,6 +2828,10 @@ export interface ModifyGuildNotificationSettingsRequest {
  * PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
  */
 export interface ModifyGuildRequest {
+  /**
+   * MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting.
+   */
+  features?: "COMMUNITY"[];
   name?: string;
   icon?: string | null;
   /**
@@ -2845,7 +2851,13 @@ export interface ModifyGuildRequest {
    * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
    */
   system_channel_flags?: number;
+  /**
+   * Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id.
+   */
   rules_channel_id?: Snowflake | null;
+  /**
+   * Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id.
+   */
   public_updates_channel_id?: Snowflake | null;
   preferred_locale?: string;
   verification_level?: number;
@@ -3339,6 +3351,22 @@ export interface RegisterRequest {
 export interface RelationshipRemoveEvent {
   id: Snowflake;
   type: number;
+}
+/**
+ * Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.
+ */
+export interface ReportListingRequest {
+  category:
+    | "spam"
+    | "harassment"
+    | "hate_speech"
+    | "violence"
+    | "sexual_content"
+    | "self_harm"
+    | "illegal"
+    | "impersonation"
+    | "other";
+  note?: string | null;
 }
 /**
  * Op 8 REQUEST_GUILD_MEMBERS.

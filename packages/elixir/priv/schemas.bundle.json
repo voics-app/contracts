@@ -3536,7 +3536,7 @@
     },
     "GuildDiscoverySettings": {
       "title": "GuildDiscoverySettings",
-      "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.",
+      "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.",
       "type": "object",
       "required": [
         "enabled",
@@ -3578,6 +3578,7 @@
           "items": {
             "type": "string",
             "enum": [
+              "COMMUNITY_REQUIRED",
               "DESCRIPTION_REQUIRED",
               "MEMBER_COUNT_TOO_LOW",
               "GUILD_TOO_NEW",
@@ -6311,6 +6312,17 @@
       "description": "PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.",
       "type": "object",
       "properties": {
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "COMMUNITY"
+            ]
+          },
+          "uniqueItems": true,
+          "description": "MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting."
+        },
         "name": {
           "type": "string",
           "minLength": 2,
@@ -6375,6 +6387,7 @@
           "description": "Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear."
         },
         "rules_channel_id": {
+          "description": "Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id.",
           "anyOf": [
             {
               "$ref": "#/$defs/Snowflake"
@@ -6385,6 +6398,7 @@
           ]
         },
         "public_updates_channel_id": {
+          "description": "Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id.",
           "anyOf": [
             {
               "$ref": "#/$defs/Snowflake"
@@ -7669,6 +7683,38 @@
         },
         "type": {
           "type": "integer"
+        }
+      }
+    },
+    "ReportListingRequest": {
+      "title": "ReportListingRequest",
+      "description": "Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.",
+      "type": "object",
+      "required": [
+        "category"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": [
+            "spam",
+            "harassment",
+            "hate_speech",
+            "violence",
+            "sexual_content",
+            "self_harm",
+            "illegal",
+            "impersonation",
+            "other"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
         }
       }
     },
