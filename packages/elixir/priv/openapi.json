@@ -2631,7 +2631,7 @@
     "/guilds/{guild_id}/ban-appeals": {
       "get": {
         "operationId": "listBanAppeals",
-        "summary": "List open appeals (MANAGE_BAN_APPEALS required)",
+        "summary": "List appeals and decisions (MANAGE_BAN_APPEALS required)",
         "tags": [
           "Guilds"
         ],
@@ -2643,7 +2643,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Up to 100 open appeals, newest first.",
+            "description": "Up to 100 appeals, open first and newest first within each group.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2656,7 +2656,9 @@
                       "question",
                       "answer",
                       "status",
-                      "created_at"
+                      "created_at",
+                      "resolved_at",
+                      "resolved_by"
                     ],
                     "properties": {
                       "id": {
@@ -2683,6 +2685,19 @@
                       "created_at": {
                         "type": "string",
                         "format": "date-time"
+                      },
+                      "resolved_at": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date-time"
+                      },
+                      "resolved_by": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
                       }
                     }
                   }
@@ -2743,7 +2758,9 @@
                     "question",
                     "answer",
                     "status",
-                    "created_at"
+                    "created_at",
+                    "resolved_at",
+                    "resolved_by"
                   ],
                   "properties": {
                     "id": {
@@ -2770,6 +2787,19 @@
                     "created_at": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "resolved_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "resolved_by": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     }
                   }
                 }

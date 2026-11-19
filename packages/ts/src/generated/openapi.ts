@@ -900,7 +900,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List open appeals (MANAGE_BAN_APPEALS required) */
+        /** List appeals and decisions (MANAGE_BAN_APPEALS required) */
         get: operations["listBanAppeals"];
         put?: never;
         /** Submit an appeal for the caller's current ban */
@@ -6622,7 +6622,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Up to 100 open appeals, newest first. */
+            /** @description Up to 100 appeals, open first and newest first within each group. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6634,6 +6634,9 @@ export interface operations {
                         created_at: string;
                         id: string;
                         question: string;
+                        /** Format: date-time */
+                        resolved_at: string | null;
+                        resolved_by: string | null;
                         /** @enum {string} */
                         status: "open" | "accepted" | "denied" | "closed";
                         user_id: string;
@@ -6674,6 +6677,9 @@ export interface operations {
                         created_at: string;
                         id: string;
                         question: string;
+                        /** Format: date-time */
+                        resolved_at: string | null;
+                        resolved_by: string | null;
                         /** @enum {string} */
                         status: "open" | "accepted" | "denied" | "closed";
                         user_id: string;

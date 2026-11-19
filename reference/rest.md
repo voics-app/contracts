@@ -141,7 +141,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/guilds/{guild_id}/prune` | api | `PruneRequest` | `PruneResult` | Prune inactive members |
 | `GET` | `/guilds/{guild_id}/ban-appeals/form` | api | — | `object` | Get the appeal question for a banned user or appeal moderator |
 | `PUT` | `/guilds/{guild_id}/ban-appeals/form` | api | `object` | 204 No Content | Set the appeal question (MANAGE_BAN_APPEALS required) |
-| `GET` | `/guilds/{guild_id}/ban-appeals` | api | — | `array of object` | List open appeals (MANAGE_BAN_APPEALS required) |
+| `GET` | `/guilds/{guild_id}/ban-appeals` | api | — | `array of object` | List appeals and decisions (MANAGE_BAN_APPEALS required) |
 | `POST` | `/guilds/{guild_id}/ban-appeals` | api | `object` | `object` | Submit an appeal for the caller's current ban |
 | `POST` | `/guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}` | api | — | 204 No Content | Accept or deny an open appeal (MANAGE_BAN_APPEALS required) |
 | `GET` | `/guilds/{guild_id}/bans` | api | — | `array of Ban` | List bans |
