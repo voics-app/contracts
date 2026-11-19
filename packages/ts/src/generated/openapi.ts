@@ -6321,7 +6321,10 @@ export interface operations {
     githubConnectionCallback: {
         parameters: {
             query: {
-                code: string;
+                /** @description Present on approval. */
+                code?: string;
+                /** @description Present when the user declines. */
+                error?: "access_denied";
                 state: string;
             };
             header?: never;
@@ -6330,7 +6333,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Account linked; browser may be closed. */
+            /** @description Account linked or authorization cancelled; browser may be closed. */
             200: {
                 headers: {
                     [name: string]: unknown;

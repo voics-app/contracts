@@ -933,15 +933,28 @@
           {
             "in": "query",
             "name": "code",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Present on approval."
+          },
+          {
+            "in": "query",
+            "name": "error",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "access_denied"
+              ]
+            },
+            "description": "Present when the user declines."
           }
         ],
         "responses": {
           "200": {
-            "description": "Account linked; browser may be closed."
+            "description": "Account linked or authorization cancelled; browser may be closed."
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
