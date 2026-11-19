@@ -586,6 +586,7 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `video_quality_mode?` | `integer` |  |
 | `message_count?` | `integer` |  |
 | `member_count?` | `integer` |  |
+| `is_thread_member?` | `boolean` | Voics: whether the requesting user has joined this thread; omitted from shared events. |
 | `thread_metadata?` | `ThreadMetadata` |  |
 | `member?` | `ThreadMember` |  |
 | `default_auto_archive_duration?` | `integer` |  |

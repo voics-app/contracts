@@ -585,6 +585,10 @@ export interface Channel {
   video_quality_mode?: number;
   message_count?: number;
   member_count?: number;
+  /**
+   * Voics: whether the requesting user has joined this thread; omitted from shared events.
+   */
+  is_thread_member?: boolean;
   thread_metadata?: ThreadMetadata;
   member?: ThreadMember;
   default_auto_archive_duration?: number;

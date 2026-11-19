@@ -9326,6 +9326,10 @@
           "member_count": {
             "type": "integer"
           },
+          "is_thread_member": {
+            "type": "boolean",
+            "description": "Voics: whether the requesting user has joined this thread; omitted from shared events."
+          },
           "thread_metadata": {
             "$ref": "#/components/schemas/ThreadMetadata"
           },

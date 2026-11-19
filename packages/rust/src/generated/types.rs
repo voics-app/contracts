@@ -1224,6 +1224,9 @@ pub struct Channel {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub icon: ::std::option::Option<::std::string::String>,
     pub id: Snowflake,
+    ///Voics: whether the requesting user has joined this thread; omitted from shared events.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub is_thread_member: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub last_message_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]

@@ -2404,6 +2404,8 @@ export interface components {
             guild_id?: components["schemas"]["Snowflake"];
             icon?: string | null;
             id: components["schemas"]["Snowflake"];
+            /** @description Voics: whether the requesting user has joined this thread; omitted from shared events. */
+            is_thread_member?: boolean;
             last_message_id?: components["schemas"]["Snowflake"] | null;
             /** Format: date-time */
             last_pin_timestamp?: string | null;
