@@ -6485,6 +6485,10 @@
         },
         "require_tags": {
           "type": "boolean"
+        },
+        "flags": {
+          "type": "integer",
+          "description": "Forum post flags; bit 1 pins a post and requires MANAGE_THREADS."
         }
       }
     },

@@ -53,11 +53,3 @@ jobs:
           mix credo --strict
           mix test
       - run: pnpm build
-      - name: Capture generated patch
-        if: always()
-        run: git diff --binary > forum-codegen.patch
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: forum-codegen-patch
-          path: forum-codegen.patch

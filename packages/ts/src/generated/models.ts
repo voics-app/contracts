@@ -4450,6 +4450,10 @@ export interface ModifyChannelRequest {
   default_forum_layout?: 0 | 1 | 2;
   default_reaction_emoji?: DefaultReaction | null;
   require_tags?: boolean;
+  /**
+   * Forum post flags; bit 1 pins a post and requires MANAGE_THREADS.
+   */
+  flags?: number;
 }
 /**
  * PATCH /users/@me body. `username`, `email` and `new_password` require the current `password`; an email change takes effect once the new address is verified.

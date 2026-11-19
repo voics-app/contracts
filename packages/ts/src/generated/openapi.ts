@@ -3318,6 +3318,8 @@ export interface components {
             /** @enum {integer|null} */
             default_sort_order?: 0 | 1 | null;
             delivery_mode?: components["schemas"]["DeliveryMode"];
+            /** @description Forum post flags; bit 1 pins a post and requires MANAGE_THREADS. */
+            flags?: number;
             /** @description Group DM icon. */
             icon?: string | null;
             invitable?: boolean;

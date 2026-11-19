@@ -4892,6 +4892,9 @@ pub struct ModifyChannelRequest {
     pub default_sort_order: ::std::option::Option<ModifyChannelRequestDefaultSortOrder>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub delivery_mode: ::std::option::Option<DeliveryMode>,
+    ///Forum post flags; bit 1 pins a post and requires MANAGE_THREADS.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub flags: ::std::option::Option<i64>,
     ///Group DM icon.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub icon: ::std::option::Option<::std::string::String>,

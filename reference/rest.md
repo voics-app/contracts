@@ -2179,6 +2179,7 @@ PATCH /channels/{id} body (partial). Changing delivery_mode requires MANAGE_CHAN
 | `default_forum_layout?` | `0 or 1 or 2` |  |
 | `default_reaction_emoji?` | `?DefaultReaction` |  |
 | `require_tags?` | `boolean` |  |
+| `flags?` | `integer` | Forum post flags; bit 1 pins a post and requires MANAGE_THREADS. |
 
 ### ModifyCurrentUserRequest
 
