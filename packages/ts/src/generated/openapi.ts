@@ -1214,6 +1214,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/scheduled-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List events visible to the guild member */
+        get: operations["listGuildScheduledEvents"];
+        put?: never;
+        /** Create an event (requires CREATE_EVENTS or MANAGE_EVENTS) */
+        post: operations["createGuildScheduledEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/scheduled-events/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get a visible event */
+        get: operations["getGuildScheduledEvent"];
+        put?: never;
+        post?: never;
+        /** Delete an event */
+        delete: operations["deleteGuildScheduledEvent"];
+        options?: never;
+        head?: never;
+        /** Modify an event */
+        patch: operations["modifyGuildScheduledEvent"];
+        trace?: never;
+    };
+    "/guilds/{guild_id}/scheduled-events/{event_id}/users/@me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get the caller's interest in an event */
+        get: operations["getOwnGuildScheduledEventInterest"];
+        /** Mark the caller interested (idempotent) */
+        put: operations["putOwnGuildScheduledEventInterest"];
+        post?: never;
+        /** Remove the caller's interest (idempotent) */
+        delete: operations["deleteOwnGuildScheduledEventInterest"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/templates": {
         parameters: {
             query?: never;
@@ -2551,6 +2617,24 @@ export interface components {
             voice_region?: string;
         };
         /**
+         * CreateGuildScheduledEventRequest
+         * @description Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.
+         */
+        CreateGuildScheduledEventRequest: {
+            channel_id?: components["schemas"]["Snowflake"] | null;
+            description?: string | null;
+            entity_metadata?: components["schemas"]["ScheduledEventMetadata"] | null;
+            /** @enum {integer} */
+            entity_type: 1 | 2 | 3;
+            /** @description Image data URI, subject to the standard image upload limits. */
+            image?: string | null;
+            name: string;
+            /** Format: date-time */
+            scheduled_end_time?: string | null;
+            /** Format: date-time */
+            scheduled_start_time: string;
+        } & unknown;
+        /**
          * CreateGuildTemplateRequest
          * @description POST /guilds/{guild_id}/templates body. A guild has at most one template.
          */
@@ -3025,6 +3109,29 @@ export interface components {
             suppress_roles: boolean;
         };
         /**
+         * GuildScheduledEvent
+         * @description A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).
+         */
+        GuildScheduledEvent: {
+            channel_id: components["schemas"]["Snowflake"] | null;
+            creator_id: components["schemas"]["Snowflake"] | null;
+            description: string | null;
+            entity_metadata: components["schemas"]["ScheduledEventMetadata"] | null;
+            /** @enum {integer} */
+            entity_type: 1 | 2 | 3;
+            guild_id: components["schemas"]["Snowflake"];
+            id: components["schemas"]["Snowflake"];
+            image: string | null;
+            name: string;
+            /** Format: date-time */
+            scheduled_end_time: string | null;
+            /** Format: date-time */
+            scheduled_start_time: string;
+            /** @enum {integer} */
+            status: 1 | 2 | 3 | 4;
+            user_count: number;
+        };
+        /**
          * GuildTemplate
          * @description A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
          */
@@ -3429,6 +3536,25 @@ export interface components {
             voice_region?: string;
         };
         /**
+         * ModifyGuildScheduledEventRequest
+         * @description Update an event. Omitted properties are unchanged; null clears nullable properties.
+         */
+        ModifyGuildScheduledEventRequest: {
+            channel_id?: components["schemas"]["Snowflake"] | null;
+            description?: string | null;
+            entity_metadata?: components["schemas"]["ScheduledEventMetadata"] | null;
+            /** @enum {integer} */
+            entity_type?: 1 | 2 | 3;
+            image?: string | null;
+            name?: string;
+            /** Format: date-time */
+            scheduled_end_time?: string | null;
+            /** Format: date-time */
+            scheduled_start_time?: string;
+            /** @enum {integer} */
+            status?: 1 | 2 | 3 | 4;
+        };
+        /**
          * ModifyGuildTemplateRequest
          * @description PATCH /guilds/{guild_id}/templates/{code} body.
          */
@@ -3827,6 +3953,13 @@ export interface components {
         RoleTags: {
             bot_id?: components["schemas"]["Snowflake"];
             integration_id?: components["schemas"]["Snowflake"];
+        };
+        /**
+         * ScheduledEventMetadata
+         * @description The location of an external event.
+         */
+        ScheduledEventMetadata: {
+            location: string;
         };
         /**
          * ScheduledMessage
@@ -7532,6 +7665,232 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    listGuildScheduledEvents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Events visible to the caller. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildScheduledEvent"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createGuildScheduledEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGuildScheduledEventRequest"];
+            };
+        };
+        responses: {
+            /** @description Event created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildScheduledEvent"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getGuildScheduledEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Event. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildScheduledEvent"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteGuildScheduledEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Event deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    modifyGuildScheduledEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModifyGuildScheduledEventRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated event. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildScheduledEvent"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getOwnGuildScheduledEventInterest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current interest. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        interested: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    putOwnGuildScheduledEventInterest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Interest recorded. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteOwnGuildScheduledEventInterest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Interest removed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
     listGuildTemplates: {

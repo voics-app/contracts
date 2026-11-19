@@ -254,6 +254,11 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `CALL_DELETE` | `CallDeleteEvent` | gateway | — | The last participant left the DM call. |
 | `GUILD_MEMBERS_CHUNK` | `GuildMembersChunkEvent` | gateway | — | Response to REQUEST_GUILD_MEMBERS. |
 | `GUILD_CREATE` | `GuildFull` | api | `discordy.guild.v1` | A guild became available or the user joined one. |
+| `GUILD_SCHEDULED_EVENT_CREATE` | `GuildScheduledEvent` | api | `discordy.guild.v1` | A guild event was created. |
+| `GUILD_SCHEDULED_EVENT_UPDATE` | `GuildScheduledEvent` | api | `discordy.guild.v1` | A guild event changed. |
+| `GUILD_SCHEDULED_EVENT_DELETE` | `GuildScheduledEvent` | api | `discordy.guild.v1` | A guild event was deleted. |
+| `GUILD_SCHEDULED_EVENT_USER_ADD` | `GuildScheduledEventUser` | api | `discordy.guild.v1` | A member became interested in an event. |
+| `GUILD_SCHEDULED_EVENT_USER_REMOVE` | `GuildScheduledEventUser` | api | `discordy.guild.v1` | A member removed their interest in an event. |
 | `GUILD_UPDATE` | `Guild` | api | `discordy.guild.v1` | A guild was updated. |
 | `GUILD_DELETE` | `UnavailableGuild` | api | `discordy.guild.v1` | A guild became unavailable or the user left it. |
 | `CHANNEL_CREATE` | `Channel` | api | `discordy.guild.v1` | A channel was created. DM channels are published on discordy.user.v1 with target_user_ids. |
@@ -377,6 +382,16 @@ GUILD_MEMBERS_CHUNK dispatch.
 | `not_found?` | `array of Snowflake` |  |
 | `presences?` | `array of PresenceUpdateEvent` |  |
 | `nonce?` | `string` |  |
+
+### GuildScheduledEventUser
+
+A user's interest in a guild event changed.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `guild_scheduled_event_id` | `Snowflake` |  |
+| `user_id` | `Snowflake` |  |
+| `guild_id` | `Snowflake` |  |
 
 ### GuildRoleEvent
 

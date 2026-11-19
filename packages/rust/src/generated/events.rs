@@ -31,6 +31,16 @@ pub enum DispatchEvent {
     GuildMembersChunk(GuildMembersChunkEvent),
     #[serde(rename = "GUILD_CREATE")]
     GuildCreate(GuildFull),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_CREATE")]
+    GuildScheduledEventCreate(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_UPDATE")]
+    GuildScheduledEventUpdate(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_DELETE")]
+    GuildScheduledEventDelete(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_USER_ADD")]
+    GuildScheduledEventUserAdd(GuildScheduledEventUser),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_USER_REMOVE")]
+    GuildScheduledEventUserRemove(GuildScheduledEventUser),
     #[serde(rename = "GUILD_UPDATE")]
     GuildUpdate(Guild),
     #[serde(rename = "GUILD_DELETE")]
@@ -132,6 +142,11 @@ impl DispatchEvent {
             Self::CallDelete(_) => "CALL_DELETE",
             Self::GuildMembersChunk(_) => "GUILD_MEMBERS_CHUNK",
             Self::GuildCreate(_) => "GUILD_CREATE",
+            Self::GuildScheduledEventCreate(_) => "GUILD_SCHEDULED_EVENT_CREATE",
+            Self::GuildScheduledEventUpdate(_) => "GUILD_SCHEDULED_EVENT_UPDATE",
+            Self::GuildScheduledEventDelete(_) => "GUILD_SCHEDULED_EVENT_DELETE",
+            Self::GuildScheduledEventUserAdd(_) => "GUILD_SCHEDULED_EVENT_USER_ADD",
+            Self::GuildScheduledEventUserRemove(_) => "GUILD_SCHEDULED_EVENT_USER_REMOVE",
             Self::GuildUpdate(_) => "GUILD_UPDATE",
             Self::GuildDelete(_) => "GUILD_DELETE",
             Self::ChannelCreate(_) => "CHANNEL_CREATE",
@@ -189,6 +204,16 @@ pub enum BusEvent {
     TypingStart(TypingStartEvent),
     #[serde(rename = "GUILD_CREATE")]
     GuildCreate(GuildFull),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_CREATE")]
+    GuildScheduledEventCreate(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_UPDATE")]
+    GuildScheduledEventUpdate(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_DELETE")]
+    GuildScheduledEventDelete(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_USER_ADD")]
+    GuildScheduledEventUserAdd(GuildScheduledEventUser),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_USER_REMOVE")]
+    GuildScheduledEventUserRemove(GuildScheduledEventUser),
     #[serde(rename = "GUILD_UPDATE")]
     GuildUpdate(Guild),
     #[serde(rename = "GUILD_DELETE")]
@@ -289,6 +314,11 @@ impl BusEvent {
         match self {
             Self::TypingStart(_) => "TYPING_START",
             Self::GuildCreate(_) => "GUILD_CREATE",
+            Self::GuildScheduledEventCreate(_) => "GUILD_SCHEDULED_EVENT_CREATE",
+            Self::GuildScheduledEventUpdate(_) => "GUILD_SCHEDULED_EVENT_UPDATE",
+            Self::GuildScheduledEventDelete(_) => "GUILD_SCHEDULED_EVENT_DELETE",
+            Self::GuildScheduledEventUserAdd(_) => "GUILD_SCHEDULED_EVENT_USER_ADD",
+            Self::GuildScheduledEventUserRemove(_) => "GUILD_SCHEDULED_EVENT_USER_REMOVE",
             Self::GuildUpdate(_) => "GUILD_UPDATE",
             Self::GuildDelete(_) => "GUILD_DELETE",
             Self::ChannelCreate(_) => "CHANNEL_CREATE",

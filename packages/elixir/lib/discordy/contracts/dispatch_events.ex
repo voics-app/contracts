@@ -37,6 +37,21 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec guild_create() :: String.t()
   def guild_create, do: "GUILD_CREATE"
 
+  @spec guild_scheduled_event_create() :: String.t()
+  def guild_scheduled_event_create, do: "GUILD_SCHEDULED_EVENT_CREATE"
+
+  @spec guild_scheduled_event_update() :: String.t()
+  def guild_scheduled_event_update, do: "GUILD_SCHEDULED_EVENT_UPDATE"
+
+  @spec guild_scheduled_event_delete() :: String.t()
+  def guild_scheduled_event_delete, do: "GUILD_SCHEDULED_EVENT_DELETE"
+
+  @spec guild_scheduled_event_user_add() :: String.t()
+  def guild_scheduled_event_user_add, do: "GUILD_SCHEDULED_EVENT_USER_ADD"
+
+  @spec guild_scheduled_event_user_remove() :: String.t()
+  def guild_scheduled_event_user_remove, do: "GUILD_SCHEDULED_EVENT_USER_REMOVE"
+
   @spec guild_update() :: String.t()
   def guild_update, do: "GUILD_UPDATE"
 
@@ -178,6 +193,11 @@ defmodule Discordy.Contracts.DispatchEvents do
       call_delete: "CALL_DELETE",
       guild_members_chunk: "GUILD_MEMBERS_CHUNK",
       guild_create: "GUILD_CREATE",
+      guild_scheduled_event_create: "GUILD_SCHEDULED_EVENT_CREATE",
+      guild_scheduled_event_update: "GUILD_SCHEDULED_EVENT_UPDATE",
+      guild_scheduled_event_delete: "GUILD_SCHEDULED_EVENT_DELETE",
+      guild_scheduled_event_user_add: "GUILD_SCHEDULED_EVENT_USER_ADD",
+      guild_scheduled_event_user_remove: "GUILD_SCHEDULED_EVENT_USER_REMOVE",
       guild_update: "GUILD_UPDATE",
       guild_delete: "GUILD_DELETE",
       channel_create: "CHANNEL_CREATE",

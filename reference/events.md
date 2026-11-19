@@ -45,6 +45,11 @@ Redpanda event envelope. `data` is exactly the gateway DISPATCH payload for `typ
 | --- | --- | --- |
 | `TYPING_START` | `discordy.message.v1` | `TypingStartEvent` |
 | `GUILD_CREATE` | `discordy.guild.v1` | `GuildFull` |
+| `GUILD_SCHEDULED_EVENT_CREATE` | `discordy.guild.v1` | `GuildScheduledEvent` |
+| `GUILD_SCHEDULED_EVENT_UPDATE` | `discordy.guild.v1` | `GuildScheduledEvent` |
+| `GUILD_SCHEDULED_EVENT_DELETE` | `discordy.guild.v1` | `GuildScheduledEvent` |
+| `GUILD_SCHEDULED_EVENT_USER_ADD` | `discordy.guild.v1` | `GuildScheduledEventUser` |
+| `GUILD_SCHEDULED_EVENT_USER_REMOVE` | `discordy.guild.v1` | `GuildScheduledEventUser` |
 | `GUILD_UPDATE` | `discordy.guild.v1` | `Guild` |
 | `GUILD_DELETE` | `discordy.guild.v1` | `UnavailableGuild` |
 | `CHANNEL_CREATE` | `discordy.guild.v1` | `Channel` |

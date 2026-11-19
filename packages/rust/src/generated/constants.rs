@@ -362,6 +362,11 @@ pub mod dispatch_events {
     pub const CALL_DELETE: &str = "CALL_DELETE";
     pub const GUILD_MEMBERS_CHUNK: &str = "GUILD_MEMBERS_CHUNK";
     pub const GUILD_CREATE: &str = "GUILD_CREATE";
+    pub const GUILD_SCHEDULED_EVENT_CREATE: &str = "GUILD_SCHEDULED_EVENT_CREATE";
+    pub const GUILD_SCHEDULED_EVENT_UPDATE: &str = "GUILD_SCHEDULED_EVENT_UPDATE";
+    pub const GUILD_SCHEDULED_EVENT_DELETE: &str = "GUILD_SCHEDULED_EVENT_DELETE";
+    pub const GUILD_SCHEDULED_EVENT_USER_ADD: &str = "GUILD_SCHEDULED_EVENT_USER_ADD";
+    pub const GUILD_SCHEDULED_EVENT_USER_REMOVE: &str = "GUILD_SCHEDULED_EVENT_USER_REMOVE";
     pub const GUILD_UPDATE: &str = "GUILD_UPDATE";
     pub const GUILD_DELETE: &str = "GUILD_DELETE";
     pub const CHANNEL_CREATE: &str = "CHANNEL_CREATE";
@@ -419,6 +424,17 @@ pub mod dispatch_events {
         ("CALL_DELETE", CALL_DELETE),
         ("GUILD_MEMBERS_CHUNK", GUILD_MEMBERS_CHUNK),
         ("GUILD_CREATE", GUILD_CREATE),
+        ("GUILD_SCHEDULED_EVENT_CREATE", GUILD_SCHEDULED_EVENT_CREATE),
+        ("GUILD_SCHEDULED_EVENT_UPDATE", GUILD_SCHEDULED_EVENT_UPDATE),
+        ("GUILD_SCHEDULED_EVENT_DELETE", GUILD_SCHEDULED_EVENT_DELETE),
+        (
+            "GUILD_SCHEDULED_EVENT_USER_ADD",
+            GUILD_SCHEDULED_EVENT_USER_ADD,
+        ),
+        (
+            "GUILD_SCHEDULED_EVENT_USER_REMOVE",
+            GUILD_SCHEDULED_EVENT_USER_REMOVE,
+        ),
         ("GUILD_UPDATE", GUILD_UPDATE),
         ("GUILD_DELETE", GUILD_DELETE),
         ("CHANNEL_CREATE", CHANNEL_CREATE),
@@ -628,6 +644,11 @@ pub mod topics {
 pub mod event_topics {
     pub const TYPING_START: &str = "discordy.message.v1";
     pub const GUILD_CREATE: &str = "discordy.guild.v1";
+    pub const GUILD_SCHEDULED_EVENT_CREATE: &str = "discordy.guild.v1";
+    pub const GUILD_SCHEDULED_EVENT_UPDATE: &str = "discordy.guild.v1";
+    pub const GUILD_SCHEDULED_EVENT_DELETE: &str = "discordy.guild.v1";
+    pub const GUILD_SCHEDULED_EVENT_USER_ADD: &str = "discordy.guild.v1";
+    pub const GUILD_SCHEDULED_EVENT_USER_REMOVE: &str = "discordy.guild.v1";
     pub const GUILD_UPDATE: &str = "discordy.guild.v1";
     pub const GUILD_DELETE: &str = "discordy.guild.v1";
     pub const CHANNEL_CREATE: &str = "discordy.guild.v1";
@@ -679,6 +700,17 @@ pub mod event_topics {
     pub const ALL_ENTRIES: &[(&str, &str)] = &[
         ("TYPING_START", TYPING_START),
         ("GUILD_CREATE", GUILD_CREATE),
+        ("GUILD_SCHEDULED_EVENT_CREATE", GUILD_SCHEDULED_EVENT_CREATE),
+        ("GUILD_SCHEDULED_EVENT_UPDATE", GUILD_SCHEDULED_EVENT_UPDATE),
+        ("GUILD_SCHEDULED_EVENT_DELETE", GUILD_SCHEDULED_EVENT_DELETE),
+        (
+            "GUILD_SCHEDULED_EVENT_USER_ADD",
+            GUILD_SCHEDULED_EVENT_USER_ADD,
+        ),
+        (
+            "GUILD_SCHEDULED_EVENT_USER_REMOVE",
+            GUILD_SCHEDULED_EVENT_USER_REMOVE,
+        ),
         ("GUILD_UPDATE", GUILD_UPDATE),
         ("GUILD_DELETE", GUILD_DELETE),
         ("CHANNEL_CREATE", CHANNEL_CREATE),

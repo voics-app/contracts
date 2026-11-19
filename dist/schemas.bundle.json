@@ -2134,6 +2134,122 @@
         }
       }
     },
+    "CreateGuildScheduledEventRequest": {
+      "title": "CreateGuildScheduledEventRequest",
+      "description": "Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.",
+      "type": "object",
+      "required": [
+        "name",
+        "entity_type",
+        "scheduled_start_time"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "\\S"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "entity_type": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "channel_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entity_metadata": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ScheduledEventMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scheduled_start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scheduled_end_time": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "image": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Image data URI, subject to the standard image upload limits."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": 3
+              }
+            },
+            "required": [
+              "entity_type"
+            ]
+          },
+          "then": {
+            "required": [
+              "scheduled_end_time",
+              "entity_metadata"
+            ],
+            "properties": {
+              "scheduled_end_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "entity_metadata": {
+                "$ref": "#/$defs/ScheduledEventMetadata"
+              },
+              "channel_id": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "required": [
+              "channel_id"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "entity_metadata": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
     "CreateGuildTemplateRequest": {
       "title": "CreateGuildTemplateRequest",
       "description": "POST /guilds/{guild_id}/templates body. A guild has at most one template.",
@@ -4516,6 +4632,135 @@
         }
       }
     },
+    "GuildScheduledEvent": {
+      "title": "GuildScheduledEvent",
+      "description": "A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).",
+      "type": "object",
+      "required": [
+        "id",
+        "guild_id",
+        "channel_id",
+        "creator_id",
+        "name",
+        "description",
+        "scheduled_start_time",
+        "scheduled_end_time",
+        "status",
+        "entity_type",
+        "entity_metadata",
+        "image",
+        "user_count"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "channel_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "creator_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "scheduled_start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scheduled_end_time": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "status": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "entity_type": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "entity_metadata": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ScheduledEventMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "image": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "user_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "GuildScheduledEventUser": {
+      "title": "GuildScheduledEventUser",
+      "description": "A user's interest in a guild event changed.",
+      "type": "object",
+      "required": [
+        "guild_scheduled_event_id",
+        "user_id",
+        "guild_id"
+      ],
+      "properties": {
+        "guild_scheduled_event_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "user_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        }
+      }
+    },
     "GuildTemplate": {
       "title": "GuildTemplate",
       "description": "A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.",
@@ -6760,6 +7005,79 @@
         }
       }
     },
+    "ModifyGuildScheduledEventRequest": {
+      "title": "ModifyGuildScheduledEventRequest",
+      "description": "Update an event. Omitted properties are unchanged; null clears nullable properties.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "entity_type": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "channel_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entity_metadata": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ScheduledEventMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scheduled_start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scheduled_end_time": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "image": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      }
+    },
     "ModifyGuildTemplateRequest": {
       "title": "ModifyGuildTemplateRequest",
       "description": "PATCH /guilds/{guild_id}/templates/{code} body.",
@@ -8482,6 +8800,22 @@
         },
         "integration_id": {
           "$ref": "#/$defs/Snowflake"
+        }
+      }
+    },
+    "ScheduledEventMetadata": {
+      "title": "ScheduledEventMetadata",
+      "description": "The location of an external event.",
+      "type": "object",
+      "required": [
+        "location"
+      ],
+      "properties": {
+        "location": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "\\S"
         }
       }
     },

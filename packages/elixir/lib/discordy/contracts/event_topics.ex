@@ -10,6 +10,21 @@ defmodule Discordy.Contracts.EventTopics do
   @spec guild_create() :: String.t()
   def guild_create, do: "discordy.guild.v1"
 
+  @spec guild_scheduled_event_create() :: String.t()
+  def guild_scheduled_event_create, do: "discordy.guild.v1"
+
+  @spec guild_scheduled_event_update() :: String.t()
+  def guild_scheduled_event_update, do: "discordy.guild.v1"
+
+  @spec guild_scheduled_event_delete() :: String.t()
+  def guild_scheduled_event_delete, do: "discordy.guild.v1"
+
+  @spec guild_scheduled_event_user_add() :: String.t()
+  def guild_scheduled_event_user_add, do: "discordy.guild.v1"
+
+  @spec guild_scheduled_event_user_remove() :: String.t()
+  def guild_scheduled_event_user_remove, do: "discordy.guild.v1"
+
   @spec guild_update() :: String.t()
   def guild_update, do: "discordy.guild.v1"
 
@@ -154,6 +169,11 @@ defmodule Discordy.Contracts.EventTopics do
     %{
       typing_start: "discordy.message.v1",
       guild_create: "discordy.guild.v1",
+      guild_scheduled_event_create: "discordy.guild.v1",
+      guild_scheduled_event_update: "discordy.guild.v1",
+      guild_scheduled_event_delete: "discordy.guild.v1",
+      guild_scheduled_event_user_add: "discordy.guild.v1",
+      guild_scheduled_event_user_remove: "discordy.guild.v1",
       guild_update: "discordy.guild.v1",
       guild_delete: "discordy.guild.v1",
       channel_create: "discordy.guild.v1",

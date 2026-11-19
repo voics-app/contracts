@@ -18,6 +18,10 @@ export type DeliveryMode = "standard" | "ephemeral" | "p2p";
  */
 export type BotInstallationRevision = string;
 /**
+ * Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.
+ */
+export type CreateGuildScheduledEventRequest = CreateGuildScheduledEventRequest1;
+/**
  * File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
  */
 export type CreateReportRequest = CreateReportRequest1;
@@ -1162,6 +1166,25 @@ export interface CreateGuildRequest {
   default_message_notifications?: number;
   explicit_content_filter?: number;
 }
+export interface CreateGuildScheduledEventRequest1 {
+  name: string;
+  description?: string | null;
+  entity_type: 1 | 2 | 3;
+  channel_id?: Snowflake | null;
+  entity_metadata?: ScheduledEventMetadata | null;
+  scheduled_start_time: string;
+  scheduled_end_time?: string | null;
+  /**
+   * Image data URI, subject to the standard image upload limits.
+   */
+  image?: string | null;
+}
+/**
+ * The location of an external event.
+ */
+export interface ScheduledEventMetadata {
+  location: string;
+}
 /**
  * POST /guilds/{guild_id}/templates body. A guild has at most one template.
  */
@@ -2168,6 +2191,32 @@ export interface GuildRoleEvent {
   role: Role;
 }
 /**
+ * A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).
+ */
+export interface GuildScheduledEvent {
+  id: Snowflake;
+  guild_id: Snowflake;
+  channel_id: Snowflake | null;
+  creator_id: Snowflake | null;
+  name: string;
+  description: string | null;
+  scheduled_start_time: string;
+  scheduled_end_time: string | null;
+  status: 1 | 2 | 3 | 4;
+  entity_type: 1 | 2 | 3;
+  entity_metadata: ScheduledEventMetadata | null;
+  image: string | null;
+  user_count: number;
+}
+/**
+ * A user's interest in a guild event changed.
+ */
+export interface GuildScheduledEventUser {
+  guild_scheduled_event_id: Snowflake;
+  user_id: Snowflake;
+  guild_id: Snowflake;
+}
+/**
  * A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
  */
 export interface GuildTemplate {
@@ -3052,6 +3101,20 @@ export interface ModifyGuildRequest {
    * Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD.
    */
   prune_admin_only?: boolean;
+}
+/**
+ * Update an event. Omitted properties are unchanged; null clears nullable properties.
+ */
+export interface ModifyGuildScheduledEventRequest {
+  name?: string;
+  description?: string | null;
+  entity_type?: 1 | 2 | 3;
+  channel_id?: Snowflake | null;
+  entity_metadata?: ScheduledEventMetadata | null;
+  scheduled_start_time?: string;
+  scheduled_end_time?: string | null;
+  image?: string | null;
+  status?: 1 | 2 | 3 | 4;
 }
 /**
  * PATCH /guilds/{guild_id}/templates/{code} body.
