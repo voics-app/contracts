@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   contracts:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: vm-runner
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
