@@ -99,6 +99,10 @@ export type ScheduledMessage = ScheduledMessage1;
  */
 export type SessionsReplaceEvent = Session[];
 /**
+ * A thread member's Snowflake or @me for the authenticated user.
+ */
+export type ThreadMemberTarget = string;
+/**
  * Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.
  */
 export type UserReadStates = ReadState[];

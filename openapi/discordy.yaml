@@ -2350,7 +2350,11 @@ paths:
       x-discordy-service: api
       parameters:
         - $ref: "#/components/parameters/channel_id"
-        - $ref: "#/components/parameters/user_id"
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            $ref: ../schemas/rest/thread-member-target.json
       responses:
         "204":
           description: Joined or already a member.
@@ -2373,7 +2377,11 @@ paths:
       x-discordy-service: api
       parameters:
         - $ref: "#/components/parameters/channel_id"
-        - $ref: "#/components/parameters/user_id"
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            $ref: ../schemas/rest/thread-member-target.json
       responses:
         "204":
           description: Left or already absent.

@@ -3719,7 +3719,12 @@
             "$ref": "#/components/parameters/channel_id"
           },
           {
-            "$ref": "#/components/parameters/user_id"
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ThreadMemberTarget"
+            }
           }
         ],
         "responses": {
@@ -3756,7 +3761,12 @@
             "$ref": "#/components/parameters/channel_id"
           },
           {
-            "$ref": "#/components/parameters/user_id"
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ThreadMemberTarget"
+            }
           }
         ],
         "responses": {
@@ -14303,6 +14313,12 @@
             "$ref": "#/components/schemas/GuildMember"
           }
         }
+      },
+      "ThreadMemberTarget": {
+        "title": "ThreadMemberTarget",
+        "description": "A thread member's Snowflake or @me for the authenticated user.",
+        "type": "string",
+        "pattern": "^(@me|[0-9]{1,20})$"
       },
       "ThreadMetadata": {
         "title": "ThreadMetadata",

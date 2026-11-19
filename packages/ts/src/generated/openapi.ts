@@ -4084,6 +4084,11 @@ export interface components {
             user_id?: components["schemas"]["Snowflake"];
         };
         /**
+         * ThreadMemberTarget
+         * @description A thread member's Snowflake or @me for the authenticated user.
+         */
+        ThreadMemberTarget: string;
+        /**
          * ThreadMetadata
          * @description Thread-specific fields.
          */
@@ -6236,8 +6241,7 @@ export interface operations {
             path: {
                 /** @description Channel ID. */
                 channel_id: components["parameters"]["channel_id"];
-                /** @description User ID. */
-                user_id: components["parameters"]["user_id"];
+                user_id: components["schemas"]["ThreadMemberTarget"];
             };
             cookie?: never;
         };
@@ -6264,8 +6268,7 @@ export interface operations {
             path: {
                 /** @description Channel ID. */
                 channel_id: components["parameters"]["channel_id"];
-                /** @description User ID. */
-                user_id: components["parameters"]["user_id"];
+                user_id: components["schemas"]["ThreadMemberTarget"];
             };
             cookie?: never;
         };

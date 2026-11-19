@@ -9846,6 +9846,12 @@
         }
       }
     },
+    "ThreadMemberTarget": {
+      "title": "ThreadMemberTarget",
+      "description": "A thread member's Snowflake or @me for the authenticated user.",
+      "type": "string",
+      "pattern": "^(@me|[0-9]{1,20})$"
+    },
     "ThreadMembersUpdate": {
       "title": "ThreadMembersUpdate",
       "description": "A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.",

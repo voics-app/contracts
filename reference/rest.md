@@ -2559,6 +2559,12 @@ PUT /users/@me/channels/{id}/delivery-mode body.
 | --- | --- | --- |
 | `mode` | `?DeliveryMode` | Null clears the per-chat override. |
 
+### ThreadMemberTarget
+
+A thread member's Snowflake or @me for the authenticated user.
+
+Type: `string`
+
 ### TotpEnrollmentResponse
 
 A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.
