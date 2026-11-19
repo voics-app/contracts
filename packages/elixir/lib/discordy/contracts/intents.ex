@@ -100,6 +100,12 @@ defmodule Discordy.Contracts.Intents do
   @spec message_content() :: non_neg_integer()
   def message_content, do: 32_768
 
+  @doc ~S"""
+  Events: GUILD_SCHEDULED_EVENT_CREATE, GUILD_SCHEDULED_EVENT_UPDATE, GUILD_SCHEDULED_EVENT_DELETE, GUILD_SCHEDULED_EVENT_USER_ADD, GUILD_SCHEDULED_EVENT_USER_REMOVE.
+  """
+  @spec guild_scheduled_events() :: non_neg_integer()
+  def guild_scheduled_events, do: 65_536
+
   @doc "Every entry of this group, keyed by atom."
   @spec entries() :: %{atom() => non_neg_integer()}
   def entries do
@@ -119,7 +125,8 @@ defmodule Discordy.Contracts.Intents do
       direct_messages: 4096,
       direct_message_reactions: 8192,
       direct_message_typing: 16_384,
-      message_content: 32_768
+      message_content: 32_768,
+      guild_scheduled_events: 65_536
     }
   end
 

@@ -210,6 +210,8 @@ pub mod intents {
     pub const DIRECT_MESSAGE_TYPING: u32 = 1 << 14;
     /// Privileged. Events: none (gates data, not events).
     pub const MESSAGE_CONTENT: u32 = 1 << 15;
+    /// Events: GUILD_SCHEDULED_EVENT_CREATE, GUILD_SCHEDULED_EVENT_UPDATE, GUILD_SCHEDULED_EVENT_DELETE, GUILD_SCHEDULED_EVENT_USER_ADD, GUILD_SCHEDULED_EVENT_USER_REMOVE.
+    pub const GUILD_SCHEDULED_EVENTS: u32 = 1 << 16;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u32)] = &[
@@ -229,6 +231,7 @@ pub mod intents {
         ("DIRECT_MESSAGE_REACTIONS", DIRECT_MESSAGE_REACTIONS),
         ("DIRECT_MESSAGE_TYPING", DIRECT_MESSAGE_TYPING),
         ("MESSAGE_CONTENT", MESSAGE_CONTENT),
+        ("GUILD_SCHEDULED_EVENTS", GUILD_SCHEDULED_EVENTS),
     ];
 }
 
@@ -237,7 +240,7 @@ pub mod intent_sets {
     /// Intents that require approval for bots.
     pub const PRIVILEGED: u32 = 33026;
     /// Every known intent (implicit for user sessions).
-    pub const ALL: u32 = 65535;
+    pub const ALL: u32 = 131071;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u32)] = &[("PRIVILEGED", PRIVILEGED), ("ALL", ALL)];

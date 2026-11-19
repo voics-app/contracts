@@ -184,6 +184,20 @@
       "privileged": true,
       "scope": "content",
       "events": []
+    },
+    {
+      "name": "GUILD_SCHEDULED_EVENTS",
+      "bit": 16,
+      "value": 65536,
+      "privileged": false,
+      "scope": "guild",
+      "events": [
+        "GUILD_SCHEDULED_EVENT_CREATE",
+        "GUILD_SCHEDULED_EVENT_UPDATE",
+        "GUILD_SCHEDULED_EVENT_DELETE",
+        "GUILD_SCHEDULED_EVENT_USER_ADD",
+        "GUILD_SCHEDULED_EVENT_USER_REMOVE"
+      ]
     }
   ]
 }
