@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-soundboard-sound-request.json",
+  "title": "CreateSoundboardSoundRequest",
+  "description": "Create a sound with a canonical 48 kHz mono 16-bit PCM WAV of at most five seconds.",
+  "type": "object",
+  "required": [
+    "name",
+    "sound"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 32,
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "volume": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "sound": {
+      "type": "string",
+      "description": "Base64-encoded canonical PCM WAV, no data URI."
+    }
+  }
+}

@@ -2371,6 +2371,32 @@
         }
       }
     },
+    "CreateSoundboardSoundRequest": {
+      "title": "CreateSoundboardSoundRequest",
+      "description": "Create a sound with a canonical 48 kHz mono 16-bit PCM WAV of at most five seconds.",
+      "type": "object",
+      "required": [
+        "name",
+        "sound"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "volume": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "sound": {
+          "type": "string",
+          "description": "Base64-encoded canonical PCM WAV, no data URI."
+        }
+      }
+    },
     "CreateThreadRequest": {
       "title": "CreateThreadRequest",
       "description": "POST /channels/{id}/threads body. Forum channels require `message`.",
@@ -6847,6 +6873,25 @@
         }
       }
     },
+    "ModifySoundboardSoundRequest": {
+      "title": "ModifySoundboardSoundRequest",
+      "description": "Update sound metadata.",
+      "type": "object",
+      "required": [],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "volume": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
     "ModifyUserSettingsRequest": {
       "title": "ModifyUserSettingsRequest",
       "description": "PATCH /users/@me/settings body (partial).",
@@ -8935,6 +8980,23 @@
         }
       }
     },
+    "SendSoundboardSoundRequest": {
+      "title": "SendSoundboardSoundRequest",
+      "description": "Request authorization to play a sound in the current voice channel.",
+      "type": "object",
+      "required": [
+        "sound_id",
+        "source_guild_id"
+      ],
+      "properties": {
+        "sound_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "source_guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        }
+      }
+    },
     "Session": {
       "title": "Session",
       "description": "An active gateway session of the current user.",
@@ -9284,6 +9346,106 @@
       "examples": [
         "1234567890123456789"
       ]
+    },
+    "SoundboardSound": {
+      "title": "SoundboardSound",
+      "description": "Guild sound metadata. Audio is fetched separately.",
+      "type": "object",
+      "required": [
+        "id",
+        "guild_id",
+        "creator_id",
+        "name",
+        "volume"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "creator_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "volume": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "SoundboardSoundCreateEvent": {
+      "title": "SoundboardSoundCreateEvent",
+      "description": "Soundboard metadata change.",
+      "type": "object",
+      "required": [
+        "guild_id",
+        "sound_id",
+        "sound"
+      ],
+      "properties": {
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "sound_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "sound": {
+          "$ref": "#/$defs/SoundboardSound"
+        }
+      }
+    },
+    "SoundboardSoundDeleteEvent": {
+      "title": "SoundboardSoundDeleteEvent",
+      "description": "Soundboard metadata change.",
+      "type": "object",
+      "required": [
+        "guild_id",
+        "sound_id"
+      ],
+      "properties": {
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "sound_id": {
+          "$ref": "#/$defs/Snowflake"
+        }
+      }
+    },
+    "SoundboardSoundUpdateEvent": {
+      "title": "SoundboardSoundUpdateEvent",
+      "description": "Soundboard metadata change.",
+      "type": "object",
+      "required": [
+        "guild_id",
+        "sound_id",
+        "sound"
+      ],
+      "properties": {
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "sound_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "sound": {
+          "$ref": "#/$defs/SoundboardSound"
+        }
+      }
     },
     "SpeakingPayload": {
       "title": "SpeakingPayload",

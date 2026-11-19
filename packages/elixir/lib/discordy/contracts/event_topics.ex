@@ -52,6 +52,15 @@ defmodule Discordy.Contracts.EventTopics do
   @spec guild_emojis_update() :: String.t()
   def guild_emojis_update, do: "discordy.guild.v1"
 
+  @spec soundboard_sound_create() :: String.t()
+  def soundboard_sound_create, do: "discordy.guild.v1"
+
+  @spec soundboard_sound_update() :: String.t()
+  def soundboard_sound_update, do: "discordy.guild.v1"
+
+  @spec soundboard_sound_delete() :: String.t()
+  def soundboard_sound_delete, do: "discordy.guild.v1"
+
   @spec invite_create() :: String.t()
   def invite_create, do: "discordy.guild.v1"
 
@@ -168,6 +177,9 @@ defmodule Discordy.Contracts.EventTopics do
       guild_ban_add: "discordy.guild.v1",
       guild_ban_remove: "discordy.guild.v1",
       guild_emojis_update: "discordy.guild.v1",
+      soundboard_sound_create: "discordy.guild.v1",
+      soundboard_sound_update: "discordy.guild.v1",
+      soundboard_sound_delete: "discordy.guild.v1",
       invite_create: "discordy.guild.v1",
       invite_delete: "discordy.guild.v1",
       thread_create: "discordy.guild.v1",

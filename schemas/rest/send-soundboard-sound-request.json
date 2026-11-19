@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/send-soundboard-sound-request.json",
+  "title": "SendSoundboardSoundRequest",
+  "description": "Request authorization to play a sound in the current voice channel.",
+  "type": "object",
+  "required": [
+    "sound_id",
+    "source_guild_id"
+  ],
+  "properties": {
+    "sound_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "source_guild_id": {
+      "$ref": "../objects/snowflake.json"
+    }
+  }
+}

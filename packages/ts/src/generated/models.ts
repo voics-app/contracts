@@ -1385,6 +1385,17 @@ export interface ScheduledMessageDraft {
   silent?: boolean;
 }
 /**
+ * Create a sound with a canonical 48 kHz mono 16-bit PCM WAV of at most five seconds.
+ */
+export interface CreateSoundboardSoundRequest {
+  name: string;
+  volume?: number;
+  /**
+   * Base64-encoded canonical PCM WAV, no data URI.
+   */
+  sound: string;
+}
+/**
  * POST /channels/{id}/threads body. Forum channels require `message`.
  */
 export interface CreateThreadRequest {
@@ -3088,6 +3099,13 @@ export interface ModifyMemberRequest {
   banner?: string | null;
 }
 /**
+ * Update sound metadata.
+ */
+export interface ModifySoundboardSoundRequest {
+  name?: string;
+  volume?: number;
+}
+/**
  * PATCH /users/@me/settings body (partial).
  */
 export interface ModifyUserSettingsRequest {
@@ -3719,6 +3737,13 @@ export interface VoiceCodec {
   rtx_payload_type?: number;
 }
 /**
+ * Request authorization to play a sound in the current voice channel.
+ */
+export interface SendSoundboardSoundRequest {
+  sound_id: Snowflake;
+  source_guild_id: Snowflake;
+}
+/**
  * An active gateway session of the current user.
  */
 export interface Session {
@@ -3842,6 +3867,39 @@ export interface SfuStreamViewers {
    * User ids of every opted-in viewer.
    */
   viewers: string[];
+}
+/**
+ * Guild sound metadata. Audio is fetched separately.
+ */
+export interface SoundboardSound {
+  id: Snowflake;
+  guild_id: Snowflake;
+  creator_id: Snowflake | null;
+  name: string;
+  volume: number;
+}
+/**
+ * Soundboard metadata change.
+ */
+export interface SoundboardSoundCreateEvent {
+  guild_id: Snowflake;
+  sound_id: Snowflake;
+  sound: SoundboardSound;
+}
+/**
+ * Soundboard metadata change.
+ */
+export interface SoundboardSoundDeleteEvent {
+  guild_id: Snowflake;
+  sound_id: Snowflake;
+}
+/**
+ * Soundboard metadata change.
+ */
+export interface SoundboardSoundUpdateEvent {
+  guild_id: Snowflake;
+  sound_id: Snowflake;
+  sound: SoundboardSound;
 }
 /**
  * Voice op 5 SPEAKING.

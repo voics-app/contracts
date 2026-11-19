@@ -59,6 +59,12 @@ pub enum DispatchEvent {
     GuildBanRemove(GuildBanEvent),
     #[serde(rename = "GUILD_EMOJIS_UPDATE")]
     GuildEmojisUpdate(GuildEmojisUpdateEvent),
+    #[serde(rename = "SOUNDBOARD_SOUND_CREATE")]
+    SoundboardSoundCreate(SoundboardSoundCreateEvent),
+    #[serde(rename = "SOUNDBOARD_SOUND_UPDATE")]
+    SoundboardSoundUpdate(SoundboardSoundUpdateEvent),
+    #[serde(rename = "SOUNDBOARD_SOUND_DELETE")]
+    SoundboardSoundDelete(SoundboardSoundDeleteEvent),
     #[serde(rename = "INVITE_CREATE")]
     InviteCreate(InviteCreateEvent),
     #[serde(rename = "INVITE_DELETE")]
@@ -146,6 +152,9 @@ impl DispatchEvent {
             Self::GuildBanAdd(_) => "GUILD_BAN_ADD",
             Self::GuildBanRemove(_) => "GUILD_BAN_REMOVE",
             Self::GuildEmojisUpdate(_) => "GUILD_EMOJIS_UPDATE",
+            Self::SoundboardSoundCreate(_) => "SOUNDBOARD_SOUND_CREATE",
+            Self::SoundboardSoundUpdate(_) => "SOUNDBOARD_SOUND_UPDATE",
+            Self::SoundboardSoundDelete(_) => "SOUNDBOARD_SOUND_DELETE",
             Self::InviteCreate(_) => "INVITE_CREATE",
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",
@@ -217,6 +226,12 @@ pub enum BusEvent {
     GuildBanRemove(GuildBanEvent),
     #[serde(rename = "GUILD_EMOJIS_UPDATE")]
     GuildEmojisUpdate(GuildEmojisUpdateEvent),
+    #[serde(rename = "SOUNDBOARD_SOUND_CREATE")]
+    SoundboardSoundCreate(SoundboardSoundCreateEvent),
+    #[serde(rename = "SOUNDBOARD_SOUND_UPDATE")]
+    SoundboardSoundUpdate(SoundboardSoundUpdateEvent),
+    #[serde(rename = "SOUNDBOARD_SOUND_DELETE")]
+    SoundboardSoundDelete(SoundboardSoundDeleteEvent),
     #[serde(rename = "INVITE_CREATE")]
     InviteCreate(InviteCreateEvent),
     #[serde(rename = "INVITE_DELETE")]
@@ -303,6 +318,9 @@ impl BusEvent {
             Self::GuildBanAdd(_) => "GUILD_BAN_ADD",
             Self::GuildBanRemove(_) => "GUILD_BAN_REMOVE",
             Self::GuildEmojisUpdate(_) => "GUILD_EMOJIS_UPDATE",
+            Self::SoundboardSoundCreate(_) => "SOUNDBOARD_SOUND_CREATE",
+            Self::SoundboardSoundUpdate(_) => "SOUNDBOARD_SOUND_UPDATE",
+            Self::SoundboardSoundDelete(_) => "SOUNDBOARD_SOUND_DELETE",
             Self::InviteCreate(_) => "INVITE_CREATE",
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",

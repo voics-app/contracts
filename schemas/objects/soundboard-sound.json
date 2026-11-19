@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/soundboard-sound.json",
+  "title": "SoundboardSound",
+  "description": "Guild sound metadata. Audio is fetched separately.",
+  "type": "object",
+  "required": [
+    "id",
+    "guild_id",
+    "creator_id",
+    "name",
+    "volume"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "guild_id": {
+      "$ref": "./snowflake.json"
+    },
+    "creator_id": {
+      "anyOf": [
+        {
+          "$ref": "./snowflake.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 32,
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "volume": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

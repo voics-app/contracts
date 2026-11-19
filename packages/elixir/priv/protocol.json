@@ -426,6 +426,27 @@
         "description": "A guild's emojis changed."
       },
       {
+        "name": "SOUNDBOARD_SOUND_CREATE",
+        "payload": "gateway/dispatch/soundboard-sound-create.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A guild soundboard sound changed."
+      },
+      {
+        "name": "SOUNDBOARD_SOUND_UPDATE",
+        "payload": "gateway/dispatch/soundboard-sound-update.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A guild soundboard sound changed."
+      },
+      {
+        "name": "SOUNDBOARD_SOUND_DELETE",
+        "payload": "gateway/dispatch/soundboard-sound-delete.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A guild soundboard sound changed."
+      },
+      {
         "name": "INVITE_CREATE",
         "payload": "gateway/dispatch/invite-create.json",
         "source": "api",

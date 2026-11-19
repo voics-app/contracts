@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/soundboard-sound-update.json",
+  "title": "SoundboardSoundUpdateEvent",
+  "description": "Soundboard metadata change.",
+  "type": "object",
+  "required": [
+    "guild_id",
+    "sound_id",
+    "sound"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "sound_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "sound": {
+      "$ref": "../../objects/soundboard-sound.json"
+    }
+  }
+}
