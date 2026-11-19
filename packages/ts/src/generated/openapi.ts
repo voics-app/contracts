@@ -1616,9 +1616,11 @@ export interface paths {
         };
         /** List the current user's linked accounts */
         get: operations["listConnections"];
-        put?: never;
+        /** Set a linked account's profile visibility */
+        put: operations["updateConnection"];
         post?: never;
-        delete?: never;
+        /** Remove a linked account */
+        delete: operations["removeConnection"];
         options?: never;
         head?: never;
         patch?: never;
@@ -8532,6 +8534,60 @@ export interface operations {
                         visible: boolean;
                     }[];
                 };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    updateConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    provider: "github";
+                    visible: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Visibility updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    removeConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    provider: "github";
+                };
+            };
+        };
+        responses: {
+            /** @description Connection removed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             401: components["responses"]["Unauthorized"];
         };

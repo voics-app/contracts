@@ -663,6 +663,87 @@
             "$ref": "#/components/responses/Unauthorized"
           }
         }
+      },
+      "put": {
+        "operationId": "updateConnection",
+        "summary": "Set a linked account's profile visibility",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "provider",
+                  "visible"
+                ],
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "github"
+                    ]
+                  },
+                  "visible": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Visibility updated."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeConnection",
+        "summary": "Remove a linked account",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "provider"
+                ],
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "github"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Connection removed."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
       }
     },
     "/users/@me/connections/github/authorize": {

@@ -58,6 +58,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | --- | --- | --- | --- | --- | --- |
 | `POST` | `/reports` | api | `CreateReportRequest` | 204 No Content | Report a message, user or visible guild channel |
 | `GET` | `/users/@me/connections` | api | — | `array of object` | List the current user's linked accounts |
+| `PUT` | `/users/@me/connections` | api | `object` | 204 No Content | Set a linked account's profile visibility |
+| `DELETE` | `/users/@me/connections` | api | `object` | 204 No Content | Remove a linked account |
 | `POST` | `/users/@me/connections/github/authorize` | api | — | `object` | Begin GitHub authorization in the browser |
 | `PUT` | `/users/@me/connections/{provider}` | api | `object` | 204 No Content | Set profile visibility of a linked account |
 | `DELETE` | `/users/@me/connections/{provider}` | api | — | 204 No Content | Remove a linked account |
