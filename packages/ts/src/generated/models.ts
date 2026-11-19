@@ -2297,6 +2297,10 @@ export interface IdentifyPayload {
   intents: number;
   properties: IdentifyProperties;
   presence?: PresenceUpdatePayload;
+  /**
+   * Opt into passive session updates. Omitted means active.
+   */
+  passive?: boolean;
 }
 /**
  * Client connection properties.
@@ -3322,6 +3326,27 @@ export interface P2pSignalPayload {
   identity_sig_b64: string;
 }
 /**
+ * Changes since the previous passive update. Unread means unread channels, computed by the client from the latest message marker and its read position.
+ */
+export interface PassiveUpdateV2Event {
+  channels?: {
+    guild_id: Snowflake;
+    channel_id: Snowflake;
+    last_message_id: Snowflake;
+  }[];
+  read_states?: ReadStateUpdateEvent[];
+  voice_states?: VoiceState[];
+}
+/**
+ * Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
+ */
+export interface ReadStateUpdateEvent {
+  channel_id: Snowflake;
+  last_message_id: Snowflake | null;
+  mention_count: number;
+  read_state_version: ReadStateVersion;
+}
+/**
  * Registered second factor metadata. Credential public keys and challenges are never included.
  */
 export interface Passkey {
@@ -3456,15 +3481,6 @@ export interface ReadStateSyncEvent {
   read_state: (ReadState & {
     read_state_version: ReadStateVersion;
   })[];
-}
-/**
- * Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
- */
-export interface ReadStateUpdateEvent {
-  channel_id: Snowflake;
-  last_message_id: Snowflake | null;
-  mention_count: number;
-  read_state_version: ReadStateVersion;
 }
 /**
  * The bot's application.
@@ -3741,6 +3757,12 @@ export interface SessionDescriptionPayload {
  */
 export interface VoiceE2ee {
   protocol_version: number;
+}
+/**
+ * Op 27 SESSION_MODE. Set passive false to request fresh active state.
+ */
+export interface SessionModePayload {
+  passive: boolean;
 }
 /**
  * SESSION_REVOKE bus event (discordy.user.v1, routed to the user in target_user_ids). Login sessions were revoked (DELETE /users/@me/sessions/{id}, POST /users/@me/sessions/logout-all). The gateway closes every live connection whose authenticated session id is listed, with close code 4004, and never dispatches it to clients.

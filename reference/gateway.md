@@ -39,6 +39,7 @@ Every gateway frame (both directions). `s` and `t` are only set on DISPATCH (op 
 | 24 | `WATCH_TOGETHER` | both | `WatchTogetherPayload` | Watch Together playback synchronisation. |
 | 25 | `CALL_DECLINE` | send | `CallDeclinePayload` | Declines the DM call ringing in a channel. The caller's call stops ringing for this user. |
 | 26 | `CALL_RING` | send | `CallRingPayload` | Rings 1 to 10 members of a DM channel for a call the sender is in. |
+| 27 | `SESSION_MODE` | send | `SessionModePayload` | Switch the session between passive and active; activation requests a full refresh. |
 
 ## Opcode payloads
 
@@ -59,6 +60,7 @@ Op 2 IDENTIFY.
 | `intents` | `integer` | Intent bitfield (intents.json). User sessions implicitly get all intents. |
 | `properties` | `IdentifyProperties` |  |
 | `presence?` | `PresenceUpdatePayload` |  |
+| `passive?` | `boolean` | Opt into passive session updates. Omitted means active. |
 
 ### PresenceUpdatePayload
 
@@ -199,6 +201,14 @@ Op 26 CALL_RING. Rings the listed members of a DM channel for a call the sender 
 | `channel_id` | `Snowflake` |  |
 | `user_ids` | `array of Snowflake` | Users to ring, 1 to 10. |
 
+### SessionModePayload
+
+Op 27 SESSION_MODE. Set passive false to request fresh active state.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `passive` | `boolean` |  |
+
 ## Close codes
 
 | Code | Name | Description | Reconnect |
@@ -244,6 +254,7 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | Event (`t`) | Payload (`d`) | Source | Topic | Description |
 | --- | --- | --- | --- | --- |
 | `READY` | `ReadyEvent` | gateway | — | Initial state after IDENTIFY. |
+| `PASSIVE_UPDATE_V2` | `PassiveUpdateV2Event` | gateway | — | Coalesced passive session changes. |
 | `RESUMED` | `null` | gateway | — | Replay after RESUME has finished. `d` is null. |
 | `PRESENCE_UPDATE` | `PresenceUpdateEvent` | gateway | — | A user's presence changed. |
 | `TYPING_START` | `TypingStartEvent` | api | `discordy.message.v1` | A user started typing. |
@@ -318,6 +329,16 @@ READY: the internal ready state plus session details.
 | `application?` | `ReadyApplication` |  |
 | `read_state?` | `array of ReadState` |  |
 | `read_state_versioned?` | `true` | Present only after successful certified messages hydration. Standard counts use authoritative snapshots rather than CREATE increments; private decrypted traffic stays local. Absent means legacy behavior. |
+
+### PassiveUpdateV2Event
+
+Changes since the previous passive update. Unread means unread channels, computed by the client from the latest message marker and its read position.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `channels?` | `array of object` |  |
+| `read_states?` | `array of ReadStateUpdateEvent` |  |
+| `voice_states?` | `array of VoiceState` |  |
 
 ### PresenceUpdateEvent
 

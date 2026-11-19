@@ -4776,6 +4776,11 @@
         },
         "presence": {
           "$ref": "#/$defs/PresenceUpdatePayload"
+        },
+        "passive": {
+          "type": "boolean",
+          "default": false,
+          "description": "Opt into passive session updates. Omitted means active."
         }
       }
     },
@@ -7392,6 +7397,47 @@
         }
       }
     },
+    "PassiveUpdateV2Event": {
+      "title": "PassiveUpdateV2Event",
+      "description": "Changes since the previous passive update. Unread means unread channels, computed by the client from the latest message marker and its read position.",
+      "type": "object",
+      "properties": {
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "guild_id",
+              "channel_id",
+              "last_message_id"
+            ],
+            "properties": {
+              "guild_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "channel_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "last_message_id": {
+                "$ref": "#/$defs/Snowflake"
+              }
+            }
+          }
+        },
+        "read_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReadStateUpdateEvent"
+          }
+        },
+        "voice_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VoiceState"
+          }
+        }
+      }
+    },
     "Passkey": {
       "title": "Passkey",
       "description": "Registered second factor metadata. Credential public keys and challenges are never included.",
@@ -8989,6 +9035,19 @@
               "type": "null"
             }
           ]
+        }
+      }
+    },
+    "SessionModePayload": {
+      "title": "SessionModePayload",
+      "description": "Op 27 SESSION_MODE. Set passive false to request fresh active state.",
+      "type": "object",
+      "required": [
+        "passive"
+      ],
+      "properties": {
+        "passive": {
+          "type": "boolean"
         }
       }
     },

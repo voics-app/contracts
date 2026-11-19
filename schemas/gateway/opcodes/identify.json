@@ -36,6 +36,11 @@
     },
     "presence": {
       "$ref": "./presence-update.json"
+    },
+    "passive": {
+      "type": "boolean",
+      "default": false,
+      "description": "Opt into passive session updates. Omitted means active."
     }
   },
   "$defs": {

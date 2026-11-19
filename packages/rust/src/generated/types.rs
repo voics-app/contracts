@@ -3927,6 +3927,9 @@ pub struct IdentifyPayload {
     pub device_id: ::std::option::Option<Snowflake>,
     ///Intent bitfield (intents.json). User sessions implicitly get all intents.
     pub intents: u64,
+    ///Opt into passive session updates. Omitted means active.
+    #[serde(default)]
+    pub passive: bool,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub presence: ::std::option::Option<PresenceUpdatePayload>,
     pub properties: IdentifyProperties,
@@ -6274,6 +6277,23 @@ pub struct PartialUser {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub username: ::std::option::Option<::std::string::String>,
 }
+///Changes since the previous passive update. Unread means unread channels, computed by the client from the latest message marker and its read position.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct PassiveUpdateV2Event {
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub channels: ::std::vec::Vec<PassiveUpdateV2EventChannelsItem>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub read_states: ::std::vec::Vec<ReadStateUpdateEvent>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub voice_states: ::std::vec::Vec<VoiceState>,
+}
+///`PassiveUpdateV2EventChannelsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PassiveUpdateV2EventChannelsItem {
+    pub channel_id: Snowflake,
+    pub guild_id: Snowflake,
+    pub last_message_id: Snowflake,
+}
 ///Registered second factor metadata. Credential public keys and challenges are never included.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Passkey {
@@ -8280,6 +8300,11 @@ pub struct SessionDescriptionPayload {
     pub ice_pwd: ::std::string::String,
     pub ice_ufrag: ::std::string::String,
     pub video_codec: ::std::string::String,
+}
+///Op 27 SESSION_MODE. Set passive false to request fresh active state.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SessionModePayload {
+    pub passive: bool,
 }
 ///SESSION_REVOKE bus event (discordy.user.v1, routed to the user in target_user_ids). Login sessions were revoked (DELETE /users/@me/sessions/{id}, POST /users/@me/sessions/logout-all). The gateway closes every live connection whose authenticated session id is listed, with close code 4004, and never dispatches it to clients.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
