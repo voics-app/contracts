@@ -879,6 +879,15 @@
           "maxLength": 1024,
           "description": "Alt text shown to screen readers and as the image tooltip."
         },
+        "duration_secs": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Duration of a recorded voice message in seconds."
+        },
+        "waveform": {
+          "type": "string",
+          "description": "Base64-encoded amplitude samples for a recorded voice message."
+        },
         "flags": {
           "type": "integer",
           "description": "AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too."

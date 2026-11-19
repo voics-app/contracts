@@ -540,6 +540,7 @@ export const MessageFlags = {
   SUPPRESS_EMBEDS: 4,
   SUPPRESS_NOTIFICATIONS: 4096,
   EPHEMERAL: 64,
+  IS_VOICE_MESSAGE: 8192,
 } as const;
 export type MessageFlagsKey = keyof typeof MessageFlags;
 

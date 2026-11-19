@@ -863,6 +863,9 @@ pub struct AttachmentReference {
     ///Alt text shown to screen readers and as the image tooltip.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: ::std::option::Option<AttachmentReferenceDescription>,
+    ///Duration of a recorded voice message in seconds.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub duration_secs: ::std::option::Option<f64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filename: ::std::option::Option<::std::string::String>,
     ///AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
@@ -872,6 +875,9 @@ pub struct AttachmentReference {
     pub id: ::std::string::String,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub uploaded_filename: ::std::option::Option<::std::string::String>,
+    ///Base64-encoded amplitude samples for a recorded voice message.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub waveform: ::std::option::Option<::std::string::String>,
 }
 ///Alt text shown to screen readers and as the image tooltip.
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

@@ -479,6 +479,14 @@ export interface AttachmentReference {
    */
   description?: string;
   /**
+   * Duration of a recorded voice message in seconds.
+   */
+  duration_secs?: number;
+  /**
+   * Base64-encoded amplitude samples for a recorded voice message.
+   */
+  waveform?: string;
+  /**
    * AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
    */
   flags?: number;

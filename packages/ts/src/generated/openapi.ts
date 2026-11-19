@@ -2193,12 +2193,16 @@ export interface components {
         AttachmentReference: {
             /** @description Alt text shown to screen readers and as the image tooltip. */
             description?: string;
+            /** @description Duration of a recorded voice message in seconds. */
+            duration_secs?: number;
             filename?: string;
             /** @description AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. */
             flags?: number;
             /** @description Attachment ID from POST /channels/{id}/attachments, or an index for existing ones. */
             id: string;
             uploaded_filename?: string;
+            /** @description Base64-encoded amplitude samples for a recorded voice message. */
+            waveform?: string;
         };
         /**
          * AttachmentUpload

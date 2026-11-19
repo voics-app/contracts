@@ -1715,6 +1715,8 @@ An uploaded attachment referenced when creating or editing a message.
 | `filename?` | `string` |  |
 | `uploaded_filename?` | `string` |  |
 | `description?` | `string` | Alt text shown to screen readers and as the image tooltip. |
+| `duration_secs?` | `number` | Duration of a recorded voice message in seconds. |
+| `waveform?` | `string` | Base64-encoded amplitude samples for a recorded voice message. |
 | `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. |
 
 ### AttachmentUpload

@@ -1231,6 +1231,10 @@
         {
           "name": "EPHEMERAL",
           "value": 64
+        },
+        {
+          "name": "IS_VOICE_MESSAGE",
+          "value": 8192
         }
       ]
     },

@@ -271,7 +271,8 @@
       "values": [
         { "name": "SUPPRESS_EMBEDS", "value": 4 },
         { "name": "SUPPRESS_NOTIFICATIONS", "value": 4096 },
-        { "name": "EPHEMERAL", "value": 64 }
+        { "name": "EPHEMERAL", "value": 64 },
+        { "name": "IS_VOICE_MESSAGE", "value": 8192 }
       ]
     },
     "AttachmentFlags": {

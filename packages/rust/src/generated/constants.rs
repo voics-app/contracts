@@ -883,12 +883,14 @@ pub mod message_flags {
     pub const SUPPRESS_EMBEDS: u16 = 4;
     pub const SUPPRESS_NOTIFICATIONS: u16 = 4096;
     pub const EPHEMERAL: u16 = 64;
+    pub const IS_VOICE_MESSAGE: u16 = 8192;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u16)] = &[
         ("SUPPRESS_EMBEDS", SUPPRESS_EMBEDS),
         ("SUPPRESS_NOTIFICATIONS", SUPPRESS_NOTIFICATIONS),
         ("EPHEMERAL", EPHEMERAL),
+        ("IS_VOICE_MESSAGE", IS_VOICE_MESSAGE),
     ];
 }
 
