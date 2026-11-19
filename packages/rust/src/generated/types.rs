@@ -4367,6 +4367,68 @@ impl ::std::convert::From<::std::collections::HashMap<::std::string::String, i64
         Self(value)
     }
 }
+///`MemberVerification`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MemberVerification {
+    pub enabled: bool,
+    ///Whether the caller must accept the rules.
+    pub pending: bool,
+    pub revision: u64,
+    pub rules: ::std::vec::Vec<MemberVerificationRulesItem>,
+}
+///`MemberVerificationRulesItem`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct MemberVerificationRulesItem(::std::string::String);
+impl ::std::ops::Deref for MemberVerificationRulesItem {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<MemberVerificationRulesItem> for ::std::string::String {
+    fn from(value: MemberVerificationRulesItem) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for MemberVerificationRulesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for MemberVerificationRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for MemberVerificationRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for MemberVerificationRulesItem {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///A standard-mode message.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Message {
@@ -8313,6 +8375,65 @@ pub struct SetDeliveryModeRequest {
     ///Null clears the per-chat override.
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub mode: ::std::option::Option<DeliveryMode>,
+}
+///`SetMemberVerificationRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SetMemberVerificationRequest {
+    pub enabled: bool,
+    pub rules: ::std::vec::Vec<SetMemberVerificationRequestRulesItem>,
+}
+///`SetMemberVerificationRequestRulesItem`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct SetMemberVerificationRequestRulesItem(::std::string::String);
+impl ::std::ops::Deref for SetMemberVerificationRequestRulesItem {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<SetMemberVerificationRequestRulesItem> for ::std::string::String {
+    fn from(value: SetMemberVerificationRequestRulesItem) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for SetMemberVerificationRequestRulesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for SetMemberVerificationRequestRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for SetMemberVerificationRequestRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for SetMemberVerificationRequestRulesItem {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///SFU control command: close a media session.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

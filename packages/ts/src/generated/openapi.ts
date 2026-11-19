@@ -1060,6 +1060,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/member-verification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get current rules and the caller's pending status */
+        get: operations["getMemberVerification"];
+        /** Replace rules screening configuration (MANAGE_GUILD) */
+        put: operations["putMemberVerification"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/member-verification/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept the current version of the server rules
+         * @description A stale revision returns 409; fetch and display the current rules before retrying.
+         */
+        post: operations["acceptMemberVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/members": {
         parameters: {
             query?: never;
@@ -3126,6 +3170,14 @@ export interface components {
             /** @description TOTP code or backup code. When 2FA is enabled and this is absent the api answers 401 with code 60008 and a ticket for POST /auth/mfa/totp. */
             totp?: string;
         };
+        /** MemberVerification */
+        MemberVerification: {
+            enabled: boolean;
+            /** @description Whether the caller must accept the rules. */
+            pending: boolean;
+            revision: number;
+            rules: string[];
+        };
         /**
          * Message
          * @description A standard-mode message.
@@ -3911,6 +3963,11 @@ export interface components {
         SetDeliveryModeRequest: {
             /** @description Null clears the per-chat override. */
             mode: components["schemas"]["DeliveryMode"] | null;
+        };
+        /** SetMemberVerificationRequest */
+        SetMemberVerificationRequest: {
+            enabled: boolean;
+            rules: string[];
         };
         /**
          * Snowflake
@@ -7075,6 +7132,97 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    getMemberVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current screening configuration and revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberVerification"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    putMemberVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetMemberVerificationRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved configuration with new revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberVerification"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    acceptMemberVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    revision: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description The rules changed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     listGuildMembers: {

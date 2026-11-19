@@ -3110,6 +3110,127 @@
         }
       }
     },
+    "/guilds/{guild_id}/member-verification": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "get": {
+        "operationId": "getMemberVerification",
+        "summary": "Get current rules and the caller's pending status",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Current screening configuration and revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberVerification"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putMemberVerification",
+        "summary": "Replace rules screening configuration (MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetMemberVerificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved configuration with new revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberVerification"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/member-verification/accept": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "post": {
+        "operationId": "acceptMemberVerification",
+        "summary": "Accept the current version of the server rules",
+        "description": "A stale revision returns 409; fetch and display the current rules before retrying.",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "revision"
+                ],
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Accepted."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "description": "The rules changed."
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/vanity-url": {
       "parameters": [
         {
@@ -11445,6 +11566,38 @@
           }
         }
       },
+      "MemberVerification": {
+        "title": "MemberVerification",
+        "type": "object",
+        "required": [
+          "enabled",
+          "rules",
+          "revision",
+          "pending"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "rules": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            }
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pending": {
+            "type": "boolean",
+            "description": "Whether the caller must accept the rules."
+          }
+        }
+      },
       "Message": {
         "title": "Message",
         "description": "A standard-mode message.",
@@ -13791,6 +13944,28 @@
               }
             ],
             "description": "Null clears the per-chat override."
+          }
+        }
+      },
+      "SetMemberVerificationRequest": {
+        "title": "SetMemberVerificationRequest",
+        "type": "object",
+        "required": [
+          "enabled",
+          "rules"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "rules": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            }
           }
         }
       },

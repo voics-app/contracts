@@ -150,6 +150,9 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PATCH` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | `ModifyEmojiRequest` | `Emoji` | Modify a custom emoji |
 | `DELETE` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | 204 No Content | Delete a custom emoji |
 | `GET` | `/guilds/{guild_id}/invites` | api | — | `array of Invite` | List a guild's invites |
+| `GET` | `/guilds/{guild_id}/member-verification` | api | — | `MemberVerification` | Get current rules and the caller's pending status |
+| `PUT` | `/guilds/{guild_id}/member-verification` | api | `SetMemberVerificationRequest` | `MemberVerification` | Replace rules screening configuration (MANAGE_GUILD) |
+| `POST` | `/guilds/{guild_id}/member-verification/accept` | api | `object` | 204 No Content | Accept the current version of the server rules |
 | `GET` | `/guilds/{guild_id}/vanity-url` | api | — | `VanityUrl` | Get a guild's permanent invitation (requires MANAGE_GUILD) |
 | `PATCH` | `/guilds/{guild_id}/vanity-url` | api | `ModifyVanityUrlRequest` | `VanityUrl` | Set or remove a guild's permanent invitation (requires MANAGE_GUILD) |
 | `GET` | `/discovery/guilds` | api | — | `DiscoveryPage` | Browse and search public servers that opted in to discovery |
@@ -1098,6 +1101,15 @@ The partial guild an invite points to.
 | `features?` | `array of string` |  |
 | `verification_level?` | `integer` |  |
 | `nsfw_level?` | `integer` |  |
+
+### MemberVerification
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `rules` | `array of string` |  |
+| `revision` | `integer` |  |
+| `pending` | `boolean` | Whether the caller must accept the rules. |
 
 ### Message
 
@@ -2534,6 +2546,13 @@ PUT /users/@me/channels/{id}/delivery-mode body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `mode` | `?DeliveryMode` | Null clears the per-chat override. |
+
+### SetMemberVerificationRequest
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `rules` | `array of string` |  |
 
 ### TotpEnrollmentResponse
 
