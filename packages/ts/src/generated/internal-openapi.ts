@@ -178,6 +178,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/users/{user_id}/stickers/{sticker_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resolve an available guild sticker for a message author and destination
+         * @description Checks current account eligibility, channel membership, view and send permissions, Standard delivery and that the sticker belongs to the destination guild. Authorization and message storage are not one transaction.
+         */
+        get: operations["resolveMessageSticker"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/state": {
         parameters: {
             query?: never;
@@ -972,6 +992,7 @@ export interface components {
                 flags?: number;
                 mention_roles: components["schemas"]["Snowflake"][];
                 mentions: components["schemas"]["User"][];
+                sticker_items?: components["schemas"]["StickerItem"][];
                 /** Format: date-time */
                 timestamp: string;
                 type: number;
@@ -1159,6 +1180,22 @@ export interface components {
          * @example 1234567890123456789
          */
         Snowflake: string;
+        /**
+         * Sticker
+         * @description A guild or built-in sticker.
+         */
+        Sticker: {
+            available: boolean;
+            /**
+             * @description 1 PNG, 2 APNG, 3 Lottie, 4 GIF.
+             * @enum {integer}
+             */
+            format_type: 1 | 2 | 3 | 4;
+            guild_id?: components["schemas"]["Snowflake"];
+            id: components["schemas"]["Snowflake"];
+            name: string;
+            tags?: string;
+        };
         /**
          * StickerItem
          * @description Immutable display metadata stored with a message.
@@ -1732,6 +1769,36 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    resolveMessageSticker: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Sticker ID. */
+                sticker_id: components["schemas"]["Snowflake"];
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Available sticker metadata. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sticker"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
     getGuildState: {

@@ -2541,6 +2541,10 @@ export interface MessageSnapshot {
     embeds: Embed[];
     type: number;
     flags?: number;
+    /**
+     * @maxItems 3
+     */
+    sticker_items?: [] | [StickerItem] | [StickerItem, StickerItem] | [StickerItem, StickerItem, StickerItem];
   };
 }
 /**

@@ -6226,6 +6226,13 @@
             },
             "flags": {
               "type": "integer"
+            },
+            "sticker_items": {
+              "type": "array",
+              "maxItems": 3,
+              "items": {
+                "$ref": "#/$defs/StickerItem"
+              }
             }
           }
         }

@@ -3300,6 +3300,7 @@ export interface components {
                 flags?: number;
                 mention_roles: components["schemas"]["Snowflake"][];
                 mentions: components["schemas"]["User"][];
+                sticker_items?: components["schemas"]["StickerItem"][];
                 /** Format: date-time */
                 timestamp: string;
                 type: number;

@@ -153,6 +153,34 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /channels/{channel_id}/users/{user_id}/stickers/{sticker_id}:
+    get:
+      operationId: resolveMessageSticker
+      summary: Resolve an available guild sticker for a message author and destination
+      description: Checks current account eligibility, channel membership, view and send permissions, Standard delivery and that the sticker belongs to the destination guild. Authorization and message storage are not one transaction.
+      tags: [api]
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/user_id"
+        - name: sticker_id
+          in: path
+          required: true
+          description: Sticker ID.
+          schema:
+            $ref: ../schemas/objects/snowflake.json
+      responses:
+        "200":
+          description: Available sticker metadata.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/sticker.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /channels/{channel_id}/notification-recipients:
     get:
       operationId: listNotificationRecipients

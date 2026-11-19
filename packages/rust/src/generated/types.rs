@@ -4878,6 +4878,8 @@ pub struct MessageSnapshotMessage {
     pub flags: ::std::option::Option<i64>,
     pub mention_roles: ::std::vec::Vec<Snowflake>,
     pub mentions: ::std::vec::Vec<User>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub sticker_items: ::std::vec::Vec<StickerItem>,
     pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
     #[serde(rename = "type")]
     pub type_: i64,
