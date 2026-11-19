@@ -23,6 +23,40 @@ tags:
   - name: gateway
     description: Served by gateway (port 4000).
 paths:
+  /guilds/{guild_id}/scheduled-events/{event_id}/push-targets:
+    get:
+      operationId: getScheduledEventPushTargets
+      summary: Recheck one event reminder recipient and return live notification tokens
+      description: Rechecks membership, channel visibility, current interest, mute, do-not-disturb, start time and schedule revision. Event names are not returned; pushes must use generic text. An empty users array means no push.
+      tags: [api]
+      parameters:
+        - name: guild_id
+          in: path
+          required: true
+          schema: { $ref: ../schemas/objects/snowflake.json }
+        - name: event_id
+          in: path
+          required: true
+          schema: { $ref: ../schemas/objects/snowflake.json }
+        - name: user_id
+          in: query
+          required: true
+          schema: { $ref: ../schemas/objects/snowflake.json }
+        - name: scheduled_start_time
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+        - name: revision
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0 }
+      responses:
+        "200":
+          description: Current permitted live notification tokens, or an empty audience.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/internal/scheduled-event-push-targets.json }
+        "401": { $ref: "#/components/responses/Unauthorized" }
   /id-reservations:
     post:
       operationId: reserveMessageIds

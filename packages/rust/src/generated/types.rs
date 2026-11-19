@@ -8584,6 +8584,187 @@ impl<'de> ::serde::Deserialize<'de> for ScheduledEventMetadataLocation {
             })
     }
 }
+///Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ScheduledEventPushTargets {
+    pub next_after: (),
+    pub users: ::std::vec::Vec<ScheduledEventPushTargetsUsersItem>,
+}
+///`ScheduledEventPushTargetsUsersItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ScheduledEventPushTargetsUsersItem {
+    pub tokens: ::std::vec::Vec<ScheduledEventPushTargetsUsersItemTokensItem>,
+    pub user_id: Snowflake,
+}
+///`ScheduledEventPushTargetsUsersItemTokensItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ScheduledEventPushTargetsUsersItemTokensItem {
+    pub environment: ScheduledEventPushTargetsUsersItemTokensItemEnvironment,
+    pub only_mentions: bool,
+    pub platform: ScheduledEventPushTargetsUsersItemTokensItemPlatform,
+    pub previews: bool,
+    pub token: ScheduledEventPushTargetsUsersItemTokensItemToken,
+}
+///`ScheduledEventPushTargetsUsersItemTokensItemEnvironment`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ScheduledEventPushTargetsUsersItemTokensItemEnvironment {
+    #[serde(rename = "production")]
+    Production,
+    #[serde(rename = "sandbox")]
+    Sandbox,
+}
+impl ::std::fmt::Display for ScheduledEventPushTargetsUsersItemTokensItemEnvironment {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Production => f.write_str("production"),
+            Self::Sandbox => f.write_str("sandbox"),
+        }
+    }
+}
+impl ::std::str::FromStr for ScheduledEventPushTargetsUsersItemTokensItemEnvironment {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "production" => Ok(Self::Production),
+            "sandbox" => Ok(Self::Sandbox),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledEventPushTargetsUsersItemTokensItemEnvironment {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for ScheduledEventPushTargetsUsersItemTokensItemEnvironment
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`ScheduledEventPushTargetsUsersItemTokensItemPlatform`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ScheduledEventPushTargetsUsersItemTokensItemPlatform {
+    #[serde(rename = "apns")]
+    Apns,
+    #[serde(rename = "fcm")]
+    Fcm,
+}
+impl ::std::fmt::Display for ScheduledEventPushTargetsUsersItemTokensItemPlatform {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Apns => f.write_str("apns"),
+            Self::Fcm => f.write_str("fcm"),
+        }
+    }
+}
+impl ::std::str::FromStr for ScheduledEventPushTargetsUsersItemTokensItemPlatform {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "apns" => Ok(Self::Apns),
+            "fcm" => Ok(Self::Fcm),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledEventPushTargetsUsersItemTokensItemPlatform {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for ScheduledEventPushTargetsUsersItemTokensItemPlatform
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`ScheduledEventPushTargetsUsersItemTokensItemToken`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ScheduledEventPushTargetsUsersItemTokensItemToken(::std::string::String);
+impl ::std::ops::Deref for ScheduledEventPushTargetsUsersItemTokensItemToken {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ScheduledEventPushTargetsUsersItemTokensItemToken>
+    for ::std::string::String
+{
+    fn from(value: ScheduledEventPushTargetsUsersItemTokensItemToken) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ScheduledEventPushTargetsUsersItemTokensItemToken {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledEventPushTargetsUsersItemTokensItemToken {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for ScheduledEventPushTargetsUsersItemTokensItemToken
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ScheduledEventPushTargetsUsersItemTokensItemToken {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 #[serde(deny_unknown_fields)]

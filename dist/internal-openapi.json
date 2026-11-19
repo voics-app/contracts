@@ -43,6 +43,75 @@
     }
   ],
   "paths": {
+    "/guilds/{guild_id}/scheduled-events/{event_id}/push-targets": {
+      "get": {
+        "operationId": "getScheduledEventPushTargets",
+        "summary": "Recheck one event reminder recipient and return live notification tokens",
+        "description": "Rechecks membership, channel visibility, current interest, mute, do-not-disturb, start time and schedule revision. Event names are not returned; pushes must use generic text. An empty users array means no push.",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "name": "guild_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "scheduled_start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "revision",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current permitted live notification tokens, or an empty audience.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledEventPushTargets"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/id-reservations": {
       "post": {
         "operationId": "reserveMessageIds",
@@ -3328,6 +3397,75 @@
           },
           "integration_id": {
             "$ref": "#/components/schemas/Snowflake"
+          }
+        }
+      },
+      "ScheduledEventPushTargets": {
+        "title": "ScheduledEventPushTargets",
+        "description": "Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.",
+        "type": "object",
+        "required": [
+          "users",
+          "next_after"
+        ],
+        "properties": {
+          "users": {
+            "type": "array",
+            "maxItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "user_id",
+                "tokens"
+              ],
+              "properties": {
+                "user_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "tokens": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "platform",
+                      "token",
+                      "environment",
+                      "previews",
+                      "only_mentions"
+                    ],
+                    "properties": {
+                      "platform": {
+                        "type": "string",
+                        "enum": [
+                          "apns",
+                          "fcm"
+                        ]
+                      },
+                      "token": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "environment": {
+                        "type": "string",
+                        "enum": [
+                          "production",
+                          "sandbox"
+                        ]
+                      },
+                      "previews": {
+                        "type": "boolean"
+                      },
+                      "only_mentions": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "next_after": {
+            "type": "null"
           }
         }
       },

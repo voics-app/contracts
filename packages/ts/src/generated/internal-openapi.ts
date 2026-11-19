@@ -178,6 +178,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/scheduled-events/{event_id}/push-targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recheck one event reminder recipient and return live notification tokens
+         * @description Rechecks membership, channel visibility, current interest, mute, do-not-disturb, start time and schedule revision. Event names are not returned; pushes must use generic text. An empty users array means no push.
+         */
+        get: operations["getScheduledEventPushTargets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/state": {
         parameters: {
             query?: never;
@@ -1142,6 +1162,25 @@ export interface components {
             integration_id?: components["schemas"]["Snowflake"];
         };
         /**
+         * ScheduledEventPushTargets
+         * @description Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.
+         */
+        ScheduledEventPushTargets: {
+            next_after: null;
+            users: {
+                tokens: {
+                    /** @enum {string} */
+                    environment: "production" | "sandbox";
+                    only_mentions: boolean;
+                    /** @enum {string} */
+                    platform: "apns" | "fcm";
+                    previews: boolean;
+                    token: string;
+                }[];
+                user_id: components["schemas"]["Snowflake"];
+            }[];
+        };
+        /**
          * SelectOption
          * @description An option of a string select menu.
          */
@@ -1718,6 +1757,34 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    getScheduledEventPushTargets: {
+        parameters: {
+            query: {
+                revision: number;
+                scheduled_start_time: string;
+                user_id: components["schemas"]["Snowflake"];
+            };
+            header?: never;
+            path: {
+                event_id: components["schemas"]["Snowflake"];
+                guild_id: components["schemas"]["Snowflake"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current permitted live notification tokens, or an empty audience. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduledEventPushTargets"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
         };
     };
     getGuildState: {

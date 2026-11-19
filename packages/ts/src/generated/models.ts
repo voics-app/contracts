@@ -3723,6 +3723,29 @@ export interface RoleRequest {
    */
   position?: number;
 }
+/**
+ * Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.
+ */
+export interface ScheduledEventPushTargets {
+  /**
+   * @maxItems 1
+   */
+  users:
+    | []
+    | [
+        {
+          user_id: Snowflake;
+          tokens: {
+            platform: "apns" | "fcm";
+            token: string;
+            environment: "production" | "sandbox";
+            previews: boolean;
+            only_mentions: boolean;
+          }[];
+        }
+      ];
+  next_after: null;
+}
 export interface ScheduledMessage1 {
   id: ScheduledMessageId;
   channel_id: Snowflake;

@@ -8851,6 +8851,75 @@
         }
       }
     },
+    "ScheduledEventPushTargets": {
+      "title": "ScheduledEventPushTargets",
+      "description": "Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.",
+      "type": "object",
+      "required": [
+        "users",
+        "next_after"
+      ],
+      "properties": {
+        "users": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "user_id",
+              "tokens"
+            ],
+            "properties": {
+              "user_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "tokens": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "platform",
+                    "token",
+                    "environment",
+                    "previews",
+                    "only_mentions"
+                  ],
+                  "properties": {
+                    "platform": {
+                      "type": "string",
+                      "enum": [
+                        "apns",
+                        "fcm"
+                      ]
+                    },
+                    "token": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "environment": {
+                      "type": "string",
+                      "enum": [
+                        "production",
+                        "sandbox"
+                      ]
+                    },
+                    "previews": {
+                      "type": "boolean"
+                    },
+                    "only_mentions": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "next_after": {
+          "type": "null"
+        }
+      }
+    },
     "ScheduledMessage": {
       "title": "ScheduledMessage",
       "description": "Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.",
