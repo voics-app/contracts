@@ -195,6 +195,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/message-activity/{utc_day}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Count observed guild message markers for a UTC day (messages)
+         * @description Counts are provisional until producer coverage has been established after rollout. utc_day is days since the Unix epoch.
+         */
+        get: operations["getGuildMessageActivity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/state": {
         parameters: {
             query?: never;
@@ -257,6 +277,26 @@ export interface paths {
         get: operations["getUserReadyState"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/voice/activity-checkpoints": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record an idempotent gateway voice activity observation
+         * @description Observations are scoped by guild, user, session and gateway generation. Only consecutive observations at most 60 seconds apart contribute; coverage remains incomplete.
+         */
+        post: operations["recordVoiceActivityCheckpoint"];
         delete?: never;
         options?: never;
         head?: never;
@@ -744,6 +784,12 @@ export interface components {
             premium_since?: string | null;
             roles: components["schemas"]["Snowflake"][];
             user?: components["schemas"]["User"];
+        };
+        /** GuildMessageActivity */
+        GuildMessageActivity: {
+            count: number;
+            coverage_complete: boolean;
+            utc_day: number;
         };
         /**
          * GuildNotificationSettings
@@ -1366,6 +1412,17 @@ export interface components {
             /** @enum {string} */
             theme: "dark" | "light" | "oled";
         };
+        /** VoiceActivityCheckpoint */
+        VoiceActivityCheckpoint: {
+            connected: boolean;
+            /** Format: uuid */
+            generation_id: string;
+            guild_id: components["schemas"]["Snowflake"];
+            /** Format: date-time */
+            observed_at: string;
+            session_id: string;
+            user_id: components["schemas"]["Snowflake"];
+        };
         /**
          * VoiceState
          * @description A user's voice connection state.
@@ -1776,6 +1833,38 @@ export interface operations {
             };
         };
     };
+    getGuildMessageActivity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                utc_day: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Observed markers and coverage flag. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildMessageActivity"];
+                };
+            };
+            /** @description Invalid day or guild ID. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
     getGuildState: {
         parameters: {
             query?: never;
@@ -1896,6 +1985,36 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
+        };
+    };
+    recordVoiceActivityCheckpoint: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoiceActivityCheckpoint"];
+            };
+        };
+        responses: {
+            /** @description Observation recorded or already applied. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid or out-of-window observation. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
         };
     };
     drainVoiceNode: {

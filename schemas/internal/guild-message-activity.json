@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/guild-message-activity.json",
+  "title": "GuildMessageActivity",
+  "type": "object",
+  "required": ["utc_day", "count", "coverage_complete"],
+  "properties": {
+    "utc_day": { "type": "integer", "minimum": 0, "maximum": 100000 },
+    "count": { "type": "integer", "minimum": 0 },
+    "coverage_complete": { "type": "boolean" }
+  }
+}

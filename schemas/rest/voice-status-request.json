@@ -8,6 +8,7 @@
     "status": {
       "type": ["string", "null"],
       "maxLength": 500,
+      "pattern": "^[^\\u0000]*$",
       "description": "Text to display, or null to clear."
     }
   }

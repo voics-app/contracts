@@ -1,1 +1,1 @@
-{ "schema": "rest/guild-insights.json", "data": { "period": 7, "message_coverage": false, "voice_coverage": false, "days": [{ "date": "2026-11-19", "new_members": 2, "leavers": 1, "membership_complete": false, "messages": null, "voice_minutes": null }] } }
+{ "schema": "rest/guild-insights.json", "data": { "period": 7, "message_coverage": false, "voice_coverage": false, "days": [{ "date": "2026-11-19", "new_members": 2, "leavers": 1, "membership_complete": false, "messages": null, "message_complete": false, "voice_minutes": null }] } }

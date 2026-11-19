@@ -12,13 +12,14 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["date", "new_members", "leavers", "membership_complete", "messages", "voice_minutes"],
+        "required": ["date", "new_members", "leavers", "membership_complete", "messages", "message_complete", "voice_minutes"],
         "properties": {
           "date": { "type": "string", "format": "date" },
           "new_members": { "type": ["integer", "null"], "minimum": 0 },
           "leavers": { "type": ["integer", "null"], "minimum": 0 },
           "membership_complete": { "type": "boolean" },
           "messages": { "type": ["integer", "null"], "minimum": 0 },
+          "message_complete": { "type": "boolean", "description": "False means the observed count may omit writes." },
           "voice_minutes": { "type": ["number", "null"], "minimum": 0 }
         }
       }

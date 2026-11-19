@@ -2084,6 +2084,10 @@ export interface GuildInsights {
     leavers: number | null;
     membership_complete: boolean;
     messages: number | null;
+    /**
+     * False means the observed count may omit writes.
+     */
+    message_complete: boolean;
     voice_minutes: number | null;
   }[];
 }
@@ -2142,6 +2146,15 @@ export interface GuildMembersChunkEvent {
   not_found?: Snowflake[];
   presences?: PresenceUpdateEvent[];
   nonce?: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildMessageActivity".
+ */
+export interface GuildMessageActivity {
+  utc_day: number;
+  count: number;
+  coverage_complete: boolean;
 }
 /**
  * The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
@@ -4082,6 +4095,18 @@ export interface VoiceStream {
   ssrc: number;
   rtx_ssrc: number;
   active?: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "VoiceActivityCheckpoint".
+ */
+export interface VoiceActivityCheckpoint {
+  guild_id: Snowflake;
+  user_id: Snowflake;
+  session_id: string;
+  generation_id: string;
+  observed_at: string;
+  connected: boolean;
 }
 /**
  * Every voice WebSocket frame (both directions).

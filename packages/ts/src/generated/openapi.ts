@@ -1032,7 +1032,7 @@ export interface paths {
         };
         /**
          * Get daily server activity (MANAGE_GUILD)
-         * @description UTC days include today. Null means unavailable; membership_complete indicates that collection covered the entire UTC day. Message and voice collection are not yet implemented.
+         * @description UTC days include today. Null means unavailable. A false completeness flag means a count may omit activity. Voice collection is not yet implemented.
          */
         get: operations["getGuildInsights"];
         put?: never;
@@ -3050,6 +3050,8 @@ export interface components {
                 date: string;
                 leavers: number | null;
                 membership_complete: boolean;
+                /** @description False means the observed count may omit writes. */
+                message_complete: boolean;
                 messages: number | null;
                 new_members: number | null;
                 voice_minutes: number | null;

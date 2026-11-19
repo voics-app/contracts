@@ -1490,6 +1490,7 @@
             "null"
           ],
           "maxLength": 500,
+          "pattern": "^[^\\u0000]*$",
           "description": "Voice-channel status text, or null when unset."
         },
         "nsfw": {
@@ -4191,6 +4192,7 @@
               "leavers",
               "membership_complete",
               "messages",
+              "message_complete",
               "voice_minutes"
             ],
             "properties": {
@@ -4221,6 +4223,10 @@
                   "null"
                 ],
                 "minimum": 0
+              },
+              "message_complete": {
+                "type": "boolean",
+                "description": "False means the observed count may omit writes."
               },
               "voice_minutes": {
                 "type": [
@@ -4490,6 +4496,29 @@
         },
         "nonce": {
           "type": "string"
+        }
+      }
+    },
+    "GuildMessageActivity": {
+      "title": "GuildMessageActivity",
+      "type": "object",
+      "required": [
+        "utc_day",
+        "count",
+        "coverage_complete"
+      ],
+      "properties": {
+        "utc_day": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coverage_complete": {
+          "type": "boolean"
         }
       }
     },
@@ -10471,6 +10500,44 @@
         }
       }
     },
+    "VoiceActivityCheckpoint": {
+      "title": "VoiceActivityCheckpoint",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guild_id",
+        "user_id",
+        "session_id",
+        "generation_id",
+        "observed_at",
+        "connected"
+      ],
+      "properties": {
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "user_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[^\\u0000]*$"
+        },
+        "generation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "connected": {
+          "type": "boolean"
+        }
+      }
+    },
     "VoiceCodec": {
       "title": "VoiceCodec",
       "description": "A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.",
@@ -11073,6 +11140,7 @@
             "null"
           ],
           "maxLength": 500,
+          "pattern": "^[^\\u0000]*$",
           "description": "Text to display, or null to clear."
         }
       }

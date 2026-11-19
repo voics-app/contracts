@@ -1394,6 +1394,11 @@ impl ::std::str::FromStr for ChannelStatus {
         if value.chars().count() > 500usize {
             return Err("longer than 500 characters".into());
         }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[^\\u0000]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[^\\u0000]*$\"".into());
+        }
         Ok(Self(value.to_string()))
     }
 }
@@ -3547,6 +3552,8 @@ pub struct GuildInsightsDaysItem {
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub leavers: ::std::option::Option<u64>,
     pub membership_complete: bool,
+    ///False means the observed count may omit writes.
+    pub message_complete: bool,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub messages: ::std::option::Option<u64>,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
@@ -3780,6 +3787,13 @@ pub struct GuildMembersChunkEvent {
     pub not_found: ::std::vec::Vec<Snowflake>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub presences: ::std::vec::Vec<PresenceUpdateEvent>,
+}
+///`GuildMessageActivity`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildMessageActivity {
+    pub count: u64,
+    pub coverage_complete: bool,
+    pub utc_day: i64,
 }
 ///The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -9819,6 +9833,75 @@ pub struct VideoPayload {
     pub user_id: ::std::option::Option<Snowflake>,
     pub video_ssrc: u64,
 }
+///`VoiceActivityCheckpoint`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct VoiceActivityCheckpoint {
+    pub connected: bool,
+    pub generation_id: ::uuid::Uuid,
+    pub guild_id: Snowflake,
+    pub observed_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub session_id: VoiceActivityCheckpointSessionId,
+    pub user_id: Snowflake,
+}
+///`VoiceActivityCheckpointSessionId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceActivityCheckpointSessionId(::std::string::String);
+impl ::std::ops::Deref for VoiceActivityCheckpointSessionId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceActivityCheckpointSessionId> for ::std::string::String {
+    fn from(value: VoiceActivityCheckpointSessionId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceActivityCheckpointSessionId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[^\\u0000]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[^\\u0000]*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceActivityCheckpointSessionId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceActivityCheckpointSessionId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceActivityCheckpointSessionId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceCodec {
@@ -10576,6 +10659,11 @@ impl ::std::str::FromStr for VoiceStatusRequestStatus {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         if value.chars().count() > 500usize {
             return Err("longer than 500 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[^\\u0000]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[^\\u0000]*$\"".into());
         }
         Ok(Self(value.to_string()))
     }

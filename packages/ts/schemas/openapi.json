@@ -1771,7 +1771,7 @@
       "get": {
         "operationId": "getGuildInsights",
         "summary": "Get daily server activity (MANAGE_GUILD)",
-        "description": "UTC days include today. Null means unavailable; membership_complete indicates that collection covered the entire UTC day. Message and voice collection are not yet implemented.",
+        "description": "UTC days include today. Null means unavailable. A false completeness flag means a count may omit activity. Voice collection is not yet implemented.",
         "tags": [
           "Guilds"
         ],
@@ -9360,6 +9360,7 @@
               "null"
             ],
             "maxLength": 500,
+            "pattern": "^[^\\u0000]*$",
             "description": "Voice-channel status text, or null when unset."
           },
           "nsfw": {
@@ -11228,6 +11229,7 @@
                 "leavers",
                 "membership_complete",
                 "messages",
+                "message_complete",
                 "voice_minutes"
               ],
               "properties": {
@@ -11258,6 +11260,10 @@
                     "null"
                   ],
                   "minimum": 0
+                },
+                "message_complete": {
+                  "type": "boolean",
+                  "description": "False means the observed count may omit writes."
                 },
                 "voice_minutes": {
                   "type": [
@@ -15010,6 +15016,7 @@
               "null"
             ],
             "maxLength": 500,
+            "pattern": "^[^\\u0000]*$",
             "description": "Text to display, or null to clear."
           }
         }

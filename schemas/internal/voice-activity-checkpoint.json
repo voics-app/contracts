@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/voice-activity-checkpoint.json",
+  "title": "VoiceActivityCheckpoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["guild_id", "user_id", "session_id", "generation_id", "observed_at", "connected"],
+  "properties": {
+    "guild_id": { "$ref": "../objects/snowflake.json" },
+    "user_id": { "$ref": "../objects/snowflake.json" },
+    "session_id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[^\\u0000]*$" },
+    "generation_id": { "type": "string", "format": "uuid" },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "connected": { "type": "boolean" }
+  }
+}
