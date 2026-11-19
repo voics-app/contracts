@@ -42,6 +42,14 @@ jobs:
           pnpm codegen
           git diff --exit-code
           test -z "$(git ls-files --others --exclude-standard)"
+      - name: Capture generated diff for draft
+        if: failure()
+        run: git diff --binary > codegen.patch
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: draft-codegen-diff
+          path: codegen.patch
       - run: pnpm lint && pnpm typecheck && pnpm test
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace

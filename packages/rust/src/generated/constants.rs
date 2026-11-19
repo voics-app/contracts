@@ -1110,7 +1110,7 @@ pub mod activity_type {
     ];
 }
 
-/// Audit log action types (Discord values) used by Discordy.
+/// Audit log action types used by Discordy, including Voics extensions.
 pub mod audit_log_event {
     pub const GUILD_UPDATE: u8 = 1;
     pub const CHANNEL_CREATE: u8 = 10;
@@ -1148,6 +1148,8 @@ pub mod audit_log_event {
     pub const THREAD_UPDATE: u8 = 111;
     pub const THREAD_DELETE: u8 = 112;
     pub const APPLICATION_COMMAND_PERMISSION_UPDATE: u8 = 121;
+    pub const BAN_APPEAL_ACCEPT: u8 = 200;
+    pub const BAN_APPEAL_DENY: u8 = 201;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -1190,6 +1192,8 @@ pub mod audit_log_event {
             "APPLICATION_COMMAND_PERMISSION_UPDATE",
             APPLICATION_COMMAND_PERMISSION_UPDATE,
         ),
+        ("BAN_APPEAL_ACCEPT", BAN_APPEAL_ACCEPT),
+        ("BAN_APPEAL_DENY", BAN_APPEAL_DENY),
     ];
 }
 

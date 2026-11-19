@@ -663,7 +663,7 @@ export const ActivityType = {
 } as const;
 export type ActivityTypeKey = keyof typeof ActivityType;
 
-/** Audit log action types (Discord values) used by Discordy. */
+/** Audit log action types used by Discordy, including Voics extensions. */
 export const AuditLogEvent = {
   GUILD_UPDATE: 1,
   CHANNEL_CREATE: 10,
@@ -701,6 +701,8 @@ export const AuditLogEvent = {
   THREAD_UPDATE: 111,
   THREAD_DELETE: 112,
   APPLICATION_COMMAND_PERMISSION_UPDATE: 121,
+  BAN_APPEAL_ACCEPT: 200,
+  BAN_APPEAL_DENY: 201,
 } as const;
 export type AuditLogEventKey = keyof typeof AuditLogEvent;
 
