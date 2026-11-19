@@ -404,7 +404,14 @@ paths:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/LinkedConnection' }
+                items:
+                  type: object
+                  required: [provider, account_id, name, visible]
+                  properties:
+                    provider: { type: string, enum: [github] }
+                    account_id: { type: string }
+                    name: { type: string }
+                    visible: { type: boolean }
         "401": { $ref: '#/components/responses/Unauthorized' }
   /users/@me/connections/github/authorize:
     post:
@@ -468,7 +475,14 @@ paths:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/LinkedConnection' }
+                items:
+                  type: object
+                  required: [provider, account_id, name, visible]
+                  properties:
+                    provider: { type: string, enum: [github] }
+                    account_id: { type: string }
+                    name: { type: string }
+                    visible: { type: boolean }
         "401": { $ref: '#/components/responses/Unauthorized' }
   /connections/github/callback:
     get:
@@ -4955,15 +4969,6 @@ paths:
         "429":
           $ref: "#/components/responses/RateLimited"
 components:
-  schemas:
-    LinkedConnection:
-      type: object
-      required: [provider, account_id, name, visible]
-      properties:
-        provider: { type: string, enum: [github] }
-        account_id: { type: string }
-        name: { type: string }
-        visible: { type: boolean }
   securitySchemes:
     UserBearer:
       type: http
