@@ -2095,7 +2095,7 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
-        "409": { description: Configuration changed, an eligible role changed, or onboarding was already completed. }
+        "409": { description: "Configuration changed, an eligible role changed, or onboarding was already completed." }
   /guilds/{guild_id}/welcome-screen:
     parameters:
       - $ref: "#/components/parameters/guild_id"
