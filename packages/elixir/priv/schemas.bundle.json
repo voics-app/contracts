@@ -4740,6 +4740,38 @@
         }
       }
     },
+    "GuildScheduledEventStart": {
+      "title": "GuildScheduledEventStart",
+      "description": "User-targeted reminder. Resolve the event and current interest again before presenting details; access may have changed after enqueue.",
+      "type": "object",
+      "required": [
+        "guild_id",
+        "guild_scheduled_event_id",
+        "scheduled_start_time",
+        "revision",
+        "dedupe_key"
+      ],
+      "properties": {
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "guild_scheduled_event_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "scheduled_start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dedupe_key": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "GuildScheduledEventUser": {
       "title": "GuildScheduledEventUser",
       "description": "A user's interest in a guild event changed.",

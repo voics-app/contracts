@@ -148,6 +148,9 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec user_update() :: String.t()
   def user_update, do: "USER_UPDATE"
 
+  @spec guild_scheduled_event_start() :: String.t()
+  def guild_scheduled_event_start, do: "GUILD_SCHEDULED_EVENT_START"
+
   @spec user_settings_update() :: String.t()
   def user_settings_update, do: "USER_SETTINGS_UPDATE"
 
@@ -230,6 +233,7 @@ defmodule Discordy.Contracts.DispatchEvents do
       read_state_update: "READ_STATE_UPDATE",
       read_state_sync: "READ_STATE_SYNC",
       user_update: "USER_UPDATE",
+      guild_scheduled_event_start: "GUILD_SCHEDULED_EVENT_START",
       user_settings_update: "USER_SETTINGS_UPDATE",
       user_guild_settings_update: "USER_GUILD_SETTINGS_UPDATE",
       user_note_update: "USER_NOTE_UPDATE",

@@ -4061,6 +4061,65 @@ impl<'de> ::serde::Deserialize<'de> for GuildScheduledEventName {
             })
     }
 }
+///User-targeted reminder. Resolve the event and current interest again before presenting details; access may have changed after enqueue.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildScheduledEventStart {
+    pub dedupe_key: GuildScheduledEventStartDedupeKey,
+    pub guild_id: Snowflake,
+    pub guild_scheduled_event_id: Snowflake,
+    pub revision: u64,
+    pub scheduled_start_time: ::chrono::DateTime<::chrono::offset::Utc>,
+}
+///`GuildScheduledEventStartDedupeKey`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildScheduledEventStartDedupeKey(::std::string::String);
+impl ::std::ops::Deref for GuildScheduledEventStartDedupeKey {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildScheduledEventStartDedupeKey> for ::std::string::String {
+    fn from(value: GuildScheduledEventStartDedupeKey) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildScheduledEventStartDedupeKey {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildScheduledEventStartDedupeKey {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildScheduledEventStartDedupeKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildScheduledEventStartDedupeKey {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///`GuildScheduledEventStatus`
 #[derive(::serde::Serialize, Clone, Debug, PartialEq)]
 #[serde(transparent)]

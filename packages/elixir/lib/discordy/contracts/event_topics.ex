@@ -118,6 +118,9 @@ defmodule Discordy.Contracts.EventTopics do
   @spec user_update() :: String.t()
   def user_update, do: "discordy.user.v1"
 
+  @spec guild_scheduled_event_start() :: String.t()
+  def guild_scheduled_event_start, do: "discordy.user.v1"
+
   @spec user_settings_update() :: String.t()
   def user_settings_update, do: "discordy.user.v1"
 
@@ -205,6 +208,7 @@ defmodule Discordy.Contracts.EventTopics do
       message_ack: "discordy.message.v1",
       read_state_update: "discordy.message.v1",
       user_update: "discordy.user.v1",
+      guild_scheduled_event_start: "discordy.user.v1",
       user_settings_update: "discordy.user.v1",
       user_guild_settings_update: "discordy.user.v1",
       user_note_update: "discordy.user.v1",

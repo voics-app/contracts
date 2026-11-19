@@ -2209,6 +2209,16 @@ export interface GuildScheduledEvent {
   user_count: number;
 }
 /**
+ * User-targeted reminder. Resolve the event and current interest again before presenting details; access may have changed after enqueue.
+ */
+export interface GuildScheduledEventStart {
+  guild_id: Snowflake;
+  guild_scheduled_event_id: Snowflake;
+  scheduled_start_time: string;
+  revision: number;
+  dedupe_key: string;
+}
+/**
  * A user's interest in a guild event changed.
  */
 export interface GuildScheduledEventUser {

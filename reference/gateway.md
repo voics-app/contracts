@@ -292,6 +292,7 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `READ_STATE_UPDATE` | `ReadStateUpdateEvent` | messages | `discordy.message.v1` | Complete versioned read-state snapshot targeted to the owning user's sessions; compare channel versions, never increment from this event. |
 | `READ_STATE_SYNC` | `ReadStateSyncEvent` | gateway | — | Fresh certified read-state snapshots after resume replay and before RESUMED; merge by version to recover lost publication. |
 | `USER_UPDATE` | `User` | api | `discordy.user.v1` | The current user was updated. |
+| `GUILD_SCHEDULED_EVENT_START` | `GuildScheduledEventStart` | api | `discordy.user.v1` | A scheduled event start reminder targeted to one interested user; recheck access before showing details. |
 | `USER_SETTINGS_UPDATE` | `UserSettings` | api | `discordy.user.v1` | The current user's settings changed. |
 | `USER_GUILD_SETTINGS_UPDATE` | `GuildNotificationSettings` | api | `discordy.user.v1` | The current user's notification settings for a guild or their DMs changed (sent to that user only). |
 | `USER_NOTE_UPDATE` | `UserNoteUpdateEvent` | api | `discordy.user.v1` | The current user's private note about a user changed (sent to the author only). |
@@ -627,6 +628,18 @@ Certified snapshot fetched during resume, after subscription and before RESUMED.
 | --- | --- | --- |
 | `read_state_versioned` | `true` |  |
 | `read_state` | `array of any` |  |
+
+### GuildScheduledEventStart
+
+User-targeted reminder. Resolve the event and current interest again before presenting details; access may have changed after enqueue.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `guild_id` | `Snowflake` |  |
+| `guild_scheduled_event_id` | `Snowflake` |  |
+| `scheduled_start_time` | `string (date-time)` |  |
+| `revision` | `integer` |  |
+| `dedupe_key` | `string` |  |
 
 ### UserNoteUpdateEvent
 

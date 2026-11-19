@@ -105,6 +105,8 @@ pub enum DispatchEvent {
     ReadStateSync(ReadStateSyncEvent),
     #[serde(rename = "USER_UPDATE")]
     UserUpdate(User),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_START")]
+    GuildScheduledEventStart(GuildScheduledEventStart),
     #[serde(rename = "USER_SETTINGS_UPDATE")]
     UserSettingsUpdate(UserSettings),
     #[serde(rename = "USER_GUILD_SETTINGS_UPDATE")]
@@ -181,6 +183,7 @@ impl DispatchEvent {
             Self::ReadStateUpdate(_) => "READ_STATE_UPDATE",
             Self::ReadStateSync(_) => "READ_STATE_SYNC",
             Self::UserUpdate(_) => "USER_UPDATE",
+            Self::GuildScheduledEventStart(_) => "GUILD_SCHEDULED_EVENT_START",
             Self::UserSettingsUpdate(_) => "USER_SETTINGS_UPDATE",
             Self::UserGuildSettingsUpdate(_) => "USER_GUILD_SETTINGS_UPDATE",
             Self::UserNoteUpdate(_) => "USER_NOTE_UPDATE",
@@ -276,6 +279,8 @@ pub enum BusEvent {
     ReadStateUpdate(ReadStateUpdateEvent),
     #[serde(rename = "USER_UPDATE")]
     UserUpdate(User),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_START")]
+    GuildScheduledEventStart(GuildScheduledEventStart),
     #[serde(rename = "USER_SETTINGS_UPDATE")]
     UserSettingsUpdate(UserSettings),
     #[serde(rename = "USER_GUILD_SETTINGS_UPDATE")]
@@ -352,6 +357,7 @@ impl BusEvent {
             Self::MessageAck(_) => "MESSAGE_ACK",
             Self::ReadStateUpdate(_) => "READ_STATE_UPDATE",
             Self::UserUpdate(_) => "USER_UPDATE",
+            Self::GuildScheduledEventStart(_) => "GUILD_SCHEDULED_EVENT_START",
             Self::UserSettingsUpdate(_) => "USER_SETTINGS_UPDATE",
             Self::UserGuildSettingsUpdate(_) => "USER_GUILD_SETTINGS_UPDATE",
             Self::UserNoteUpdate(_) => "USER_NOTE_UPDATE",
