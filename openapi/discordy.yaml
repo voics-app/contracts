@@ -2029,6 +2029,73 @@ paths:
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
         "409": { description: The rules changed. }
+  /guilds/{guild_id}/onboarding:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    get:
+      operationId: getGuildOnboarding
+      summary: Get onboarding questions and their revision
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Configuration and revision.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/onboarding-response.json }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      operationId: putGuildOnboarding
+      summary: Replace onboarding questions (MANAGE_GUILD; roles also require MANAGE_ROLES)
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: ../schemas/objects/onboarding-config.json }
+      responses:
+        "200":
+          description: Saved configuration and revision.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/onboarding-response.json }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /guilds/{guild_id}/onboarding/complete:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    post:
+      operationId: completeGuildOnboarding
+      summary: Apply one choice per question once, after accepting the rules
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [revision, choices]
+              properties:
+                revision: { type: integer, minimum: 0 }
+                choices: { type: array, maxItems: 5, items: { type: integer, minimum: 0 } }
+      responses:
+        "200":
+          description: Suggested channel IDs from the selected options.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [channel_ids]
+                properties:
+                  channel_ids: { type: array, items: { $ref: ../schemas/objects/snowflake.json } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { description: Configuration changed, an eligible role changed, or onboarding was already completed. }
   /guilds/{guild_id}/welcome-screen:
     parameters:
       - $ref: "#/components/parameters/guild_id"

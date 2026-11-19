@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/onboarding-response.json",
+  "title": "OnboardingResponse",
+  "type": "object",
+  "required": ["config", "revision"],
+  "properties": {
+    "config": { "$ref": "./onboarding-config.json" },
+    "revision": { "type": "integer", "minimum": 0 }
+  }
+}

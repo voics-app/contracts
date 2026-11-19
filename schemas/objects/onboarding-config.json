@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/onboarding-config.json",
+  "title": "OnboardingConfig",
+  "type": "object",
+  "required": ["enabled", "questions"],
+  "properties": {
+    "enabled": { "type": "boolean" },
+    "questions": { "type": "array", "maxItems": 5, "items": {
+      "type": "object", "required": ["title", "options"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "options": { "type": "array", "minItems": 1, "maxItems": 10, "items": {
+          "type": "object", "required": ["label", "role_id", "channel_id"],
+          "properties": {
+            "label": { "type": "string", "minLength": 1, "maxLength": 100 },
+            "role_id": { "anyOf": [{ "$ref": "./snowflake.json" }, { "type": "null" }] },
+            "channel_id": { "anyOf": [{ "$ref": "./snowflake.json" }, { "type": "null" }] }
+          }
+        } }
+      }
+    } }
+  }
+}
