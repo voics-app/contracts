@@ -40,6 +40,14 @@
         "null"
       ]
     },
+    "status": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 500,
+      "description": "Voice-channel status text, or null when unset."
+    },
     "nsfw": {
       "type": "boolean"
     },

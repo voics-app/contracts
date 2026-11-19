@@ -617,6 +617,52 @@
         }
       }
     },
+    "/guilds/{guild_id}/channels/{channel_id}/voice-members/{user_id}": {
+      "get": {
+        "operationId": "getVoiceMembership",
+        "summary": "Check a member's current voice channel in the owning gateway guild process",
+        "tags": [
+          "gateway"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current voice membership.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "connected"
+                  ],
+                  "properties": {
+                    "connected": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "description": "The owning process could not be queried."
+          }
+        }
+      }
+    },
     "/voice/nodes/{node_id}/drain": {
       "post": {
         "operationId": "drainVoiceNode",
@@ -1113,6 +1159,14 @@
               "string",
               "null"
             ]
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 500,
+            "description": "Voice-channel status text, or null when unset."
           },
           "nsfw": {
             "type": "boolean"

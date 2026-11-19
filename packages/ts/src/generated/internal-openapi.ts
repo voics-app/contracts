@@ -178,6 +178,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/channels/{channel_id}/voice-members/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Check a member's current voice channel in the owning gateway guild process */
+        get: operations["getVoiceMembership"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/state": {
         parameters: {
             query?: never;
@@ -430,6 +447,8 @@ export interface components {
             rate_limit_per_user?: number;
             recipients?: components["schemas"]["User"][];
             rtc_region?: string | null;
+            /** @description Voice-channel status text, or null when unset. */
+            status?: string | null;
             /** @description Voice channels only: whether members can send messages to the channel chat. Defaults to true. */
             text_chat_enabled?: boolean;
             thread_metadata?: components["schemas"]["ThreadMetadata"];
@@ -1713,6 +1732,43 @@ export interface operations {
             404: components["responses"]["NotFound"];
             /** @description Recipient or preference lookup failed; no fallback to unfiltered users. */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getVoiceMembership: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current voice membership. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        connected: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description The owning process could not be queried. */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -188,6 +188,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/channels/{channel_id}` | api | — | `Channel` | Get a channel |
 | `PATCH` | `/channels/{channel_id}` | api | `ModifyChannelRequest` | `Channel` | Modify a channel (including delivery_mode and voice_region) |
 | `DELETE` | `/channels/{channel_id}` | api | — | `Channel` | Delete a channel, leave a group DM or close a DM |
+| `PUT` | `/channels/{channel_id}/voice-status` | api | `VoiceStatusRequest` | 204 No Content | Set or clear a voice channel status |
 | `PUT` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | `EditOverwriteRequest` | 204 No Content | Create or edit a permission overwrite |
 | `DELETE` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | — | 204 No Content | Delete a permission overwrite |
 | `POST` | `/channels/{channel_id}/invites` | api | `CreateInviteRequest` | `Invite` | Create an invite |
@@ -566,6 +567,7 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `permission_overwrites?` | `array of PermissionOverwrite` |  |
 | `name?` | `?string` |  |
 | `topic?` | `?string` |  |
+| `status?` | `?string` | Voice-channel status text, or null when unset. |
 | `nsfw?` | `boolean` |  |
 | `text_chat_enabled?` | `boolean` | Voice channels only: whether members can send messages to the channel chat. Defaults to true. |
 | `last_message_id?` | `?Snowflake` |  |
@@ -2587,6 +2589,12 @@ POST /users/@me/mfa/totp/verify body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `code` | `string` |  |
+
+### VoiceStatusRequest
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | `?string` | Text to display, or null to clear. |
 
 ### WebauthnChallenge
 

@@ -721,6 +721,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/voice-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set or clear a voice channel status
+         * @description Requires channel visibility and SET_VOICE_CHANNEL_STATUS or current connection to that channel. Dispatches CHANNEL_UPDATE.
+         */
+        put: operations["setVoiceChannelStatus"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/webhooks": {
         parameters: {
             query?: never;
@@ -2398,6 +2418,8 @@ export interface components {
             rate_limit_per_user?: number;
             recipients?: components["schemas"]["User"][];
             rtc_region?: string | null;
+            /** @description Voice-channel status text, or null when unset. */
+            status?: string | null;
             /** @description Voice channels only: whether members can send messages to the channel chat. Defaults to true. */
             text_chat_enabled?: boolean;
             thread_metadata?: components["schemas"]["ThreadMetadata"];
@@ -4209,6 +4231,11 @@ export interface components {
             id: string;
             name: string;
             optimal: boolean;
+        };
+        /** VoiceStatusRequest */
+        VoiceStatusRequest: {
+            /** @description Text to display, or null to clear. */
+            status: string | null;
         };
         /**
          * WebauthnChallenge
@@ -6192,6 +6219,43 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    setVoiceChannelStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoiceStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description Status saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            /** @description The gateway voice-state lookup is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     createWebhook: {

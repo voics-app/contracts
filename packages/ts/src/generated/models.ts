@@ -565,6 +565,10 @@ export interface Channel {
   permission_overwrites?: PermissionOverwrite[];
   name?: string | null;
   topic?: string | null;
+  /**
+   * Voice-channel status text, or null when unset.
+   */
+  status?: string | null;
   nsfw?: boolean;
   /**
    * Voice channels only: whether members can send messages to the channel chat. Defaults to true.
@@ -4201,6 +4205,16 @@ export interface VoiceStateUpdatePayload {
   self_deaf: boolean;
   self_video: boolean;
   self_stream: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "VoiceStatusRequest".
+ */
+export interface VoiceStatusRequest {
+  /**
+   * Text to display, or null to clear.
+   */
+  status: string | null;
 }
 /**
  * Op 23 VOICE_TELEMETRY.

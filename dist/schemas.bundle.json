@@ -1484,6 +1484,14 @@
             "null"
           ]
         },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500,
+          "description": "Voice-channel status text, or null when unset."
+        },
         "nsfw": {
           "type": "boolean"
         },
@@ -10930,6 +10938,23 @@
         },
         "self_stream": {
           "type": "boolean"
+        }
+      }
+    },
+    "VoiceStatusRequest": {
+      "title": "VoiceStatusRequest",
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500,
+          "description": "Text to display, or null to clear."
         }
       }
     },

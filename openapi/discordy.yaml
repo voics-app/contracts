@@ -2134,6 +2134,37 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/voice-status:
+    put:
+      operationId: setVoiceChannelStatus
+      summary: Set or clear a voice channel status
+      description: Requires channel visibility and SET_VOICE_CHANNEL_STATUS or current connection to that channel. Dispatches CHANNEL_UPDATE.
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/voice-status-request.json
+      responses:
+        "204":
+          description: Status saved.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          description: The gateway voice-state lookup is unavailable.
   /channels/{channel_id}/permissions/{overwrite_id}:
     put:
       operationId: editChannelPermissions

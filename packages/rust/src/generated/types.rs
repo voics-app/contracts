@@ -1259,6 +1259,9 @@ pub struct Channel {
     pub recipients: ::std::vec::Vec<User>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rtc_region: ::std::option::Option<::std::string::String>,
+    ///Voice-channel status text, or null when unset.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub status: ::std::option::Option<ChannelStatus>,
     ///Voice channels only: whether members can send messages to the channel chat. Defaults to true.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub text_chat_enabled: ::std::option::Option<bool>,
@@ -1369,6 +1372,56 @@ pub struct ChannelPosition {
 pub struct ChannelRecipientEvent {
     pub channel_id: Snowflake,
     pub user: User,
+}
+///Voice-channel status text, or null when unset.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ChannelStatus(::std::string::String);
+impl ::std::ops::Deref for ChannelStatus {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ChannelStatus> for ::std::string::String {
+    fn from(value: ChannelStatus) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ChannelStatus {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 500usize {
+            return Err("longer than 500 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ChannelStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ChannelStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ChannelStatus {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///POST /users/{id}/devices/{did}/key-packages/claim response.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -10423,6 +10476,63 @@ pub struct VoiceStateUpdatePayload {
     pub self_mute: bool,
     pub self_stream: bool,
     pub self_video: bool,
+}
+///`VoiceStatusRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct VoiceStatusRequest {
+    ///Text to display, or null to clear.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub status: ::std::option::Option<VoiceStatusRequestStatus>,
+}
+///Text to display, or null to clear.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceStatusRequestStatus(::std::string::String);
+impl ::std::ops::Deref for VoiceStatusRequestStatus {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceStatusRequestStatus> for ::std::string::String {
+    fn from(value: VoiceStatusRequestStatus) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceStatusRequestStatus {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 500usize {
+            return Err("longer than 500 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceStatusRequestStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceStatusRequestStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceStatusRequestStatus {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///A simulcast video stream layer.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

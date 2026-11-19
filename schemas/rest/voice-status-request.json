@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/voice-status-request.json",
+  "title": "VoiceStatusRequest",
+  "type": "object",
+  "required": ["status"],
+  "properties": {
+    "status": {
+      "type": ["string", "null"],
+      "maxLength": 500,
+      "description": "Text to display, or null to clear."
+    }
+  }
+}
