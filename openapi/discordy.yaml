@@ -49,6 +49,45 @@ tags:
   - name: Voice
     description: Voice regions.
 paths:
+  /gifs/previews:
+    post:
+      operationId: signGifPreviews
+      summary: Refresh signed previews for favorite GIFs
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [urls]
+              properties:
+                urls:
+                  type: array
+                  maxItems: 48
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Signed media proxy URLs in request order.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [urls]
+                properties:
+                  urls:
+                    type: array
+                    items:
+                      type: string
+        "400":
+          description: A URL is outside the configured provider media hosts.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          description: Provider or media signer unavailable.
   /gifs/trending:
     get:
       operationId: trendingGifs
