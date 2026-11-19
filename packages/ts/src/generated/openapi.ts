@@ -1484,6 +1484,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stickers/{sticker_id}/asset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a built-in sticker asset
+         * @description Returns a self-contained Lottie JSON document; this endpoint is public.
+         */
+        get: operations["getBuiltInStickerAsset"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stickers/packs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the built-in sticker pack */
+        get: operations["listBuiltInStickers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}": {
         parameters: {
             query?: never;
@@ -8370,6 +8407,53 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    getBuiltInStickerAsset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Sticker ID. */
+                sticker_id: components["parameters"]["sticker_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Self-contained Lottie JSON asset. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listBuiltInStickers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Built-in sticker metadata; IDs 1?3 are reserved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sticker"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
         };
     };
     getUser: {

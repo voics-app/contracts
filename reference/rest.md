@@ -149,6 +149,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | `Emoji` | Get a custom emoji |
 | `PATCH` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | `ModifyEmojiRequest` | `Emoji` | Modify a custom emoji |
 | `DELETE` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | 204 No Content | Delete a custom emoji |
+| `GET` | `/stickers/packs` | api | — | `array of Sticker` | List the built-in sticker pack |
+| `GET` | `/stickers/{sticker_id}/asset` | api | — | `map of any` | Get a built-in sticker asset |
 | `GET` | `/guilds/{guild_id}/stickers` | api | — | `array of Sticker` | List custom stickers |
 | `POST` | `/guilds/{guild_id}/stickers` | api | `CreateStickerRequest` | `Sticker` | Create a custom sticker |
 | `GET` | `/guilds/{guild_id}/stickers/{sticker_id}` | api | — | `Sticker` | Get a custom sticker |

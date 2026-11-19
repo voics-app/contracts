@@ -187,7 +187,7 @@ export interface paths {
         };
         /**
          * Resolve an available guild sticker for a message author and destination
-         * @description Checks current account eligibility, channel membership, view and send permissions, Standard delivery and that the sticker belongs to the destination guild. Authorization and message storage are not one transaction.
+         * @description Checks current account eligibility, channel membership, view and send permissions, Standard delivery and that the sticker is built-in or belongs to the destination guild. Authorization and message storage are not one transaction.
          */
         get: operations["resolveMessageSticker"];
         put?: never;

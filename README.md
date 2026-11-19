@@ -10,7 +10,7 @@ Rust and Elixir, and into the protocol reference docs.
 Guild sticker CRUD and `GUILD_STICKERS_UPDATE` are specified alongside optional
 `sticker_ids` on message creation and immutable `sticker_items` on messages.
 This contract is a proposal: it does not itself enable sticker uploads or sending.
-A built-in pack, message persistence and clients require coordinated implementations.
+Built-in assets, message persistence and clients require coordinated implementations. IDs 1?3 are reserved for the built-in pack.
 
 ## Layout
 
