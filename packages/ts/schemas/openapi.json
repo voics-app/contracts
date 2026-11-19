@@ -1767,6 +1767,59 @@
         }
       }
     },
+    "/guilds/{guild_id}/insights": {
+      "get": {
+        "operationId": "getGuildInsights",
+        "summary": "Get daily server activity (MANAGE_GUILD)",
+        "description": "UTC days include today. Null means unavailable; membership_complete indicates that collection covered the entire UTC day. Message and voice collection are not yet implemented.",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                7,
+                30
+              ],
+              "default": 7
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daily activity and coverage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildInsights"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/widget.json": {
       "get": {
         "operationId": "getPublicGuildWidget",
@@ -11139,6 +11192,82 @@
               "$ref": "#/components/schemas/Snowflake"
             },
             "maxItems": 200
+          }
+        }
+      },
+      "GuildInsights": {
+        "title": "GuildInsights",
+        "type": "object",
+        "required": [
+          "period",
+          "days",
+          "message_coverage",
+          "voice_coverage"
+        ],
+        "properties": {
+          "period": {
+            "type": "integer",
+            "enum": [
+              7,
+              30
+            ]
+          },
+          "message_coverage": {
+            "type": "boolean"
+          },
+          "voice_coverage": {
+            "type": "boolean"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "date",
+                "new_members",
+                "leavers",
+                "membership_complete",
+                "messages",
+                "voice_minutes"
+              ],
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "new_members": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "leavers": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "membership_complete": {
+                  "type": "boolean"
+                },
+                "messages": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "voice_minutes": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                }
+              }
+            }
           }
         }
       },

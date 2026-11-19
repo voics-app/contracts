@@ -1125,6 +1125,37 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/insights:
+    get:
+      operationId: getGuildInsights
+      summary: Get daily server activity (MANAGE_GUILD)
+      description: UTC days include today. Null means unavailable; membership_complete indicates that collection covered the entire UTC day. Message and voice collection are not yet implemented.
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - name: period
+          in: query
+          required: false
+          schema:
+            type: integer
+            enum: [7, 30]
+            default: 7
+      responses:
+        "200":
+          description: Daily activity and coverage.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/guild-insights.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /guilds/{guild_id}/widget.json:
     get:
       operationId: getPublicGuildWidget

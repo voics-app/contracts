@@ -123,6 +123,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}` | api | — | `Guild` | Get a guild |
 | `PATCH` | `/guilds/{guild_id}` | api | `ModifyGuildRequest` | `Guild` | Modify a guild (including voice_region) |
 | `DELETE` | `/guilds/{guild_id}` | api | — | 204 No Content | Delete a guild (owner only) |
+| `GET` | `/guilds/{guild_id}/insights` | api | — | `GuildInsights` | Get daily server activity (MANAGE_GUILD) |
 | `GET` | `/guilds/{guild_id}/widget.json` | api | — | `object` | Get an enabled guild's public widget |
 | `GET` | `/guilds/{guild_id}/widget` | api | — | `GuildWidgetSettings` | Get widget settings (MANAGE_GUILD) |
 | `PATCH` | `/guilds/{guild_id}/widget` | api | `GuildWidgetPatch` | `GuildWidgetSettings` | Update widget settings (MANAGE_GUILD) |
@@ -2079,6 +2080,15 @@ POST /auth/forgot-password body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `email` | `string (email)` |  |
+
+### GuildInsights
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `period` | `7 or 30` |  |
+| `message_coverage` | `boolean` |  |
+| `voice_coverage` | `boolean` |  |
+| `days` | `array of object` |  |
 
 ### GuildWidgetPatch
 

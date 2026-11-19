@@ -2071,6 +2071,23 @@ export interface PartialUser {
   bot?: boolean;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildInsights".
+ */
+export interface GuildInsights {
+  period: 7 | 30;
+  message_coverage: boolean;
+  voice_coverage: boolean;
+  days: {
+    date: string;
+    new_members: number | null;
+    leavers: number | null;
+    membership_complete: boolean;
+    messages: number | null;
+    voice_minutes: number | null;
+  }[];
+}
+/**
  * An application whose bot is currently installed in this server.
  */
 export interface GuildIntegration {

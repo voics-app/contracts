@@ -4158,6 +4158,82 @@
         }
       }
     },
+    "GuildInsights": {
+      "title": "GuildInsights",
+      "type": "object",
+      "required": [
+        "period",
+        "days",
+        "message_coverage",
+        "voice_coverage"
+      ],
+      "properties": {
+        "period": {
+          "type": "integer",
+          "enum": [
+            7,
+            30
+          ]
+        },
+        "message_coverage": {
+          "type": "boolean"
+        },
+        "voice_coverage": {
+          "type": "boolean"
+        },
+        "days": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "date",
+              "new_members",
+              "leavers",
+              "membership_complete",
+              "messages",
+              "voice_minutes"
+            ],
+            "properties": {
+              "date": {
+                "type": "string",
+                "format": "date"
+              },
+              "new_members": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "leavers": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "membership_complete": {
+                "type": "boolean"
+              },
+              "messages": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "voice_minutes": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
     "GuildIntegration": {
       "title": "GuildIntegration",
       "description": "An application whose bot is currently installed in this server.",

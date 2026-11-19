@@ -1023,6 +1023,26 @@ export interface paths {
         patch: operations["modifyGuildEmoji"];
         trace?: never;
     };
+    "/guilds/{guild_id}/insights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get daily server activity (MANAGE_GUILD)
+         * @description UTC days include today. Null means unavailable; membership_complete indicates that collection covered the entire UTC day. Message and voice collection are not yet implemented.
+         */
+        get: operations["getGuildInsights"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/integrations": {
         parameters: {
             query?: never;
@@ -3022,6 +3042,22 @@ export interface components {
             /** @description Folder id chosen by the client (stable per user); null for a single un-foldered server. */
             id: number | null;
             name: string | null;
+        };
+        /** GuildInsights */
+        GuildInsights: {
+            days: {
+                /** Format: date */
+                date: string;
+                leavers: number | null;
+                membership_complete: boolean;
+                messages: number | null;
+                new_members: number | null;
+                voice_minutes: number | null;
+            }[];
+            message_coverage: boolean;
+            /** @enum {integer} */
+            period: 7 | 30;
+            voice_coverage: boolean;
         };
         /**
          * GuildIntegration
@@ -7094,6 +7130,35 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildInsights: {
+        parameters: {
+            query?: {
+                period?: 7 | 30;
+            };
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Daily activity and coverage. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildInsights"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
     listGuildIntegrations: {
