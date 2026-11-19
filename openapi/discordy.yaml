@@ -1968,6 +1968,67 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/member-verification:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    get:
+      operationId: getMemberVerification
+      summary: Get current rules and the caller's pending status
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Current screening configuration and revision.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/member-verification.json
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      operationId: putMemberVerification
+      summary: Replace rules screening configuration (MANAGE_GUILD)
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/member-verification-request.json
+      responses:
+        "200":
+          description: Saved configuration with new revision.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/member-verification.json
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /guilds/{guild_id}/member-verification/accept:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    post:
+      operationId: acceptMemberVerification
+      summary: Accept the current version of the server rules
+      description: A stale revision returns 409; fetch and display the current rules before retrying.
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [revision]
+              properties:
+                revision: { type: integer, minimum: 0 }
+      responses:
+        "204": { description: Accepted. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { description: The rules changed. }
   /guilds/{guild_id}/vanity-url:
     parameters:
       - $ref: "#/components/parameters/guild_id"
