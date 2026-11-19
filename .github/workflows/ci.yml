@@ -42,6 +42,14 @@ jobs:
           pnpm codegen
           git diff --exit-code
           test -z "$(git ls-files --others --exclude-standard)"
+      - name: Collect generated contracts for draft
+        if: always()
+        run: tar -czf generated-contracts.tar.gz dist reference packages/ts/schemas packages/ts/src/generated packages/rust/src/generated packages/elixir/priv packages/elixir/lib/discordy/contracts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scheduled-event-generated-contracts
+          path: generated-contracts.tar.gz
       - run: pnpm lint && pnpm typecheck && pnpm test
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
