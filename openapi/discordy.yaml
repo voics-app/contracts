@@ -2634,6 +2634,148 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/scheduled-events:
+    get:
+      operationId: listGuildScheduledEvents
+      summary: List events visible to the guild member
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Events visible to the caller.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/guild-scheduled-event.json
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      operationId: createGuildScheduledEvent
+      summary: Create an event (requires CREATE_EVENTS or MANAGE_EVENTS)
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-guild-scheduled-event-request.json
+      responses:
+        "201":
+          description: Event created.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild-scheduled-event.json
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /guilds/{guild_id}/scheduled-events/{event_id}:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+      - name: event_id
+        in: path
+        required: true
+        description: Scheduled event ID.
+        schema: { $ref: ../schemas/objects/snowflake.json }
+    get:
+      operationId: getGuildScheduledEvent
+      summary: Get a visible event
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Event.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/guild-scheduled-event.json }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: modifyGuildScheduledEvent
+      summary: Modify an event
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: ../schemas/rest/modify-guild-scheduled-event-request.json }
+      responses:
+        "200":
+          description: Updated event.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/guild-scheduled-event.json }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteGuildScheduledEvent
+      summary: Delete an event
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "204": { description: Event deleted. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /guilds/{guild_id}/scheduled-events/{event_id}/users/@me:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+      - name: event_id
+        in: path
+        required: true
+        description: Scheduled event ID.
+        schema: { $ref: ../schemas/objects/snowflake.json }
+    get:
+      operationId: getOwnGuildScheduledEventInterest
+      summary: Get the caller's interest in an event
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Current interest.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [interested]
+                properties:
+                  interested: { type: boolean }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    put:
+      operationId: putOwnGuildScheduledEventInterest
+      summary: Mark the caller interested (idempotent)
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "204": { description: Interest recorded. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteOwnGuildScheduledEventInterest
+      summary: Remove the caller's interest (idempotent)
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "204": { description: Interest removed. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
   /guilds/{guild_id}/templates:
     get:
       operationId: listGuildTemplates

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-guild-scheduled-event-request.json",
+  "title": "ModifyGuildScheduledEventRequest",
+  "description": "Update an event. Omitted properties are unchanged; null clears nullable properties.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "description": { "type": ["string", "null"], "maxLength": 1000 },
+    "entity_type": { "type": "integer", "enum": [1, 2, 3] },
+    "channel_id": { "oneOf": [{ "$ref": "../objects/snowflake.json" }, { "type": "null" }] },
+    "entity_metadata": { "oneOf": [{ "$ref": "../objects/scheduled-event-metadata.json" }, { "type": "null" }] },
+    "scheduled_start_time": { "type": "string", "format": "date-time" },
+    "scheduled_end_time": { "type": ["string", "null"], "format": "date-time" },
+    "image": { "type": ["string", "null"] },
+    "status": { "type": "integer", "enum": [1, 2, 3, 4] }
+  }
+}

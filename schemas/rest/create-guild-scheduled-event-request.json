@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-guild-scheduled-event-request.json",
+  "title": "CreateGuildScheduledEventRequest",
+  "description": "Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.",
+  "type": "object",
+  "required": ["name", "entity_type", "scheduled_start_time"],
+  "properties": {
+    "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "description": { "type": ["string", "null"], "maxLength": 1000 },
+    "entity_type": { "type": "integer", "enum": [1, 2, 3] },
+    "channel_id": { "oneOf": [{ "$ref": "../objects/snowflake.json" }, { "type": "null" }] },
+    "entity_metadata": { "oneOf": [{ "$ref": "../objects/scheduled-event-metadata.json" }, { "type": "null" }] },
+    "scheduled_start_time": { "type": "string", "format": "date-time" },
+    "scheduled_end_time": { "type": ["string", "null"], "format": "date-time" },
+    "image": { "type": ["string", "null"], "description": "Image data URI, subject to the standard image upload limits." }
+  }
+}
