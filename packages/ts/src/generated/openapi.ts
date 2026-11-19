@@ -6661,6 +6661,8 @@ export interface operations {
             content: {
                 "application/json": {
                     answer: string;
+                    /** @description The question displayed to the user. */
+                    question: string;
                 };
             };
         };
@@ -6689,7 +6691,7 @@ export interface operations {
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
-            /** @description An open appeal already exists or the form is unavailable. */
+            /** @description The question changed, an open appeal already exists, or the form is unavailable. */
             409: {
                 headers: {
                     [name: string]: unknown;
