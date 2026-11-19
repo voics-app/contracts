@@ -1680,8 +1680,8 @@ paths:
                     answer: { type: string }
                     status: { type: string, enum: [open, accepted, denied, closed] }
                     created_at: { type: string, format: date-time }
-                    resolved_at: { type: string, format: date-time, nullable: true }
-                    resolved_by: { type: string, nullable: true }
+                    resolved_at: { type: [string, 'null'], format: date-time }
+                    resolved_by: { type: [string, 'null'] }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
     post:
