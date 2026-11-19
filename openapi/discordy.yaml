@@ -391,6 +391,98 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /users/@me/connections:
+    get:
+      operationId: listConnections
+      summary: List the current user's linked accounts
+      tags: [Users]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Connections including hidden accounts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/LinkedConnection' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+  /users/@me/connections/github/authorize:
+    post:
+      operationId: authorizeGithubConnection
+      summary: Begin GitHub authorization in the browser
+      tags: [Users]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Provider authorization URL.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url]
+                properties:
+                  url: { type: string, format: uri }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "503": { description: Provider disabled or unavailable. }
+  /users/@me/connections/{provider}:
+    parameters:
+      - { in: path, name: provider, required: true, schema: { type: string, enum: [github] } }
+    put:
+      operationId: setConnectionVisibility
+      summary: Set profile visibility of a linked account
+      tags: [Users]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [visible]
+              properties:
+                visible: { type: boolean }
+      responses:
+        "204": { description: Visibility updated. }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+    delete:
+      operationId: deleteConnection
+      summary: Remove a linked account
+      tags: [Users]
+      x-discordy-service: api
+      responses:
+        "204": { description: Connection removed. }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+  /users/{user_id}/connections:
+    parameters:
+      - { in: path, name: user_id, required: true, schema: { type: string } }
+    get:
+      operationId: listUserConnections
+      summary: List a user's visible linked accounts
+      tags: [Users]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Visible connections.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/LinkedConnection' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+  /connections/github/callback:
+    get:
+      operationId: githubConnectionCallback
+      summary: Complete a GitHub authorization
+      security: []
+      tags: [Users]
+      x-discordy-service: api
+      parameters:
+        - { in: query, name: state, required: true, schema: { type: string } }
+        - { in: query, name: code, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Account linked; browser may be closed. }
+        "400": { $ref: '#/components/responses/BadRequest' }
   /users/@me:
     get:
       operationId: getCurrentUser
@@ -4863,6 +4955,15 @@ paths:
         "429":
           $ref: "#/components/responses/RateLimited"
 components:
+  schemas:
+    LinkedConnection:
+      type: object
+      required: [provider, account_id, name, visible]
+      properties:
+        provider: { type: string, enum: [github] }
+        account_id: { type: string }
+        name: { type: string }
+        visible: { type: boolean }
   securitySchemes:
     UserBearer:
       type: http
