@@ -123,6 +123,9 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}` | api | — | `Guild` | Get a guild |
 | `PATCH` | `/guilds/{guild_id}` | api | `ModifyGuildRequest` | `Guild` | Modify a guild (including voice_region) |
 | `DELETE` | `/guilds/{guild_id}` | api | — | 204 No Content | Delete a guild (owner only) |
+| `GET` | `/guilds/{guild_id}/widget.json` | api | — | `object` | Get an enabled guild's public widget |
+| `GET` | `/guilds/{guild_id}/widget` | api | — | `GuildWidgetSettings` | Get widget settings (MANAGE_GUILD) |
+| `PATCH` | `/guilds/{guild_id}/widget` | api | `GuildWidgetPatch` | `GuildWidgetSettings` | Update widget settings (MANAGE_GUILD) |
 | `GET` | `/guilds/{guild_id}/channels` | api | — | `array of Channel` | List a guild's channels |
 | `POST` | `/guilds/{guild_id}/channels` | api | `CreateChannelRequest` | `Channel` | Create a guild channel |
 | `PATCH` | `/guilds/{guild_id}/channels` | api | `array of ChannelPosition` | 204 No Content | Reorder guild channels |
@@ -2076,6 +2079,20 @@ POST /auth/forgot-password body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `email` | `string (email)` |  |
+
+### GuildWidgetPatch
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled?` | `boolean` |  |
+| `channel_id?` | `?Snowflake` |  |
+
+### GuildWidgetSettings
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `channel_id` | `?Snowflake` |  |
 
 ### InteractionCallbackData
 

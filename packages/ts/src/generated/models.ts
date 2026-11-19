@@ -2257,6 +2257,22 @@ export interface TemplateOverwrite {
   deny: PermissionBitset;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildWidgetPatch".
+ */
+export interface GuildWidgetPatch {
+  enabled?: boolean;
+  channel_id?: Snowflake | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildWidgetSettings".
+ */
+export interface GuildWidgetSettings {
+  enabled: boolean;
+  channel_id: Snowflake | null;
+}
+/**
  * Op 10 HELLO.
  */
 export interface HelloPayload {

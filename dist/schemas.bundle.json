@@ -4606,6 +4606,49 @@
         }
       }
     },
+    "GuildWidgetPatch": {
+      "title": "GuildWidgetPatch",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "channel_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "GuildWidgetSettings": {
+      "title": "GuildWidgetSettings",
+      "type": "object",
+      "required": [
+        "enabled",
+        "channel_id"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "channel_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
     "HeartbeatPayload": {
       "title": "HeartbeatPayload",
       "description": "Op 1 HEARTBEAT: the last sequence number received, or null.",

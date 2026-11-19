@@ -1125,6 +1125,82 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/widget.json:
+    get:
+      operationId: getPublicGuildWidget
+      summary: Get an enabled guild's public widget
+      description: Disabled widgets return 404. The response deliberately omits channels, members and invites.
+      security: []
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Public guild identity.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, name, icon]
+                properties:
+                  id:
+                    $ref: ../schemas/objects/snowflake.json
+                  name:
+                    type: string
+                  icon:
+                    type: [string, "null"]
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /guilds/{guild_id}/widget:
+    get:
+      operationId: getGuildWidgetSettings
+      summary: Get widget settings (MANAGE_GUILD)
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Widget settings.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/guild-widget-settings.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateGuildWidgetSettings
+      summary: Update widget settings (MANAGE_GUILD)
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/guild-widget-patch.json
+      responses:
+        "200":
+          description: Updated widget settings.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/guild-widget-settings.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /guilds/{guild_id}/channels:
     get:
       operationId: listGuildChannels
