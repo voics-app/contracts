@@ -1076,6 +1076,12 @@ pub struct BackupCodesVerificationRequest {
     #[serde(default)]
     pub regenerate: bool,
 }
+///Change visibility of an existing badge grant owned by the caller.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct BadgeVisibilityRequest {
+    pub visible: bool,
+}
 ///A guild ban.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Ban {
@@ -7199,6 +7205,67 @@ impl ::std::convert::TryFrom<::std::string::String> for ProbeVoiceTokenClaimsPur
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///An earned badge and the owner-selected visibility.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ProfileBadge {
+    pub id: ProfileBadgeId,
+    pub visible: bool,
+}
+///`ProfileBadgeId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ProfileBadgeId(::std::string::String);
+impl ::std::ops::Deref for ProfileBadgeId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ProfileBadgeId> for ::std::string::String {
+    fn from(value: ProfileBadgeId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ProfileBadgeId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| {
+                ::regress::Regex::new("^[a-z0-9][a-z0-9_-]{0,63}$").unwrap()
+            });
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[a-z0-9][a-z0-9_-]{0,63}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ProfileBadgeId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ProfileBadgeId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ProfileBadgeId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 ///POST /guilds/{id}/prune body.

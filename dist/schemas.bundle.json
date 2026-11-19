@@ -1268,6 +1268,20 @@
         }
       }
     },
+    "BadgeVisibilityRequest": {
+      "title": "BadgeVisibilityRequest",
+      "description": "Change visibility of an existing badge grant owned by the caller.",
+      "type": "object",
+      "properties": {
+        "visible": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "visible"
+      ],
+      "additionalProperties": false
+    },
     "Ban": {
       "title": "Ban",
       "description": "A guild ban.",
@@ -8027,6 +8041,25 @@
           "format": "uuid"
         }
       }
+    },
+    "ProfileBadge": {
+      "title": "ProfileBadge",
+      "description": "An earned badge and the owner-selected visibility.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "visible"
+      ],
+      "additionalProperties": false
     },
     "PruneRequest": {
       "title": "PruneRequest",

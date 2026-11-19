@@ -800,6 +800,12 @@ export interface BackupCodesVerificationRequest {
   regenerate?: boolean;
 }
 /**
+ * Change visibility of an existing badge grant owned by the caller.
+ */
+export interface BadgeVisibilityRequest {
+  visible: boolean;
+}
+/**
  * A guild ban.
  */
 export interface Ban {
@@ -3487,6 +3493,13 @@ export interface ProbeVoiceTokenClaims {
   purpose: "probe";
   node_lease: string;
   probe_id: string;
+}
+/**
+ * An earned badge and the owner-selected visibility.
+ */
+export interface ProfileBadge {
+  id: string;
+  visible: boolean;
 }
 /**
  * POST /guilds/{id}/prune body.
