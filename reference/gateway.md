@@ -60,7 +60,7 @@ Op 2 IDENTIFY.
 | `intents` | `integer` | Intent bitfield (intents.json). User sessions implicitly get all intents. |
 | `properties` | `IdentifyProperties` |  |
 | `presence?` | `PresenceUpdatePayload` |  |
-| `passive?` | `boolean` | Opt into passive session updates. Omitted means active. |
+| `passive?` | `boolean` | Opt into passive updates. Omitted means active. Requires certified versioned read states; otherwise identification closes with retryable 4000. A session that has used passive mode cannot resume and must identify again. |
 
 ### PresenceUpdatePayload
 
@@ -203,7 +203,7 @@ Op 26 CALL_RING. Rings the listed members of a DM channel for a call the sender 
 
 ### SessionModePayload
 
-Op 27 SESSION_MODE. Set passive false to request fresh active state.
+Op 27 SESSION_MODE. Switching to passive requires certified read states. Switching active fetches read states and refreshes guild snapshots before that guild resumes full dispatch.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -332,7 +332,7 @@ READY: the internal ready state plus session details.
 
 ### PassiveUpdateV2Event
 
-Changes since the previous passive update. Unread means unread channels, computed by the client from the latest message marker and its read position.
+At most one coalesced update every five seconds when values changed; absent fields are unchanged. Unread is the existing count of unread channels, derived by clients from channel latest-message and read markers, not a message count. Guild channels and voice updates are filtered by current view permissions.
 
 | Field | Type | Description |
 | --- | --- | --- |

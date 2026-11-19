@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/passive-update-v2.json",
   "title": "PassiveUpdateV2Event",
-  "description": "Changes since the previous passive update. Unread means unread channels, computed by the client from the latest message marker and its read position.",
+  "description": "At most one coalesced update every five seconds when values changed; absent fields are unchanged. Unread is the existing count of unread channels, derived by clients from channel latest-message and read markers, not a message count. Guild channels and voice updates are filtered by current view permissions.",
   "type": "object",
   "properties": {
     "channels": {

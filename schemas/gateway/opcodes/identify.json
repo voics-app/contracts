@@ -40,7 +40,7 @@
     "passive": {
       "type": "boolean",
       "default": false,
-      "description": "Opt into passive session updates. Omitted means active."
+      "description": "Opt into passive updates. Omitted means active. Requires certified versioned read states; otherwise identification closes with retryable 4000. A session that has used passive mode cannot resume and must identify again."
     }
   },
   "$defs": {

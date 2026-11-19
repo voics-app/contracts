@@ -3927,7 +3927,7 @@ pub struct IdentifyPayload {
     pub device_id: ::std::option::Option<Snowflake>,
     ///Intent bitfield (intents.json). User sessions implicitly get all intents.
     pub intents: u64,
-    ///Opt into passive session updates. Omitted means active.
+    ///Opt into passive updates. Omitted means active. Requires certified versioned read states; otherwise identification closes with retryable 4000. A session that has used passive mode cannot resume and must identify again.
     #[serde(default)]
     pub passive: bool,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -6277,7 +6277,7 @@ pub struct PartialUser {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub username: ::std::option::Option<::std::string::String>,
 }
-///Changes since the previous passive update. Unread means unread channels, computed by the client from the latest message marker and its read position.
+///At most one coalesced update every five seconds when values changed; absent fields are unchanged. Unread is the existing count of unread channels, derived by clients from channel latest-message and read markers, not a message count. Guild channels and voice updates are filtered by current view permissions.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct PassiveUpdateV2Event {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
@@ -8301,7 +8301,7 @@ pub struct SessionDescriptionPayload {
     pub ice_ufrag: ::std::string::String,
     pub video_codec: ::std::string::String,
 }
-///Op 27 SESSION_MODE. Set passive false to request fresh active state.
+///Op 27 SESSION_MODE. Switching to passive requires certified read states. Switching active fetches read states and refreshes guild snapshots before that guild resumes full dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct SessionModePayload {
     pub passive: bool,
