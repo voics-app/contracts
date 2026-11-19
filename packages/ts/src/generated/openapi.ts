@@ -4088,8 +4088,14 @@ export interface components {
             animate_gifs?: boolean;
             /** @description Animate stickers automatically. */
             animate_stickers?: boolean;
+            /** @description Default restriction on new guild-related DMs; missing means false. */
+            default_guilds_restricted?: boolean;
             /** @description Chat font scale. */
             font_scale?: number;
+            /** @description Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior. */
+            guild_dm_restrictions?: {
+                [key: string]: boolean | null;
+            };
             /** @description Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization. */
             hide_age_restricted_channels?: boolean;
             /** @description Increase contrast of text and borders. */

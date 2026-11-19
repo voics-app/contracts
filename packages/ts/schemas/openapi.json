@@ -14262,6 +14262,24 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "default_guilds_restricted": {
+            "type": "boolean",
+            "description": "Default restriction on new guild-related DMs; missing means false."
+          },
+          "guild_dm_restrictions": {
+            "type": "object",
+            "maxProperties": 200,
+            "propertyNames": {
+              "pattern": "^[0-9]{1,20}$"
+            },
+            "additionalProperties": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "description": "Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior."
+          },
           "hide_age_restricted_channels": {
             "type": "boolean",
             "description": "Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization."

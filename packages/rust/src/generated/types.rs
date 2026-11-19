@@ -8933,9 +8933,21 @@ pub struct UserPreferences {
     ///Animate stickers automatically.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub animate_stickers: ::std::option::Option<bool>,
+    ///Default restriction on new guild-related DMs; missing means false.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub default_guilds_restricted: ::std::option::Option<bool>,
     ///Chat font scale.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub font_scale: ::std::option::Option<f64>,
+    ///Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior.
+    #[serde(
+        default,
+        skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+    )]
+    pub guild_dm_restrictions: ::std::collections::HashMap<
+        UserPreferencesGuildDmRestrictionsKey,
+        ::std::option::Option<bool>,
+    >,
     ///Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub hide_age_restricted_channels: ::std::option::Option<bool>,
@@ -9052,6 +9064,58 @@ impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesAccent {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///`UserPreferencesGuildDmRestrictionsKey`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserPreferencesGuildDmRestrictionsKey(::std::string::String);
+impl ::std::ops::Deref for UserPreferencesGuildDmRestrictionsKey {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserPreferencesGuildDmRestrictionsKey> for ::std::string::String {
+    fn from(value: UserPreferencesGuildDmRestrictionsKey) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserPreferencesGuildDmRestrictionsKey {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]{1,20}$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[0-9]{1,20}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPreferencesGuildDmRestrictionsKey {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesGuildDmRestrictionsKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserPreferencesGuildDmRestrictionsKey {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 ///`UserPreferencesRecentReactionsItem`
