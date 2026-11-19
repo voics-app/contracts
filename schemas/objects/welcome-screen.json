@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/welcome-screen.json",
+  "title": "WelcomeScreen",
+  "type": "object",
+  "required": ["enabled", "description", "channels"],
+  "properties": {
+    "enabled": { "type": "boolean" },
+    "description": { "type": "string", "maxLength": 300 },
+    "channels": {
+      "type": "array", "maxItems": 5,
+      "items": {
+        "type": "object", "required": ["channel_id", "description"],
+        "properties": {
+          "channel_id": { "$ref": "./snowflake.json" },
+          "description": { "type": "string", "minLength": 1, "maxLength": 100 }
+        }
+      }
+    }
+  }
+}
