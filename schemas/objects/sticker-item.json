@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/sticker-item.json",
+  "title": "StickerItem",
+  "description": "Immutable display metadata stored with a message.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "format_type"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 30
+    },
+    "format_type": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "description": "1 PNG, 2 APNG, 3 Lottie, 4 GIF."
+    }
+  }
+}

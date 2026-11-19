@@ -5,6 +5,13 @@ service API, JSON Schemas for gateway opcodes and dispatches, the Redpanda event
 and the permission/intent/protocol registries. Codegen turns these sources into packages for TypeScript,
 Rust and Elixir, and into the protocol reference docs.
 
+## Sticker contract proposal (api#33)
+
+Guild sticker CRUD and `GUILD_STICKERS_UPDATE` are specified alongside optional
+`sticker_ids` on message creation and immutable `sticker_items` on messages.
+This contract is a proposal: it does not itself enable sticker uploads or sending.
+A built-in pack, message persistence and clients require coordinated implementations.
+
 ## Layout
 
 `POST /reports` accepts the explicit `channel` target for a visible guild channel.

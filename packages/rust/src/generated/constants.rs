@@ -376,6 +376,7 @@ pub mod dispatch_events {
     pub const GUILD_BAN_ADD: &str = "GUILD_BAN_ADD";
     pub const GUILD_BAN_REMOVE: &str = "GUILD_BAN_REMOVE";
     pub const GUILD_EMOJIS_UPDATE: &str = "GUILD_EMOJIS_UPDATE";
+    pub const GUILD_STICKERS_UPDATE: &str = "GUILD_STICKERS_UPDATE";
     pub const INVITE_CREATE: &str = "INVITE_CREATE";
     pub const INVITE_DELETE: &str = "INVITE_DELETE";
     pub const THREAD_CREATE: &str = "THREAD_CREATE";
@@ -433,6 +434,7 @@ pub mod dispatch_events {
         ("GUILD_BAN_ADD", GUILD_BAN_ADD),
         ("GUILD_BAN_REMOVE", GUILD_BAN_REMOVE),
         ("GUILD_EMOJIS_UPDATE", GUILD_EMOJIS_UPDATE),
+        ("GUILD_STICKERS_UPDATE", GUILD_STICKERS_UPDATE),
         ("INVITE_CREATE", INVITE_CREATE),
         ("INVITE_DELETE", INVITE_DELETE),
         ("THREAD_CREATE", THREAD_CREATE),
@@ -642,6 +644,7 @@ pub mod event_topics {
     pub const GUILD_BAN_ADD: &str = "discordy.guild.v1";
     pub const GUILD_BAN_REMOVE: &str = "discordy.guild.v1";
     pub const GUILD_EMOJIS_UPDATE: &str = "discordy.guild.v1";
+    pub const GUILD_STICKERS_UPDATE: &str = "discordy.guild.v1";
     pub const INVITE_CREATE: &str = "discordy.guild.v1";
     pub const INVITE_DELETE: &str = "discordy.guild.v1";
     pub const THREAD_CREATE: &str = "discordy.guild.v1";
@@ -693,6 +696,7 @@ pub mod event_topics {
         ("GUILD_BAN_ADD", GUILD_BAN_ADD),
         ("GUILD_BAN_REMOVE", GUILD_BAN_REMOVE),
         ("GUILD_EMOJIS_UPDATE", GUILD_EMOJIS_UPDATE),
+        ("GUILD_STICKERS_UPDATE", GUILD_STICKERS_UPDATE),
         ("INVITE_CREATE", INVITE_CREATE),
         ("INVITE_DELETE", INVITE_DELETE),
         ("THREAD_CREATE", THREAD_CREATE),

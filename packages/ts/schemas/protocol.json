@@ -426,6 +426,13 @@
         "description": "A guild's emojis changed."
       },
       {
+        "name": "GUILD_STICKERS_UPDATE",
+        "payload": "gateway/dispatch/guild-stickers-update.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A guild's stickers changed."
+      },
+      {
         "name": "INVITE_CREATE",
         "payload": "gateway/dispatch/invite-create.json",
         "source": "api",

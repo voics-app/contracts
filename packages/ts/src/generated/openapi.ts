@@ -1214,6 +1214,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/stickers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List custom stickers */
+        get: operations["listGuildStickers"];
+        put?: never;
+        /** Create a custom sticker */
+        post: operations["createGuildSticker"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/stickers/{sticker_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a custom sticker */
+        get: operations["getGuildSticker"];
+        put?: never;
+        post?: never;
+        /** Delete a custom sticker */
+        delete: operations["deleteGuildSticker"];
+        options?: never;
+        head?: never;
+        /** Modify a custom sticker */
+        patch: operations["modifyGuildSticker"];
+        trace?: never;
+    };
     "/guilds/{guild_id}/templates": {
         parameters: {
             query?: never;
@@ -2582,6 +2619,7 @@ export interface components {
             flags?: number;
             message_reference?: components["schemas"]["MessageReference"];
             nonce?: string;
+            sticker_ids?: components["schemas"]["Snowflake"][];
             /**
              * @description Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events.
              * @default false
@@ -2613,6 +2651,16 @@ export interface components {
             request_id: components["schemas"]["ScheduledMessageId"];
             /** Format: date-time */
             scheduled_at: string;
+        };
+        /**
+         * CreateStickerRequest
+         * @description Create a guild sticker from a data URI.
+         */
+        CreateStickerRequest: {
+            /** @description Data URI containing a PNG, APNG, GIF or Lottie JSON sticker. */
+            image: string;
+            name: string;
+            tags: string;
         };
         /**
          * CreateThreadRequest
@@ -3161,6 +3209,7 @@ export interface components {
             position?: number;
             reactions?: components["schemas"]["Reaction"][];
             referenced_message?: components["schemas"]["Message"] | null;
+            sticker_items?: components["schemas"]["StickerItem"][];
             thread?: components["schemas"]["Channel"];
             /** Format: date-time */
             timestamp: string;
@@ -3456,6 +3505,14 @@ export interface components {
             mute?: boolean;
             nick?: string | null;
             roles?: components["schemas"]["Snowflake"][];
+        };
+        /**
+         * ModifyStickerRequest
+         * @description Modify a guild sticker.
+         */
+        ModifyStickerRequest: {
+            name?: string;
+            tags?: string;
         };
         /**
          * ModifyUserSettingsRequest
@@ -3918,6 +3975,35 @@ export interface components {
          * @example 1234567890123456789
          */
         Snowflake: string;
+        /**
+         * Sticker
+         * @description A guild or built-in sticker.
+         */
+        Sticker: {
+            available: boolean;
+            /**
+             * @description 1 PNG, 2 APNG, 3 Lottie, 4 GIF.
+             * @enum {integer}
+             */
+            format_type: 1 | 2 | 3 | 4;
+            guild_id?: components["schemas"]["Snowflake"];
+            id: components["schemas"]["Snowflake"];
+            name: string;
+            tags?: string;
+        };
+        /**
+         * StickerItem
+         * @description Immutable display metadata stored with a message.
+         */
+        StickerItem: {
+            /**
+             * @description 1 PNG, 2 APNG, 3 Lottie, 4 GIF.
+             * @enum {integer}
+             */
+            format_type: 1 | 2 | 3 | 4;
+            id: components["schemas"]["Snowflake"];
+            name: string;
+        };
         /**
          * TemplateChannel
          * @description A channel of a template. `id` and `parent_id` are template-local ids, numbered from 1.
@@ -4386,6 +4472,8 @@ export interface components {
         schedule_id: components["schemas"]["ScheduledMessageId"];
         /** @description Login session ID (UUID). */
         session_id: string;
+        /** @description Sticker ID. */
+        sticker_id: components["schemas"]["Snowflake"];
         /** @description User ID. */
         user_id: components["schemas"]["Snowflake"];
         /** @description Webhook ID, or the application ID for interaction webhooks. */
@@ -7525,6 +7613,158 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Role"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listGuildStickers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sticker"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    createGuildSticker: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStickerRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sticker"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildSticker: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                /** @description Sticker ID. */
+                sticker_id: components["parameters"]["sticker_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sticker"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    deleteGuildSticker: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                /** @description Sticker ID. */
+                sticker_id: components["parameters"]["sticker_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    modifyGuildSticker: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                /** @description Sticker ID. */
+                sticker_id: components["parameters"]["sticker_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModifyStickerRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sticker"];
                 };
             };
             400: components["responses"]["BadRequest"];

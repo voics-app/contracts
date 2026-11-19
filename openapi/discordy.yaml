@@ -1940,6 +1940,146 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/stickers:
+    get:
+      operationId: listGuildStickers
+      summary: List custom stickers
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/sticker.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      operationId: createGuildSticker
+      summary: Create a custom sticker
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-sticker-request.json
+      responses:
+        "201":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/sticker.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/stickers/{sticker_id}:
+    get:
+      operationId: getGuildSticker
+      summary: Get a custom sticker
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/sticker_id"
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/sticker.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      operationId: modifyGuildSticker
+      summary: Modify a custom sticker
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/sticker_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-sticker-request.json
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/sticker.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: deleteGuildSticker
+      summary: Delete a custom sticker
+      tags:
+        - Guilds
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - $ref: "#/components/parameters/sticker_id"
+      responses:
+        "204":
+          description: No content.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /guilds/{guild_id}/invites:
     get:
       operationId: listGuildInvites
@@ -4931,6 +5071,12 @@ components:
       in: path
       required: true
       description: Emoji ID.
+      schema: *a1
+    sticker_id:
+      name: sticker_id
+      in: path
+      required: true
+      description: Sticker ID.
       schema: *a1
     overwrite_id:
       name: overwrite_id

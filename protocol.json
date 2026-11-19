@@ -91,6 +91,7 @@
       { "name": "GUILD_BAN_ADD", "payload": "gateway/dispatch/guild-ban.json", "source": "api", "topic": "discordy.guild.v1", "description": "A user was banned." },
       { "name": "GUILD_BAN_REMOVE", "payload": "gateway/dispatch/guild-ban.json", "source": "api", "topic": "discordy.guild.v1", "description": "A user was unbanned." },
       { "name": "GUILD_EMOJIS_UPDATE", "payload": "gateway/dispatch/guild-emojis-update.json", "source": "api", "topic": "discordy.guild.v1", "description": "A guild's emojis changed." },
+      { "name": "GUILD_STICKERS_UPDATE", "payload": "gateway/dispatch/guild-stickers-update.json", "source": "api", "topic": "discordy.guild.v1", "description": "A guild's stickers changed." },
       { "name": "INVITE_CREATE", "payload": "gateway/dispatch/invite-create.json", "source": "api", "topic": "discordy.guild.v1", "description": "An invite was created." },
       { "name": "INVITE_DELETE", "payload": "gateway/dispatch/invite-delete.json", "source": "api", "topic": "discordy.guild.v1", "description": "An invite was deleted." },
       { "name": "THREAD_CREATE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A thread was created." },

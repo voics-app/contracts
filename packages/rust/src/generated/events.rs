@@ -59,6 +59,8 @@ pub enum DispatchEvent {
     GuildBanRemove(GuildBanEvent),
     #[serde(rename = "GUILD_EMOJIS_UPDATE")]
     GuildEmojisUpdate(GuildEmojisUpdateEvent),
+    #[serde(rename = "GUILD_STICKERS_UPDATE")]
+    GuildStickersUpdate(GuildStickersUpdateEvent),
     #[serde(rename = "INVITE_CREATE")]
     InviteCreate(InviteCreateEvent),
     #[serde(rename = "INVITE_DELETE")]
@@ -146,6 +148,7 @@ impl DispatchEvent {
             Self::GuildBanAdd(_) => "GUILD_BAN_ADD",
             Self::GuildBanRemove(_) => "GUILD_BAN_REMOVE",
             Self::GuildEmojisUpdate(_) => "GUILD_EMOJIS_UPDATE",
+            Self::GuildStickersUpdate(_) => "GUILD_STICKERS_UPDATE",
             Self::InviteCreate(_) => "INVITE_CREATE",
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",
@@ -217,6 +220,8 @@ pub enum BusEvent {
     GuildBanRemove(GuildBanEvent),
     #[serde(rename = "GUILD_EMOJIS_UPDATE")]
     GuildEmojisUpdate(GuildEmojisUpdateEvent),
+    #[serde(rename = "GUILD_STICKERS_UPDATE")]
+    GuildStickersUpdate(GuildStickersUpdateEvent),
     #[serde(rename = "INVITE_CREATE")]
     InviteCreate(InviteCreateEvent),
     #[serde(rename = "INVITE_DELETE")]
@@ -303,6 +308,7 @@ impl BusEvent {
             Self::GuildBanAdd(_) => "GUILD_BAN_ADD",
             Self::GuildBanRemove(_) => "GUILD_BAN_REMOVE",
             Self::GuildEmojisUpdate(_) => "GUILD_EMOJIS_UPDATE",
+            Self::GuildStickersUpdate(_) => "GUILD_STICKERS_UPDATE",
             Self::InviteCreate(_) => "INVITE_CREATE",
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",

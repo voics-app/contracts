@@ -876,6 +876,7 @@ export interface components {
             position?: number;
             reactions?: components["schemas"]["Reaction"][];
             referenced_message?: components["schemas"]["Message"] | null;
+            sticker_items?: components["schemas"]["StickerItem"][];
             thread?: components["schemas"]["Channel"];
             /** Format: date-time */
             timestamp: string;
@@ -1158,6 +1159,19 @@ export interface components {
          * @example 1234567890123456789
          */
         Snowflake: string;
+        /**
+         * StickerItem
+         * @description Immutable display metadata stored with a message.
+         */
+        StickerItem: {
+            /**
+             * @description 1 PNG, 2 APNG, 3 Lottie, 4 GIF.
+             * @enum {integer}
+             */
+            format_type: 1 | 2 | 3 | 4;
+            id: components["schemas"]["Snowflake"];
+            name: string;
+        };
         /**
          * SuspendUserRequest
          * @description POST /internal/v1/admin/users/{id}/suspend body.

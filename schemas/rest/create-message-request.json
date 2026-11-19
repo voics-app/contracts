@@ -46,6 +46,14 @@
     "flags": {
       "type": "integer",
       "description": "MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped."
+    },
+    "sticker_ids": {
+      "type": "array",
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      }
     }
   }
 }

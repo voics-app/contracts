@@ -149,6 +149,11 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | `Emoji` | Get a custom emoji |
 | `PATCH` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | `ModifyEmojiRequest` | `Emoji` | Modify a custom emoji |
 | `DELETE` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | 204 No Content | Delete a custom emoji |
+| `GET` | `/guilds/{guild_id}/stickers` | api | — | `array of Sticker` | List custom stickers |
+| `POST` | `/guilds/{guild_id}/stickers` | api | `CreateStickerRequest` | `Sticker` | Create a custom sticker |
+| `GET` | `/guilds/{guild_id}/stickers/{sticker_id}` | api | — | `Sticker` | Get a custom sticker |
+| `PATCH` | `/guilds/{guild_id}/stickers/{sticker_id}` | api | `ModifyStickerRequest` | `Sticker` | Modify a custom sticker |
+| `DELETE` | `/guilds/{guild_id}/stickers/{sticker_id}` | api | — | 204 No Content | Delete a custom sticker |
 | `GET` | `/guilds/{guild_id}/invites` | api | — | `array of Invite` | List a guild's invites |
 | `GET` | `/guilds/{guild_id}/vanity-url` | api | — | `VanityUrl` | Get a guild's permanent invitation (requires MANAGE_GUILD) |
 | `PATCH` | `/guilds/{guild_id}/vanity-url` | api | `ModifyVanityUrlRequest` | `VanityUrl` | Set or remove a guild's permanent invitation (requires MANAGE_GUILD) |
@@ -1135,6 +1140,7 @@ A standard-mode message.
 | `components?` | `array of MessageComponent` |  |
 | `position?` | `integer` |  |
 | `message_snapshots?` | `array of MessageSnapshot` | Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. |
+| `sticker_items?` | `array of StickerItem` |  |
 
 ### MessageCall
 
@@ -1429,6 +1435,29 @@ The client that opened the session.
 A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 2026-01-01T00:00:00Z, 10 bits worker, 12 bits sequence).
 
 Type: `string`
+
+### Sticker
+
+A guild or built-in sticker.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `format_type` | `1 or 2 or 3 or 4` | 1 PNG, 2 APNG, 3 Lottie, 4 GIF. |
+| `guild_id?` | `Snowflake` |  |
+| `tags?` | `string` |  |
+| `available` | `boolean` |  |
+
+### StickerItem
+
+Immutable display metadata stored with a message.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `format_type` | `1 or 2 or 3 or 4` | 1 PNG, 2 APNG, 3 Lottie, 4 GIF. |
 
 ### TemplateChannel
 
@@ -1937,6 +1966,7 @@ POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies w
 | `components?` | `array of MessageComponent` |  |
 | `attachments?` | `array of AttachmentReference` |  |
 | `flags?` | `integer` | MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. |
+| `sticker_ids?` | `array of Snowflake` |  |
 
 ### CreateReportRequest
 
@@ -1962,6 +1992,16 @@ POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New s
 | `request_id` | `ScheduledMessageId` |  |
 | `scheduled_at` | `string (date-time)` |  |
 | `message` | `ScheduledMessageDraft` |  |
+
+### CreateStickerRequest
+
+Create a guild sticker from a data URI.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
+| `tags` | `string` |  |
+| `image` | `string` | Data URI containing a PNG, APNG, GIF or Lottie JSON sticker. |
 
 ### CreateThreadRequest
 
@@ -2267,6 +2307,15 @@ PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed onl
 | `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |
 | `avatar?` | `?string` | Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
 | `banner?` | `?string` | Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
+
+### ModifyStickerRequest
+
+Modify a guild sticker.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name?` | `string` |  |
+| `tags?` | `string` |  |
 
 ### ModifyUserSettingsRequest
 

@@ -2600,6 +2600,13 @@
             "items": {
               "$ref": "#/components/schemas/MessageSnapshot"
             }
+          },
+          "sticker_items": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "$ref": "#/components/schemas/StickerItem"
+            }
           }
         }
       },
@@ -3365,6 +3372,36 @@
         "examples": [
           "1234567890123456789"
         ]
+      },
+      "StickerItem": {
+        "title": "StickerItem",
+        "description": "Immutable display metadata stored with a message.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "format_type"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 30
+          },
+          "format_type": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "description": "1 PNG, 2 APNG, 3 Lottie, 4 GIF."
+          }
+        }
       },
       "SuspendUserRequest": {
         "title": "SuspendUserRequest",

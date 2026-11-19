@@ -1,0 +1,12 @@
+{
+  "schema": "rest/create-message-request.json",
+  "data": {
+    "sticker_ids": [
+      "12345678901234567",
+      "12345678901234568",
+      "12345678901234569",
+      "12345678901234570"
+    ]
+  },
+  "valid": false
+}
