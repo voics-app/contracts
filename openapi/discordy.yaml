@@ -1697,9 +1697,10 @@ paths:
           application/json:
             schema:
               type: object
-              required: [answer]
+              required: [answer, question]
               properties:
                 answer: { type: string, minLength: 1, maxLength: 2000 }
+                question: { type: string, minLength: 1, maxLength: 500, description: The question displayed to the user. }
       responses:
         "201":
           description: Appeal created.
@@ -1709,7 +1710,7 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
-        "409": { description: An open appeal already exists or the form is unavailable. }
+        "409": { description: The question changed, an open appeal already exists, or the form is unavailable. }
   /guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}:
     post:
       operationId: resolveBanAppeal
