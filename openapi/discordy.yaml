@@ -49,6 +49,59 @@ tags:
   - name: Voice
     description: Voice regions.
 paths:
+  /gifs/trending:
+    get:
+      operationId: trendingGifs
+      summary: Browse trending GIFs
+      description: Returns the configured Tenor-v2-compatible provider's featured response. Disabled with 503 until configured.
+      tags: [Users]
+      responses:
+        "200":
+          description: Provider response containing results and media_formats.
+          content:
+            application/json:
+              schema:
+                type: object
+        "503":
+          description: Provider not configured or unavailable.
+  /gifs/search:
+    get:
+      operationId: searchGifs
+      summary: Search GIFs
+      tags: [Users]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+      responses:
+        "200":
+          description: Provider response containing results and media_formats.
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Invalid search query.
+        "503":
+          description: Provider not configured or unavailable.
+  /gifs/categories:
+    get:
+      operationId: gifCategories
+      summary: Browse GIF categories
+      tags: [Users]
+      responses:
+        "200":
+          description: Provider response containing category tags.
+          content:
+            application/json:
+              schema:
+                type: object
+        "503":
+          description: Provider not configured or unavailable.
   /reports:
     post:
       operationId: createReport
