@@ -50,6 +50,7 @@ function renderGateway(input: ReferenceInput): string {
       `Sessions can be resumed for ${g.resume_window_s} s (up to ${g.resume_buffer_max} buffered dispatches). ` +
       `Clients may send ${g.rate_limit_sends} frames per ${g.rate_limit_window_s} s; exceeding it closes with 4008. ` +
       "Objects referenced below (User, Channel, ...) are described in rest.md.",
+    "Add `&compress=zstd-stream` to receive binary frames containing one continuous zstd stream per WebSocket connection. Each event is flushed for immediate decoding. Client-to-server frames stay JSON text. A reconnect, including RESUME, starts a fresh stream. Without the parameter server frames are JSON text; unknown compression values are rejected.",
     section(2, "Frame", schemaSection(3, "GatewayFrame", input.bundle)),
     section(2, "Opcodes", opcodeTable(g.opcodes, input.titleOf)),
     section(2, "Opcode payloads", payloadSections(3, opTitles, input.bundle)),
