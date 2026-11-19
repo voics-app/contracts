@@ -70,6 +70,9 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/users/@me/sessions` | api | — | `array of AuthSession` | List the current user's login sessions |
 | `POST` | `/users/@me/sessions/logout-all` | api | — | 204 No Content | Log out every other session |
 | `DELETE` | `/users/@me/sessions/{session_id}` | api | — | 204 No Content | Log out one session |
+| `GET` | `/users/@me/badges` | api | — | `array of ProfileBadge` | List the owner's badge grants and visibility |
+| `PUT` | `/users/@me/badges/{badge_id}` | api | `BadgeVisibilityRequest` | 204 No Content | Change visibility of an existing owned badge |
+| `GET` | `/users/{user_id}/badges` | api | — | `array of string` | List publicly visible badges on a profile |
 | `GET` | `/users/@me/settings` | api | — | `UserSettings` | Get the current user's settings |
 | `PATCH` | `/users/@me/settings` | api | `ModifyUserSettingsRequest` | `UserSettings` | Modify the current user's settings (including default_delivery_mode) |
 | `GET` | `/users/@me/guilds/{guild_id}/settings` | api | — | `GuildNotificationSettings` | Get the current user's notification settings for a guild (or `@me` for DMs) |
@@ -174,6 +177,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/guilds/{guild_id}/webhooks` | api | — | `array of Webhook` | List a guild's webhooks |
+| `POST` | `/channels/{channel_id}/followers` | api | `object` | `object` | Follow an announcement channel into another server |
+| `GET` | `/guilds/{guild_id}/followed-channels` | api | — | `array of object` | List announcement channels followed by a server |
 | `POST` | `/channels/{channel_id}/webhooks` | api | `CreateWebhookRequest` | `Webhook` | Create a webhook |
 | `POST` | `/webhooks/{webhook_id}/{webhook_token}` | api | `ExecuteWebhookRequest` | `Message` | Execute a webhook or send an interaction follow-up |
 | `POST` | `/webhooks/{webhook_id}/reset-token` | api | — | `Webhook` | Regenerate an incoming webhook execution credential |
@@ -196,18 +201,11 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/channels/{channel_id}/typing` | api | — | 204 No Content | Trigger the typing indicator (publishes TYPING_START) |
 | `POST` | `/channels/{channel_id}/threads` | api | `CreateThreadRequest` | `Channel` | Start a thread (or forum post) |
 
-### Invites
-
-| Method | Path | Service | Request | Response | Summary |
-| --- | --- | --- | --- | --- | --- |
-| `GET` | `/invites/{code}` | api | — | `Invite` | Resolve an invite |
-| `POST` | `/invites/{code}` | api | — | `Invite` | Accept an invite |
-| `DELETE` | `/invites/{code}` | api | — | `Invite` | Revoke an invite |
-
 ### Messages
 
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
+| `POST` | `/channels/{channel_id}/messages/{message_id}/crosspost` | api | — | `Message` | Publish an announcement to its followers |
 | `GET` | `/channels/{channel_id}/messages` | messages | — | `array of Message` | Get channel message history |
 | `POST` | `/channels/{channel_id}/messages` | messages | `CreateMessageRequest` | `Message` | Send a standard-mode message |
 | `GET` | `/channels/{channel_id}/messages/scheduled` | messages | — | `ScheduledMessageList` | List your scheduled messages in a channel |
@@ -232,6 +230,14 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/channels/{channel_id}/pins/{message_id}` | messages | — | 204 No Content | Unpin a message |
 | `POST` | `/channels/{channel_id}/messages/{message_id}/ack` | messages | `AckRequest` | 204 No Content | Mark a channel read up to a message (publishes MESSAGE_ACK) |
 | `POST` | `/channels/{channel_id}/attachments` | messages | `CreateAttachmentsRequest` | `CreateAttachmentsResponse` | Request presigned attachment upload URLs |
+
+### Invites
+
+| Method | Path | Service | Request | Response | Summary |
+| --- | --- | --- | --- | --- | --- |
+| `GET` | `/invites/{code}` | api | — | `Invite` | Resolve an invite |
+| `POST` | `/invites/{code}` | api | — | `Invite` | Accept an invite |
+| `DELETE` | `/invites/{code}` | api | — | `Invite` | Revoke an invite |
 
 ### Applications
 
@@ -1651,7 +1657,7 @@ A user's voice connection state.
 
 ### Webhook
 
-An incoming or application webhook.
+An incoming, channel-follower or application webhook.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -1763,6 +1769,14 @@ POST /users/@me/mfa/codes-verification body.
 | --- | --- | --- |
 | `password` | `string` |  |
 | `regenerate?` | `boolean` | Replaces every backup code and returns the new plaintext codes once. |
+
+### BadgeVisibilityRequest
+
+Change visibility of an existing badge grant owned by the caller.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `visible` | `boolean` |  |
 
 ### BulkDeleteRequest
 
@@ -2415,6 +2429,15 @@ Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enabl
 | Field | Type | Description |
 | --- | --- | --- |
 | `password` | `string` |  |
+
+### ProfileBadge
+
+An earned badge and the owner-selected visibility.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` |  |
+| `visible` | `boolean` |  |
 
 ### PruneRequest
 

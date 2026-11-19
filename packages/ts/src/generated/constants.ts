@@ -537,6 +537,8 @@ export type MessageTypeKey = keyof typeof MessageType;
 
 /** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications. */
 export const MessageFlags = {
+  CROSSPOSTED: 1,
+  IS_CROSSPOST: 2,
   SUPPRESS_EMBEDS: 4,
   SUPPRESS_NOTIFICATIONS: 4096,
   EPHEMERAL: 64,

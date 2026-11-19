@@ -1221,6 +1221,14 @@
       "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications.",
       "values": [
         {
+          "name": "CROSSPOSTED",
+          "value": 1
+        },
+        {
+          "name": "IS_CROSSPOST",
+          "value": 2
+        },
+        {
           "name": "SUPPRESS_EMBEDS",
           "value": 4
         },

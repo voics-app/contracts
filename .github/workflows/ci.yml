@@ -37,22 +37,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Validate schemas and OpenAPI
         run: pnpm validate
-      - name: Regenerate artifacts
-        run: pnpm codegen
-      - name: Upload generated review artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: announcement-contracts-generated
-          path: |
-            dist/
-            packages/ts/src/generated/
-            packages/ts/schemas/
-            packages/rust/src/generated/
-            packages/elixir/lib/discordy/contracts/
-            packages/elixir/priv/
-            reference/
-      - name: Fail on generated drift
+      - name: Regenerate and fail on drift
         run: |
+          pnpm codegen
           git diff --exit-code
           test -z "$(git ls-files --others --exclude-standard)"
       - run: pnpm lint && pnpm typecheck && pnpm test
