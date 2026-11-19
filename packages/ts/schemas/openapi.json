@@ -82,6 +82,126 @@
     }
   ],
   "paths": {
+    "/stage-instances": {
+      "post": {
+        "operationId": "createStageInstance",
+        "summary": "Start a guild-only stage",
+        "tags": [
+          "Voice"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStageInstanceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stage started.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StageInstance"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "description": "Stage already exists."
+          }
+        }
+      }
+    },
+    "/stage-instances/{channel_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/channel_id"
+        }
+      ],
+      "get": {
+        "operationId": "getStageInstance",
+        "summary": "Get a live stage",
+        "tags": [
+          "Voice"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Live stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StageInstance"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "modifyStageInstance",
+        "summary": "Change a live stage topic",
+        "tags": [
+          "Voice"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyStageInstanceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stage updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StageInstance"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteStageInstance",
+        "summary": "End a live stage",
+        "tags": [
+          "Voice"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "204": {
+            "description": "Stage ended."
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/reports": {
       "post": {
         "operationId": "createReport",
@@ -9881,6 +10001,28 @@
           }
         }
       },
+      "CreateStageInstanceRequest": {
+        "title": "CreateStageInstanceRequest",
+        "type": "object",
+        "required": [
+          "channel_id",
+          "topic"
+        ],
+        "properties": {
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "topic": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "privacy_level": {
+            "type": "integer",
+            "const": 2
+          }
+        }
+      },
       "CreateThreadRequest": {
         "title": "CreateThreadRequest",
         "description": "POST /channels/{id}/threads body. Forum channels require `message`.",
@@ -12482,6 +12624,24 @@
           }
         }
       },
+      "ModifyStageInstanceRequest": {
+        "title": "ModifyStageInstanceRequest",
+        "type": "object",
+        "required": [
+          "topic"
+        ],
+        "properties": {
+          "topic": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "privacy_level": {
+            "type": "integer",
+            "const": 2
+          }
+        }
+      },
       "ModifyUserSettingsRequest": {
         "title": "ModifyUserSettingsRequest",
         "description": "PATCH /users/@me/settings body (partial).",
@@ -13802,6 +13962,42 @@
         "examples": [
           "1234567890123456789"
         ]
+      },
+      "StageInstance": {
+        "title": "StageInstance",
+        "description": "A live guild-only stage instance.",
+        "type": "object",
+        "required": [
+          "id",
+          "guild_id",
+          "channel_id",
+          "topic",
+          "privacy_level",
+          "discoverable_disabled"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "topic": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "privacy_level": {
+            "type": "integer",
+            "const": 2
+          },
+          "discoverable_disabled": {
+            "type": "boolean"
+          }
+        }
       },
       "TemplateChannel": {
         "title": "TemplateChannel",

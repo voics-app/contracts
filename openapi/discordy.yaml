@@ -49,6 +49,78 @@ tags:
   - name: Voice
     description: Voice regions.
 paths:
+  /stage-instances:
+    post:
+      operationId: createStageInstance
+      summary: Start a guild-only stage
+      tags: [Voice]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-stage-instance-request.json
+      responses:
+        "201":
+          description: Stage started.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/stage-instance.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: Stage already exists.
+  /stage-instances/{channel_id}:
+    parameters:
+      - $ref: "#/components/parameters/channel_id"
+    get:
+      operationId: getStageInstance
+      summary: Get a live stage
+      tags: [Voice]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Live stage.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/stage-instance.json
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: modifyStageInstance
+      summary: Change a live stage topic
+      tags: [Voice]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/modify-stage-instance-request.json
+      responses:
+        "200":
+          description: Stage updated.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/stage-instance.json
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteStageInstance
+      summary: End a live stage
+      tags: [Voice]
+      x-discordy-service: api
+      responses:
+        "204":
+          description: Stage ended.
+        "404":
+          $ref: "#/components/responses/NotFound"
   /reports:
     post:
       operationId: createReport

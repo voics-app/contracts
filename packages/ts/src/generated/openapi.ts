@@ -1447,6 +1447,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stage-instances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start a guild-only stage */
+        post: operations["createStageInstance"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stage-instances/{channel_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        /** Get a live stage */
+        get: operations["getStageInstance"];
+        put?: never;
+        post?: never;
+        /** End a live stage */
+        delete: operations["deleteStageInstance"];
+        options?: never;
+        head?: never;
+        /** Change a live stage topic */
+        patch: operations["modifyStageInstance"];
+        trace?: never;
+    };
     "/users/{user_id}": {
         parameters: {
             query?: never;
@@ -2614,6 +2653,13 @@ export interface components {
             /** Format: date-time */
             scheduled_at: string;
         };
+        /** CreateStageInstanceRequest */
+        CreateStageInstanceRequest: {
+            channel_id: components["schemas"]["Snowflake"];
+            /** @constant */
+            privacy_level?: 2;
+            topic: string;
+        };
         /**
          * CreateThreadRequest
          * @description POST /channels/{id}/threads body. Forum channels require `message`.
@@ -3457,6 +3503,12 @@ export interface components {
             nick?: string | null;
             roles?: components["schemas"]["Snowflake"][];
         };
+        /** ModifyStageInstanceRequest */
+        ModifyStageInstanceRequest: {
+            /** @constant */
+            privacy_level?: 2;
+            topic: string;
+        };
         /**
          * ModifyUserSettingsRequest
          * @description PATCH /users/@me/settings body (partial).
@@ -3918,6 +3970,19 @@ export interface components {
          * @example 1234567890123456789
          */
         Snowflake: string;
+        /**
+         * StageInstance
+         * @description A live guild-only stage instance.
+         */
+        StageInstance: {
+            channel_id: components["schemas"]["Snowflake"];
+            discoverable_disabled: boolean;
+            guild_id: components["schemas"]["Snowflake"];
+            id: components["schemas"]["Snowflake"];
+            /** @constant */
+            privacy_level: 2;
+            topic: string;
+        };
         /**
          * TemplateChannel
          * @description A channel of a template. `id` and `parent_id` are template-local ids, numbered from 1.
@@ -8129,6 +8194,113 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    createStageInstance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStageInstanceRequest"];
+            };
+        };
+        responses: {
+            /** @description Stage started. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StageInstance"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            403: components["responses"]["Forbidden"];
+            /** @description Stage already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getStageInstance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Live stage. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StageInstance"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteStageInstance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Stage ended. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    modifyStageInstance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModifyStageInstanceRequest"];
+            };
+        };
+        responses: {
+            /** @description Stage updated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StageInstance"];
+                };
+            };
+            404: components["responses"]["NotFound"];
         };
     };
     getUser: {

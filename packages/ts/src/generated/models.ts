@@ -1385,6 +1385,15 @@ export interface ScheduledMessageDraft {
   silent?: boolean;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "CreateStageInstanceRequest".
+ */
+export interface CreateStageInstanceRequest {
+  channel_id: Snowflake;
+  topic: string;
+  privacy_level?: 2;
+}
+/**
  * POST /channels/{id}/threads body. Forum channels require `message`.
  */
 export interface CreateThreadRequest {
@@ -3088,6 +3097,14 @@ export interface ModifyMemberRequest {
   banner?: string | null;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "ModifyStageInstanceRequest".
+ */
+export interface ModifyStageInstanceRequest {
+  topic: string;
+  privacy_level?: 2;
+}
+/**
  * PATCH /users/@me/settings body (partial).
  */
 export interface ModifyUserSettingsRequest {
@@ -3842,6 +3859,17 @@ export interface SpeakingPayload {
   speaking: number;
   ssrc: number;
   user_id?: Snowflake;
+}
+/**
+ * A live guild-only stage instance.
+ */
+export interface StageInstance {
+  id: Snowflake;
+  guild_id: Snowflake;
+  channel_id: Snowflake;
+  topic: string;
+  privacy_level: 2;
+  discoverable_disabled: boolean;
 }
 /**
  * Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.

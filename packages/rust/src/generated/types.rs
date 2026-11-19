@@ -2218,6 +2218,67 @@ pub struct CreateScheduledMessageRequest {
     pub request_id: ScheduledMessageId,
     pub scheduled_at: ::chrono::DateTime<::chrono::offset::Utc>,
 }
+///`CreateStageInstanceRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateStageInstanceRequest {
+    pub channel_id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub privacy_level: ::std::option::Option<i64>,
+    pub topic: CreateStageInstanceRequestTopic,
+}
+///`CreateStageInstanceRequestTopic`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateStageInstanceRequestTopic(::std::string::String);
+impl ::std::ops::Deref for CreateStageInstanceRequestTopic {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateStageInstanceRequestTopic> for ::std::string::String {
+    fn from(value: CreateStageInstanceRequestTopic) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateStageInstanceRequestTopic {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateStageInstanceRequestTopic {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///POST /channels/{id}/threads body. Forum channels require `message`.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct CreateThreadRequest {
@@ -5727,6 +5788,66 @@ impl<'de> ::serde::Deserialize<'de> for ModifyMemberRequestBio {
             })
     }
 }
+///`ModifyStageInstanceRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ModifyStageInstanceRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub privacy_level: ::std::option::Option<i64>,
+    pub topic: ModifyStageInstanceRequestTopic,
+}
+///`ModifyStageInstanceRequestTopic`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyStageInstanceRequestTopic(::std::string::String);
+impl ::std::ops::Deref for ModifyStageInstanceRequestTopic {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyStageInstanceRequestTopic> for ::std::string::String {
+    fn from(value: ModifyStageInstanceRequestTopic) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyStageInstanceRequestTopic {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyStageInstanceRequestTopic {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///PATCH /users/@me/settings body (partial).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyUserSettingsRequest {
@@ -8434,6 +8555,69 @@ pub struct SpeakingPayload {
     pub ssrc: u64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: ::std::option::Option<Snowflake>,
+}
+///A live guild-only stage instance.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct StageInstance {
+    pub channel_id: Snowflake,
+    pub discoverable_disabled: bool,
+    pub guild_id: Snowflake,
+    pub id: Snowflake,
+    pub privacy_level: i64,
+    pub topic: StageInstanceTopic,
+}
+///`StageInstanceTopic`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct StageInstanceTopic(::std::string::String);
+impl ::std::ops::Deref for StageInstanceTopic {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<StageInstanceTopic> for ::std::string::String {
+    fn from(value: StageInstanceTopic) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for StageInstanceTopic {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for StageInstanceTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for StageInstanceTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for StageInstanceTopic {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

@@ -222,7 +222,7 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 
 | Bit | Value | Name | Privileged | Events |
 | --- | --- | --- | --- | --- |
-| 1 << 0 | 1 | `GUILDS` | no | GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE, CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE, THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE |
+| 1 << 0 | 1 | `GUILDS` | no | GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE, CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE, THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE, STAGE_INSTANCE_CREATE, STAGE_INSTANCE_UPDATE, STAGE_INSTANCE_DELETE |
 | 1 << 1 | 2 | `GUILD_MEMBERS` | yes | GUILD_MEMBER_ADD, GUILD_MEMBER_UPDATE, GUILD_MEMBER_REMOVE |
 | 1 << 2 | 4 | `GUILD_MODERATION` | no | AUDIT_LOG_ENTRY_CREATE, GUILD_BAN_ADD, GUILD_BAN_REMOVE |
 | 1 << 3 | 8 | `GUILD_EMOJIS` (Discord: `GUILD_EXPRESSIONS`) | no | GUILD_EMOJIS_UPDATE |
@@ -267,6 +267,9 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `GUILD_MEMBER_REMOVE` | `GuildMemberRemoveEvent` | api | `discordy.guild.v1` | A user left or was removed from a guild. |
 | `GUILD_BAN_ADD` | `GuildBanEvent` | api | `discordy.guild.v1` | A user was banned. |
 | `GUILD_BAN_REMOVE` | `GuildBanEvent` | api | `discordy.guild.v1` | A user was unbanned. |
+| `STAGE_INSTANCE_CREATE` | `StageInstance` | api | `discordy.guild.v1` | A stage instance was started. |
+| `STAGE_INSTANCE_UPDATE` | `StageInstance` | api | `discordy.guild.v1` | A stage instance was updated. |
+| `STAGE_INSTANCE_DELETE` | `StageInstance` | api | `discordy.guild.v1` | A stage instance was ended. |
 | `GUILD_EMOJIS_UPDATE` | `GuildEmojisUpdateEvent` | api | `discordy.guild.v1` | A guild's emojis changed. |
 | `INVITE_CREATE` | `InviteCreateEvent` | api | `discordy.guild.v1` | An invite was created. |
 | `INVITE_DELETE` | `InviteDeleteEvent` | api | `discordy.guild.v1` | An invite was deleted. |

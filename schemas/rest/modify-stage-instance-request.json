@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-stage-instance-request.json",
+  "title": "ModifyStageInstanceRequest",
+  "type": "object",
+  "required": ["topic"],
+  "properties": {
+    "topic": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "privacy_level": { "type": "integer", "const": 2 }
+  }
+}

@@ -419,6 +419,27 @@
         "description": "A user was unbanned."
       },
       {
+        "name": "STAGE_INSTANCE_CREATE",
+        "payload": "objects/stage-instance.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A stage instance was started."
+      },
+      {
+        "name": "STAGE_INSTANCE_UPDATE",
+        "payload": "objects/stage-instance.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A stage instance was updated."
+      },
+      {
+        "name": "STAGE_INSTANCE_DELETE",
+        "payload": "objects/stage-instance.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A stage instance was ended."
+      },
+      {
         "name": "GUILD_EMOJIS_UPDATE",
         "payload": "gateway/dispatch/guild-emojis-update.json",
         "source": "api",

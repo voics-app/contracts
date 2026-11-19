@@ -2371,6 +2371,28 @@
         }
       }
     },
+    "CreateStageInstanceRequest": {
+      "title": "CreateStageInstanceRequest",
+      "type": "object",
+      "required": [
+        "channel_id",
+        "topic"
+      ],
+      "properties": {
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "privacy_level": {
+          "type": "integer",
+          "const": 2
+        }
+      }
+    },
     "CreateThreadRequest": {
       "title": "CreateThreadRequest",
       "description": "POST /channels/{id}/threads body. Forum channels require `message`.",
@@ -6847,6 +6869,24 @@
         }
       }
     },
+    "ModifyStageInstanceRequest": {
+      "title": "ModifyStageInstanceRequest",
+      "type": "object",
+      "required": [
+        "topic"
+      ],
+      "properties": {
+        "topic": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "privacy_level": {
+          "type": "integer",
+          "const": 2
+        }
+      }
+    },
     "ModifyUserSettingsRequest": {
       "title": "ModifyUserSettingsRequest",
       "description": "PATCH /users/@me/settings body (partial).",
@@ -9266,6 +9306,42 @@
         },
         "user_id": {
           "$ref": "#/$defs/Snowflake"
+        }
+      }
+    },
+    "StageInstance": {
+      "title": "StageInstance",
+      "description": "A live guild-only stage instance.",
+      "type": "object",
+      "required": [
+        "id",
+        "guild_id",
+        "channel_id",
+        "topic",
+        "privacy_level",
+        "discoverable_disabled"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "privacy_level": {
+          "type": "integer",
+          "const": 2
+        },
+        "discoverable_disabled": {
+          "type": "boolean"
         }
       }
     },

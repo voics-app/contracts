@@ -58,6 +58,9 @@ Redpanda event envelope. `data` is exactly the gateway DISPATCH payload for `typ
 | `GUILD_MEMBER_REMOVE` | `discordy.guild.v1` | `GuildMemberRemoveEvent` |
 | `GUILD_BAN_ADD` | `discordy.guild.v1` | `GuildBanEvent` |
 | `GUILD_BAN_REMOVE` | `discordy.guild.v1` | `GuildBanEvent` |
+| `STAGE_INSTANCE_CREATE` | `discordy.guild.v1` | `StageInstance` |
+| `STAGE_INSTANCE_UPDATE` | `discordy.guild.v1` | `StageInstance` |
+| `STAGE_INSTANCE_DELETE` | `discordy.guild.v1` | `StageInstance` |
 | `GUILD_EMOJIS_UPDATE` | `discordy.guild.v1` | `GuildEmojisUpdateEvent` |
 | `INVITE_CREATE` | `discordy.guild.v1` | `InviteCreateEvent` |
 | `INVITE_DELETE` | `discordy.guild.v1` | `InviteDeleteEvent` |
