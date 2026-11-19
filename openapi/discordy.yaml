@@ -789,6 +789,79 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /users/@me/badges:
+    get:
+      operationId: listOwnBadges
+      summary: List the owner's badge grants and visibility
+      tags: [Users]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: All grants owned by the caller.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/rest/profile-badge.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/@me/badges/{badge_id}:
+    put:
+      operationId: setBadgeVisibility
+      summary: Change visibility of an existing owned badge
+      tags: [Users]
+      x-discordy-service: api
+      parameters:
+        - name: badge_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-z0-9][a-z0-9_-]{0,63}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/badge-visibility-request.json
+      responses:
+        "204":
+          description: Visibility updated.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /users/{user_id}/badges:
+    get:
+      operationId: listUserBadges
+      summary: List publicly visible badges on a profile
+      tags: [Users]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: Visible badge IDs only.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  pattern: '^[a-z0-9][a-z0-9_-]{0,63}$'
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /users/@me/settings:
     get:
       operationId: getUserSettings

@@ -1535,6 +1535,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{user_id}/badges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List publicly visible badges on a profile */
+        get: operations["listUserBadges"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/devices": {
         parameters: {
             query?: never;
@@ -1602,6 +1619,40 @@ export interface paths {
         head?: never;
         /** Modify the current user */
         patch: operations["modifyCurrentUser"];
+        trace?: never;
+    };
+    "/users/@me/badges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the owner's badge grants and visibility */
+        get: operations["listOwnBadges"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/badges/{badge_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Change visibility of an existing owned badge */
+        put: operations["setBadgeVisibility"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/users/@me/channels": {
@@ -2409,6 +2460,13 @@ export interface components {
              * @default false
              */
             regenerate: boolean;
+        };
+        /**
+         * BadgeVisibilityRequest
+         * @description Change visibility of an existing badge grant owned by the caller.
+         */
+        BadgeVisibilityRequest: {
+            visible: boolean;
         };
         /**
          * Ban
@@ -3737,6 +3795,14 @@ export interface components {
             id: components["schemas"]["Snowflake"];
             /** @description OverwriteType: 0 role, 1 member. */
             type: number;
+        };
+        /**
+         * ProfileBadge
+         * @description An earned badge and the owner-selected visibility.
+         */
+        ProfileBadge: {
+            id: string;
+            visible: boolean;
         };
         /**
          * PruneRequest
@@ -8370,6 +8436,32 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listUserBadges: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Visible badge IDs only. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     listUserDevices: {
         parameters: {
             query?: never;
@@ -8496,6 +8588,56 @@ export interface operations {
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listOwnBadges: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All grants owned by the caller. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileBadge"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    setBadgeVisibility: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                badge_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BadgeVisibilityRequest"];
+            };
+        };
+        responses: {
+            /** @description Visibility updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
         };
     };
