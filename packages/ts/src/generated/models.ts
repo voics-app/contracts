@@ -3688,6 +3688,17 @@ export interface SelectProtocolData {
   ice_pwd: string;
   fingerprint: string;
   setup: "actpass";
+  /**
+   * Client-selected outbound SSRCs. Soundboard is separate from microphone audio.
+   */
+  ssrcs?: {
+    audio: number;
+    soundboard?: number;
+    video?: number;
+    rtx?: number;
+    screen?: number;
+    screen_rtx?: number;
+  };
 }
 /**
  * Voice op 1 SELECT_PROTOCOL.
@@ -4034,6 +4045,10 @@ export interface VideoPayload {
   rtx_ssrc: number;
   streams: VoiceStream[];
   user_id?: Snowflake;
+  /**
+   * Separate soundboard audio SSRC, when negotiated.
+   */
+  soundboard_ssrc?: number | null;
 }
 /**
  * A simulcast video stream layer.

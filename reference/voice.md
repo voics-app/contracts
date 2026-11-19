@@ -139,6 +139,7 @@ Voice op 12 VIDEO.
 | `rtx_ssrc` | `integer` |  |
 | `streams` | `array of VoiceStream` |  |
 | `user_id?` | `Snowflake` | Set by the server when relaying another user's announcement. |
+| `soundboard_ssrc?` | `?integer` | Separate soundboard audio SSRC, when negotiated. |
 
 ### ClientDisconnectPayload
 
@@ -448,6 +449,7 @@ Client ICE/DTLS parameters.
 | `ice_pwd` | `string` |  |
 | `fingerprint` | `string` |  |
 | `setup` | `"actpass"` |  |
+| `ssrcs?` | `object` | Client-selected outbound SSRCs. Soundboard is separate from microphone audio. |
 
 ### VoiceCodec
 

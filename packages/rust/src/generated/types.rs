@@ -8246,6 +8246,23 @@ pub struct SelectProtocolData {
     pub ice_pwd: ::std::string::String,
     pub ice_ufrag: ::std::string::String,
     pub setup: ::serde_json::Value,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub ssrcs: ::std::option::Option<SelectProtocolDataSsrcs>,
+}
+///Client-selected outbound SSRCs. Soundboard is separate from microphone audio.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SelectProtocolDataSsrcs {
+    pub audio: ::std::num::NonZeroU64,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub rtx: ::std::option::Option<u32>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub screen: ::std::option::Option<u32>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub screen_rtx: ::std::option::Option<u32>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub soundboard: ::std::option::Option<::std::num::NonZeroU64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub video: ::std::option::Option<u32>,
 }
 ///Voice op 1 SELECT_PROTOCOL.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -9688,6 +9705,9 @@ impl<'de> ::serde::Deserialize<'de> for VerifyTotpRequestCode {
 pub struct VideoPayload {
     pub audio_ssrc: u64,
     pub rtx_ssrc: u64,
+    ///Separate soundboard audio SSRC, when negotiated.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub soundboard_ssrc: ::std::option::Option<::std::num::NonZeroU64>,
     pub streams: ::std::vec::Vec<VoiceStream>,
     ///Set by the server when relaying another user's announcement.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
