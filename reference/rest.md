@@ -193,7 +193,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/channels/{channel_id}/invites` | api | `CreateInviteRequest` | `Invite` | Create an invite |
 | `PUT` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Add a user to a group DM |
 | `DELETE` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Remove a user from a group DM, or leave with @me |
+| `PUT` | `/channels/{channel_id}/thread-members/{user_id}` | api | — | 204 No Content | Join a thread or invite a guild member |
+| `DELETE` | `/channels/{channel_id}/thread-members/{user_id}` | api | — | 204 No Content | Leave a thread or remove a member |
 | `POST` | `/channels/{channel_id}/typing` | api | — | 204 No Content | Trigger the typing indicator (publishes TYPING_START) |
+| `GET` | `/channels/{channel_id}/threads` | api | — | `array of Channel` | List visible active or archived threads under a channel |
 | `POST` | `/channels/{channel_id}/threads` | api | `CreateThreadRequest` | `Channel` | Start a thread (or forum post) |
 
 ### Invites

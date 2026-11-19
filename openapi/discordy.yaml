@@ -2264,6 +2264,56 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/thread-members/{user_id}:
+    put:
+      operationId: addThreadMember
+      summary: Join a thread or invite a guild member
+      description: >-
+        Use @me to join a visible public thread. A thread manager may add a guild member;
+        members may invite others to an invitable private thread. The target must be able
+        to view the parent channel. A locked thread requires MANAGE_THREADS.
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "204":
+          description: Joined or already a member.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: removeThreadMember
+      summary: Leave a thread or remove a member
+      description: Use @me to leave; removing another user requires MANAGE_THREADS.
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "204":
+          description: Left or already absent.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /channels/{channel_id}/typing:
     post:
       operationId: triggerTyping
@@ -2287,6 +2337,40 @@ paths:
         "429":
           $ref: "#/components/responses/RateLimited"
   /channels/{channel_id}/threads:
+    get:
+      operationId: listChannelThreads
+      summary: List visible active or archived threads under a channel
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - name: archived
+          in: query
+          required: false
+          description: Select archived threads instead of active threads.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Threads visible to the caller.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/channel.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
     post:
       operationId: startThread
       summary: Start a thread (or forum post)
