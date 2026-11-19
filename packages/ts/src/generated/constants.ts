@@ -106,13 +106,15 @@ export const Permissions = {
   PIN_MESSAGES: 1n << 51n,
   /** Allows bypassing slowmode restrictions */
   BYPASS_SLOWMODE: 1n << 52n,
+  /** Allows configuring and reviewing ban appeals */
+  MANAGE_BAN_APPEALS: 1n << 53n,
 } as const;
 export type PermissionsKey = keyof typeof Permissions;
 
 /** Derived permission sets. */
 export const PermissionSets = {
   /** Every known permission. */
-  ALL: 8866461766385663n,
+  ALL: 17873661021126655n,
 } as const;
 export type PermissionSetsKey = keyof typeof PermissionSets;
 
