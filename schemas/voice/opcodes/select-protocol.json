@@ -46,6 +46,45 @@
         },
         "setup": {
           "const": "actpass"
+        },
+        "ssrcs": {
+          "type": "object",
+          "description": "Client-selected outbound SSRCs. Soundboard is separate from microphone audio.",
+          "required": [
+            "audio"
+          ],
+          "properties": {
+            "audio": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4294967295
+            },
+            "soundboard": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4294967295
+            },
+            "video": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "rtx": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "screen": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "screen_rtx": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            }
+          }
         }
       }
     }
