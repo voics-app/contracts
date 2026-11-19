@@ -153,6 +153,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}/member-verification` | api | — | `MemberVerification` | Get current rules and the caller's pending status |
 | `PUT` | `/guilds/{guild_id}/member-verification` | api | `SetMemberVerificationRequest` | `MemberVerification` | Replace rules screening configuration (MANAGE_GUILD) |
 | `POST` | `/guilds/{guild_id}/member-verification/accept` | api | `object` | 204 No Content | Accept the current version of the server rules |
+| `GET` | `/guilds/{guild_id}/welcome-screen` | api | — | `WelcomeScreen` | Get the welcome screen, filtered to channels the caller can view |
+| `PUT` | `/guilds/{guild_id}/welcome-screen` | api | `WelcomeScreen` | `WelcomeScreen` | Replace the welcome screen (MANAGE_GUILD) |
 | `GET` | `/guilds/{guild_id}/vanity-url` | api | — | `VanityUrl` | Get a guild's permanent invitation (requires MANAGE_GUILD) |
 | `PATCH` | `/guilds/{guild_id}/vanity-url` | api | `ModifyVanityUrlRequest` | `VanityUrl` | Set or remove a guild's permanent invitation (requires MANAGE_GUILD) |
 | `GET` | `/discovery/guilds` | api | — | `DiscoveryPage` | Browse and search public servers that opted in to discovery |
@@ -1677,6 +1679,14 @@ An incoming or application webhook.
 | `token?` | `string` | Execution credential returned only by create and reset-token; never stored in list/get/edit responses. |
 | `application_id` | `?Snowflake` |  |
 | `url?` | `string` | Execution URL returned only by create and reset-token. Treat as a secret. |
+
+### WelcomeScreen
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `description` | `string` |  |
+| `channels` | `array of object` |  |
 
 ## Request and response bodies
 

@@ -4577,3 +4577,86 @@ export interface WebauthnLoginFinishRequest {
 export interface WebauthnLoginStartRequest {
   ticket: string;
 }
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "WelcomeScreen".
+ */
+export interface WelcomeScreen {
+  enabled: boolean;
+  description: string;
+  /**
+   * @maxItems 5
+   */
+  channels:
+    | []
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ];
+}

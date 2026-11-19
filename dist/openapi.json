@@ -3231,6 +3231,78 @@
         }
       }
     },
+    "/guilds/{guild_id}/welcome-screen": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "get": {
+        "operationId": "getWelcomeScreen",
+        "summary": "Get the welcome screen, filtered to channels the caller can view",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Welcome screen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelcomeScreen"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putWelcomeScreen",
+        "summary": "Replace the welcome screen (MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WelcomeScreen"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved welcome screen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelcomeScreen"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/vanity-url": {
       "parameters": [
         {
@@ -14960,6 +15032,45 @@
           "url": {
             "type": "string",
             "description": "Execution URL returned only by create and reset-token. Treat as a secret."
+          }
+        }
+      },
+      "WelcomeScreen": {
+        "title": "WelcomeScreen",
+        "type": "object",
+        "required": [
+          "enabled",
+          "description",
+          "channels"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "channels": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "type": "object",
+              "required": [
+                "channel_id",
+                "description"
+              ],
+              "properties": {
+                "channel_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                }
+              }
+            }
           }
         }
       }

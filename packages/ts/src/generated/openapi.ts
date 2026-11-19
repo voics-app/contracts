@@ -1336,6 +1336,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/welcome-screen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get the welcome screen, filtered to channels the caller can view */
+        get: operations["getWelcomeScreen"];
+        /** Replace the welcome screen (MANAGE_GUILD) */
+        put: operations["putWelcomeScreen"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/templates": {
         parameters: {
             query?: never;
@@ -4320,6 +4341,15 @@ export interface components {
             /** @description Execution URL returned only by create and reset-token. Treat as a secret. */
             url?: string;
             user?: components["schemas"]["User"];
+        };
+        /** WelcomeScreen */
+        WelcomeScreen: {
+            channels: {
+                channel_id: components["schemas"]["Snowflake"];
+                description: string;
+            }[];
+            description: string;
+            enabled: boolean;
         };
     };
     responses: {
@@ -7919,6 +7949,61 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    getWelcomeScreen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Welcome screen. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WelcomeScreen"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    putWelcomeScreen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WelcomeScreen"];
+            };
+        };
+        responses: {
+            /** @description Saved welcome screen. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WelcomeScreen"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     listBuiltinGuildTemplates: {

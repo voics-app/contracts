@@ -11021,6 +11021,122 @@ pub struct Webhook {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user: ::std::option::Option<User>,
 }
+///`WelcomeScreen`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WelcomeScreen {
+    pub channels: ::std::vec::Vec<WelcomeScreenChannelsItem>,
+    pub description: WelcomeScreenDescription,
+    pub enabled: bool,
+}
+///`WelcomeScreenChannelsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WelcomeScreenChannelsItem {
+    pub channel_id: Snowflake,
+    pub description: WelcomeScreenChannelsItemDescription,
+}
+///`WelcomeScreenChannelsItemDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WelcomeScreenChannelsItemDescription(::std::string::String);
+impl ::std::ops::Deref for WelcomeScreenChannelsItemDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WelcomeScreenChannelsItemDescription> for ::std::string::String {
+    fn from(value: WelcomeScreenChannelsItemDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WelcomeScreenChannelsItemDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WelcomeScreenChannelsItemDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WelcomeScreenChannelsItemDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WelcomeScreenChannelsItemDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`WelcomeScreenDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WelcomeScreenDescription(::std::string::String);
+impl ::std::ops::Deref for WelcomeScreenDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WelcomeScreenDescription> for ::std::string::String {
+    fn from(value: WelcomeScreenDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WelcomeScreenDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WelcomeScreenDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WelcomeScreenDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WelcomeScreenDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 /// Generation of default values for serde.
 pub mod defaults {
     pub(super) fn default_bool<const V: bool>() -> bool {

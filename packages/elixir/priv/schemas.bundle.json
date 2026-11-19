@@ -11306,6 +11306,45 @@
           "description": "Execution URL returned only by create and reset-token. Treat as a secret."
         }
       }
+    },
+    "WelcomeScreen": {
+      "title": "WelcomeScreen",
+      "type": "object",
+      "required": [
+        "enabled",
+        "description",
+        "channels"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "channels": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "required": [
+              "channel_id",
+              "description"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

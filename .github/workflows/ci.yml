@@ -42,16 +42,6 @@ jobs:
           pnpm codegen
           git diff --exit-code
           test -z "$(git ls-files --others --exclude-standard)"
-      - name: Capture generated changes
-        if: failure()
-        run: |
-          git add -N packages reference
-          git diff --binary > generated.patch
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: generated-patch
-          path: generated.patch
       - run: pnpm lint && pnpm typecheck && pnpm test
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
