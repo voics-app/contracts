@@ -2397,6 +2397,8 @@ export interface components {
             position?: number;
             rate_limit_per_user?: number;
             recipients?: components["schemas"]["User"][];
+            /** @description Forum posts must have at least one available tag. */
+            require_tags?: boolean;
             rtc_region?: string | null;
             /** @description Voice channels only: whether members can send messages to the channel chat. Defaults to true. */
             text_chat_enabled?: boolean;
@@ -3299,9 +3301,22 @@ export interface components {
          * @description PATCH /channels/{id} body (partial). Changing delivery_mode requires MANAGE_CHANNELS.
          */
         ModifyChannelRequest: {
+            applied_tags?: components["schemas"]["Snowflake"][];
             archived?: boolean;
             auto_archive_duration?: number;
+            available_tags?: {
+                emoji_id?: components["schemas"]["Snowflake"] | null;
+                emoji_name?: string | null;
+                id?: components["schemas"]["Snowflake"];
+                moderated?: boolean;
+                name: string;
+            }[];
             bitrate?: number | null;
+            /** @enum {integer} */
+            default_forum_layout?: 0 | 1 | 2;
+            default_reaction_emoji?: components["schemas"]["DefaultReaction"] | null;
+            /** @enum {integer|null} */
+            default_sort_order?: 0 | 1 | null;
             delivery_mode?: components["schemas"]["DeliveryMode"];
             /** @description Group DM icon. */
             icon?: string | null;
@@ -3313,6 +3328,7 @@ export interface components {
             permission_overwrites?: components["schemas"]["PermissionOverwrite"][];
             position?: number | null;
             rate_limit_per_user?: number | null;
+            require_tags?: boolean;
             rtc_region?: string | null;
             /** @description Voice channels only. Managers with MANAGE_CHANNELS switch the channel chat on or off. */
             text_chat_enabled?: boolean;

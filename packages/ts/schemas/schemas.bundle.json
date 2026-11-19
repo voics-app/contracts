@@ -1629,6 +1629,10 @@
             "null"
           ],
           "description": "Discordy: per-channel voice region override; null uses the guild's voice_region."
+        },
+        "require_tags": {
+          "type": "boolean",
+          "description": "Forum posts must have at least one available tag."
         }
       }
     },
@@ -6403,6 +6407,84 @@
             "string",
             "null"
           ]
+        },
+        "available_tags": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20
+              },
+              "moderated": {
+                "type": "boolean"
+              },
+              "emoji_id": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/Snowflake"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "emoji_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "applied_tags": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
+        },
+        "default_sort_order": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "enum": [
+            0,
+            1,
+            null
+          ]
+        },
+        "default_forum_layout": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "default_reaction_emoji": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DefaultReaction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "require_tags": {
+          "type": "boolean"
         }
       }
     },

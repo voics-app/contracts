@@ -9263,6 +9263,10 @@
               "null"
             ],
             "description": "Discordy: per-channel voice region override; null uses the guild's voice_region."
+          },
+          "require_tags": {
+            "type": "boolean",
+            "description": "Forum posts must have at least one available tag."
           }
         }
       },
@@ -12038,6 +12042,84 @@
               "string",
               "null"
             ]
+          },
+          "available_tags": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                "moderated": {
+                  "type": "boolean"
+                },
+                "emoji_id": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Snowflake"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "emoji_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "applied_tags": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "default_sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              null
+            ]
+          },
+          "default_forum_layout": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          "default_reaction_emoji": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DefaultReaction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "require_tags": {
+            "type": "boolean"
           }
         }
       },

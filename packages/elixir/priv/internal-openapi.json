@@ -1259,6 +1259,10 @@
               "null"
             ],
             "description": "Discordy: per-channel voice region override; null uses the guild's voice_region."
+          },
+          "require_tags": {
+            "type": "boolean",
+            "description": "Forum posts must have at least one available tag."
           }
         }
       },

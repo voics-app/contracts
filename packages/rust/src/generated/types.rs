@@ -1257,6 +1257,9 @@ pub struct Channel {
     pub rate_limit_per_user: ::std::option::Option<i64>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub recipients: ::std::vec::Vec<User>,
+    ///Forum posts must have at least one available tag.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub require_tags: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rtc_region: ::std::option::Option<::std::string::String>,
     ///Voice channels only: whether members can send messages to the channel chat. Defaults to true.
@@ -4871,12 +4874,22 @@ pub struct ModifyApplicationRequest {
 ///PATCH /channels/{id} body (partial). Changing delivery_mode requires MANAGE_CHANNELS.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyChannelRequest {
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub applied_tags: ::std::vec::Vec<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub archived: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub auto_archive_duration: ::std::option::Option<i64>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub available_tags: ::std::vec::Vec<ModifyChannelRequestAvailableTagsItem>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub bitrate: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub default_forum_layout: ::std::option::Option<ModifyChannelRequestDefaultForumLayout>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub default_reaction_emoji: ::std::option::Option<DefaultReaction>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub default_sort_order: ::std::option::Option<ModifyChannelRequestDefaultSortOrder>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub delivery_mode: ::std::option::Option<DeliveryMode>,
     ///Group DM icon.
@@ -4899,6 +4912,8 @@ pub struct ModifyChannelRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rate_limit_per_user: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub require_tags: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rtc_region: ::std::option::Option<::std::string::String>,
     ///Voice channels only. Managers with MANAGE_CHANNELS switch the channel chat on or off.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -4914,6 +4929,140 @@ pub struct ModifyChannelRequest {
     pub user_limit: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub voice_region: ::std::option::Option<::std::string::String>,
+}
+///`ModifyChannelRequestAvailableTagsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ModifyChannelRequestAvailableTagsItem {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub emoji_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub emoji_name: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub moderated: ::std::option::Option<bool>,
+    pub name: ModifyChannelRequestAvailableTagsItemName,
+}
+///`ModifyChannelRequestAvailableTagsItemName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyChannelRequestAvailableTagsItemName(::std::string::String);
+impl ::std::ops::Deref for ModifyChannelRequestAvailableTagsItemName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyChannelRequestAvailableTagsItemName> for ::std::string::String {
+    fn from(value: ModifyChannelRequestAvailableTagsItemName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyChannelRequestAvailableTagsItemName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 20usize {
+            return Err("longer than 20 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyChannelRequestAvailableTagsItemName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyChannelRequestAvailableTagsItemName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyChannelRequestAvailableTagsItemName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`ModifyChannelRequestDefaultForumLayout`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ModifyChannelRequestDefaultForumLayout(i64);
+impl ::std::ops::Deref for ModifyChannelRequestDefaultForumLayout {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyChannelRequestDefaultForumLayout> for i64 {
+    fn from(value: ModifyChannelRequestDefaultForumLayout) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for ModifyChannelRequestDefaultForumLayout {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![0_i64, 1_i64, 2_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyChannelRequestDefaultForumLayout {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`ModifyChannelRequestDefaultSortOrder`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ModifyChannelRequestDefaultSortOrder(i64);
+impl ::std::ops::Deref for ModifyChannelRequestDefaultSortOrder {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyChannelRequestDefaultSortOrder> for i64 {
+    fn from(value: ModifyChannelRequestDefaultSortOrder) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for ModifyChannelRequestDefaultSortOrder {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![0_i64, 1_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyChannelRequestDefaultSortOrder {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
 }
 ///`ModifyChannelRequestName`
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

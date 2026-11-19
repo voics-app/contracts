@@ -598,6 +598,7 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `newly_created?` | `boolean` | Only on THREAD_CREATE. |
 | `delivery_mode?` | `DeliveryMode` | Discordy: effective delivery mode. Always present on full channel objects. |
 | `voice_region?` | `?string` | Discordy: per-channel voice region override; null uses the guild's voice_region. |
+| `require_tags?` | `boolean` | Forum posts must have at least one available tag. |
 
 ### ChannelMention
 
@@ -2172,6 +2173,12 @@ PATCH /channels/{id} body (partial). Changing delivery_mode requires MANAGE_CHAN
 | `invitable?` | `boolean` |  |
 | `delivery_mode?` | `DeliveryMode` |  |
 | `voice_region?` | `?string` |  |
+| `available_tags?` | `array of object` |  |
+| `applied_tags?` | `array of Snowflake` |  |
+| `default_sort_order?` | `0 or 1 or null` |  |
+| `default_forum_layout?` | `0 or 1 or 2` |  |
+| `default_reaction_emoji?` | `?DefaultReaction` |  |
+| `require_tags?` | `boolean` |  |
 
 ### ModifyCurrentUserRequest
 

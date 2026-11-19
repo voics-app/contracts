@@ -606,6 +606,10 @@ export interface Channel {
    * Discordy: per-channel voice region override; null uses the guild's voice_region.
    */
   voice_region?: string | null;
+  /**
+   * Forum posts must have at least one available tag.
+   */
+  require_tags?: boolean;
 }
 /**
  * A channel permission overwrite for a role or member.
@@ -2917,6 +2921,1535 @@ export interface ModifyChannelRequest {
   invitable?: boolean;
   delivery_mode?: DeliveryMode;
   voice_region?: string | null;
+  /**
+   * @maxItems 20
+   */
+  available_tags?:
+    | []
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ];
+  /**
+   * @maxItems 5
+   */
+  applied_tags?:
+    | []
+    | [Snowflake]
+    | [Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake];
+  default_sort_order?: 0 | 1 | null;
+  default_forum_layout?: 0 | 1 | 2;
+  default_reaction_emoji?: DefaultReaction | null;
+  require_tags?: boolean;
 }
 /**
  * PATCH /users/@me body. `username`, `email` and `new_password` require the current `password`; an email change takes effect once the new address is verified.

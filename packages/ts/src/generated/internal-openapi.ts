@@ -429,6 +429,8 @@ export interface components {
             position?: number;
             rate_limit_per_user?: number;
             recipients?: components["schemas"]["User"][];
+            /** @description Forum posts must have at least one available tag. */
+            require_tags?: boolean;
             rtc_region?: string | null;
             /** @description Voice channels only: whether members can send messages to the channel chat. Defaults to true. */
             text_chat_enabled?: boolean;
