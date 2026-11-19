@@ -296,6 +296,62 @@ paths:
                   $ref: ../schemas/internal/admin-guild.json
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /channels/{channel_id}/forum-start:
+    post:
+      operationId: createForumStart
+      summary: Store the reserved opening message after a durable API claim
+      description: The API invokes this at most once and reconciles ambiguity by reading the reserved message ID.
+      tags:
+        - messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [author_id, message_id, content]
+              properties:
+                author_id:
+                  $ref: ../schemas/objects/snowflake.json
+                message_id:
+                  $ref: ../schemas/objects/snowflake.json
+                content:
+                  type: string
+      responses:
+        "200":
+          description: Stored message.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /forum-summaries:
+    post:
+      operationId: forumSummaries
+      summary: Summarize already authorized Standard forum posts
+      tags:
+        - messages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [channel_ids]
+              properties:
+                channel_ids:
+                  type: array
+                  maxItems: 50
+                  items:
+                    $ref: ../schemas/objects/snowflake.json
+      responses:
+        "200":
+          description: First message, last message ID and exact stored count per channel.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /channels/{channel_id}/messages:
     post:
       operationId: createInternalMessage

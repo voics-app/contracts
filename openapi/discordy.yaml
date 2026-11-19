@@ -2287,6 +2287,33 @@ paths:
         "429":
           $ref: "#/components/responses/RateLimited"
   /channels/{channel_id}/threads:
+    get:
+      operationId: listForumPosts
+      summary: List visible published forum posts and Standard message summaries
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      responses:
+        "200":
+          description: Visible forum posts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/channel.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
     post:
       operationId: startThread
       summary: Start a thread (or forum post)
@@ -2304,6 +2331,12 @@ paths:
       responses:
         "201":
           description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/channel.json
+        "202":
+          description: Forum post is pending or delivery is being reconciled. Retry the same request ID and body.
           content:
             application/json:
               schema:
