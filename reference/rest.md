@@ -1938,7 +1938,7 @@ POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies w
 | `message_reference?` | `MessageReference` |  |
 | `components?` | `array of MessageComponent` |  |
 | `attachments?` | `array of AttachmentReference` |  |
-| `flags?` | `integer` | MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. |
+| `flags?` | `integer` | MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components. |
 
 ### CreateReportRequest
 

@@ -26,10 +26,13 @@
     "duration_secs": {
       "type": "number",
       "exclusiveMinimum": 0,
+      "maximum": 600,
       "description": "Duration of a recorded voice message in seconds."
     },
     "waveform": {
       "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
       "description": "Base64-encoded amplitude samples for a recorded voice message."
     },
     "flags": {

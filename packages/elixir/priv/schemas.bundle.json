@@ -882,10 +882,13 @@
         "duration_secs": {
           "type": "number",
           "exclusiveMinimum": 0,
+          "maximum": 600,
           "description": "Duration of a recorded voice message in seconds."
         },
         "waveform": {
           "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
           "description": "Base64-encoded amplitude samples for a recorded voice message."
         },
         "flags": {
@@ -2233,7 +2236,7 @@
         },
         "flags": {
           "type": "integer",
-          "description": "MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped."
+          "description": "MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components."
         }
       }
     },

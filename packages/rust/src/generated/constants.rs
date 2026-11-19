@@ -878,7 +878,7 @@ pub mod message_type {
     ];
 }
 
-/// Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications.
+/// Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.
 pub mod message_flags {
     pub const SUPPRESS_EMBEDS: u16 = 4;
     pub const SUPPRESS_NOTIFICATIONS: u16 = 4096;
