@@ -2884,6 +2884,15 @@ export interface components {
             name: string;
         };
         /**
+         * FriendSourceFlags
+         * @description Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.
+         */
+        FriendSourceFlags: {
+            all: boolean;
+            mutual_friends: boolean;
+            mutual_guilds: boolean;
+        };
+        /**
          * Guild
          * @description A guild (server). `voice_region` is a Discordy extra.
          */
@@ -3468,6 +3477,12 @@ export interface components {
             developer_mode?: boolean;
             /** @description When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set. */
             e2ee_calls_default?: boolean;
+            /** @description Partial friend-request source update; omitted flags retain their values. */
+            friend_source_flags?: {
+                all?: boolean;
+                mutual_friends?: boolean;
+                mutual_guilds?: boolean;
+            };
             /** @description The user's server rail in order, with folders. Synced across devices. */
             guild_folders?: components["schemas"]["GuildFolder"][];
             /** @description Flat server order (legacy mirror of guild_folders). */
@@ -4156,6 +4171,7 @@ export interface components {
             developer_mode: boolean;
             /** @description When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set. */
             e2ee_calls_default: boolean;
+            friend_source_flags?: components["schemas"]["FriendSourceFlags"];
             /** @description The user's server rail in order, with folders. Synced across devices. */
             guild_folders: components["schemas"]["GuildFolder"][];
             /** @description Flat server order (legacy mirror of guild_folders). */

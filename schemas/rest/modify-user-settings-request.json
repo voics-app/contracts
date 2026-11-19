@@ -91,6 +91,22 @@
     "preferences": {
       "$ref": "../objects/user-preferences.json",
       "description": "Merged key by key into the stored preferences."
+    },
+    "friend_source_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Partial friend-request source update; omitted flags retain their values.",
+      "properties": {
+        "all": {
+          "type": "boolean"
+        },
+        "mutual_friends": {
+          "type": "boolean"
+        },
+        "mutual_guilds": {
+          "type": "boolean"
+        }
+      }
     }
   }
 }

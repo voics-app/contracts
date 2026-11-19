@@ -1791,6 +1791,14 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 /**
+ * Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.
+ */
+export interface FriendSourceFlags {
+  all: boolean;
+  mutual_friends: boolean;
+  mutual_guilds: boolean;
+}
+/**
  * GET /internal/v1/admin/stats on gateway.
  */
 export interface GatewayAdminStats {
@@ -3126,6 +3134,14 @@ export interface ModifyUserSettingsRequest {
     [k: string]: Snowflake[] | undefined;
   };
   preferences?: UserPreferences;
+  /**
+   * Partial friend-request source update; omitted flags retain their values.
+   */
+  friend_source_flags?: {
+    all?: boolean;
+    mutual_friends?: boolean;
+    mutual_guilds?: boolean;
+  };
 }
 /**
  * Client preferences that follow the account across devices (client#123). Sparse: a key is present only once the user (or a first-run migration) set it; clients fall back to their defaults for missing keys. As a PATCH value the object is merged key by key. Device-specific settings (audio and video devices, volumes, keybinds, window state, desktop notification toggle, taskbar flash) are not stored here.
@@ -3554,6 +3570,7 @@ export interface UserSettings {
    */
   guild_positions: Snowflake[];
   preferences: UserPreferences;
+  friend_source_flags?: FriendSourceFlags;
 }
 /**
  * POST /auth/refresh body.

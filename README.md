@@ -12,6 +12,8 @@ Its evidence is server-owned channel metadata only (ID, guild, parent, name, typ
 age-restricted flag); it never snapshots messages or a member list. The `guild`
 target remains exclusive to public discovery listing reports.
 
+`friend_source_flags` selects who may initiate a friend request. Existing accounts default to everyone; selected mutual-friend and mutual-server sources use OR semantics. Existing friendships and pending requests continue, and blocks take precedence.
+
 `preferences.hide_age_restricted_channels` is an optional account preference for client#76.
 Missing means false. It uses the existing key-by-key settings PATCH and settings events;
 it does not attest age or change server permissions. Clients still require explicit
