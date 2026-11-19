@@ -56,6 +56,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
+| `POST` | `/gifs/previews` | api | `object` | `object` | Refresh signed previews for favorite GIFs |
 | `GET` | `/gifs/trending` | api | — | `object` | Browse trending GIFs |
 | `GET` | `/gifs/search` | api | — | `object` | Search GIFs |
 | `GET` | `/gifs/categories` | api | — | `object` | Browse GIF categories |

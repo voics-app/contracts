@@ -857,6 +857,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/gifs/previews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh signed previews for favorite GIFs */
+        post: operations["signGifPreviews"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/gifs/search": {
         parameters: {
             query?: never;
@@ -6477,6 +6494,50 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             429: components["responses"]["RateLimited"];
             /** @description Provider not configured or unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    signGifPreviews: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    urls: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Signed media proxy URLs in request order. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        urls: string[];
+                    };
+                };
+            };
+            /** @description A URL is outside the configured provider media hosts. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+            /** @description Provider or media signer unavailable. */
             503: {
                 headers: {
                     [name: string]: unknown;
