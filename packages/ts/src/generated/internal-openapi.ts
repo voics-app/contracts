@@ -1252,6 +1252,8 @@ export interface components {
             animate_gifs?: boolean;
             /** @description Animate stickers automatically. */
             animate_stickers?: boolean;
+            /** @description Favorite GIF media links, synced across devices. */
+            favorite_gifs?: string[];
             /** @description Chat font scale. */
             font_scale?: number;
             /** @description Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization. */

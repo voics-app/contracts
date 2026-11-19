@@ -8933,6 +8933,9 @@ pub struct UserPreferences {
     ///Animate stickers automatically.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub animate_stickers: ::std::option::Option<bool>,
+    ///Favorite GIF media links, synced across devices.
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub favorite_gifs: ::std::vec::Vec<UserPreferencesFavoriteGifsItem>,
     ///Chat font scale.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub font_scale: ::std::option::Option<f64>,
@@ -9052,6 +9055,61 @@ impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesAccent {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///`UserPreferencesFavoriteGifsItem`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserPreferencesFavoriteGifsItem(::std::string::String);
+impl ::std::ops::Deref for UserPreferencesFavoriteGifsItem {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserPreferencesFavoriteGifsItem> for ::std::string::String {
+    fn from(value: UserPreferencesFavoriteGifsItem) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserPreferencesFavoriteGifsItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 2048usize {
+            return Err("longer than 2048 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^https://").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^https://\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPreferencesFavoriteGifsItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesFavoriteGifsItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserPreferencesFavoriteGifsItem {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 ///`UserPreferencesRecentReactionsItem`
