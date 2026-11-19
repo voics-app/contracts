@@ -1710,7 +1710,7 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
-        "409": { description: The question changed, an open appeal already exists, or the form is unavailable. }
+        "409": { description: "The question changed, an open appeal already exists, or the form is unavailable." }
   /guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}:
     post:
       operationId: resolveBanAppeal
