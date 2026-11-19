@@ -64,6 +64,10 @@ paths:
                 type: object
         "503":
           description: Provider not configured or unavailable.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /gifs/search:
     get:
       operationId: searchGifs
@@ -88,6 +92,10 @@ paths:
           description: Invalid search query.
         "503":
           description: Provider not configured or unavailable.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /gifs/categories:
     get:
       operationId: gifCategories
@@ -102,6 +110,10 @@ paths:
                 type: object
         "503":
           description: Provider not configured or unavailable.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /reports:
     post:
       operationId: createReport
