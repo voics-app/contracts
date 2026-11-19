@@ -6,6 +6,6 @@
   "type": "object",
   "required": ["location"],
   "properties": {
-    "location": { "type": "string", "minLength": 1, "maxLength": 100 }
+    "location": { "type": "string", "minLength": 1, "maxLength": 100, "pattern": "\\S" }
   }
 }
