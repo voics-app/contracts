@@ -106,6 +106,8 @@ pub mod permissions {
     pub const PIN_MESSAGES: u64 = 1 << 51;
     /// Allows bypassing slowmode restrictions
     pub const BYPASS_SLOWMODE: u64 = 1 << 52;
+    /// Allows configuring and reviewing ban appeals
+    pub const MANAGE_BAN_APPEALS: u64 = 1 << 53;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u64)] = &[
@@ -164,13 +166,14 @@ pub mod permissions {
         ("USE_EXTERNAL_APPS", USE_EXTERNAL_APPS),
         ("PIN_MESSAGES", PIN_MESSAGES),
         ("BYPASS_SLOWMODE", BYPASS_SLOWMODE),
+        ("MANAGE_BAN_APPEALS", MANAGE_BAN_APPEALS),
     ];
 }
 
 /// Derived permission sets.
 pub mod permission_sets {
     /// Every known permission.
-    pub const ALL: u64 = 8866461766385663;
+    pub const ALL: u64 = 17873661021126655;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u64)] = &[("ALL", ALL)];
@@ -1111,7 +1114,7 @@ pub mod activity_type {
     ];
 }
 
-/// Audit log action types (Discord values) used by Discordy.
+/// Audit log action types used by Discordy, including Voics extensions.
 pub mod audit_log_event {
     pub const GUILD_UPDATE: u8 = 1;
     pub const CHANNEL_CREATE: u8 = 10;
@@ -1149,6 +1152,8 @@ pub mod audit_log_event {
     pub const THREAD_UPDATE: u8 = 111;
     pub const THREAD_DELETE: u8 = 112;
     pub const APPLICATION_COMMAND_PERMISSION_UPDATE: u8 = 121;
+    pub const BAN_APPEAL_ACCEPT: u8 = 200;
+    pub const BAN_APPEAL_DENY: u8 = 201;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -1191,6 +1196,8 @@ pub mod audit_log_event {
             "APPLICATION_COMMAND_PERMISSION_UPDATE",
             APPLICATION_COMMAND_PERMISSION_UPDATE,
         ),
+        ("BAN_APPEAL_ACCEPT", BAN_APPEAL_ACCEPT),
+        ("BAN_APPEAL_DENY", BAN_APPEAL_DENY),
     ];
 }
 

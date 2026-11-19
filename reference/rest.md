@@ -142,6 +142,11 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/guilds/{guild_id}/members/{user_id}/roles/{role_id}` | api | — | 204 No Content | Remove a role from a member |
 | `GET` | `/guilds/{guild_id}/prune` | api | — | `PruneResult` | Count members a prune would remove |
 | `POST` | `/guilds/{guild_id}/prune` | api | `PruneRequest` | `PruneResult` | Prune inactive members |
+| `GET` | `/guilds/{guild_id}/ban-appeals/form` | api | — | `object` | Get the appeal question for a banned user or appeal moderator |
+| `PUT` | `/guilds/{guild_id}/ban-appeals/form` | api | `object` | 204 No Content | Set the appeal question (MANAGE_BAN_APPEALS required) |
+| `GET` | `/guilds/{guild_id}/ban-appeals` | api | — | `array of object` | List appeals and decisions (MANAGE_BAN_APPEALS required) |
+| `POST` | `/guilds/{guild_id}/ban-appeals` | api | `object` | `object` | Submit an appeal for the caller's current ban |
+| `POST` | `/guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}` | api | — | 204 No Content | Accept or deny an open appeal (MANAGE_BAN_APPEALS required) |
 | `GET` | `/guilds/{guild_id}/bans` | api | — | `array of Ban` | List bans |
 | `GET` | `/guilds/{guild_id}/bans/{user_id}` | api | — | `Ban` | Get a ban |
 | `PUT` | `/guilds/{guild_id}/bans/{user_id}` | api | `CreateBanRequest` | 204 No Content | Ban a user |

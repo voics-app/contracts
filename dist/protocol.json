@@ -1534,7 +1534,7 @@
       ]
     },
     "AuditLogEvent": {
-      "description": "Audit log action types (Discord values) used by Discordy.",
+      "description": "Audit log action types used by Discordy, including Voics extensions.",
       "values": [
         {
           "name": "GUILD_UPDATE",
@@ -1679,6 +1679,14 @@
         {
           "name": "APPLICATION_COMMAND_PERMISSION_UPDATE",
           "value": 121
+        },
+        {
+          "name": "BAN_APPEAL_ACCEPT",
+          "value": 200
+        },
+        {
+          "name": "BAN_APPEAL_DENY",
+          "value": 201
         }
       ]
     }
