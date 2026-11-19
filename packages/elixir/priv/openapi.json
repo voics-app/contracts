@@ -1523,6 +1523,222 @@
         }
       }
     },
+    "/users/@me/favourites": {
+      "get": {
+        "operationId": "listFavouriteFriends",
+        "summary": "List the caller's private favourite friend IDs",
+        "description": "Only the caller can see these IDs. Removing or blocking a friendship clears the corresponding favourite.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Favourite friend IDs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/favourites/{user_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/user_id"
+        }
+      ],
+      "put": {
+        "operationId": "addFavouriteFriend",
+        "summary": "Mark an existing friend as a favourite",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Favourite saved, including an already saved favourite."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeFavouriteFriend",
+        "summary": "Remove a favourite mark",
+        "description": "Idempotent, including if the favourite is absent.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Favourite removed or already absent."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/friend-invites": {
+      "post": {
+        "operationId": "createPersonalFriendInvite",
+        "summary": "Create a personal friend invite",
+        "description": "Returns a bearer token once, expiring after 24 hours. Creating a new token invalidates the caller's previous token. Only a hash is stored.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "New token and expiry. Treat the token as a secret.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateFriendInviteResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "revokePersonalFriendInvite",
+        "summary": "Revoke the caller's current personal friend invite",
+        "description": "Idempotent when no token exists.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Revoked or already absent."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/friend-invites": {
+      "post": {
+        "operationId": "usePersonalFriendInvite",
+        "summary": "Send a friend request to the invite owner",
+        "description": "The authenticated opener sends the request using ordinary relationship rules. Expired, revoked and unknown tokens return unknown invite. Opening one's own token is rejected. Existing incoming requests can become friendships.",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UseFriendInviteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Request sent or relationship already in the resulting state."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/users/@me/relationships": {
       "get": {
         "operationId": "listRelationships",
@@ -9722,6 +9938,26 @@
           }
         }
       },
+      "CreateFriendInviteResponse": {
+        "title": "CreateFriendInviteResponse",
+        "description": "One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.",
+        "type": "object",
+        "required": [
+          "token",
+          "expires_at"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Unpadded base64url secret generated from 32 random bytes."
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Expiry 24 hours after creation."
+          }
+        }
+      },
       "CreateGuildFromTemplateRequest": {
         "title": "CreateGuildFromTemplateRequest",
         "description": "POST /guilds/templates/{code} body.",
@@ -14270,6 +14506,20 @@
             },
             "minItems": 1,
             "maxItems": 100
+          }
+        }
+      },
+      "UseFriendInviteRequest": {
+        "title": "UseFriendInviteRequest",
+        "description": "Present a personal friend invite to send a request to its owner.",
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Bearer token returned at creation."
           }
         }
       },

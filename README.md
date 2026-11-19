@@ -58,6 +58,10 @@ make check-generated   # regenerate and fail when the working tree drifts
 
 Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT == 1048576` in all three languages.
 
+## Personal friend invite links
+
+The shareable HTTPS form is `/friend-invite/#<token>`; the fragment is kept out of HTTP requests. Its landing page opens the separate `voics://friend-invite/<token>` app route. Apps queue the route while signed out and use the authenticated `/friend-invites` POST after sign-in. This is separate from guild `/invite/` links. Tokens are bearer secrets; clients must not place them in logs or server-side URLs. Creating a replacement or revoking the current invite makes future redemption fail. The exact interaction with the independently proposed friend-request source controls (api#167) needs reconciliation before both changes ship.
+
 ## Consuming
 
 `GET /oauth2/tokens` lists personal recorded bot-install consent, distinct from

@@ -840,6 +840,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/friend-invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a friend request to the invite owner
+         * @description The authenticated opener sends the request using ordinary relationship rules. Expired, revoked and unknown tokens return unknown invite. Opening one's own token is rejected. Existing incoming requests can become friendships.
+         */
+        post: operations["usePersonalFriendInvite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds": {
         parameters: {
             query?: never;
@@ -1657,6 +1677,74 @@ export interface paths {
          */
         post: operations["disableAccount"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/favourites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the caller's private favourite friend IDs
+         * @description Only the caller can see these IDs. Removing or blocking a friendship clears the corresponding favourite.
+         */
+        get: operations["listFavouriteFriends"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/favourites/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** Mark an existing friend as a favourite */
+        put: operations["addFavouriteFriend"];
+        post?: never;
+        /**
+         * Remove a favourite mark
+         * @description Idempotent, including if the favourite is absent.
+         */
+        delete: operations["removeFavouriteFriend"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/friend-invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a personal friend invite
+         * @description Returns a bearer token once, expiring after 24 hours. Creating a new token invalidates the caller's previous token. Only a hash is stored.
+         */
+        post: operations["createPersonalFriendInvite"];
+        /**
+         * Revoke the caller's current personal friend invite
+         * @description Idempotent when no token exists.
+         */
+        delete: operations["revokePersonalFriendInvite"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2586,6 +2674,19 @@ export interface components {
             image: string;
             name: string;
             roles?: components["schemas"]["Snowflake"][];
+        };
+        /**
+         * CreateFriendInviteResponse
+         * @description One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+         */
+        CreateFriendInviteResponse: {
+            /**
+             * Format: date-time
+             * @description Expiry 24 hours after creation.
+             */
+            expires_at: string;
+            /** @description Unpadded base64url secret generated from 32 random bytes. */
+            token: string;
         };
         /**
          * CreateGuildFromTemplateRequest
@@ -4095,6 +4196,14 @@ export interface components {
          */
         UploadKeyPackagesRequest: {
             packages: string[];
+        };
+        /**
+         * UseFriendInviteRequest
+         * @description Present a personal friend invite to send a request to its owner.
+         */
+        UseFriendInviteRequest: {
+            /** @description Bearer token returned at creation. */
+            token: string;
         };
         /**
          * User
@@ -6466,6 +6575,33 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    usePersonalFriendInvite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UseFriendInviteRequest"];
+            };
+        };
+        responses: {
+            /** @description Request sent or relationship already in the resulting state. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     createGuild: {
         parameters: {
             query?: never;
@@ -8557,6 +8693,122 @@ export interface operations {
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listFavouriteFriends: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Favourite friend IDs. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Snowflake"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    addFavouriteFriend: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Favourite saved, including an already saved favourite. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    removeFavouriteFriend: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Favourite removed or already absent. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    createPersonalFriendInvite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description New token and expiry. Treat the token as a secret. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateFriendInviteResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    revokePersonalFriendInvite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked or already absent. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             429: components["responses"]["RateLimited"];
         };
     };

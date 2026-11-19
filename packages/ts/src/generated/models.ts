@@ -1148,6 +1148,19 @@ export interface CreateEmojiRequest {
   roles?: Snowflake[];
 }
 /**
+ * One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+ */
+export interface CreateFriendInviteResponse {
+  /**
+   * Unpadded base64url secret generated from 32 random bytes.
+   */
+  token: string;
+  /**
+   * Expiry 24 hours after creation.
+   */
+  expires_at: string;
+}
+/**
  * POST /guilds/templates/{code} body.
  */
 export interface CreateGuildFromTemplateRequest {
@@ -3960,6 +3973,15 @@ export interface UsageTickEvent {
   voice_users: number;
   voice_minutes?: number;
   region?: string;
+}
+/**
+ * Present a personal friend invite to send a request to its owner.
+ */
+export interface UseFriendInviteRequest {
+  /**
+   * Bearer token returned at creation.
+   */
+  token: string;
 }
 /**
  * A private note the current user wrote about another user. Visible only to its author.
