@@ -8444,11 +8444,33 @@ pub struct SfuCloseSession {
 ///SFU control command (NDJSON line): create or rebuild a media session.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct SfuCreateSession {
+    ///Audio forwarding capability; absent preserves legacy permissive behavior.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub can_publish_audio: ::std::option::Option<bool>,
+    ///Camera and screen forwarding capability; absent preserves legacy permissive behavior.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub can_publish_video: ::std::option::Option<bool>,
     pub cmd: ::serde_json::Value,
     pub codecs: ::std::vec::Vec<VoiceCodec>,
     pub ice_pwd: ::std::string::String,
     pub ice_ufrag: ::std::string::String,
     pub remote_fingerprint: ::std::string::String,
+    pub session_id: ::std::string::String,
+}
+///`SfuPublishAudioApplied`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuPublishAudioApplied {
+    pub evt: ::serde_json::Value,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub req: ::std::option::Option<::std::string::String>,
+    pub session_id: ::std::string::String,
+}
+///`SfuPublishVideoApplied`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuPublishVideoApplied {
+    pub evt: ::serde_json::Value,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub req: ::std::option::Option<::std::string::String>,
     pub session_id: ::std::string::String,
 }
 ///SFU control event: reply to create_session.
@@ -8458,6 +8480,20 @@ pub struct SfuSessionCreated {
     pub fingerprint: ::std::string::String,
     pub local_pwd: ::std::string::String,
     pub local_ufrag: ::std::string::String,
+    pub session_id: ::std::string::String,
+}
+///`SfuSetPublishAudio`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuSetPublishAudio {
+    pub allowed: bool,
+    pub cmd: ::serde_json::Value,
+    pub session_id: ::std::string::String,
+}
+///`SfuSetPublishVideo`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuSetPublishVideo {
+    pub allowed: bool,
+    pub cmd: ::serde_json::Value,
     pub session_id: ::std::string::String,
 }
 ///SFU control command: update simulcast layer preferences.
@@ -10458,6 +10494,11 @@ impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeHealthStatus {
 ///etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceNodeRegistration {
+    ///Optional private IPv4 address for node-affine internal control. It is never derived from ws_url and requires control_port and registration_lease.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub control_ip: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub control_port: ::std::option::Option<::std::num::NonZeroU64>,
     pub cpu_pct: f64,
     pub draining: bool,
     pub egress_bps: u64,
@@ -10467,10 +10508,65 @@ pub struct VoiceNodeRegistration {
     pub probe_required: bool,
     pub public_ip: ::std::string::String,
     pub region: ::std::string::String,
+    ///Decimal identity of this registration's current etcd lease; stale control commands must be rejected.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub registration_lease: ::std::option::Option<VoiceNodeRegistrationRegistrationLease>,
     pub udp_port: u64,
     pub users: u64,
     pub version: ::std::string::String,
     pub ws_url: ::std::string::String,
+}
+///Decimal identity of this registration's current etcd lease; stale control commands must be rejected.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceNodeRegistrationRegistrationLease(::std::string::String);
+impl ::std::ops::Deref for VoiceNodeRegistrationRegistrationLease {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceNodeRegistrationRegistrationLease> for ::std::string::String {
+    fn from(value: VoiceNodeRegistrationRegistrationLease) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceNodeRegistrationRegistrationLease {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[1-9][0-9]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[1-9][0-9]*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceNodeRegistrationRegistrationLease {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeRegistrationRegistrationLease {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceNodeRegistrationRegistrationLease {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///VOICE_QUALITY telemetry sample (discordy.telemetry.v1).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

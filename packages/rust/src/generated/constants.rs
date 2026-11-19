@@ -575,12 +575,18 @@ pub mod sfu_commands {
     pub const CLOSE_SESSION: &str = "close_session";
     /// Updates simulcast layer preferences for a session.
     pub const SET_SINK_WANTS: &str = "set_sink_wants";
+    /// Changes audio publishing permission for a session.
+    pub const SET_PUBLISH_AUDIO: &str = "set_publish_audio";
+    /// Changes camera and screen publishing permission for a session.
+    pub const SET_PUBLISH_VIDEO: &str = "set_publish_video";
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, &str)] = &[
         ("CREATE_SESSION", CREATE_SESSION),
         ("CLOSE_SESSION", CLOSE_SESSION),
         ("SET_SINK_WANTS", SET_SINK_WANTS),
+        ("SET_PUBLISH_AUDIO", SET_PUBLISH_AUDIO),
+        ("SET_PUBLISH_VIDEO", SET_PUBLISH_VIDEO),
     ];
 }
 
@@ -588,6 +594,10 @@ pub mod sfu_commands {
 pub mod sfu_events {
     /// Reply to create_session with the SFU's ICE/DTLS parameters.
     pub const SESSION_CREATED: &str = "session_created";
+    /// Acknowledges an audio publishing permission change.
+    pub const PUBLISH_AUDIO_APPLIED: &str = "publish_audio_applied";
+    /// Acknowledges a video publishing permission change.
+    pub const PUBLISH_VIDEO_APPLIED: &str = "publish_video_applied";
     /// Voice activity detected on an SSRC.
     pub const SPEAKING: &str = "speaking";
     /// The opted-in viewers of a screen share changed; carries the full list.
@@ -598,6 +608,8 @@ pub mod sfu_events {
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, &str)] = &[
         ("SESSION_CREATED", SESSION_CREATED),
+        ("PUBLISH_AUDIO_APPLIED", PUBLISH_AUDIO_APPLIED),
+        ("PUBLISH_VIDEO_APPLIED", PUBLISH_VIDEO_APPLIED),
         ("SPEAKING", SPEAKING),
         ("STREAM_VIEWERS", STREAM_VIEWERS),
         ("STATS", STATS),

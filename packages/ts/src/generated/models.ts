@@ -3793,7 +3793,33 @@ export interface SfuCreateSession {
   ice_ufrag: string;
   ice_pwd: string;
   remote_fingerprint: string;
+  /**
+   * Audio forwarding capability; absent preserves legacy permissive behavior.
+   */
+  can_publish_audio?: boolean;
+  /**
+   * Camera and screen forwarding capability; absent preserves legacy permissive behavior.
+   */
+  can_publish_video?: boolean;
   codecs: VoiceCodec[];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuPublishAudioApplied".
+ */
+export interface SfuPublishAudioApplied {
+  evt: "publish_audio_applied";
+  req?: string | null;
+  session_id: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuPublishVideoApplied".
+ */
+export interface SfuPublishVideoApplied {
+  evt: "publish_video_applied";
+  req?: string | null;
+  session_id: string;
 }
 /**
  * SFU control event: reply to create_session.
@@ -3804,6 +3830,24 @@ export interface SfuSessionCreated {
   local_ufrag: string;
   local_pwd: string;
   fingerprint: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuSetPublishAudio".
+ */
+export interface SfuSetPublishAudio {
+  cmd: "set_publish_audio";
+  session_id: string;
+  allowed: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuSetPublishVideo".
+ */
+export interface SfuSetPublishVideo {
+  cmd: "set_publish_video";
+  session_id: string;
+  allowed: boolean;
 }
 /**
  * SFU control command: update simulcast layer preferences.
@@ -4156,6 +4200,15 @@ export interface VoiceNodeRegistration {
   node_id: string;
   region: string;
   ws_url: string;
+  /**
+   * Optional private IPv4 address for node-affine internal control. It is never derived from ws_url and requires control_port and registration_lease.
+   */
+  control_ip?: string;
+  control_port?: number;
+  /**
+   * Decimal identity of this registration's current etcd lease; stale control commands must be rejected.
+   */
+  registration_lease?: string;
   public_ip: string;
   udp_port: number;
   users: number;

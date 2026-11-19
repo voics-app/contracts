@@ -362,6 +362,10 @@ export const SfuCommands = {
   CLOSE_SESSION: "close_session",
   /** Updates simulcast layer preferences for a session. */
   SET_SINK_WANTS: "set_sink_wants",
+  /** Changes audio publishing permission for a session. */
+  SET_PUBLISH_AUDIO: "set_publish_audio",
+  /** Changes camera and screen publishing permission for a session. */
+  SET_PUBLISH_VIDEO: "set_publish_video",
 } as const;
 export type SfuCommandsKey = keyof typeof SfuCommands;
 
@@ -369,6 +373,10 @@ export type SfuCommandsKey = keyof typeof SfuCommands;
 export const SfuEvents = {
   /** Reply to create_session with the SFU's ICE/DTLS parameters. */
   SESSION_CREATED: "session_created",
+  /** Acknowledges an audio publishing permission change. */
+  PUBLISH_AUDIO_APPLIED: "publish_audio_applied",
+  /** Acknowledges a video publishing permission change. */
+  PUBLISH_VIDEO_APPLIED: "publish_video_applied",
   /** Voice activity detected on an SSRC. */
   SPEAKING: "speaking",
   /** The opted-in viewers of a screen share changed; carries the full list. */

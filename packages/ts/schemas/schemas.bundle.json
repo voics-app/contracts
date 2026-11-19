@@ -9124,11 +9124,63 @@
         "remote_fingerprint": {
           "type": "string"
         },
+        "can_publish_audio": {
+          "type": "boolean",
+          "description": "Audio forwarding capability; absent preserves legacy permissive behavior."
+        },
+        "can_publish_video": {
+          "type": "boolean",
+          "description": "Camera and screen forwarding capability; absent preserves legacy permissive behavior."
+        },
         "codecs": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/VoiceCodec"
           }
+        }
+      }
+    },
+    "SfuPublishAudioApplied": {
+      "title": "SfuPublishAudioApplied",
+      "type": "object",
+      "required": [
+        "evt",
+        "session_id"
+      ],
+      "properties": {
+        "evt": {
+          "const": "publish_audio_applied"
+        },
+        "req": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "session_id": {
+          "type": "string"
+        }
+      }
+    },
+    "SfuPublishVideoApplied": {
+      "title": "SfuPublishVideoApplied",
+      "type": "object",
+      "required": [
+        "evt",
+        "session_id"
+      ],
+      "properties": {
+        "evt": {
+          "const": "publish_video_applied"
+        },
+        "req": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "session_id": {
+          "type": "string"
         }
       }
     },
@@ -9158,6 +9210,46 @@
         },
         "fingerprint": {
           "type": "string"
+        }
+      }
+    },
+    "SfuSetPublishAudio": {
+      "title": "SfuSetPublishAudio",
+      "type": "object",
+      "required": [
+        "cmd",
+        "session_id",
+        "allowed"
+      ],
+      "properties": {
+        "cmd": {
+          "const": "set_publish_audio"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "allowed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "SfuSetPublishVideo": {
+      "title": "SfuSetPublishVideo",
+      "type": "object",
+      "required": [
+        "cmd",
+        "session_id",
+        "allowed"
+      ],
+      "properties": {
+        "cmd": {
+          "const": "set_publish_video"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "allowed": {
+          "type": "boolean"
         }
       }
     },
@@ -10703,6 +10795,20 @@
         },
         "ws_url": {
           "type": "string"
+        },
+        "control_ip": {
+          "type": "string",
+          "description": "Optional private IPv4 address for node-affine internal control. It is never derived from ws_url and requires control_port and registration_lease."
+        },
+        "control_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "registration_lease": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$",
+          "description": "Decimal identity of this registration's current etcd lease; stale control commands must be rejected."
         },
         "public_ip": {
           "type": "string"
