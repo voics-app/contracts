@@ -2081,6 +2081,23 @@ POST /auth/forgot-password body.
 | --- | --- | --- |
 | `email` | `string (email)` |  |
 
+### Guild Insights Coverage State
+
+Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+
+Type: `"complete" or "partial" or "unavailable"`
+
+### Guild Insights Coverage Summary
+
+Period status and the number of days in each coverage state for this source.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | `Guild Insights Coverage State` |  |
+| `complete_days` | `integer` |  |
+| `partial_days` | `integer` |  |
+| `unavailable_days` | `integer` |  |
+
 ### GuildInsights
 
 | Field | Type | Description |
@@ -2088,6 +2105,7 @@ POST /auth/forgot-password body.
 | `period` | `7 or 30` |  |
 | `message_coverage` | `boolean` |  |
 | `voice_coverage` | `boolean` |  |
+| `coverage` | `object` |  |
 | `days` | `array of object` |  |
 
 ### GuildWidgetPatch

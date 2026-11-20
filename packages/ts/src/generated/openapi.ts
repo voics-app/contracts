@@ -3019,6 +3019,22 @@ export interface components {
             voice_region: string;
         };
         /**
+         * Guild Insights Coverage State
+         * @description Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+         * @enum {string}
+         */
+        "Guild Insights Coverage State": "complete" | "partial" | "unavailable";
+        /**
+         * Guild Insights Coverage Summary
+         * @description Period status and the number of days in each coverage state for this source.
+         */
+        "Guild Insights Coverage Summary": {
+            complete_days: number;
+            partial_days: number;
+            status: components["schemas"]["Guild Insights Coverage State"];
+            unavailable_days: number;
+        };
+        /**
          * GuildDiscoverySettings
          * @description A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
          */
@@ -3045,9 +3061,19 @@ export interface components {
         };
         /** GuildInsights */
         GuildInsights: {
+            coverage: {
+                membership: components["schemas"]["Guild Insights Coverage Summary"];
+                messages: components["schemas"]["Guild Insights Coverage Summary"];
+                voice: components["schemas"]["Guild Insights Coverage Summary"];
+            };
             days: {
                 /** @description API activity schema initialization, not proof of complete voice coverage. */
                 activity_source_initialized_at_ms: number;
+                coverage: {
+                    membership: components["schemas"]["Guild Insights Coverage State"];
+                    messages: components["schemas"]["Guild Insights Coverage State"];
+                    voice: components["schemas"]["Guild Insights Coverage State"];
+                };
                 /** Format: date */
                 date: string;
                 leavers: number | null;

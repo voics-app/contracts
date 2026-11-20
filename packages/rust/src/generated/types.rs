@@ -3540,16 +3540,88 @@ impl<'de> ::serde::Deserialize<'de> for GuildFullAuditLogRetentionDays {
 ///`GuildInsights`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildInsights {
+    pub coverage: GuildInsightsCoverage,
     pub days: ::std::vec::Vec<GuildInsightsDaysItem>,
     pub message_coverage: bool,
     pub period: GuildInsightsPeriod,
     pub voice_coverage: bool,
+}
+///`GuildInsightsCoverage`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildInsightsCoverage {
+    pub membership: GuildInsightsCoverageSummary,
+    pub messages: GuildInsightsCoverageSummary,
+    pub voice: GuildInsightsCoverageSummary,
+}
+///Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum GuildInsightsCoverageState {
+    #[serde(rename = "complete")]
+    Complete,
+    #[serde(rename = "partial")]
+    Partial,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+impl ::std::fmt::Display for GuildInsightsCoverageState {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Complete => f.write_str("complete"),
+            Self::Partial => f.write_str("partial"),
+            Self::Unavailable => f.write_str("unavailable"),
+        }
+    }
+}
+impl ::std::str::FromStr for GuildInsightsCoverageState {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "complete" => Ok(Self::Complete),
+            "partial" => Ok(Self::Partial),
+            "unavailable" => Ok(Self::Unavailable),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildInsightsCoverageState {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildInsightsCoverageState {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///Period status and the number of days in each coverage state for this source.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildInsightsCoverageSummary {
+    pub complete_days: u64,
+    pub partial_days: u64,
+    pub status: GuildInsightsCoverageState,
+    pub unavailable_days: u64,
 }
 ///`GuildInsightsDaysItem`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildInsightsDaysItem {
     ///API activity schema initialization, not proof of complete voice coverage.
     pub activity_source_initialized_at_ms: i64,
+    pub coverage: GuildInsightsDaysItemCoverage,
     pub date: ::chrono::naive::NaiveDate,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub leavers: ::std::option::Option<u64>,
@@ -3565,6 +3637,13 @@ pub struct GuildInsightsDaysItem {
     pub new_members: ::std::option::Option<u64>,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub voice_minutes: ::std::option::Option<f64>,
+}
+///`GuildInsightsDaysItemCoverage`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildInsightsDaysItemCoverage {
+    pub membership: GuildInsightsCoverageState,
+    pub messages: GuildInsightsCoverageState,
+    pub voice: GuildInsightsCoverageState,
 }
 ///`GuildInsightsPeriod`
 #[derive(::serde::Serialize, Clone, Debug, PartialEq)]

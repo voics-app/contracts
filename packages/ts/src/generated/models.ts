@@ -30,6 +30,10 @@ export type ScheduledMessageId = string;
  */
 export type ScheduledMessageRevision = number;
 /**
+ * Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+ */
+export type GuildInsightsCoverageState = "complete" | "partial" | "unavailable";
+/**
  * Op 1 HEARTBEAT: the last sequence number received, or null.
  */
 export type HeartbeatPayload = number | null;
@@ -1916,6 +1920,15 @@ export interface RoleTags {
   integration_id?: Snowflake;
 }
 /**
+ * Period status and the number of days in each coverage state for this source.
+ */
+export interface GuildInsightsCoverageSummary {
+  status: GuildInsightsCoverageState;
+  complete_days: number;
+  partial_days: number;
+  unavailable_days: number;
+}
+/**
  * Permissions of an application's command(s) in a guild.
  */
 export interface GuildApplicationCommandPermissions {
@@ -2078,6 +2091,11 @@ export interface GuildInsights {
   period: 7 | 30;
   message_coverage: boolean;
   voice_coverage: boolean;
+  coverage: {
+    membership: GuildInsightsCoverageSummary;
+    messages: GuildInsightsCoverageSummary;
+    voice: GuildInsightsCoverageSummary;
+  };
   days: {
     date: string;
     new_members: number | null;
@@ -2097,6 +2115,11 @@ export interface GuildInsights {
      */
     activity_source_initialized_at_ms: number;
     voice_minutes: number | null;
+    coverage: {
+      membership: GuildInsightsCoverageState;
+      messages: GuildInsightsCoverageState;
+      voice: GuildInsightsCoverageState;
+    };
   }[];
 }
 /**

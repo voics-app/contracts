@@ -3743,6 +3743,44 @@
         }
       }
     },
+    "Guild Insights Coverage State": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "partial",
+        "unavailable"
+      ],
+      "description": "Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.",
+      "title": "Guild Insights Coverage State"
+    },
+    "Guild Insights Coverage Summary": {
+      "type": "object",
+      "required": [
+        "status",
+        "complete_days",
+        "partial_days",
+        "unavailable_days"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/Guild Insights Coverage State"
+        },
+        "complete_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "partial_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unavailable_days": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "description": "Period status and the number of days in each coverage state for this source.",
+      "title": "Guild Insights Coverage Summary"
+    },
     "GuildApplicationCommandPermissions": {
       "title": "GuildApplicationCommandPermissions",
       "description": "Permissions of an application's command(s) in a guild.",
@@ -4165,6 +4203,7 @@
       "required": [
         "period",
         "days",
+        "coverage",
         "message_coverage",
         "voice_coverage"
       ],
@@ -4182,6 +4221,25 @@
         "voice_coverage": {
           "type": "boolean"
         },
+        "coverage": {
+          "type": "object",
+          "required": [
+            "membership",
+            "messages",
+            "voice"
+          ],
+          "properties": {
+            "membership": {
+              "$ref": "#/$defs/Guild Insights Coverage Summary"
+            },
+            "messages": {
+              "$ref": "#/$defs/Guild Insights Coverage Summary"
+            },
+            "voice": {
+              "$ref": "#/$defs/Guild Insights Coverage Summary"
+            }
+          }
+        },
         "days": {
           "type": "array",
           "items": {
@@ -4195,7 +4253,8 @@
               "message_complete",
               "message_source_initialized_at_ms",
               "activity_source_initialized_at_ms",
-              "voice_minutes"
+              "voice_minutes",
+              "coverage"
             ],
             "properties": {
               "date": {
@@ -4248,6 +4307,25 @@
                   "null"
                 ],
                 "minimum": 0
+              },
+              "coverage": {
+                "type": "object",
+                "required": [
+                  "membership",
+                  "messages",
+                  "voice"
+                ],
+                "properties": {
+                  "membership": {
+                    "$ref": "#/$defs/Guild Insights Coverage State"
+                  },
+                  "messages": {
+                    "$ref": "#/$defs/Guild Insights Coverage State"
+                  },
+                  "voice": {
+                    "$ref": "#/$defs/Guild Insights Coverage State"
+                  }
+                }
               }
             }
           }
