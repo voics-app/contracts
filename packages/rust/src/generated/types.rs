@@ -863,6 +863,9 @@ pub struct AttachmentReference {
     ///Alt text shown to screen readers and as the image tooltip.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: ::std::option::Option<AttachmentReferenceDescription>,
+    ///Duration of a recorded voice message in seconds.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub duration_secs: ::std::option::Option<f64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filename: ::std::option::Option<::std::string::String>,
     ///AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
@@ -872,6 +875,9 @@ pub struct AttachmentReference {
     pub id: ::std::string::String,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub uploaded_filename: ::std::option::Option<::std::string::String>,
+    ///Base64-encoded amplitude samples for a recorded voice message.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub waveform: ::std::option::Option<AttachmentReferenceWaveform>,
 }
 ///Alt text shown to screen readers and as the image tooltip.
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -912,6 +918,59 @@ impl ::std::convert::TryFrom<::std::string::String> for AttachmentReferenceDescr
     }
 }
 impl<'de> ::serde::Deserialize<'de> for AttachmentReferenceDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Base64-encoded amplitude samples for a recorded voice message.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct AttachmentReferenceWaveform(::std::string::String);
+impl ::std::ops::Deref for AttachmentReferenceWaveform {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<AttachmentReferenceWaveform> for ::std::string::String {
+    fn from(value: AttachmentReferenceWaveform) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for AttachmentReferenceWaveform {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 1024usize {
+            return Err("longer than 1024 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for AttachmentReferenceWaveform {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for AttachmentReferenceWaveform {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for AttachmentReferenceWaveform {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -1853,7 +1912,7 @@ pub struct CreateMessageRequest {
     pub content: ::std::option::Option<CreateMessageRequestContent>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub embeds: ::std::vec::Vec<Embed>,
-    ///MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped.
+    ///MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]

@@ -537,11 +537,12 @@ export const MessageType = {
 } as const;
 export type MessageTypeKey = keyof typeof MessageType;
 
-/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications. */
+/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording. */
 export const MessageFlags = {
   SUPPRESS_EMBEDS: 4,
   SUPPRESS_NOTIFICATIONS: 4096,
   EPHEMERAL: 64,
+  IS_VOICE_MESSAGE: 8192,
 } as const;
 export type MessageFlagsKey = keyof typeof MessageFlags;
 

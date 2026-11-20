@@ -2297,12 +2297,16 @@ export interface components {
         AttachmentReference: {
             /** @description Alt text shown to screen readers and as the image tooltip. */
             description?: string;
+            /** @description Duration of a recorded voice message in seconds. */
+            duration_secs?: number;
             filename?: string;
             /** @description AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. */
             flags?: number;
             /** @description Attachment ID from POST /channels/{id}/attachments, or an index for existing ones. */
             id: string;
             uploaded_filename?: string;
+            /** @description Base64-encoded amplitude samples for a recorded voice message. */
+            waveform?: string;
         };
         /**
          * AttachmentUpload
@@ -2689,7 +2693,7 @@ export interface components {
             components?: components["schemas"]["MessageComponent"][];
             content?: string;
             embeds?: components["schemas"]["Embed"][];
-            /** @description MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. */
+            /** @description MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components. */
             flags?: number;
             message_reference?: components["schemas"]["MessageReference"];
             nonce?: string;

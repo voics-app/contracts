@@ -267,11 +267,12 @@
       ]
     },
     "MessageFlags": {
-      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications.",
+      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.",
       "values": [
         { "name": "SUPPRESS_EMBEDS", "value": 4 },
         { "name": "SUPPRESS_NOTIFICATIONS", "value": 4096 },
-        { "name": "EPHEMERAL", "value": 64 }
+        { "name": "EPHEMERAL", "value": 64 },
+        { "name": "IS_VOICE_MESSAGE", "value": 8192 }
       ]
     },
     "AttachmentFlags": {
