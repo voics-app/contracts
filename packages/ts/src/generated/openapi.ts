@@ -3537,7 +3537,7 @@ export interface components {
         };
         /**
          * ModifyGuildScheduledEventRequest
-         * @description Update an event. Omitted properties are unchanged; null clears nullable properties.
+         * @description Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.
          */
         ModifyGuildScheduledEventRequest: {
             channel_id?: components["schemas"]["Snowflake"] | null;
@@ -3553,7 +3553,7 @@ export interface components {
             scheduled_start_time?: string;
             /** @enum {integer} */
             status?: 1 | 2 | 3 | 4;
-        };
+        } & (unknown & unknown & unknown);
         /**
          * ModifyGuildTemplateRequest
          * @description PATCH /guilds/{guild_id}/templates/{code} body.

@@ -62,6 +62,10 @@ export type InvalidSessionPayload = boolean;
  */
 export type ReadStateVersion = string;
 /**
+ * Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.
+ */
+export type ModifyGuildScheduledEventRequest = ModifyGuildScheduledEventRequest1;
+/**
  * A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
  */
 export type NotificationRecipientPage =
@@ -3112,10 +3116,7 @@ export interface ModifyGuildRequest {
    */
   prune_admin_only?: boolean;
 }
-/**
- * Update an event. Omitted properties are unchanged; null clears nullable properties.
- */
-export interface ModifyGuildScheduledEventRequest {
+export interface ModifyGuildScheduledEventRequest1 {
   name?: string;
   description?: string | null;
   entity_type?: 1 | 2 | 3;

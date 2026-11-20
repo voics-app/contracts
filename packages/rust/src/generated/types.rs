@@ -5959,7 +5959,7 @@ impl<'de> ::serde::Deserialize<'de> for ModifyGuildRequestName {
             })
     }
 }
-///Update an event. Omitted properties are unchanged; null clears nullable properties.
+///Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyGuildScheduledEventRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -6090,6 +6090,11 @@ impl ::std::str::FromStr for ModifyGuildScheduledEventRequestName {
         }
         if value.chars().count() < 1usize {
             return Err("shorter than 1 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("\\S").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"\\S\"".into());
         }
         Ok(Self(value.to_string()))
     }

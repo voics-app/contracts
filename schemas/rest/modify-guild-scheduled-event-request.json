@@ -2,10 +2,10 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/rest/modify-guild-scheduled-event-request.json",
   "title": "ModifyGuildScheduledEventRequest",
-  "description": "Update an event. Omitted properties are unchanged; null clears nullable properties.",
+  "description": "Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.",
   "type": "object",
   "properties": {
-    "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "name": { "type": "string", "minLength": 1, "maxLength": 100, "pattern": "\\S" },
     "description": { "type": ["string", "null"], "maxLength": 1000 },
     "entity_type": { "type": "integer", "enum": [1, 2, 3] },
     "channel_id": { "oneOf": [{ "$ref": "../objects/snowflake.json" }, { "type": "null" }] },
@@ -14,5 +14,25 @@
     "scheduled_end_time": { "type": ["string", "null"], "format": "date-time" },
     "image": { "type": ["string", "null"] },
     "status": { "type": "integer", "enum": [1, 2, 3, 4] }
-  }
+  },
+  "allOf": [
+    {
+      "if": { "anyOf": [{ "properties": { "channel_id": {} }, "required": ["channel_id"] }, { "properties": { "entity_metadata": {} }, "required": ["entity_metadata"] }] },
+      "then": { "properties": { "entity_type": {} }, "required": ["entity_type"] }
+    },
+    {
+      "if": { "properties": { "entity_type": { "enum": [1, 2] } }, "required": ["entity_type"] },
+      "then": {
+        "required": ["channel_id"],
+        "properties": { "channel_id": { "$ref": "../objects/snowflake.json" }, "entity_metadata": { "type": "null" } }
+      }
+    },
+    {
+      "if": { "properties": { "entity_type": { "const": 3 } }, "required": ["entity_type"] },
+      "then": {
+        "required": ["entity_metadata"],
+        "properties": { "channel_id": { "type": "null" }, "entity_metadata": { "$ref": "../objects/scheduled-event-metadata.json" } }
+      }
+    }
+  ]
 }

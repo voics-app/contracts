@@ -7039,13 +7039,14 @@
     },
     "ModifyGuildScheduledEventRequest": {
       "title": "ModifyGuildScheduledEventRequest",
-      "description": "Update an event. Omitted properties are unchanged; null clears nullable properties.",
+      "description": "Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.",
       "type": "object",
       "properties": {
         "name": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 100
+          "maxLength": 100,
+          "pattern": "\\S"
         },
         "description": {
           "type": [
@@ -7108,7 +7109,92 @@
             4
           ]
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "channel_id": {}
+                },
+                "required": [
+                  "channel_id"
+                ]
+              },
+              {
+                "properties": {
+                  "entity_metadata": {}
+                },
+                "required": [
+                  "entity_metadata"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "entity_type": {}
+            },
+            "required": [
+              "entity_type"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "enum": [
+                  1,
+                  2
+                ]
+              }
+            },
+            "required": [
+              "entity_type"
+            ]
+          },
+          "then": {
+            "required": [
+              "channel_id"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "entity_metadata": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": 3
+              }
+            },
+            "required": [
+              "entity_type"
+            ]
+          },
+          "then": {
+            "required": [
+              "entity_metadata"
+            ],
+            "properties": {
+              "channel_id": {
+                "type": "null"
+              },
+              "entity_metadata": {
+                "$ref": "#/$defs/ScheduledEventMetadata"
+              }
+            }
+          }
+        }
+      ]
     },
     "ModifyGuildTemplateRequest": {
       "title": "ModifyGuildTemplateRequest",

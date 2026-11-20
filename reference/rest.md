@@ -2295,7 +2295,7 @@ PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
 
 ### ModifyGuildScheduledEventRequest
 
-Update an event. Omitted properties are unchanged; null clears nullable properties.
+Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.
 
 | Field | Type | Description |
 | --- | --- | --- |
