@@ -204,7 +204,7 @@ export interface paths {
         };
         /**
          * Count observed guild message markers for a UTC day (messages)
-         * @description Counts are provisional until producer coverage has been established after rollout. utc_day is days since the Unix epoch.
+         * @description Counts are provisional until producer coverage has been established after rollout. utc_day is days since the Unix epoch; source_initialized_at_ms records the schema migration and does not establish fleet coverage.
          */
         get: operations["getGuildMessageActivity"];
         put?: never;
@@ -789,6 +789,8 @@ export interface components {
         GuildMessageActivity: {
             count: number;
             coverage_complete: boolean;
+            /** @description Marker schema initialization, not proof of full producer coverage. */
+            source_initialized_at_ms: number | null;
             utc_day: number;
         };
         /**

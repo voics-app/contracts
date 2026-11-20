@@ -3046,12 +3046,16 @@ export interface components {
         /** GuildInsights */
         GuildInsights: {
             days: {
+                /** @description API activity schema initialization, not proof of complete voice coverage. */
+                activity_source_initialized_at_ms: number;
                 /** Format: date */
                 date: string;
                 leavers: number | null;
                 membership_complete: boolean;
                 /** @description False means the observed count may omit writes. */
                 message_complete: boolean;
+                /** @description Marker schema initialization, not proof of full producer coverage. */
+                message_source_initialized_at_ms: number | null;
                 messages: number | null;
                 new_members: number | null;
                 voice_minutes: number | null;

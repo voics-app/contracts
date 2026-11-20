@@ -3548,12 +3548,17 @@ pub struct GuildInsights {
 ///`GuildInsightsDaysItem`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildInsightsDaysItem {
+    ///API activity schema initialization, not proof of complete voice coverage.
+    pub activity_source_initialized_at_ms: i64,
     pub date: ::chrono::naive::NaiveDate,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub leavers: ::std::option::Option<u64>,
     pub membership_complete: bool,
     ///False means the observed count may omit writes.
     pub message_complete: bool,
+    ///Marker schema initialization, not proof of full producer coverage.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub message_source_initialized_at_ms: ::std::option::Option<u64>,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub messages: ::std::option::Option<u64>,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
@@ -3793,6 +3798,9 @@ pub struct GuildMembersChunkEvent {
 pub struct GuildMessageActivity {
     pub count: u64,
     pub coverage_complete: bool,
+    ///Marker schema initialization, not proof of full producer coverage.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub source_initialized_at_ms: ::std::option::Option<u64>,
     pub utc_day: i64,
 }
 ///The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.

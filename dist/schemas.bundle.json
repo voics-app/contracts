@@ -4193,6 +4193,8 @@
               "membership_complete",
               "messages",
               "message_complete",
+              "message_source_initialized_at_ms",
+              "activity_source_initialized_at_ms",
               "voice_minutes"
             ],
             "properties": {
@@ -4227,6 +4229,18 @@
               "message_complete": {
                 "type": "boolean",
                 "description": "False means the observed count may omit writes."
+              },
+              "message_source_initialized_at_ms": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "description": "Marker schema initialization, not proof of full producer coverage."
+              },
+              "activity_source_initialized_at_ms": {
+                "type": "integer",
+                "description": "API activity schema initialization, not proof of complete voice coverage."
               },
               "voice_minutes": {
                 "type": [
@@ -4505,7 +4519,8 @@
       "required": [
         "utc_day",
         "count",
-        "coverage_complete"
+        "coverage_complete",
+        "source_initialized_at_ms"
       ],
       "properties": {
         "utc_day": {
@@ -4519,6 +4534,14 @@
         },
         "coverage_complete": {
           "type": "boolean"
+        },
+        "source_initialized_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "description": "Marker schema initialization, not proof of full producer coverage."
         }
       }
     },

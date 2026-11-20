@@ -652,7 +652,7 @@
       "get": {
         "operationId": "getGuildMessageActivity",
         "summary": "Count observed guild message markers for a UTC day (messages)",
-        "description": "Counts are provisional until producer coverage has been established after rollout. utc_day is days since the Unix epoch.",
+        "description": "Counts are provisional until producer coverage has been established after rollout. utc_day is days since the Unix epoch; source_initialized_at_ms records the schema migration and does not establish fleet coverage.",
         "tags": [
           "messages"
         ],
@@ -2262,7 +2262,8 @@
         "required": [
           "utc_day",
           "count",
-          "coverage_complete"
+          "coverage_complete",
+          "source_initialized_at_ms"
         ],
         "properties": {
           "utc_day": {
@@ -2276,6 +2277,14 @@
           },
           "coverage_complete": {
             "type": "boolean"
+          },
+          "source_initialized_at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Marker schema initialization, not proof of full producer coverage."
           }
         }
       },

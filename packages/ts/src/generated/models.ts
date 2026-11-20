@@ -2088,6 +2088,14 @@ export interface GuildInsights {
      * False means the observed count may omit writes.
      */
     message_complete: boolean;
+    /**
+     * Marker schema initialization, not proof of full producer coverage.
+     */
+    message_source_initialized_at_ms: number | null;
+    /**
+     * API activity schema initialization, not proof of complete voice coverage.
+     */
+    activity_source_initialized_at_ms: number;
     voice_minutes: number | null;
   }[];
 }
@@ -2155,6 +2163,10 @@ export interface GuildMessageActivity {
   utc_day: number;
   count: number;
   coverage_complete: boolean;
+  /**
+   * Marker schema initialization, not proof of full producer coverage.
+   */
+  source_initialized_at_ms: number | null;
 }
 /**
  * The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.

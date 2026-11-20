@@ -393,7 +393,7 @@ paths:
     get:
       operationId: getGuildMessageActivity
       summary: Count observed guild message markers for a UTC day (messages)
-      description: Counts are provisional until producer coverage has been established after rollout. utc_day is days since the Unix epoch.
+      description: Counts are provisional until producer coverage has been established after rollout. utc_day is days since the Unix epoch; source_initialized_at_ms records the schema migration and does not establish fleet coverage.
       tags: [messages]
       parameters:
         - $ref: "#/components/parameters/guild_id"

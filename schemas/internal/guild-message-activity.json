@@ -3,10 +3,11 @@
   "$id": "https://discordy.voics.nl/contracts/schemas/internal/guild-message-activity.json",
   "title": "GuildMessageActivity",
   "type": "object",
-  "required": ["utc_day", "count", "coverage_complete"],
+  "required": ["utc_day", "count", "coverage_complete", "source_initialized_at_ms"],
   "properties": {
     "utc_day": { "type": "integer", "minimum": 0, "maximum": 100000 },
     "count": { "type": "integer", "minimum": 0 },
-    "coverage_complete": { "type": "boolean" }
+    "coverage_complete": { "type": "boolean" },
+    "source_initialized_at_ms": { "type": ["integer", "null"], "minimum": 0, "description": "Marker schema initialization, not proof of full producer coverage." }
   }
 }
