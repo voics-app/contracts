@@ -913,6 +913,13 @@
         "direction": "receive",
         "payload": "voice/opcodes/stream-viewers.json",
         "description": "Sent to the streamer only: the full list of users watching their screen share, re-sent on every change."
+      },
+      {
+        "op": 41,
+        "name": "PUBLISH_PERMISSIONS",
+        "direction": "receive",
+        "payload": "voice/opcodes/publish-permissions.json",
+        "description": "Proposed: affected session only, sent after SFU capability acknowledgement. Missing or expired means denied."
       }
     ],
     "sfu_commands": [

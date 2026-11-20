@@ -523,6 +523,8 @@ pub mod voice_opcodes {
     pub const DAVE_MLS_INVALID_COMMIT: u8 = 31;
     /// Sent to the streamer only: the full list of users watching their screen share, re-sent on every change.
     pub const STREAM_VIEWERS: u8 = 40;
+    /// Proposed: affected session only, sent after SFU capability acknowledgement. Missing or expired means denied.
+    pub const PUBLISH_PERMISSIONS: u8 = 41;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -550,6 +552,7 @@ pub mod voice_opcodes {
         ("DAVE_MLS_WELCOME", DAVE_MLS_WELCOME),
         ("DAVE_MLS_INVALID_COMMIT", DAVE_MLS_INVALID_COMMIT),
         ("STREAM_VIEWERS", STREAM_VIEWERS),
+        ("PUBLISH_PERMISSIONS", PUBLISH_PERMISSIONS),
     ];
 }
 

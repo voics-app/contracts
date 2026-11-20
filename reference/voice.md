@@ -43,6 +43,7 @@ Every voice WebSocket frame (both directions).
 | 30 | `DAVE_MLS_WELCOME` | receive | `DaveMlsWelcomePayload` | An MLS welcome for a joining member. |
 | 31 | `DAVE_MLS_INVALID_COMMIT` | send | `DaveTransitionPayload` | The received commit or welcome was invalid; the client asks to be re-added. |
 | 40 | `STREAM_VIEWERS` | receive | `StreamViewersPayload` | Sent to the streamer only: the full list of users watching their screen share, re-sent on every change. |
+| 41 | `PUBLISH_PERMISSIONS` | receive | `PublishPermissionsPayload` | Proposed: affected session only, sent after SFU capability acknowledgement. Missing or expired means denied. |
 
 ## Opcode payloads
 
@@ -241,6 +242,19 @@ Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watchin
 | --- | --- | --- |
 | `ssrc` | `integer` | The streamer's screen SSRC. |
 | `user_ids` | `array of Snowflake` | Every current viewer. |
+
+### PublishPermissionsPayload
+
+Proposed voice op 41, sent only to the affected session after the SFU has applied the capability. This is informational; the SFU enforces publication. Absence, expiry, stale revision or disconnection means deny.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `session_id` | `string` |  |
+| `revision` | `integer` |  |
+| `expires_at` | `integer` | Unix milliseconds; a bounded deadline enforced by the SFU. |
+| `can_publish_audio` | `boolean` |  |
+| `can_publish_video` | `boolean` |  |
+| `can_publish_soundboard` | `boolean` |  |
 
 ## Speaking flags
 

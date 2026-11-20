@@ -175,7 +175,8 @@
       { "op": 29, "name": "DAVE_MLS_ANNOUNCE_COMMIT", "direction": "receive", "payload": "voice/opcodes/dave-mls-announce-commit.json", "description": "The winning commit for a transition." },
       { "op": 30, "name": "DAVE_MLS_WELCOME", "direction": "receive", "payload": "voice/opcodes/dave-mls-welcome.json", "description": "An MLS welcome for a joining member." },
       { "op": 31, "name": "DAVE_MLS_INVALID_COMMIT", "direction": "send", "payload": "voice/opcodes/dave-transition.json", "description": "The received commit or welcome was invalid; the client asks to be re-added." },
-      { "op": 40, "name": "STREAM_VIEWERS", "direction": "receive", "payload": "voice/opcodes/stream-viewers.json", "description": "Sent to the streamer only: the full list of users watching their screen share, re-sent on every change." }
+      { "op": 40, "name": "STREAM_VIEWERS", "direction": "receive", "payload": "voice/opcodes/stream-viewers.json", "description": "Sent to the streamer only: the full list of users watching their screen share, re-sent on every change." },
+      { "op": 41, "name": "PUBLISH_PERMISSIONS", "direction": "receive", "payload": "voice/opcodes/publish-permissions.json", "description": "Proposed: affected session only, sent after SFU capability acknowledgement. Missing or expired means denied." }
     ],
     "sfu_commands": [
       { "name": "create_session", "payload": "voice/sfu/create-session.json", "description": "Creates (or, after an SFU restart, re-creates) a media session." },

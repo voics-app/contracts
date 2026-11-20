@@ -3443,6 +3443,20 @@ export interface PublicDevice {
   identity_key_b64: string;
 }
 /**
+ * Proposed voice op 41, sent only to the affected session after the SFU has applied the capability. This is informational; the SFU enforces publication. Absence, expiry, stale revision or disconnection means deny.
+ */
+export interface PublishPermissionsPayload {
+  session_id: string;
+  revision: number;
+  /**
+   * Unix milliseconds; a bounded deadline enforced by the SFU.
+   */
+  expires_at: number;
+  can_publish_audio: boolean;
+  can_publish_video: boolean;
+  can_publish_soundboard: boolean;
+}
+/**
  * PUT /users/@me/notes/{user_id} body. An empty or missing note deletes the note.
  */
 export interface PutNoteRequest {

@@ -343,6 +343,8 @@ export const VoiceOpcodes = {
   DAVE_MLS_INVALID_COMMIT: 31,
   /** Sent to the streamer only: the full list of users watching their screen share, re-sent on every change. */
   STREAM_VIEWERS: 40,
+  /** Proposed: affected session only, sent after SFU capability acknowledgement. Missing or expired means denied. */
+  PUBLISH_PERMISSIONS: 41,
 } as const;
 export type VoiceOpcodesKey = keyof typeof VoiceOpcodes;
 
