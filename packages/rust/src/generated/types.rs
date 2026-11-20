@@ -1220,6 +1220,11 @@ pub struct Channel {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub forum_first_message: ::std::option::Option<ChannelForumFirstMessage>,
+    ///Forum post creation status. Non-published posts are returned only to the author on a matching retry.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub forum_post_status: ::std::option::Option<ChannelForumPostStatus>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub guild_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub icon: ::std::option::Option<::std::string::String>,
@@ -1291,6 +1296,76 @@ pub struct ChannelAccess {
     pub guild_id: ::std::option::Option<Snowflake>,
     pub permissions: PermissionBitset,
     pub recipient_ids: ::std::vec::Vec<Snowflake>,
+}
+///First stored message preview for a Standard forum post.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ChannelForumFirstMessage {
+    pub attachments: ::std::vec::Vec<Attachment>,
+    pub content: ::std::string::String,
+    pub id: Snowflake,
+}
+///Forum post creation status. Non-published posts are returned only to the author on a matching retry.
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ChannelForumPostStatus {
+    #[serde(rename = "pending")]
+    Pending,
+    #[serde(rename = "dispatching")]
+    Dispatching,
+    #[serde(rename = "publishing")]
+    Publishing,
+    #[serde(rename = "published")]
+    Published,
+    #[serde(rename = "failed")]
+    Failed,
+}
+impl ::std::fmt::Display for ChannelForumPostStatus {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Pending => f.write_str("pending"),
+            Self::Dispatching => f.write_str("dispatching"),
+            Self::Publishing => f.write_str("publishing"),
+            Self::Published => f.write_str("published"),
+            Self::Failed => f.write_str("failed"),
+        }
+    }
+}
+impl ::std::str::FromStr for ChannelForumPostStatus {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "pending" => Ok(Self::Pending),
+            "dispatching" => Ok(Self::Dispatching),
+            "publishing" => Ok(Self::Publishing),
+            "published" => Ok(Self::Published),
+            "failed" => Ok(Self::Failed),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ChannelForumPostStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ChannelForumPostStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
 }
 ///A channel mentioned in a message.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -2221,7 +2296,7 @@ pub struct CreateScheduledMessageRequest {
     pub request_id: ScheduledMessageId,
     pub scheduled_at: ::chrono::DateTime<::chrono::offset::Utc>,
 }
-///POST /channels/{id}/threads body. Forum channels require `message`.
+///POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct CreateThreadRequest {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
@@ -2231,10 +2306,13 @@ pub struct CreateThreadRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub invitable: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub message: ::std::option::Option<CreateMessageRequest>,
+    pub message: ::std::option::Option<CreateThreadRequestMessage>,
     pub name: CreateThreadRequestName,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rate_limit_per_user: ::std::option::Option<i64>,
+    ///Required for forum posts, scoped to the author and forum.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub request_id: ::std::option::Option<::uuid::Uuid>,
     #[serde(
         rename = "type",
         skip_serializing_if = "::std::option::Option::is_none"
@@ -2273,6 +2351,65 @@ impl<'de> ::serde::Deserialize<'de> for CreateThreadRequestAutoArchiveDuration {
     {
         Self::try_from(<i64>::deserialize(deserializer)?)
             .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`CreateThreadRequestMessage`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct CreateThreadRequestMessage {
+    pub content: CreateThreadRequestMessageContent,
+}
+///`CreateThreadRequestMessageContent`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateThreadRequestMessageContent(::std::string::String);
+impl ::std::ops::Deref for CreateThreadRequestMessageContent {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateThreadRequestMessageContent> for ::std::string::String {
+    fn from(value: CreateThreadRequestMessageContent) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateThreadRequestMessageContent {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 2000usize {
+            return Err("longer than 2000 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateThreadRequestMessageContent {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateThreadRequestMessageContent {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateThreadRequestMessageContent {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 ///`CreateThreadRequestName`

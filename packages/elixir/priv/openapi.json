@@ -3622,6 +3622,49 @@
       }
     },
     "/channels/{channel_id}/threads": {
+      "get": {
+        "operationId": "listForumPosts",
+        "summary": "List visible published forum posts and Standard message summaries",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Visible forum posts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Channel"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
       "post": {
         "operationId": "startThread",
         "summary": "Start a thread (or forum post)",
@@ -3647,6 +3690,16 @@
         "responses": {
           "201": {
             "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Channel"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Forum post is pending or delivery is being reconciled. Retry the same request ID and body.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9267,6 +9320,40 @@
           "require_tags": {
             "type": "boolean",
             "description": "Forum posts must have at least one available tag."
+          },
+          "forum_post_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "dispatching",
+              "publishing",
+              "published",
+              "failed"
+            ],
+            "description": "Forum post creation status. Non-published posts are returned only to the author on a matching retry."
+          },
+          "forum_first_message": {
+            "type": "object",
+            "description": "First stored message preview for a Standard forum post.",
+            "required": [
+              "id",
+              "content",
+              "attachments"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              "content": {
+                "type": "string"
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Attachment"
+                }
+              }
+            }
           }
         }
       },
@@ -9887,7 +9974,7 @@
       },
       "CreateThreadRequest": {
         "title": "CreateThreadRequest",
-        "description": "POST /channels/{id}/threads body. Forum channels require `message`.",
+        "description": "POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.",
         "type": "object",
         "required": [
           "name"
@@ -9926,7 +10013,23 @@
             }
           },
           "message": {
-            "$ref": "#/components/schemas/CreateMessageRequest"
+            "type": "object",
+            "required": [
+              "content"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            }
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Required for forum posts, scoped to the author and forum."
           }
         }
       },

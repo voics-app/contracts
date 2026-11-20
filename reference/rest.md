@@ -194,6 +194,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PUT` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Add a user to a group DM |
 | `DELETE` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Remove a user from a group DM, or leave with @me |
 | `POST` | `/channels/{channel_id}/typing` | api | — | 204 No Content | Trigger the typing indicator (publishes TYPING_START) |
+| `GET` | `/channels/{channel_id}/threads` | api | — | `array of Channel` | List visible published forum posts and Standard message summaries |
 | `POST` | `/channels/{channel_id}/threads` | api | `CreateThreadRequest` | `Channel` | Start a thread (or forum post) |
 
 ### Invites
@@ -599,6 +600,8 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `delivery_mode?` | `DeliveryMode` | Discordy: effective delivery mode. Always present on full channel objects. |
 | `voice_region?` | `?string` | Discordy: per-channel voice region override; null uses the guild's voice_region. |
 | `require_tags?` | `boolean` | Forum posts must have at least one available tag. |
+| `forum_post_status?` | `"pending" or "dispatching" or "publishing" or "published" or "failed"` | Forum post creation status. Non-published posts are returned only to the author on a matching retry. |
+| `forum_first_message?` | `object` | First stored message preview for a Standard forum post. |
 
 ### ChannelMention
 
@@ -1966,7 +1969,7 @@ POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New s
 
 ### CreateThreadRequest
 
-POST /channels/{id}/threads body. Forum channels require `message`.
+POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -1976,7 +1979,8 @@ POST /channels/{id}/threads body. Forum channels require `message`.
 | `invitable?` | `boolean` |  |
 | `rate_limit_per_user?` | `?integer` |  |
 | `applied_tags?` | `array of Snowflake` |  |
-| `message?` | `CreateMessageRequest` |  |
+| `message?` | `object` |  |
+| `request_id?` | `string (uuid)` | Required for forum posts, scoped to the author and forum. |
 
 ### CreateWebhookRequest
 

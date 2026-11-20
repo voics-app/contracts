@@ -694,7 +694,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List visible published forum posts and Standard message summaries */
+        get: operations["listForumPosts"];
         put?: never;
         /** Start a thread (or forum post) */
         post: operations["startThread"];
@@ -2376,6 +2377,17 @@ export interface components {
             /** @description Discordy: effective delivery mode. Always present on full channel objects. */
             delivery_mode?: components["schemas"]["DeliveryMode"];
             flags?: number;
+            /** @description First stored message preview for a Standard forum post. */
+            forum_first_message?: {
+                attachments: components["schemas"]["Attachment"][];
+                content: string;
+                id: components["schemas"]["Snowflake"];
+            };
+            /**
+             * @description Forum post creation status. Non-published posts are returned only to the author on a matching retry.
+             * @enum {string}
+             */
+            forum_post_status?: "pending" | "dispatching" | "publishing" | "published" | "failed";
             guild_id?: components["schemas"]["Snowflake"];
             icon?: string | null;
             id: components["schemas"]["Snowflake"];
@@ -2618,16 +2630,23 @@ export interface components {
         };
         /**
          * CreateThreadRequest
-         * @description POST /channels/{id}/threads body. Forum channels require `message`.
+         * @description POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
          */
         CreateThreadRequest: {
             applied_tags?: components["schemas"]["Snowflake"][];
             /** @enum {integer} */
             auto_archive_duration?: 60 | 1440 | 4320 | 10080;
             invitable?: boolean;
-            message?: components["schemas"]["CreateMessageRequest"];
+            message?: {
+                content: string;
+            };
             name: string;
             rate_limit_per_user?: number | null;
+            /**
+             * Format: uuid
+             * @description Required for forum posts, scoped to the author and forum.
+             */
+            request_id?: string;
             type?: number;
         };
         /**
@@ -6154,6 +6173,34 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listForumPosts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Visible forum posts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Channel"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     startThread: {
         parameters: {
             query?: never;
@@ -6172,6 +6219,15 @@ export interface operations {
         responses: {
             /** @description Success. */
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Channel"];
+                };
+            };
+            /** @description Forum post is pending or delivery is being reconciled. Retry the same request ID and body. */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };

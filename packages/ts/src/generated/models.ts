@@ -610,6 +610,18 @@ export interface Channel {
    * Forum posts must have at least one available tag.
    */
   require_tags?: boolean;
+  /**
+   * Forum post creation status. Non-published posts are returned only to the author on a matching retry.
+   */
+  forum_post_status?: "pending" | "dispatching" | "publishing" | "published" | "failed";
+  /**
+   * First stored message preview for a Standard forum post.
+   */
+  forum_first_message?: {
+    id: Snowflake;
+    content: string;
+    attachments: Attachment[];
+  };
 }
 /**
  * A channel permission overwrite for a role or member.
@@ -1389,7 +1401,7 @@ export interface ScheduledMessageDraft {
   silent?: boolean;
 }
 /**
- * POST /channels/{id}/threads body. Forum channels require `message`.
+ * POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
  */
 export interface CreateThreadRequest {
   name: string;
@@ -1398,7 +1410,13 @@ export interface CreateThreadRequest {
   invitable?: boolean;
   rate_limit_per_user?: number | null;
   applied_tags?: Snowflake[];
-  message?: CreateMessageRequest;
+  message?: {
+    content: string;
+  };
+  /**
+   * Required for forum posts, scoped to the author and forum.
+   */
+  request_id?: string;
 }
 /**
  * POST /channels/{id}/webhooks body.
