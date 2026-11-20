@@ -879,6 +879,18 @@
           "maxLength": 1024,
           "description": "Alt text shown to screen readers and as the image tooltip."
         },
+        "duration_secs": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600,
+          "description": "Duration of a recorded voice message in seconds."
+        },
+        "waveform": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "description": "Base64-encoded amplitude samples for a recorded voice message."
+        },
         "flags": {
           "type": "integer",
           "description": "AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too."
@@ -1577,6 +1589,10 @@
         "member_count": {
           "type": "integer"
         },
+        "is_thread_member": {
+          "type": "boolean",
+          "description": "Voics: whether the requesting user has joined this thread; omitted from shared events."
+        },
         "thread_metadata": {
           "$ref": "#/$defs/ThreadMetadata"
         },
@@ -2238,7 +2254,7 @@
         },
         "flags": {
           "type": "integer",
-          "description": "MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped."
+          "description": "MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components."
         }
       }
     },
@@ -3538,6 +3554,285 @@
             "null"
           ],
           "description": "Dispatch event name."
+        }
+      }
+    },
+    "GatewayGuildState": {
+      "title": "GatewayGuildState",
+      "description": "Internal gateway seed. Thread membership state must not be sent to clients.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "icon",
+        "owner_id",
+        "afk_channel_id",
+        "afk_timeout",
+        "verification_level",
+        "default_message_notifications",
+        "explicit_content_filter",
+        "roles",
+        "emojis",
+        "features",
+        "mfa_level",
+        "system_channel_id",
+        "system_channel_flags",
+        "preferred_locale",
+        "voice_region",
+        "member_count",
+        "members",
+        "channels",
+        "threads",
+        "voice_states",
+        "thread_members"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "name": {
+          "type": "string"
+        },
+        "icon": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "splash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null."
+        },
+        "discovery_splash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "owner": {
+          "type": "boolean",
+          "description": "True if the current user owns the guild."
+        },
+        "owner_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "permissions": {
+          "$ref": "#/$defs/PermissionBitset"
+        },
+        "afk_channel_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "afk_timeout": {
+          "type": "integer"
+        },
+        "verification_level": {
+          "type": "integer"
+        },
+        "default_message_notifications": {
+          "type": "integer"
+        },
+        "explicit_content_filter": {
+          "type": "integer"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Role"
+          }
+        },
+        "emojis": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Emoji"
+          }
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mfa_level": {
+          "type": "integer"
+        },
+        "application_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "system_channel_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "system_channel_flags": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 63,
+          "description": "Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear."
+        },
+        "rules_channel_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "max_members": {
+          "type": "integer"
+        },
+        "vanity_url_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "banner": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Banner image hash (CDN path banners/{guild_id}/{hash}), or null."
+        },
+        "preferred_locale": {
+          "type": "string"
+        },
+        "public_updates_channel_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nsfw_level": {
+          "type": "integer"
+        },
+        "approximate_member_count": {
+          "type": "integer"
+        },
+        "approximate_presence_count": {
+          "type": "integer"
+        },
+        "voice_region": {
+          "type": "string",
+          "description": "Discordy: voice region ID used to allocate voice nodes."
+        },
+        "audit_log_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention."
+        },
+        "audit_log_retention_days": {
+          "type": "integer",
+          "enum": [
+            30,
+            90,
+            365
+          ],
+          "default": 90,
+          "description": "Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job."
+        },
+        "prune_admin_only": {
+          "type": "boolean",
+          "description": "Discordy: when true, only administrators may prune inactive members."
+        },
+        "joined_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "large": {
+          "type": "boolean"
+        },
+        "unavailable": {
+          "type": "boolean"
+        },
+        "member_count": {
+          "type": "integer"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GuildMember"
+          }
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Channel"
+          }
+        },
+        "threads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Channel"
+          }
+        },
+        "presences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PresenceUpdateEvent"
+          }
+        },
+        "voice_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VoiceState"
+          }
+        },
+        "thread_members": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "version",
+              "user_ids"
+            ],
+            "properties": {
+              "version": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "user_ids": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Snowflake"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
         }
       }
     },
@@ -8101,7 +8396,7 @@
         "guilds": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/GuildFull"
+            "$ref": "#/$defs/GatewayGuildState"
           }
         },
         "private_channels": {
@@ -9622,6 +9917,59 @@
         }
       }
     },
+    "ThreadMemberTarget": {
+      "title": "ThreadMemberTarget",
+      "description": "A thread member's Snowflake or @me for the authenticated user.",
+      "type": "string",
+      "pattern": "^(@me|[0-9]{1,20})$"
+    },
+    "ThreadMembersUpdate": {
+      "title": "ThreadMembersUpdate",
+      "description": "A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.",
+      "type": "object",
+      "required": [
+        "id",
+        "guild_id",
+        "member_count",
+        "added_members",
+        "removed_member_ids"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "member_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "added_members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ThreadMember"
+          }
+        },
+        "removed_member_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
+        },
+        "_membership_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "_member_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "ThreadMetadata": {
       "title": "ThreadMetadata",
       "description": "Thread-specific fields.",
@@ -10205,7 +10553,7 @@
         "guilds": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/GuildFull"
+            "$ref": "#/$defs/GatewayGuildState"
           }
         },
         "private_channels": {

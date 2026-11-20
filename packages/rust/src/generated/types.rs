@@ -863,6 +863,9 @@ pub struct AttachmentReference {
     ///Alt text shown to screen readers and as the image tooltip.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: ::std::option::Option<AttachmentReferenceDescription>,
+    ///Duration of a recorded voice message in seconds.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub duration_secs: ::std::option::Option<f64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filename: ::std::option::Option<::std::string::String>,
     ///AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
@@ -872,6 +875,9 @@ pub struct AttachmentReference {
     pub id: ::std::string::String,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub uploaded_filename: ::std::option::Option<::std::string::String>,
+    ///Base64-encoded amplitude samples for a recorded voice message.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub waveform: ::std::option::Option<AttachmentReferenceWaveform>,
 }
 ///Alt text shown to screen readers and as the image tooltip.
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -912,6 +918,59 @@ impl ::std::convert::TryFrom<::std::string::String> for AttachmentReferenceDescr
     }
 }
 impl<'de> ::serde::Deserialize<'de> for AttachmentReferenceDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Base64-encoded amplitude samples for a recorded voice message.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct AttachmentReferenceWaveform(::std::string::String);
+impl ::std::ops::Deref for AttachmentReferenceWaveform {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<AttachmentReferenceWaveform> for ::std::string::String {
+    fn from(value: AttachmentReferenceWaveform) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for AttachmentReferenceWaveform {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 1024usize {
+            return Err("longer than 1024 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for AttachmentReferenceWaveform {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for AttachmentReferenceWaveform {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for AttachmentReferenceWaveform {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -1230,6 +1289,9 @@ pub struct Channel {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub icon: ::std::option::Option<::std::string::String>,
     pub id: Snowflake,
+    ///Voics: whether the requesting user has joined this thread; omitted from shared events.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub is_thread_member: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub last_message_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -1853,7 +1915,7 @@ pub struct CreateMessageRequest {
     pub content: ::std::option::Option<CreateMessageRequestContent>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub embeds: ::std::vec::Vec<Embed>,
-    ///MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped.
+    ///MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3102,6 +3164,133 @@ pub struct GatewayFrame {
     ///Dispatch event name.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub t: ::std::option::Option<::std::string::String>,
+}
+///Internal gateway seed. Thread membership state must not be sent to clients.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GatewayGuildState {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub afk_channel_id: ::std::option::Option<Snowflake>,
+    pub afk_timeout: i64,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub application_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub approximate_member_count: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub approximate_presence_count: ::std::option::Option<i64>,
+    ///Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub audit_log_enabled: bool,
+    ///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+    #[serde(default = "defaults::gateway_guild_state_audit_log_retention_days")]
+    pub audit_log_retention_days: GatewayGuildStateAuditLogRetentionDays,
+    ///Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub banner: ::std::option::Option<::std::string::String>,
+    pub channels: ::std::vec::Vec<Channel>,
+    pub default_message_notifications: i64,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub description: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub discovery_splash: ::std::option::Option<::std::string::String>,
+    pub emojis: ::std::vec::Vec<Emoji>,
+    pub explicit_content_filter: i64,
+    pub features: ::std::vec::Vec<::std::string::String>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub icon: ::std::option::Option<::std::string::String>,
+    pub id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub joined_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub large: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub max_members: ::std::option::Option<i64>,
+    pub member_count: i64,
+    pub members: ::std::vec::Vec<GuildMember>,
+    pub mfa_level: i64,
+    pub name: ::std::string::String,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub nsfw_level: ::std::option::Option<i64>,
+    ///True if the current user owns the guild.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub owner: ::std::option::Option<bool>,
+    pub owner_id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub permissions: ::std::option::Option<PermissionBitset>,
+    pub preferred_locale: ::std::string::String,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub presences: ::std::vec::Vec<PresenceUpdateEvent>,
+    ///Discordy: when true, only administrators may prune inactive members.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub prune_admin_only: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub public_updates_channel_id: ::std::option::Option<Snowflake>,
+    pub roles: ::std::vec::Vec<Role>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub rules_channel_id: ::std::option::Option<Snowflake>,
+    ///Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub splash: ::std::option::Option<::std::string::String>,
+    ///Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+    pub system_channel_flags: i64,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub system_channel_id: ::std::option::Option<Snowflake>,
+    pub thread_members:
+        ::std::collections::HashMap<::std::string::String, GatewayGuildStateThreadMembersValue>,
+    pub threads: ::std::vec::Vec<Channel>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub unavailable: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub vanity_url_code: ::std::option::Option<::std::string::String>,
+    pub verification_level: i64,
+    ///Discordy: voice region ID used to allocate voice nodes.
+    pub voice_region: ::std::string::String,
+    pub voice_states: ::std::vec::Vec<VoiceState>,
+}
+///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct GatewayGuildStateAuditLogRetentionDays(i64);
+impl ::std::ops::Deref for GatewayGuildStateAuditLogRetentionDays {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<GatewayGuildStateAuditLogRetentionDays> for i64 {
+    fn from(value: GatewayGuildStateAuditLogRetentionDays) -> Self {
+        value.0
+    }
+}
+impl ::std::default::Default for GatewayGuildStateAuditLogRetentionDays {
+    fn default() -> Self {
+        GatewayGuildStateAuditLogRetentionDays(90_i64)
+    }
+}
+impl ::std::convert::TryFrom<i64> for GatewayGuildStateAuditLogRetentionDays {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![30_i64, 90_i64, 365_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GatewayGuildStateAuditLogRetentionDays {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`GatewayGuildStateThreadMembersValue`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct GatewayGuildStateThreadMembersValue {
+    pub user_ids: ::std::vec::Vec<Snowflake>,
+    pub version: u64,
 }
 ///A guild (server). `voice_region` is a Discordy extra.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -7376,7 +7565,7 @@ pub struct ReadyApplication {
 pub struct ReadyEvent {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub application: ::std::option::Option<ReadyApplication>,
-    pub guilds: ::std::vec::Vec<GuildFull>,
+    pub guilds: ::std::vec::Vec<GatewayGuildState>,
     ///The user's private notes keyed by the noted user's id.
     pub notes: ::std::collections::HashMap<::std::string::String, ReadyEventNotesValue>,
     pub private_channels: ::std::vec::Vec<Channel>,
@@ -8617,6 +8806,79 @@ pub struct ThreadMember {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: ::std::option::Option<Snowflake>,
 }
+///A thread member's Snowflake or @me for the authenticated user.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ThreadMemberTarget(::std::string::String);
+impl ::std::ops::Deref for ThreadMemberTarget {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ThreadMemberTarget> for ::std::string::String {
+    fn from(value: ThreadMemberTarget) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ThreadMemberTarget {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^(@me|[0-9]{1,20})$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^(@me|[0-9]{1,20})$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ThreadMemberTarget {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ThreadMemberTarget {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ThreadMemberTarget {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ThreadMembersUpdate {
+    pub added_members: ::std::vec::Vec<ThreadMember>,
+    pub guild_id: Snowflake,
+    pub id: Snowflake,
+    pub member_count: u64,
+    #[serde(
+        rename = "_member_ids",
+        default,
+        skip_serializing_if = "::std::vec::Vec::is_empty"
+    )]
+    pub member_ids: ::std::vec::Vec<Snowflake>,
+    #[serde(
+        rename = "_membership_version",
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub membership_version: ::std::option::Option<u64>,
+    pub removed_member_ids: ::std::vec::Vec<Snowflake>,
+}
 ///Thread-specific fields.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct ThreadMetadata {
@@ -9450,7 +9712,7 @@ impl ::std::convert::From<::std::vec::Vec<ReadState>> for UserReadStates {
 ///GET /internal/v1/users/{user_id}/ready: the state used to build READY.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct UserReadyState {
-    pub guilds: ::std::vec::Vec<GuildFull>,
+    pub guilds: ::std::vec::Vec<GatewayGuildState>,
     ///The user's private notes keyed by the noted user's id.
     pub notes: ::std::collections::HashMap<::std::string::String, UserReadyStateNotesValue>,
     pub private_channels: ::std::vec::Vec<Channel>,
@@ -11003,6 +11265,10 @@ pub mod defaults {
         <T as ::std::convert::TryFrom<::std::num::NonZeroU64>>::Error: ::std::fmt::Debug,
     {
         T::try_from(::std::num::NonZeroU64::try_from(V).unwrap()).unwrap()
+    }
+    pub(super) fn gateway_guild_state_audit_log_retention_days(
+    ) -> super::GatewayGuildStateAuditLogRetentionDays {
+        super::GatewayGuildStateAuditLogRetentionDays(90_i64)
     }
     pub(super) fn guild_audit_log_retention_days() -> super::GuildAuditLogRetentionDays {
         super::GuildAuditLogRetentionDays(90_i64)

@@ -285,6 +285,7 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `INVITE_DELETE` | `InviteDeleteEvent` | api | `discordy.guild.v1` | An invite was deleted. |
 | `THREAD_CREATE` | `Channel` | api | `discordy.guild.v1` | A thread was created. |
 | `THREAD_UPDATE` | `Channel` | api | `discordy.guild.v1` | A thread was updated. |
+| `THREAD_MEMBERS_UPDATE` | `ThreadMembersUpdate` | api | `discordy.guild.v1` | Thread membership changed; underscore-prefixed bus state is private to the gateway. |
 | `THREAD_DELETE` | `Channel` | api | `discordy.guild.v1` | A thread was deleted. |
 | `APPLICATION_COMMAND_PERMISSIONS_UPDATE` | `GuildApplicationCommandPermissions` | api | `discordy.guild.v1` | Application command permissions were updated. |
 | `MESSAGE_CREATE` | `MessageEvent` | messages | `discordy.message.v1` | A message was created. |
@@ -319,7 +320,7 @@ READY: the internal ready state plus session details.
 | Field | Type | Description |
 | --- | --- | --- |
 | `user` | `User` |  |
-| `guilds` | `array of GuildFull` |  |
+| `guilds` | `array of GatewayGuildState` |  |
 | `private_channels` | `array of Channel` |  |
 | `relationships` | `array of Relationship` |  |
 | `user_settings` | `UserSettings` |  |
@@ -493,6 +494,20 @@ INVITE_DELETE dispatch.
 | `channel_id` | `Snowflake` |  |
 | `guild_id?` | `Snowflake` |  |
 | `code` | `string` |  |
+
+### ThreadMembersUpdate
+
+A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `guild_id` | `Snowflake` |  |
+| `member_count` | `integer` |  |
+| `added_members` | `array of ThreadMember` |  |
+| `removed_member_ids` | `array of Snowflake` |  |
+| `_membership_version?` | `integer` |  |
+| `_member_ids?` | `array of Snowflake` |  |
 
 ### MessageEvent
 
@@ -704,6 +719,57 @@ Ciphertext for one recipient device.
 | `user_id` | `Snowflake` |  |
 | `device_id` | `Snowflake` |  |
 | `ciphertext_b64` | `string` |  |
+
+### GatewayGuildState
+
+Internal gateway seed. Thread membership state must not be sent to clients.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `icon` | `?string` |  |
+| `splash?` | `?string` | Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null. |
+| `discovery_splash?` | `?string` |  |
+| `owner?` | `boolean` | True if the current user owns the guild. |
+| `owner_id` | `Snowflake` |  |
+| `permissions?` | `PermissionBitset` |  |
+| `afk_channel_id` | `?Snowflake` |  |
+| `afk_timeout` | `integer` |  |
+| `verification_level` | `integer` |  |
+| `default_message_notifications` | `integer` |  |
+| `explicit_content_filter` | `integer` |  |
+| `roles` | `array of Role` |  |
+| `emojis` | `array of Emoji` |  |
+| `features` | `array of string` |  |
+| `mfa_level` | `integer` |  |
+| `application_id?` | `?Snowflake` |  |
+| `system_channel_id` | `?Snowflake` |  |
+| `system_channel_flags` | `integer` | Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. |
+| `rules_channel_id?` | `?Snowflake` |  |
+| `max_members?` | `integer` |  |
+| `vanity_url_code?` | `?string` |  |
+| `description?` | `?string` |  |
+| `banner?` | `?string` | Banner image hash (CDN path banners/{guild_id}/{hash}), or null. |
+| `preferred_locale` | `string` |  |
+| `public_updates_channel_id?` | `?Snowflake` |  |
+| `nsfw_level?` | `integer` |  |
+| `approximate_member_count?` | `integer` |  |
+| `approximate_presence_count?` | `integer` |  |
+| `voice_region` | `string` | Discordy: voice region ID used to allocate voice nodes. |
+| `audit_log_enabled?` | `boolean` | Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention. |
+| `audit_log_retention_days?` | `30 or 90 or 365` | Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job. |
+| `prune_admin_only?` | `boolean` | Discordy: when true, only administrators may prune inactive members. |
+| `joined_at?` | `string (date-time)` |  |
+| `large?` | `boolean` |  |
+| `unavailable?` | `boolean` |  |
+| `member_count` | `integer` |  |
+| `members` | `array of GuildMember` |  |
+| `channels` | `array of Channel` |  |
+| `threads` | `array of Channel` |  |
+| `presences?` | `array of PresenceUpdateEvent` |  |
+| `voice_states` | `array of VoiceState` |  |
+| `thread_members` | `map of object` |  |
 
 ### IdentifyProperties
 
