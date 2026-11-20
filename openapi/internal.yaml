@@ -300,7 +300,7 @@ paths:
     post:
       operationId: createForumStart
       summary: Store the reserved opening message after a durable API claim
-      description: The API invokes this at most once and reconciles ambiguity by reading the reserved message ID.
+      description: The messages service atomically stores an idempotency marker and the reserved opening message in one partition; a replay cannot recreate a deleted opening.
       tags:
         - messages
       parameters:
@@ -328,6 +328,8 @@ paths:
                 $ref: ../schemas/objects/message.json
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "410":
+          description: The reserved opening message was deleted; the marker prevents recreation.
   /forum-summaries:
     post:
       operationId: forumSummaries

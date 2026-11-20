@@ -196,7 +196,8 @@
         "pending",
         "dispatching",
         "publishing",
-        "published"
+        "published",
+        "failed"
       ],
       "description": "Forum post creation status. Non-published posts are returned only to the author on a matching retry."
     },
