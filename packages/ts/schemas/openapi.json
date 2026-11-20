@@ -3002,6 +3002,351 @@
         }
       }
     },
+    "/guilds/{guild_id}/ban-appeals/form": {
+      "get": {
+        "operationId": "getBanAppealForm",
+        "summary": "Get the appeal question for a banned user or appeal moderator",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The configured question.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "question"
+                  ],
+                  "properties": {
+                    "question": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "setBanAppealForm",
+        "summary": "Set the appeal question (MANAGE_BAN_APPEALS required)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "question"
+                ],
+                "properties": {
+                  "question": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Question saved."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/ban-appeals": {
+      "get": {
+        "operationId": "listBanAppeals",
+        "summary": "List appeals and decisions (MANAGE_BAN_APPEALS required)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Up to 100 appeals, open first and newest first within each group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "user_id",
+                      "question",
+                      "answer",
+                      "status",
+                      "created_at",
+                      "resolved_at",
+                      "resolved_by"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "user_id": {
+                        "type": "string"
+                      },
+                      "question": {
+                        "type": "string"
+                      },
+                      "answer": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "open",
+                          "accepted",
+                          "denied",
+                          "closed"
+                        ]
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "resolved_at": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date-time"
+                      },
+                      "resolved_by": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "operationId": "submitBanAppeal",
+        "summary": "Submit an appeal for the caller's current ban",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "answer",
+                  "question"
+                ],
+                "properties": {
+                  "answer": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "question": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "The question displayed to the user."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Appeal created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "user_id",
+                    "question",
+                    "answer",
+                    "status",
+                    "created_at",
+                    "resolved_at",
+                    "resolved_by"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "user_id": {
+                      "type": "string"
+                    },
+                    "question": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "open",
+                        "accepted",
+                        "denied",
+                        "closed"
+                      ]
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "resolved_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "resolved_by": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "description": "The question changed, an open appeal already exists, or the form is unavailable."
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}": {
+      "post": {
+        "operationId": "resolveBanAppeal",
+        "summary": "Accept or deny an open appeal (MANAGE_BAN_APPEALS required)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "name": "appeal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "decision",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "accept",
+                "deny"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Decision recorded."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "The appeal is closed or refers to a previous ban."
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/bans": {
       "get": {
         "operationId": "listGuildBans",
@@ -4053,6 +4398,92 @@
         }
       }
     },
+    "/channels/{channel_id}/thread-members/{user_id}": {
+      "put": {
+        "operationId": "addThreadMember",
+        "summary": "Join a thread or invite a guild member",
+        "description": "Use @me to join a visible public thread. A thread manager may add a guild member; members may invite others to an invitable private thread. The target must be able to view the parent channel. A locked thread requires MANAGE_THREADS.",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ThreadMemberTarget"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Joined or already a member."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeThreadMember",
+        "summary": "Leave a thread or remove a member",
+        "description": "Use @me to leave; removing another user requires MANAGE_THREADS.",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ThreadMemberTarget"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Left or already absent."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/channels/{channel_id}/typing": {
       "post": {
         "operationId": "triggerTyping",
@@ -4089,6 +4520,59 @@
       }
     },
     "/channels/{channel_id}/threads": {
+      "get": {
+        "operationId": "listChannelThreads",
+        "summary": "List visible active or archived threads under a channel",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "archived",
+            "in": "query",
+            "required": false,
+            "description": "Select archived threads instead of active threads.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Threads visible to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Channel"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
       "post": {
         "operationId": "startThread",
         "summary": "Start a thread (or forum post)",
@@ -9163,6 +9647,18 @@
             "maxLength": 1024,
             "description": "Alt text shown to screen readers and as the image tooltip."
           },
+          "duration_secs": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 600,
+            "description": "Duration of a recorded voice message in seconds."
+          },
+          "waveform": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "description": "Base64-encoded amplitude samples for a recorded voice message."
+          },
           "flags": {
             "type": "integer",
             "description": "AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too."
@@ -9677,6 +10173,10 @@
           },
           "member_count": {
             "type": "integer"
+          },
+          "is_thread_member": {
+            "type": "boolean",
+            "description": "Voics: whether the requesting user has joined this thread; omitted from shared events."
           },
           "thread_metadata": {
             "$ref": "#/components/schemas/ThreadMetadata"
@@ -10215,7 +10715,7 @@
           },
           "flags": {
             "type": "integer",
-            "description": "MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped."
+            "description": "MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components."
           }
         }
       },
@@ -14518,6 +15018,12 @@
             "$ref": "#/components/schemas/GuildMember"
           }
         }
+      },
+      "ThreadMemberTarget": {
+        "title": "ThreadMemberTarget",
+        "description": "A thread member's Snowflake or @me for the authenticated user.",
+        "type": "string",
+        "pattern": "^(@me|[0-9]{1,20})$"
       },
       "ThreadMetadata": {
         "title": "ThreadMetadata",

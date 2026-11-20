@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/gateway-guild-state.json",
+  "title": "GatewayGuildState",
+  "description": "Internal gateway seed. Thread membership state must not be sent to clients.",
+  "allOf": [
+    { "$ref": "../objects/guild-full.json" },
+    {
+      "type": "object",
+      "required": ["thread_members"],
+      "properties": {
+        "thread_members": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["version", "user_ids"],
+            "properties": {
+              "version": { "type": "integer", "minimum": 0 },
+              "user_ids": { "type": "array", "items": { "$ref": "../objects/snowflake.json" } }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  ]
+}
