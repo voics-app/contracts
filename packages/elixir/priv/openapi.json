@@ -4050,6 +4050,92 @@
         }
       }
     },
+    "/channels/{channel_id}/thread-members/{user_id}": {
+      "put": {
+        "operationId": "addThreadMember",
+        "summary": "Join a thread or invite a guild member",
+        "description": "Use @me to join a visible public thread. A thread manager may add a guild member; members may invite others to an invitable private thread. The target must be able to view the parent channel. A locked thread requires MANAGE_THREADS.",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ThreadMemberTarget"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Joined or already a member."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeThreadMember",
+        "summary": "Leave a thread or remove a member",
+        "description": "Use @me to leave; removing another user requires MANAGE_THREADS.",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ThreadMemberTarget"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Left or already absent."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/channels/{channel_id}/typing": {
       "post": {
         "operationId": "triggerTyping",
@@ -4086,6 +4172,59 @@
       }
     },
     "/channels/{channel_id}/threads": {
+      "get": {
+        "operationId": "listChannelThreads",
+        "summary": "List visible active or archived threads under a channel",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "archived",
+            "in": "query",
+            "required": false,
+            "description": "Select archived threads instead of active threads.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Threads visible to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Channel"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
       "post": {
         "operationId": "startThread",
         "summary": "Start a thread (or forum post)",
@@ -9687,6 +9826,10 @@
           "member_count": {
             "type": "integer"
           },
+          "is_thread_member": {
+            "type": "boolean",
+            "description": "Voics: whether the requesting user has joined this thread; omitted from shared events."
+          },
           "thread_metadata": {
             "$ref": "#/components/schemas/ThreadMetadata"
           },
@@ -14527,6 +14670,12 @@
             "$ref": "#/components/schemas/GuildMember"
           }
         }
+      },
+      "ThreadMemberTarget": {
+        "title": "ThreadMemberTarget",
+        "description": "A thread member's Snowflake or @me for the authenticated user.",
+        "type": "string",
+        "pattern": "^(@me|[0-9]{1,20})$"
       },
       "ThreadMetadata": {
         "title": "ThreadMetadata",

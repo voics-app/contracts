@@ -383,6 +383,7 @@ pub mod dispatch_events {
     pub const INVITE_DELETE: &str = "INVITE_DELETE";
     pub const THREAD_CREATE: &str = "THREAD_CREATE";
     pub const THREAD_UPDATE: &str = "THREAD_UPDATE";
+    pub const THREAD_MEMBERS_UPDATE: &str = "THREAD_MEMBERS_UPDATE";
     pub const THREAD_DELETE: &str = "THREAD_DELETE";
     pub const APPLICATION_COMMAND_PERMISSIONS_UPDATE: &str =
         "APPLICATION_COMMAND_PERMISSIONS_UPDATE";
@@ -440,6 +441,7 @@ pub mod dispatch_events {
         ("INVITE_DELETE", INVITE_DELETE),
         ("THREAD_CREATE", THREAD_CREATE),
         ("THREAD_UPDATE", THREAD_UPDATE),
+        ("THREAD_MEMBERS_UPDATE", THREAD_MEMBERS_UPDATE),
         ("THREAD_DELETE", THREAD_DELETE),
         (
             "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
@@ -649,6 +651,7 @@ pub mod event_topics {
     pub const INVITE_DELETE: &str = "discordy.guild.v1";
     pub const THREAD_CREATE: &str = "discordy.guild.v1";
     pub const THREAD_UPDATE: &str = "discordy.guild.v1";
+    pub const THREAD_MEMBERS_UPDATE: &str = "discordy.guild.v1";
     pub const THREAD_DELETE: &str = "discordy.guild.v1";
     pub const APPLICATION_COMMAND_PERMISSIONS_UPDATE: &str = "discordy.guild.v1";
     pub const MESSAGE_CREATE: &str = "discordy.message.v1";
@@ -700,6 +703,7 @@ pub mod event_topics {
         ("INVITE_DELETE", INVITE_DELETE),
         ("THREAD_CREATE", THREAD_CREATE),
         ("THREAD_UPDATE", THREAD_UPDATE),
+        ("THREAD_MEMBERS_UPDATE", THREAD_MEMBERS_UPDATE),
         ("THREAD_DELETE", THREAD_DELETE),
         (
             "APPLICATION_COMMAND_PERMISSIONS_UPDATE",

@@ -95,6 +95,7 @@
       { "name": "INVITE_DELETE", "payload": "gateway/dispatch/invite-delete.json", "source": "api", "topic": "discordy.guild.v1", "description": "An invite was deleted." },
       { "name": "THREAD_CREATE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A thread was created." },
       { "name": "THREAD_UPDATE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A thread was updated." },
+      { "name": "THREAD_MEMBERS_UPDATE", "payload": "events/thread-members-update.json", "source": "api", "topic": "discordy.guild.v1", "description": "Thread membership changed; underscore-prefixed bus state is private to the gateway." },
       { "name": "THREAD_DELETE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A thread was deleted." },
       { "name": "APPLICATION_COMMAND_PERMISSIONS_UPDATE", "payload": "objects/guild-application-command-permissions.json", "source": "api", "topic": "discordy.guild.v1", "description": "Application command permissions were updated." },
       { "name": "MESSAGE_CREATE", "payload": "gateway/dispatch/message-event.json", "source": "messages", "topic": "discordy.message.v1", "description": "A message was created." },

@@ -454,6 +454,13 @@
         "description": "A thread was updated."
       },
       {
+        "name": "THREAD_MEMBERS_UPDATE",
+        "payload": "events/thread-members-update.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "Thread membership changed; underscore-prefixed bus state is private to the gateway."
+      },
+      {
         "name": "THREAD_DELETE",
         "payload": "objects/channel.json",
         "source": "api",

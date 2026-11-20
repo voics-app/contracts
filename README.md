@@ -7,6 +7,9 @@ Rust and Elixir, and into the protocol reference docs.
 
 ## Layout
 
+Thread membership changes carry versioned gateway-only state on the event bus and internal
+guild seed. The gateway removes this state before dispatching client events or snapshots.
+
 `POST /reports` accepts the explicit `channel` target for a visible guild channel.
 Its evidence is server-owned channel metadata only (ID, guild, parent, name, type,
 age-restricted flag); it never snapshots messages or a member list. The `guild`

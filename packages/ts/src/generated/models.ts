@@ -99,6 +99,10 @@ export type ScheduledMessage = ScheduledMessage1;
  */
 export type SessionsReplaceEvent = Session[];
 /**
+ * A thread member's Snowflake or @me for the authenticated user.
+ */
+export type ThreadMemberTarget = string;
+/**
  * Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.
  */
 export type UserReadStates = ReadState[];
@@ -593,6 +597,10 @@ export interface Channel {
   video_quality_mode?: number;
   message_count?: number;
   member_count?: number;
+  /**
+   * Voics: whether the requesting user has joined this thread; omitted from shared events.
+   */
+  is_thread_member?: boolean;
   thread_metadata?: ThreadMetadata;
   member?: ThreadMember;
   default_auto_archive_duration?: number;
@@ -1839,6 +1847,130 @@ export interface GatewayFrame {
   t?: string | null;
 }
 /**
+ * Internal gateway seed. Thread membership state must not be sent to clients.
+ */
+export interface GatewayGuildState {
+  id: Snowflake;
+  name: string;
+  icon: string | null;
+  /**
+   * Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
+   */
+  splash?: string | null;
+  discovery_splash?: string | null;
+  /**
+   * True if the current user owns the guild.
+   */
+  owner?: boolean;
+  owner_id: Snowflake;
+  permissions?: PermissionBitset;
+  afk_channel_id: Snowflake | null;
+  afk_timeout: number;
+  verification_level: number;
+  default_message_notifications: number;
+  explicit_content_filter: number;
+  roles: Role[];
+  emojis: Emoji[];
+  features: string[];
+  mfa_level: number;
+  application_id?: Snowflake | null;
+  system_channel_id: Snowflake | null;
+  /**
+   * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+   */
+  system_channel_flags: number;
+  rules_channel_id?: Snowflake | null;
+  max_members?: number;
+  vanity_url_code?: string | null;
+  description?: string | null;
+  /**
+   * Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
+   */
+  banner?: string | null;
+  preferred_locale: string;
+  public_updates_channel_id?: Snowflake | null;
+  nsfw_level?: number;
+  approximate_member_count?: number;
+  approximate_presence_count?: number;
+  /**
+   * Discordy: voice region ID used to allocate voice nodes.
+   */
+  voice_region: string;
+  /**
+   * Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+   */
+  audit_log_enabled?: boolean;
+  /**
+   * Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+   */
+  audit_log_retention_days?: 30 | 90 | 365;
+  /**
+   * Discordy: when true, only administrators may prune inactive members.
+   */
+  prune_admin_only?: boolean;
+  joined_at?: string;
+  large?: boolean;
+  unavailable?: boolean;
+  member_count: number;
+  members: GuildMember[];
+  channels: Channel[];
+  threads: Channel[];
+  presences?: PresenceUpdateEvent[];
+  voice_states: VoiceState[];
+  thread_members: {
+    [k: string]:
+      | {
+          version: number;
+          user_ids: Snowflake[];
+        }
+      | undefined;
+  };
+}
+/**
+ * A guild role.
+ */
+export interface Role {
+  id: Snowflake;
+  name: string;
+  color: number;
+  hoist: boolean;
+  icon?: string | null;
+  unicode_emoji?: string | null;
+  position: number;
+  permissions: PermissionBitset;
+  managed: boolean;
+  mentionable: boolean;
+  flags: number;
+  tags?: RoleTags;
+}
+/**
+ * Tags of a managed role.
+ */
+export interface RoleTags {
+  bot_id?: Snowflake;
+  integration_id?: Snowflake;
+}
+/**
+ * PRESENCE_UPDATE dispatch.
+ */
+export interface PresenceUpdateEvent {
+  user: PartialUser;
+  guild_id?: Snowflake;
+  status: "online" | "idle" | "dnd" | "offline";
+  activities: Activity[];
+  client_status: ClientStatus;
+}
+/**
+ * A user reference that only guarantees the ID (presence updates, audit logs).
+ */
+export interface PartialUser {
+  id: Snowflake;
+  username?: string;
+  global_name?: string | null;
+  avatar?: string | null;
+  bot?: boolean;
+}
+/**
  * A guild (server). `voice_region` is a Discordy extra.
  */
 export interface Guild {
@@ -1900,30 +2032,6 @@ export interface Guild {
    * Discordy: when true, only administrators may prune inactive members.
    */
   prune_admin_only?: boolean;
-}
-/**
- * A guild role.
- */
-export interface Role {
-  id: Snowflake;
-  name: string;
-  color: number;
-  hoist: boolean;
-  icon?: string | null;
-  unicode_emoji?: string | null;
-  position: number;
-  permissions: PermissionBitset;
-  managed: boolean;
-  mentionable: boolean;
-  flags: number;
-  tags?: RoleTags;
-}
-/**
- * Tags of a managed role.
- */
-export interface RoleTags {
-  bot_id?: Snowflake;
-  integration_id?: Snowflake;
 }
 /**
  * Permissions of an application's command(s) in a guild.
@@ -2059,26 +2167,6 @@ export interface GuildFull {
   threads: Channel[];
   presences?: PresenceUpdateEvent[];
   voice_states: VoiceState[];
-}
-/**
- * PRESENCE_UPDATE dispatch.
- */
-export interface PresenceUpdateEvent {
-  user: PartialUser;
-  guild_id?: Snowflake;
-  status: "online" | "idle" | "dnd" | "offline";
-  activities: Activity[];
-  client_status: ClientStatus;
-}
-/**
- * A user reference that only guarantees the ID (presence updates, audit logs).
- */
-export interface PartialUser {
-  id: Snowflake;
-  username?: string;
-  global_name?: string | null;
-  avatar?: string | null;
-  bot?: boolean;
 }
 /**
  * An application whose bot is currently installed in this server.
@@ -3496,7 +3584,7 @@ export interface ReadyApplication {
 }
 export interface ReadyEvent1 {
   user: User;
-  guilds: GuildFull[];
+  guilds: GatewayGuildState[];
   private_channels: Channel[];
   relationships: Relationship[];
   user_settings: UserSettings;
@@ -3888,6 +3976,18 @@ export interface SuspendUserRequest {
   until: string | null;
 }
 /**
+ * A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.
+ */
+export interface ThreadMembersUpdate {
+  id: Snowflake;
+  guild_id: Snowflake;
+  member_count: number;
+  added_members: ThreadMember[];
+  removed_member_ids: Snowflake[];
+  _membership_version?: number;
+  _member_ids?: Snowflake[];
+}
+/**
  * A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.
  */
 export interface TotpEnrollmentResponse {
@@ -4006,7 +4106,7 @@ export interface UserProfile {
  */
 export interface UserReadyState {
   user: User;
-  guilds: GuildFull[];
+  guilds: GatewayGuildState[];
   private_channels: Channel[];
   relationships: Relationship[];
   user_settings: UserSettings;
