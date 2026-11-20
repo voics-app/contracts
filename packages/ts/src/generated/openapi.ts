@@ -1178,6 +1178,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/onboarding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get onboarding questions and their revision */
+        get: operations["getGuildOnboarding"];
+        /** Replace onboarding questions (MANAGE_GUILD; roles also require MANAGE_ROLES) */
+        put: operations["putGuildOnboarding"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/onboarding/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply one choice per question once, after accepting the rules */
+        post: operations["completeGuildOnboarding"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/prune": {
         parameters: {
             query?: never;
@@ -3630,6 +3671,23 @@ export interface components {
             installation_revision: components["schemas"]["BotInstallationRevision"];
             name: string;
             permissions: components["schemas"]["PermissionBitset"];
+        };
+        /** OnboardingConfig */
+        OnboardingConfig: {
+            enabled: boolean;
+            questions: {
+                options: {
+                    channel_id: components["schemas"]["Snowflake"] | null;
+                    label: string;
+                    role_id: components["schemas"]["Snowflake"] | null;
+                }[];
+                title: string;
+            }[];
+        };
+        /** OnboardingResponse */
+        OnboardingResponse: {
+            config: components["schemas"]["OnboardingConfig"];
+            revision: number;
         };
         /**
          * PartialChannel
@@ -7493,6 +7551,103 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildOnboarding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Configuration and revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    putGuildOnboarding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OnboardingConfig"];
+            };
+        };
+        responses: {
+            /** @description Saved configuration and revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    completeGuildOnboarding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    choices: number[];
+                    revision: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Suggested channel IDs from the selected options. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        channel_ids: components["schemas"]["Snowflake"][];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description Configuration changed, an eligible role changed, or onboarding was already completed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     getGuildPruneCount: {

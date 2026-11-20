@@ -153,6 +153,9 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}/member-verification` | api | — | `MemberVerification` | Get current rules and the caller's pending status |
 | `PUT` | `/guilds/{guild_id}/member-verification` | api | `SetMemberVerificationRequest` | `MemberVerification` | Replace rules screening configuration (MANAGE_GUILD) |
 | `POST` | `/guilds/{guild_id}/member-verification/accept` | api | `object` | 204 No Content | Accept the current version of the server rules |
+| `GET` | `/guilds/{guild_id}/onboarding` | api | — | `OnboardingResponse` | Get onboarding questions and their revision |
+| `PUT` | `/guilds/{guild_id}/onboarding` | api | `OnboardingConfig` | `OnboardingResponse` | Replace onboarding questions (MANAGE_GUILD; roles also require MANAGE_ROLES) |
+| `POST` | `/guilds/{guild_id}/onboarding/complete` | api | `object` | `object` | Apply one choice per question once, after accepting the rules |
 | `GET` | `/guilds/{guild_id}/welcome-screen` | api | — | `WelcomeScreen` | Get the welcome screen, filtered to channels the caller can view |
 | `PUT` | `/guilds/{guild_id}/welcome-screen` | api | `WelcomeScreen` | `WelcomeScreen` | Replace the welcome screen (MANAGE_GUILD) |
 | `GET` | `/guilds/{guild_id}/vanity-url` | api | — | `VanityUrl` | Get a guild's permanent invitation (requires MANAGE_GUILD) |
@@ -1231,6 +1234,20 @@ When a mute ends. end_time null means until turned off; an end_time in the past 
 | Field | Type | Description |
 | --- | --- | --- |
 | `end_time` | `?string (date-time)` |  |
+
+### OnboardingConfig
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `questions` | `array of object` |  |
+
+### OnboardingResponse
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `config` | `OnboardingConfig` |  |
+| `revision` | `integer` |  |
 
 ### PartialChannel
 

@@ -3451,6 +3451,4581 @@ export interface OAuth2AuthorizeResponse {
   location: string;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingConfig".
+ */
+export interface OnboardingConfig {
+  enabled: boolean;
+  /**
+   * @maxItems 5
+   */
+  questions:
+    | []
+    | [
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        }
+      ]
+    | [
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        },
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        }
+      ]
+    | [
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        },
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        },
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        }
+      ]
+    | [
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        },
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        },
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        },
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        }
+      ]
+    | [
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        },
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        },
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        },
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        },
+        {
+          title: string;
+          /**
+           * @minItems 1
+           * @maxItems 10
+           */
+          options:
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ]
+            | [
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                },
+                {
+                  label: string;
+                  role_id: Snowflake | null;
+                  channel_id: Snowflake | null;
+                }
+              ];
+        }
+      ];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingResponse".
+ */
+export interface OnboardingResponse {
+  config: OnboardingConfig;
+  revision: number;
+}
+/**
  * Op 22 P2P_SIGNAL. Relayed only, never persisted.
  */
 export interface P2pSignalPayload {

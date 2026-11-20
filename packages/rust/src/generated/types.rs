@@ -6241,6 +6241,141 @@ pub struct OAuth2Guild {
     pub name: ::std::string::String,
     pub permissions: PermissionBitset,
 }
+///`OnboardingConfig`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingConfig {
+    pub enabled: bool,
+    pub questions: ::std::vec::Vec<OnboardingConfigQuestionsItem>,
+}
+///`OnboardingConfigQuestionsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingConfigQuestionsItem {
+    pub options: ::std::vec::Vec<OnboardingConfigQuestionsItemOptionsItem>,
+    pub title: OnboardingConfigQuestionsItemTitle,
+}
+///`OnboardingConfigQuestionsItemOptionsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingConfigQuestionsItemOptionsItem {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    pub label: OnboardingConfigQuestionsItemOptionsItemLabel,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub role_id: ::std::option::Option<Snowflake>,
+}
+///`OnboardingConfigQuestionsItemOptionsItemLabel`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct OnboardingConfigQuestionsItemOptionsItemLabel(::std::string::String);
+impl ::std::ops::Deref for OnboardingConfigQuestionsItemOptionsItemLabel {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<OnboardingConfigQuestionsItemOptionsItemLabel> for ::std::string::String {
+    fn from(value: OnboardingConfigQuestionsItemOptionsItemLabel) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for OnboardingConfigQuestionsItemOptionsItemLabel {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for OnboardingConfigQuestionsItemOptionsItemLabel {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for OnboardingConfigQuestionsItemOptionsItemLabel
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for OnboardingConfigQuestionsItemOptionsItemLabel {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`OnboardingConfigQuestionsItemTitle`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct OnboardingConfigQuestionsItemTitle(::std::string::String);
+impl ::std::ops::Deref for OnboardingConfigQuestionsItemTitle {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<OnboardingConfigQuestionsItemTitle> for ::std::string::String {
+    fn from(value: OnboardingConfigQuestionsItemTitle) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for OnboardingConfigQuestionsItemTitle {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for OnboardingConfigQuestionsItemTitle {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for OnboardingConfigQuestionsItemTitle {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for OnboardingConfigQuestionsItemTitle {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`OnboardingResponse`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingResponse {
+    pub config: OnboardingConfig,
+    pub revision: u64,
+}
 ///Op 22 P2P_SIGNAL. Relayed only, never persisted.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct P2pSignalPayload {

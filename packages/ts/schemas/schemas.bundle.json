@@ -7320,6 +7320,94 @@
         }
       }
     },
+    "OnboardingConfig": {
+      "title": "OnboardingConfig",
+      "type": "object",
+      "required": [
+        "enabled",
+        "questions"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "questions": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "required": [
+              "title",
+              "options"
+            ],
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "options": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 10,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "label",
+                    "role_id",
+                    "channel_id"
+                  ],
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "role_id": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/Snowflake"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "channel_id": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/Snowflake"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "OnboardingResponse": {
+      "title": "OnboardingResponse",
+      "type": "object",
+      "required": [
+        "config",
+        "revision"
+      ],
+      "properties": {
+        "config": {
+          "$ref": "#/$defs/OnboardingConfig"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
     "P2pSignalPayload": {
       "title": "P2pSignalPayload",
       "description": "Op 22 P2P_SIGNAL. Relayed only, never persisted.",
