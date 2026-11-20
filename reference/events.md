@@ -99,13 +99,14 @@ Redpanda event envelope. `data` is exactly the gateway DISPATCH payload for `typ
 
 ### VoiceMemberMoveEvent
 
-VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.
+VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved/disconnected a member or changed their stage speaker status. The gateway applies it to the live voice session and never dispatches it directly to clients.
 
 | Field | Type | Description |
 | --- | --- | --- |
 | `guild_id` | `Snowflake` |  |
 | `user_id` | `Snowflake` |  |
-| `channel_id` | `?Snowflake` | The voice channel to move the member to, or null to disconnect them. |
+| `channel_id?` | `?Snowflake` | The voice channel to move the member to, or null to disconnect them. |
+| `suppress?` | `boolean` | Stage audience status: false promotes to speaker; true moves to audience. |
 
 ### BanMessagePurgeEvent
 

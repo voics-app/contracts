@@ -2287,6 +2287,7 @@ PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed onl
 | `mute?` | `boolean` |  |
 | `deaf?` | `boolean` |  |
 | `channel_id?` | `?Snowflake` | Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice. |
+| `suppress?` | `boolean` | For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
 | `flags?` | `integer` |  |
 | `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |

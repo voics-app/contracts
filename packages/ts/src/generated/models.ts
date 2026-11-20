@@ -3081,6 +3081,10 @@ export interface ModifyMemberRequest {
    * Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice.
    */
   channel_id?: Snowflake | null;
+  /**
+   * For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage.
+   */
+  suppress?: boolean;
   communication_disabled_until?: string | null;
   flags?: number;
   /**
@@ -4154,7 +4158,7 @@ export interface VoiceIdentifyPayload {
   video: boolean;
 }
 /**
- * VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.
+ * VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved/disconnected a member or changed their stage speaker status. The gateway applies it to the live voice session and never dispatches it directly to clients.
  */
 export interface VoiceMemberMoveEvent {
   guild_id: Snowflake;
@@ -4162,7 +4166,11 @@ export interface VoiceMemberMoveEvent {
   /**
    * The voice channel to move the member to, or null to disconnect them.
    */
-  channel_id: Snowflake | null;
+  channel_id?: Snowflake | null;
+  /**
+   * Stage audience status: false promotes to speaker; true moves to audience.
+   */
+  suppress?: boolean;
 }
 /**
  * Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.

@@ -3502,6 +3502,8 @@ export interface components {
             mute?: boolean;
             nick?: string | null;
             roles?: components["schemas"]["Snowflake"][];
+            /** @description For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage. */
+            suppress?: boolean;
         };
         /** ModifyStageInstanceRequest */
         ModifyStageInstanceRequest: {

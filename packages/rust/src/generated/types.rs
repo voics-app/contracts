@@ -5737,6 +5737,9 @@ pub struct ModifyMemberRequest {
     pub nick: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub roles: ::std::vec::Vec<Snowflake>,
+    ///For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub suppress: ::std::option::Option<bool>,
 }
 ///Server-specific About me; trimmed, null or blank restores the global bio.
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -10071,13 +10074,16 @@ pub struct VoiceIdentifyPayload {
     pub user_id: Snowflake,
     pub video: bool,
 }
-///VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.
+///VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved/disconnected a member or changed their stage speaker status. The gateway applies it to the live voice session and never dispatches it directly to clients.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceMemberMoveEvent {
     ///The voice channel to move the member to, or null to disconnect them.
-    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub channel_id: ::std::option::Option<Snowflake>,
     pub guild_id: Snowflake,
+    ///Stage audience status: false promotes to speaker; true moves to audience.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub suppress: ::std::option::Option<bool>,
     pub user_id: Snowflake,
 }
 ///Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
