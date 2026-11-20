@@ -6245,39 +6245,33 @@ pub struct OAuth2Guild {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct OnboardingConfig {
     pub enabled: bool,
-    pub questions: ::std::vec::Vec<OnboardingConfigQuestionsItem>,
+    pub questions: ::std::vec::Vec<OnboardingQuestion>,
 }
-///`OnboardingConfigQuestionsItem`
+///`OnboardingOption`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
-pub struct OnboardingConfigQuestionsItem {
-    pub options: ::std::vec::Vec<OnboardingConfigQuestionsItemOptionsItem>,
-    pub title: OnboardingConfigQuestionsItemTitle,
-}
-///`OnboardingConfigQuestionsItemOptionsItem`
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
-pub struct OnboardingConfigQuestionsItemOptionsItem {
+pub struct OnboardingOption {
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub channel_id: ::std::option::Option<Snowflake>,
-    pub label: OnboardingConfigQuestionsItemOptionsItemLabel,
+    pub label: OnboardingOptionLabel,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub role_id: ::std::option::Option<Snowflake>,
 }
-///`OnboardingConfigQuestionsItemOptionsItemLabel`
+///`OnboardingOptionLabel`
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[serde(transparent)]
-pub struct OnboardingConfigQuestionsItemOptionsItemLabel(::std::string::String);
-impl ::std::ops::Deref for OnboardingConfigQuestionsItemOptionsItemLabel {
+pub struct OnboardingOptionLabel(::std::string::String);
+impl ::std::ops::Deref for OnboardingOptionLabel {
     type Target = ::std::string::String;
     fn deref(&self) -> &::std::string::String {
         &self.0
     }
 }
-impl ::std::convert::From<OnboardingConfigQuestionsItemOptionsItemLabel> for ::std::string::String {
-    fn from(value: OnboardingConfigQuestionsItemOptionsItemLabel) -> Self {
+impl ::std::convert::From<OnboardingOptionLabel> for ::std::string::String {
+    fn from(value: OnboardingOptionLabel) -> Self {
         value.0
     }
 }
-impl ::std::str::FromStr for OnboardingConfigQuestionsItemOptionsItemLabel {
+impl ::std::str::FromStr for OnboardingOptionLabel {
     type Err = self::error::ConversionError;
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         if value.chars().count() > 100usize {
@@ -6289,15 +6283,13 @@ impl ::std::str::FromStr for OnboardingConfigQuestionsItemOptionsItemLabel {
         Ok(Self(value.to_string()))
     }
 }
-impl ::std::convert::TryFrom<&str> for OnboardingConfigQuestionsItemOptionsItemLabel {
+impl ::std::convert::TryFrom<&str> for OnboardingOptionLabel {
     type Error = self::error::ConversionError;
     fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
     }
 }
-impl ::std::convert::TryFrom<::std::string::String>
-    for OnboardingConfigQuestionsItemOptionsItemLabel
-{
+impl ::std::convert::TryFrom<::std::string::String> for OnboardingOptionLabel {
     type Error = self::error::ConversionError;
     fn try_from(
         value: ::std::string::String,
@@ -6305,7 +6297,7 @@ impl ::std::convert::TryFrom<::std::string::String>
         value.parse()
     }
 }
-impl<'de> ::serde::Deserialize<'de> for OnboardingConfigQuestionsItemOptionsItemLabel {
+impl<'de> ::serde::Deserialize<'de> for OnboardingOptionLabel {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -6317,22 +6309,28 @@ impl<'de> ::serde::Deserialize<'de> for OnboardingConfigQuestionsItemOptionsItem
             })
     }
 }
-///`OnboardingConfigQuestionsItemTitle`
+///`OnboardingQuestion`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingQuestion {
+    pub options: ::std::vec::Vec<OnboardingOption>,
+    pub title: OnboardingQuestionTitle,
+}
+///`OnboardingQuestionTitle`
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[serde(transparent)]
-pub struct OnboardingConfigQuestionsItemTitle(::std::string::String);
-impl ::std::ops::Deref for OnboardingConfigQuestionsItemTitle {
+pub struct OnboardingQuestionTitle(::std::string::String);
+impl ::std::ops::Deref for OnboardingQuestionTitle {
     type Target = ::std::string::String;
     fn deref(&self) -> &::std::string::String {
         &self.0
     }
 }
-impl ::std::convert::From<OnboardingConfigQuestionsItemTitle> for ::std::string::String {
-    fn from(value: OnboardingConfigQuestionsItemTitle) -> Self {
+impl ::std::convert::From<OnboardingQuestionTitle> for ::std::string::String {
+    fn from(value: OnboardingQuestionTitle) -> Self {
         value.0
     }
 }
-impl ::std::str::FromStr for OnboardingConfigQuestionsItemTitle {
+impl ::std::str::FromStr for OnboardingQuestionTitle {
     type Err = self::error::ConversionError;
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         if value.chars().count() > 100usize {
@@ -6344,13 +6342,13 @@ impl ::std::str::FromStr for OnboardingConfigQuestionsItemTitle {
         Ok(Self(value.to_string()))
     }
 }
-impl ::std::convert::TryFrom<&str> for OnboardingConfigQuestionsItemTitle {
+impl ::std::convert::TryFrom<&str> for OnboardingQuestionTitle {
     type Error = self::error::ConversionError;
     fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
     }
 }
-impl ::std::convert::TryFrom<::std::string::String> for OnboardingConfigQuestionsItemTitle {
+impl ::std::convert::TryFrom<::std::string::String> for OnboardingQuestionTitle {
     type Error = self::error::ConversionError;
     fn try_from(
         value: ::std::string::String,
@@ -6358,7 +6356,7 @@ impl ::std::convert::TryFrom<::std::string::String> for OnboardingConfigQuestion
         value.parse()
     }
 }
-impl<'de> ::serde::Deserialize<'de> for OnboardingConfigQuestionsItemTitle {
+impl<'de> ::serde::Deserialize<'de> for OnboardingQuestionTitle {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,

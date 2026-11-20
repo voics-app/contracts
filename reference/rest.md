@@ -1240,7 +1240,22 @@ When a mute ends. end_time null means until turned off; an end_time in the past 
 | Field | Type | Description |
 | --- | --- | --- |
 | `enabled` | `boolean` |  |
-| `questions` | `array of object` |  |
+| `questions` | `array of OnboardingQuestion` |  |
+
+### OnboardingOption
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `label` | `string` |  |
+| `role_id` | `?Snowflake` |  |
+| `channel_id` | `?Snowflake` |  |
+
+### OnboardingQuestion
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `title` | `string` |  |
+| `options` | `array of OnboardingOption` |  |
 
 ### OnboardingResponse
 

@@ -13156,58 +13156,66 @@
             "type": "array",
             "maxItems": 5,
             "items": {
-              "type": "object",
-              "required": [
-                "title",
-                "options"
-              ],
-              "properties": {
-                "title": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 100
-                },
-                "options": {
-                  "type": "array",
-                  "minItems": 1,
-                  "maxItems": 10,
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "label",
-                      "role_id",
-                      "channel_id"
-                    ],
-                    "properties": {
-                      "label": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 100
-                      },
-                      "role_id": {
-                        "anyOf": [
-                          {
-                            "$ref": "#/components/schemas/Snowflake"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "channel_id": {
-                        "anyOf": [
-                          {
-                            "$ref": "#/components/schemas/Snowflake"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      }
-                    }
-                  }
-                }
+              "$ref": "#/components/schemas/OnboardingQuestion"
+            }
+          }
+        }
+      },
+      "OnboardingOption": {
+        "title": "OnboardingOption",
+        "type": "object",
+        "required": [
+          "label",
+          "role_id",
+          "channel_id"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "role_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
               }
+            ]
+          },
+          "channel_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "OnboardingQuestion": {
+        "title": "OnboardingQuestion",
+        "type": "object",
+        "required": [
+          "title",
+          "options"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "options": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/OnboardingOption"
             }
           }
         }

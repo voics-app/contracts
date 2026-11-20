@@ -3675,14 +3675,18 @@ export interface components {
         /** OnboardingConfig */
         OnboardingConfig: {
             enabled: boolean;
-            questions: {
-                options: {
-                    channel_id: components["schemas"]["Snowflake"] | null;
-                    label: string;
-                    role_id: components["schemas"]["Snowflake"] | null;
-                }[];
-                title: string;
-            }[];
+            questions: components["schemas"]["OnboardingQuestion"][];
+        };
+        /** OnboardingOption */
+        OnboardingOption: {
+            channel_id: components["schemas"]["Snowflake"] | null;
+            label: string;
+            role_id: components["schemas"]["Snowflake"] | null;
+        };
+        /** OnboardingQuestion */
+        OnboardingQuestion: {
+            options: components["schemas"]["OnboardingOption"][];
+            title: string;
         };
         /** OnboardingResponse */
         OnboardingResponse: {
