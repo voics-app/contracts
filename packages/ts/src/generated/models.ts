@@ -479,6 +479,14 @@ export interface AttachmentReference {
    */
   description?: string;
   /**
+   * Duration of a recorded voice message in seconds.
+   */
+  duration_secs?: number;
+  /**
+   * Base64-encoded amplitude samples for a recorded voice message.
+   */
+  waveform?: string;
+  /**
    * AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
    */
   flags?: number;
@@ -794,6 +802,12 @@ export interface BackupCodesVerificationRequest {
    * Replaces every backup code and returns the new plaintext codes once.
    */
   regenerate?: boolean;
+}
+/**
+ * Change visibility of an existing badge grant owned by the caller.
+ */
+export interface BadgeVisibilityRequest {
+  visible: boolean;
 }
 /**
  * A guild ban.
@@ -1208,7 +1222,7 @@ export interface CreateMessageRequest {
   components?: MessageComponent[];
   attachments?: AttachmentReference[];
   /**
-   * MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped.
+   * MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components.
    */
   flags?: number;
   /**
@@ -3469,6 +3483,13 @@ export interface ProbeVoiceTokenClaims {
   purpose: "probe";
   node_lease: string;
   probe_id: string;
+}
+/**
+ * An earned badge and the owner-selected visibility.
+ */
+export interface ProfileBadge {
+  id: string;
+  visible: boolean;
 }
 /**
  * POST /guilds/{id}/prune body.

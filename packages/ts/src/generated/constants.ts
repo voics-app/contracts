@@ -106,13 +106,15 @@ export const Permissions = {
   PIN_MESSAGES: 1n << 51n,
   /** Allows bypassing slowmode restrictions */
   BYPASS_SLOWMODE: 1n << 52n,
+  /** Allows configuring and reviewing ban appeals */
+  MANAGE_BAN_APPEALS: 1n << 53n,
 } as const;
 export type PermissionsKey = keyof typeof Permissions;
 
 /** Derived permission sets. */
 export const PermissionSets = {
   /** Every known permission. */
-  ALL: 8866461766385663n,
+  ALL: 17873661021126655n,
 } as const;
 export type PermissionSetsKey = keyof typeof PermissionSets;
 
@@ -537,11 +539,12 @@ export const MessageType = {
 } as const;
 export type MessageTypeKey = keyof typeof MessageType;
 
-/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications. */
+/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording. */
 export const MessageFlags = {
   SUPPRESS_EMBEDS: 4,
   SUPPRESS_NOTIFICATIONS: 4096,
   EPHEMERAL: 64,
+  IS_VOICE_MESSAGE: 8192,
 } as const;
 export type MessageFlagsKey = keyof typeof MessageFlags;
 
@@ -663,7 +666,7 @@ export const ActivityType = {
 } as const;
 export type ActivityTypeKey = keyof typeof ActivityType;
 
-/** Audit log action types (Discord values) used by Discordy. */
+/** Audit log action types used by Discordy, including Voics extensions. */
 export const AuditLogEvent = {
   GUILD_UPDATE: 1,
   CHANNEL_CREATE: 10,
@@ -701,6 +704,8 @@ export const AuditLogEvent = {
   THREAD_UPDATE: 111,
   THREAD_DELETE: 112,
   APPLICATION_COMMAND_PERMISSION_UPDATE: 121,
+  BAN_APPEAL_ACCEPT: 200,
+  BAN_APPEAL_DENY: 201,
 } as const;
 export type AuditLogEventKey = keyof typeof AuditLogEvent;
 

@@ -70,6 +70,9 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/users/@me/sessions` | api | — | `array of AuthSession` | List the current user's login sessions |
 | `POST` | `/users/@me/sessions/logout-all` | api | — | 204 No Content | Log out every other session |
 | `DELETE` | `/users/@me/sessions/{session_id}` | api | — | 204 No Content | Log out one session |
+| `GET` | `/users/@me/badges` | api | — | `array of ProfileBadge` | List the owner's badge grants and visibility |
+| `PUT` | `/users/@me/badges/{badge_id}` | api | `BadgeVisibilityRequest` | 204 No Content | Change visibility of an existing owned badge |
+| `GET` | `/users/{user_id}/badges` | api | — | `array of string` | List publicly visible badges on a profile |
 | `GET` | `/users/@me/settings` | api | — | `UserSettings` | Get the current user's settings |
 | `PATCH` | `/users/@me/settings` | api | `ModifyUserSettingsRequest` | `UserSettings` | Modify the current user's settings (including default_delivery_mode) |
 | `GET` | `/users/@me/guilds/{guild_id}/settings` | api | — | `GuildNotificationSettings` | Get the current user's notification settings for a guild (or `@me` for DMs) |
@@ -139,6 +142,11 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/guilds/{guild_id}/members/{user_id}/roles/{role_id}` | api | — | 204 No Content | Remove a role from a member |
 | `GET` | `/guilds/{guild_id}/prune` | api | — | `PruneResult` | Count members a prune would remove |
 | `POST` | `/guilds/{guild_id}/prune` | api | `PruneRequest` | `PruneResult` | Prune inactive members |
+| `GET` | `/guilds/{guild_id}/ban-appeals/form` | api | — | `object` | Get the appeal question for a banned user or appeal moderator |
+| `PUT` | `/guilds/{guild_id}/ban-appeals/form` | api | `object` | 204 No Content | Set the appeal question (MANAGE_BAN_APPEALS required) |
+| `GET` | `/guilds/{guild_id}/ban-appeals` | api | — | `array of object` | List appeals and decisions (MANAGE_BAN_APPEALS required) |
+| `POST` | `/guilds/{guild_id}/ban-appeals` | api | `object` | `object` | Submit an appeal for the caller's current ban |
+| `POST` | `/guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}` | api | — | 204 No Content | Accept or deny an open appeal (MANAGE_BAN_APPEALS required) |
 | `GET` | `/guilds/{guild_id}/bans` | api | — | `array of Ban` | List bans |
 | `GET` | `/guilds/{guild_id}/bans/{user_id}` | api | — | `Ban` | Get a ban |
 | `PUT` | `/guilds/{guild_id}/bans/{user_id}` | api | `CreateBanRequest` | 204 No Content | Ban a user |
@@ -1746,6 +1754,8 @@ An uploaded attachment referenced when creating or editing a message.
 | `filename?` | `string` |  |
 | `uploaded_filename?` | `string` |  |
 | `description?` | `string` | Alt text shown to screen readers and as the image tooltip. |
+| `duration_secs?` | `number` | Duration of a recorded voice message in seconds. |
+| `waveform?` | `string` | Base64-encoded amplitude samples for a recorded voice message. |
 | `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. |
 
 ### AttachmentUpload
@@ -1794,6 +1804,14 @@ POST /users/@me/mfa/codes-verification body.
 | --- | --- | --- |
 | `password` | `string` |  |
 | `regenerate?` | `boolean` | Replaces every backup code and returns the new plaintext codes once. |
+
+### BadgeVisibilityRequest
+
+Change visibility of an existing badge grant owned by the caller.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `visible` | `boolean` |  |
 
 ### BulkDeleteRequest
 
@@ -1967,7 +1985,7 @@ POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies w
 | `message_reference?` | `MessageReference` |  |
 | `components?` | `array of MessageComponent` |  |
 | `attachments?` | `array of AttachmentReference` |  |
-| `flags?` | `integer` | MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. |
+| `flags?` | `integer` | MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components. |
 | `sticker_ids?` | `array of Snowflake` |  |
 
 ### CreateReportRequest
@@ -2466,6 +2484,15 @@ Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enabl
 | Field | Type | Description |
 | --- | --- | --- |
 | `password` | `string` |  |
+
+### ProfileBadge
+
+An earned badge and the owner-selected visibility.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` |  |
+| `visible` | `boolean` |  |
 
 ### PruneRequest
 

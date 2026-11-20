@@ -879,6 +879,18 @@
           "maxLength": 1024,
           "description": "Alt text shown to screen readers and as the image tooltip."
         },
+        "duration_secs": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600,
+          "description": "Duration of a recorded voice message in seconds."
+        },
+        "waveform": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "description": "Base64-encoded amplitude samples for a recorded voice message."
+        },
         "flags": {
           "type": "integer",
           "description": "AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too."
@@ -1267,6 +1279,20 @@
           "description": "Replaces every backup code and returns the new plaintext codes once."
         }
       }
+    },
+    "BadgeVisibilityRequest": {
+      "title": "BadgeVisibilityRequest",
+      "description": "Change visibility of an existing badge grant owned by the caller.",
+      "type": "object",
+      "properties": {
+        "visible": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "visible"
+      ],
+      "additionalProperties": false
     },
     "Ban": {
       "title": "Ban",
@@ -2224,7 +2250,7 @@
         },
         "flags": {
           "type": "integer",
-          "description": "MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped."
+          "description": "MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components."
         },
         "sticker_ids": {
           "type": "array",
@@ -7835,6 +7861,25 @@
           "format": "uuid"
         }
       }
+    },
+    "ProfileBadge": {
+      "title": "ProfileBadge",
+      "description": "An earned badge and the owner-selected visibility.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "visible"
+      ],
+      "additionalProperties": false
     },
     "PruneRequest": {
       "title": "PruneRequest",

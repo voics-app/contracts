@@ -1,0 +1,10 @@
+{
+  "schema": "objects/sticker.json",
+  "data": {
+    "id": "1",
+    "name": "Happy",
+    "format_type": 5,
+    "available": true
+  },
+  "valid": false
+}

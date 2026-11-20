@@ -893,6 +893,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/ban-appeals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List appeals and decisions (MANAGE_BAN_APPEALS required) */
+        get: operations["listBanAppeals"];
+        put?: never;
+        /** Submit an appeal for the caller's current ban */
+        post: operations["submitBanAppeal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept or deny an open appeal (MANAGE_BAN_APPEALS required) */
+        post: operations["resolveBanAppeal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/ban-appeals/form": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the appeal question for a banned user or appeal moderator */
+        get: operations["getBanAppealForm"];
+        /** Set the appeal question (MANAGE_BAN_APPEALS required) */
+        put: operations["setBanAppealForm"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/bans": {
         parameters: {
             query?: never;
@@ -1538,6 +1591,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{user_id}/badges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List publicly visible badges on a profile */
+        get: operations["listUserBadges"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/devices": {
         parameters: {
             query?: never;
@@ -1605,6 +1675,40 @@ export interface paths {
         head?: never;
         /** Modify the current user */
         patch: operations["modifyCurrentUser"];
+        trace?: never;
+    };
+    "/users/@me/badges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the owner's badge grants and visibility */
+        get: operations["listOwnBadges"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/badges/{badge_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Change visibility of an existing owned badge */
+        put: operations["setBadgeVisibility"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/users/@me/channels": {
@@ -2267,12 +2371,16 @@ export interface components {
         AttachmentReference: {
             /** @description Alt text shown to screen readers and as the image tooltip. */
             description?: string;
+            /** @description Duration of a recorded voice message in seconds. */
+            duration_secs?: number;
             filename?: string;
             /** @description AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. */
             flags?: number;
             /** @description Attachment ID from POST /channels/{id}/attachments, or an index for existing ones. */
             id: string;
             uploaded_filename?: string;
+            /** @description Base64-encoded amplitude samples for a recorded voice message. */
+            waveform?: string;
         };
         /**
          * AttachmentUpload
@@ -2412,6 +2520,13 @@ export interface components {
              * @default false
              */
             regenerate: boolean;
+        };
+        /**
+         * BadgeVisibilityRequest
+         * @description Change visibility of an existing badge grant owned by the caller.
+         */
+        BadgeVisibilityRequest: {
+            visible: boolean;
         };
         /**
          * Ban
@@ -2652,7 +2767,7 @@ export interface components {
             components?: components["schemas"]["MessageComponent"][];
             content?: string;
             embeds?: components["schemas"]["Embed"][];
-            /** @description MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. */
+            /** @description MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components. */
             flags?: number;
             message_reference?: components["schemas"]["MessageReference"];
             nonce?: string;
@@ -3761,6 +3876,14 @@ export interface components {
             id: components["schemas"]["Snowflake"];
             /** @description OverwriteType: 0 role, 1 member. */
             type: number;
+        };
+        /**
+         * ProfileBadge
+         * @description An earned badge and the owner-selected visibility.
+         */
+        ProfileBadge: {
+            id: string;
+            visible: boolean;
         };
         /**
          * PruneRequest
@@ -6683,6 +6806,187 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listBanAppeals: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Up to 100 appeals, open first and newest first within each group. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        answer: string;
+                        /** Format: date-time */
+                        created_at: string;
+                        id: string;
+                        question: string;
+                        /** Format: date-time */
+                        resolved_at: string | null;
+                        resolved_by: string | null;
+                        /** @enum {string} */
+                        status: "open" | "accepted" | "denied" | "closed";
+                        user_id: string;
+                    }[];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    submitBanAppeal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    answer: string;
+                    /** @description The question displayed to the user. */
+                    question: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Appeal created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        answer: string;
+                        /** Format: date-time */
+                        created_at: string;
+                        id: string;
+                        question: string;
+                        /** Format: date-time */
+                        resolved_at: string | null;
+                        resolved_by: string | null;
+                        /** @enum {string} */
+                        status: "open" | "accepted" | "denied" | "closed";
+                        user_id: string;
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description The question changed, an open appeal already exists, or the form is unavailable. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    resolveBanAppeal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                appeal_id: string;
+                decision: "accept" | "deny";
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Decision recorded. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description The appeal is closed or refers to a previous ban. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getBanAppealForm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The configured question. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        question: string;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    setBanAppealForm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    question: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Question saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
     listGuildBans: {
         parameters: {
             query?: {
@@ -8482,6 +8786,32 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listUserBadges: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Visible badge IDs only. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     listUserDevices: {
         parameters: {
             query?: never;
@@ -8608,6 +8938,56 @@ export interface operations {
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listOwnBadges: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All grants owned by the caller. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileBadge"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    setBadgeVisibility: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                badge_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BadgeVisibilityRequest"];
+            };
+        };
+        responses: {
+            /** @description Visibility updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
         };
     };

@@ -163,6 +163,11 @@ value as authoritative and infer spoilers from `SPOILER_` only when flags are ab
 Message creation accepts `tts: true` with `SEND_TTS_MESSAGES`; messages store and return this
 value in history and gateway events. See the REST schemas for validation and permission rules.
 
+Voice-message contracts reserve `IS_VOICE_MESSAGE` (8192) and add optional
+`duration_secs` and base64 `waveform` metadata to attachment references. These
+definitions prepare messages#15; they do not enable recording, playback, or server
+acceptance by themselves.
+
 P7 presence accepts an optional `background` boolean on opcode 3 and IDENTIFY presence.
 It defaults to false, so existing clients retain their current behavior. Mobile user sessions
 may keep their effective presence across OS suspension for a bounded gateway lease (24 hours
