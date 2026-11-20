@@ -3112,6 +3112,7 @@
       "post": {
         "operationId": "createGuildSoundboardSound",
         "summary": "Create a guild sound",
+        "description": "Names need not be unique. A full guild returns 400 with code 30000.",
         "tags": [
           "Guilds"
         ],
@@ -3143,7 +3144,14 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/BadRequest"
+            "description": "Invalid audio or metadata, or the guild has reached its sound limit (code 30000).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
@@ -3385,7 +3393,7 @@
         },
         "responses": {
           "204": {
-            "description": "Success."
+            "description": "Authorization succeeded; media is sent separately through the enforced voice transport."
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
@@ -3394,13 +3402,30 @@
             "$ref": "#/components/responses/Unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/Forbidden"
+            "description": "Missing channel access, permissions, voice membership, or an unsupported stage channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "description": "Live voice membership or publication capability cannot be confirmed; no authorization is granted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }

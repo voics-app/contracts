@@ -80,6 +80,7 @@ Voice op 2 READY.
 | `port` | `integer` |  |
 | `modes` | `array of "dtls-srtp"` |  |
 | `streams` | `array of VoiceStream` |  |
+| `soundboard_transport?` | `boolean` | True only when the node supports the fully enforced soundboard transport. Missing or false disables the extra sender track. |
 
 ### VoiceHeartbeatPayload
 

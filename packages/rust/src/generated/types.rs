@@ -10671,6 +10671,9 @@ pub struct VoiceReadyPayload {
     pub ip: ::std::string::String,
     pub modes: ::std::vec::Vec<::serde_json::Value>,
     pub port: u64,
+    ///True only when the node supports the fully enforced soundboard transport. Missing or false disables the extra sender track.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub soundboard_transport: ::std::option::Option<bool>,
     pub ssrc: u64,
     pub streams: ::std::vec::Vec<VoiceStream>,
 }

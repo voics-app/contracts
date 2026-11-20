@@ -4251,6 +4251,10 @@ export interface VoiceReadyPayload {
   port: number;
   modes: "dtls-srtp"[];
   streams: VoiceStream[];
+  /**
+   * True only when the node supports the fully enforced soundboard transport. Missing or false disables the extra sender track.
+   */
+  soundboard_transport?: boolean;
 }
 /**
  * A voice region.

@@ -1241,7 +1241,10 @@ export interface paths {
         /** List guild sounds */
         get: operations["listGuildSoundboardSounds"];
         put?: never;
-        /** Create a guild sound */
+        /**
+         * Create a guild sound
+         * @description Names need not be unique. A full guild returns 400 with code 30000.
+         */
         post: operations["createGuildSoundboardSound"];
         delete?: never;
         options?: never;
@@ -6260,7 +6263,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Success. */
+            /** @description Authorization succeeded; media is sent separately through the enforced voice transport. */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -6269,9 +6272,26 @@ export interface operations {
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
-            403: components["responses"]["Forbidden"];
+            /** @description Missing channel access, permissions, voice membership, or an unsupported stage channel. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+            /** @description Live voice membership or publication capability cannot be confirmed; no authorization is granted. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
     };
     startThread: {
@@ -7725,7 +7745,15 @@ export interface operations {
                     "application/json": components["schemas"]["SoundboardSound"];
                 };
             };
-            400: components["responses"]["BadRequest"];
+            /** @description Invalid audio or metadata, or the guild has reached its sound limit (code 30000). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];

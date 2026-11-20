@@ -1970,6 +1970,7 @@ paths:
     post:
       operationId: createGuildSoundboardSound
       summary: Create a guild sound
+      description: Names need not be unique. A full guild returns 400 with code 30000.
       tags: [Guilds]
       x-discordy-service: api
       parameters:
@@ -1988,7 +1989,11 @@ paths:
               schema:
                 $ref: ../schemas/objects/soundboard-sound.json
         "400":
-          $ref: "#/components/responses/BadRequest"
+          description: Invalid audio or metadata, or the guild has reached its sound limit (code 30000).
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/error.json
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -2134,17 +2139,27 @@ paths:
               $ref: ../schemas/rest/send-soundboard-sound-request.json
       responses:
         "204":
-          description: Success.
+          description: Authorization succeeded; media is sent separately through the enforced voice transport.
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Missing channel access, permissions, voice membership, or an unsupported stage channel.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/error.json
         "404":
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+        "503":
+          description: Live voice membership or publication capability cannot be confirmed; no authorization is granted.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/error.json
   /guilds/{guild_id}/invites:
     get:
       operationId: listGuildInvites

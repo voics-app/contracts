@@ -10998,6 +10998,10 @@
           "items": {
             "$ref": "#/$defs/VoiceStream"
           }
+        },
+        "soundboard_transport": {
+          "type": "boolean",
+          "description": "True only when the node supports the fully enforced soundboard transport. Missing or false disables the extra sender track."
         }
       }
     },
