@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/events/thread-members-update.json",
+  "title": "ThreadMembersUpdate",
+  "description": "A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.",
+  "type": "object",
+  "required": ["id", "guild_id", "member_count", "added_members", "removed_member_ids"],
+  "properties": {
+    "id": { "$ref": "../objects/snowflake.json" },
+    "guild_id": { "$ref": "../objects/snowflake.json" },
+    "member_count": { "type": "integer", "minimum": 0 },
+    "added_members": {
+      "type": "array",
+      "items": { "$ref": "../objects/channel.json#/$defs/ThreadMember" }
+    },
+    "removed_member_ids": {
+      "type": "array",
+      "items": { "$ref": "../objects/snowflake.json" }
+    },
+    "_membership_version": { "type": "integer", "minimum": 0 },
+    "_member_ids": {
+      "type": "array",
+      "items": { "$ref": "../objects/snowflake.json" }
+    }
+  },
+  "additionalProperties": false
+}

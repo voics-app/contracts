@@ -687,7 +687,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/channels/{channel_id}/threads": {
+    "/channels/{channel_id}/thread-members/{user_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -695,6 +695,31 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /**
+         * Join a thread or invite a guild member
+         * @description Use @me to join a visible public thread. A thread manager may add a guild member; members may invite others to an invitable private thread. The target must be able to view the parent channel. A locked thread requires MANAGE_THREADS.
+         */
+        put: operations["addThreadMember"];
+        post?: never;
+        /**
+         * Leave a thread or remove a member
+         * @description Use @me to leave; removing another user requires MANAGE_THREADS.
+         */
+        delete: operations["removeThreadMember"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/threads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List visible active or archived threads under a channel */
+        get: operations["listChannelThreads"];
         put?: never;
         /** Start a thread (or forum post) */
         post: operations["startThread"];
@@ -906,6 +931,59 @@ export interface paths {
         /** Get the guild audit log */
         get: operations["getGuildAuditLog"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/ban-appeals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List appeals and decisions (MANAGE_BAN_APPEALS required) */
+        get: operations["listBanAppeals"];
+        put?: never;
+        /** Submit an appeal for the caller's current ban */
+        post: operations["submitBanAppeal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept or deny an open appeal (MANAGE_BAN_APPEALS required) */
+        post: operations["resolveBanAppeal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/ban-appeals/form": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the appeal question for a banned user or appeal moderator */
+        get: operations["getBanAppealForm"];
+        /** Set the appeal question (MANAGE_BAN_APPEALS required) */
+        put: operations["setBanAppealForm"];
         post?: never;
         delete?: never;
         options?: never;
@@ -2332,12 +2410,16 @@ export interface components {
         AttachmentReference: {
             /** @description Alt text shown to screen readers and as the image tooltip. */
             description?: string;
+            /** @description Duration of a recorded voice message in seconds. */
+            duration_secs?: number;
             filename?: string;
             /** @description AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. */
             flags?: number;
             /** @description Attachment ID from POST /channels/{id}/attachments, or an index for existing ones. */
             id: string;
             uploaded_filename?: string;
+            /** @description Base64-encoded amplitude samples for a recorded voice message. */
+            waveform?: string;
         };
         /**
          * AttachmentUpload
@@ -2525,6 +2607,8 @@ export interface components {
             guild_id?: components["schemas"]["Snowflake"];
             icon?: string | null;
             id: components["schemas"]["Snowflake"];
+            /** @description Voics: whether the requesting user has joined this thread; omitted from shared events. */
+            is_thread_member?: boolean;
             last_message_id?: components["schemas"]["Snowflake"] | null;
             /** Format: date-time */
             last_pin_timestamp?: string | null;
@@ -2737,7 +2821,7 @@ export interface components {
             components?: components["schemas"]["MessageComponent"][];
             content?: string;
             embeds?: components["schemas"]["Embed"][];
-            /** @description MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. */
+            /** @description MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components. */
             flags?: number;
             message_reference?: components["schemas"]["MessageReference"];
             nonce?: string;
@@ -4157,6 +4241,11 @@ export interface components {
             member?: components["schemas"]["GuildMember"];
             user_id?: components["schemas"]["Snowflake"];
         };
+        /**
+         * ThreadMemberTarget
+         * @description A thread member's Snowflake or @me for the authenticated user.
+         */
+        ThreadMemberTarget: string;
         /**
          * ThreadMetadata
          * @description Thread-specific fields.
@@ -6311,6 +6400,91 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    addThreadMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                user_id: components["schemas"]["ThreadMemberTarget"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Joined or already a member. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    removeThreadMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                user_id: components["schemas"]["ThreadMemberTarget"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Left or already absent. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listChannelThreads: {
+        parameters: {
+            query?: {
+                /** @description Select archived threads instead of active threads. */
+                archived?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Threads visible to the caller. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Channel"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     startThread: {
         parameters: {
             query?: never;
@@ -6757,6 +6931,187 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    listBanAppeals: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Up to 100 appeals, open first and newest first within each group. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        answer: string;
+                        /** Format: date-time */
+                        created_at: string;
+                        id: string;
+                        question: string;
+                        /** Format: date-time */
+                        resolved_at: string | null;
+                        resolved_by: string | null;
+                        /** @enum {string} */
+                        status: "open" | "accepted" | "denied" | "closed";
+                        user_id: string;
+                    }[];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    submitBanAppeal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    answer: string;
+                    /** @description The question displayed to the user. */
+                    question: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Appeal created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        answer: string;
+                        /** Format: date-time */
+                        created_at: string;
+                        id: string;
+                        question: string;
+                        /** Format: date-time */
+                        resolved_at: string | null;
+                        resolved_by: string | null;
+                        /** @enum {string} */
+                        status: "open" | "accepted" | "denied" | "closed";
+                        user_id: string;
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description The question changed, an open appeal already exists, or the form is unavailable. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    resolveBanAppeal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                appeal_id: string;
+                decision: "accept" | "deny";
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Decision recorded. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description The appeal is closed or refers to a previous ban. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getBanAppealForm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The configured question. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        question: string;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    setBanAppealForm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    question: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Question saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     listGuildBans: {
