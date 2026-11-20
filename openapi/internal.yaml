@@ -23,6 +23,68 @@ tags:
   - name: gateway
     description: Served by gateway (port 4000).
 paths:
+  /scheduled-event-deliveries/claim:
+    post:
+      operationId: claimScheduledEventDelivery
+      summary: Lease one pending event push delivery for 60 seconds
+      tags: [api]
+      responses:
+        "200":
+          description: A lease or null when no delivery is ready.
+          content:
+            application/json:
+              schema: { type: [object, "null"], description: "Lease carries delivery_id, lease_id, guild_id, event_id, user_id, scheduled_start_time and revision." }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /scheduled-event-deliveries/{delivery_id}/resolve:
+    post:
+      operationId: resolveScheduledEventDelivery
+      summary: Recheck one leased delivery and resolve its current eligible token
+      tags: [api]
+      parameters:
+        - name: delivery_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lease_id]
+              properties: { lease_id: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Current live eligible token, or null when no longer eligible.
+          content:
+            application/json:
+              schema: { type: [object, "null"] }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { description: Lease expired or was replaced. }
+  /scheduled-event-deliveries/{delivery_id}/finish:
+    post:
+      operationId: finishScheduledEventDelivery
+      summary: Acknowledge a terminal result or release the lease for retry
+      tags: [api]
+      parameters:
+        - name: delivery_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lease_id, retry_after_secs]
+              properties:
+                lease_id: { type: string, format: uuid }
+                retry_after_secs: { type: [integer, "null"], minimum: 1, maximum: 60 }
+      responses:
+        "204": { description: Delivery acknowledged or scheduled for retry. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { description: Lease expired or was replaced. }
   /guilds/{guild_id}/scheduled-events/{event_id}/push-targets:
     get:
       operationId: getScheduledEventPushTargets

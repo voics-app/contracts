@@ -232,6 +232,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/scheduled-event-deliveries/{delivery_id}/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Acknowledge a terminal result or release the lease for retry */
+        post: operations["finishScheduledEventDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scheduled-event-deliveries/{delivery_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Recheck one leased delivery and resolve its current eligible token */
+        post: operations["resolveScheduledEventDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scheduled-event-deliveries/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Lease one pending event push delivery for 60 seconds */
+        post: operations["claimScheduledEventDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/read-states": {
         parameters: {
             query?: never;
@@ -1849,6 +1900,100 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    finishScheduledEventDelivery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                delivery_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    lease_id: string;
+                    retry_after_secs: number | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Delivery acknowledged or scheduled for retry. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Lease expired or was replaced. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    resolveScheduledEventDelivery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                delivery_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    lease_id: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Current live eligible token, or null when no longer eligible. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never> | null;
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Lease expired or was replaced. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    claimScheduledEventDelivery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A lease or null when no delivery is ready. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never> | null;
+                };
+            };
+            401: components["responses"]["Unauthorized"];
         };
     };
     getUserReadStates: {
