@@ -687,7 +687,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/channels/{channel_id}/threads": {
+    "/channels/{channel_id}/thread-members/{user_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -695,6 +695,31 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /**
+         * Join a thread or invite a guild member
+         * @description Use @me to join a visible public thread. A thread manager may add a guild member; members may invite others to an invitable private thread. The target must be able to view the parent channel. A locked thread requires MANAGE_THREADS.
+         */
+        put: operations["addThreadMember"];
+        post?: never;
+        /**
+         * Leave a thread or remove a member
+         * @description Use @me to leave; removing another user requires MANAGE_THREADS.
+         */
+        delete: operations["removeThreadMember"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/threads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List visible active or archived threads under a channel */
+        get: operations["listChannelThreads"];
         put?: never;
         /** Start a thread (or forum post) */
         post: operations["startThread"];
@@ -2568,6 +2593,8 @@ export interface components {
             guild_id?: components["schemas"]["Snowflake"];
             icon?: string | null;
             id: components["schemas"]["Snowflake"];
+            /** @description Voics: whether the requesting user has joined this thread; omitted from shared events. */
+            is_thread_member?: boolean;
             last_message_id?: components["schemas"]["Snowflake"] | null;
             /** Format: date-time */
             last_pin_timestamp?: string | null;
@@ -4237,6 +4264,11 @@ export interface components {
             member?: components["schemas"]["GuildMember"];
             user_id?: components["schemas"]["Snowflake"];
         };
+        /**
+         * ThreadMemberTarget
+         * @description A thread member's Snowflake or @me for the authenticated user.
+         */
+        ThreadMemberTarget: string;
         /**
          * ThreadMetadata
          * @description Thread-specific fields.
@@ -6377,6 +6409,91 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    addThreadMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                user_id: components["schemas"]["ThreadMemberTarget"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Joined or already a member. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    removeThreadMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                user_id: components["schemas"]["ThreadMemberTarget"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Left or already absent. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listChannelThreads: {
+        parameters: {
+            query?: {
+                /** @description Select archived threads instead of active threads. */
+                archived?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Threads visible to the caller. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Channel"][];
+                };
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];

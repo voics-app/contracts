@@ -69,6 +69,8 @@ pub enum DispatchEvent {
     ThreadCreate(Channel),
     #[serde(rename = "THREAD_UPDATE")]
     ThreadUpdate(Channel),
+    #[serde(rename = "THREAD_MEMBERS_UPDATE")]
+    ThreadMembersUpdate(ThreadMembersUpdate),
     #[serde(rename = "THREAD_DELETE")]
     ThreadDelete(Channel),
     #[serde(rename = "APPLICATION_COMMAND_PERMISSIONS_UPDATE")]
@@ -153,6 +155,7 @@ impl DispatchEvent {
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",
             Self::ThreadUpdate(_) => "THREAD_UPDATE",
+            Self::ThreadMembersUpdate(_) => "THREAD_MEMBERS_UPDATE",
             Self::ThreadDelete(_) => "THREAD_DELETE",
             Self::ApplicationCommandPermissionsUpdate(_) => {
                 "APPLICATION_COMMAND_PERMISSIONS_UPDATE"
@@ -230,6 +233,8 @@ pub enum BusEvent {
     ThreadCreate(Channel),
     #[serde(rename = "THREAD_UPDATE")]
     ThreadUpdate(Channel),
+    #[serde(rename = "THREAD_MEMBERS_UPDATE")]
+    ThreadMembersUpdate(ThreadMembersUpdate),
     #[serde(rename = "THREAD_DELETE")]
     ThreadDelete(Channel),
     #[serde(rename = "APPLICATION_COMMAND_PERMISSIONS_UPDATE")]
@@ -313,6 +318,7 @@ impl BusEvent {
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",
             Self::ThreadUpdate(_) => "THREAD_UPDATE",
+            Self::ThreadMembersUpdate(_) => "THREAD_MEMBERS_UPDATE",
             Self::ThreadDelete(_) => "THREAD_DELETE",
             Self::ApplicationCommandPermissionsUpdate(_) => {
                 "APPLICATION_COMMAND_PERMISSIONS_UPDATE"

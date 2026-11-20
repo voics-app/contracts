@@ -208,7 +208,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/channels/{channel_id}/invites` | api | `CreateInviteRequest` | `Invite` | Create an invite |
 | `PUT` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Add a user to a group DM |
 | `DELETE` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Remove a user from a group DM, or leave with @me |
+| `PUT` | `/channels/{channel_id}/thread-members/{user_id}` | api | — | 204 No Content | Join a thread or invite a guild member |
+| `DELETE` | `/channels/{channel_id}/thread-members/{user_id}` | api | — | 204 No Content | Leave a thread or remove a member |
 | `POST` | `/channels/{channel_id}/typing` | api | — | 204 No Content | Trigger the typing indicator (publishes TYPING_START) |
+| `GET` | `/channels/{channel_id}/threads` | api | — | `array of Channel` | List visible active or archived threads under a channel |
 | `POST` | `/channels/{channel_id}/threads` | api | `CreateThreadRequest` | `Channel` | Start a thread (or forum post) |
 
 ### Invites
@@ -598,6 +601,7 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `video_quality_mode?` | `integer` |  |
 | `message_count?` | `integer` |  |
 | `member_count?` | `integer` |  |
+| `is_thread_member?` | `boolean` | Voics: whether the requesting user has joined this thread; omitted from shared events. |
 | `thread_metadata?` | `ThreadMetadata` |  |
 | `member?` | `ThreadMember` |  |
 | `default_auto_archive_duration?` | `integer` |  |
@@ -2612,6 +2616,12 @@ PUT /users/@me/channels/{id}/delivery-mode body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `mode` | `?DeliveryMode` | Null clears the per-chat override. |
+
+### ThreadMemberTarget
+
+A thread member's Snowflake or @me for the authenticated user.
+
+Type: `string`
 
 ### TotpEnrollmentResponse
 
