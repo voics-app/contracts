@@ -4,6 +4,8 @@
 
 Clients connect to `wss://<gateway>/gateway?v=1&encoding=json`. The server sends HELLO with a heartbeat interval of 41250 ms. Sessions can be resumed for 120 s (up to 1000 buffered dispatches). Clients may send 120 frames per 60 s; exceeding it closes with 4008. Objects referenced below (User, Channel, ...) are described in rest.md.
 
+Add `&compress=zstd-stream` to receive binary frames containing one continuous zstd stream per WebSocket connection. Each event is flushed for immediate decoding. Client-to-server frames stay JSON text. A reconnect, including RESUME, starts a fresh stream. Without the parameter server frames are JSON text; unknown compression values are rejected.
+
 ## Frame
 
 ### GatewayFrame
@@ -222,7 +224,7 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 
 | Bit | Value | Name | Privileged | Events |
 | --- | --- | --- | --- | --- |
-| 1 << 0 | 1 | `GUILDS` | no | GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE, CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE, THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE |
+| 1 << 0 | 1 | `GUILDS` | no | GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE, CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE, THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE, STAGE_INSTANCE_CREATE, STAGE_INSTANCE_UPDATE, STAGE_INSTANCE_DELETE |
 | 1 << 1 | 2 | `GUILD_MEMBERS` | yes | GUILD_MEMBER_ADD, GUILD_MEMBER_UPDATE, GUILD_MEMBER_REMOVE |
 | 1 << 2 | 4 | `GUILD_MODERATION` | no | AUDIT_LOG_ENTRY_CREATE, GUILD_BAN_ADD, GUILD_BAN_REMOVE |
 | 1 << 3 | 8 | `GUILD_EMOJIS` (Discord: `GUILD_EXPRESSIONS`) | no | GUILD_EMOJIS_UPDATE |
@@ -267,6 +269,9 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `GUILD_MEMBER_REMOVE` | `GuildMemberRemoveEvent` | api | `discordy.guild.v1` | A user left or was removed from a guild. |
 | `GUILD_BAN_ADD` | `GuildBanEvent` | api | `discordy.guild.v1` | A user was banned. |
 | `GUILD_BAN_REMOVE` | `GuildBanEvent` | api | `discordy.guild.v1` | A user was unbanned. |
+| `STAGE_INSTANCE_CREATE` | `StageInstance` | api | `discordy.guild.v1` | A stage instance was started. |
+| `STAGE_INSTANCE_UPDATE` | `StageInstance` | api | `discordy.guild.v1` | A stage instance was updated. |
+| `STAGE_INSTANCE_DELETE` | `StageInstance` | api | `discordy.guild.v1` | A stage instance was ended. |
 | `GUILD_EMOJIS_UPDATE` | `GuildEmojisUpdateEvent` | api | `discordy.guild.v1` | A guild's emojis changed. |
 | `SOUNDBOARD_SOUND_CREATE` | `SoundboardSoundCreateEvent` | api | `discordy.guild.v1` | A guild soundboard sound changed. |
 | `SOUNDBOARD_SOUND_UPDATE` | `SoundboardSoundUpdateEvent` | api | `discordy.guild.v1` | A guild soundboard sound changed. |
@@ -275,6 +280,7 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `INVITE_DELETE` | `InviteDeleteEvent` | api | `discordy.guild.v1` | An invite was deleted. |
 | `THREAD_CREATE` | `Channel` | api | `discordy.guild.v1` | A thread was created. |
 | `THREAD_UPDATE` | `Channel` | api | `discordy.guild.v1` | A thread was updated. |
+| `THREAD_MEMBERS_UPDATE` | `ThreadMembersUpdate` | api | `discordy.guild.v1` | Thread membership changed; underscore-prefixed bus state is private to the gateway. |
 | `THREAD_DELETE` | `Channel` | api | `discordy.guild.v1` | A thread was deleted. |
 | `APPLICATION_COMMAND_PERMISSIONS_UPDATE` | `GuildApplicationCommandPermissions` | api | `discordy.guild.v1` | Application command permissions were updated. |
 | `MESSAGE_CREATE` | `MessageEvent` | messages | `discordy.message.v1` | A message was created. |
@@ -309,7 +315,7 @@ READY: the internal ready state plus session details.
 | Field | Type | Description |
 | --- | --- | --- |
 | `user` | `User` |  |
-| `guilds` | `array of GuildFull` |  |
+| `guilds` | `array of GatewayGuildState` |  |
 | `private_channels` | `array of Channel` |  |
 | `relationships` | `array of Relationship` |  |
 | `user_settings` | `UserSettings` |  |
@@ -502,6 +508,20 @@ INVITE_DELETE dispatch.
 | `channel_id` | `Snowflake` |  |
 | `guild_id?` | `Snowflake` |  |
 | `code` | `string` |  |
+
+### ThreadMembersUpdate
+
+A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `guild_id` | `Snowflake` |  |
+| `member_count` | `integer` |  |
+| `added_members` | `array of ThreadMember` |  |
+| `removed_member_ids` | `array of Snowflake` |  |
+| `_membership_version?` | `integer` |  |
+| `_member_ids?` | `array of Snowflake` |  |
 
 ### MessageEvent
 
@@ -713,6 +733,57 @@ Ciphertext for one recipient device.
 | `user_id` | `Snowflake` |  |
 | `device_id` | `Snowflake` |  |
 | `ciphertext_b64` | `string` |  |
+
+### GatewayGuildState
+
+Internal gateway seed. Thread membership state must not be sent to clients.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `icon` | `?string` |  |
+| `splash?` | `?string` | Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null. |
+| `discovery_splash?` | `?string` |  |
+| `owner?` | `boolean` | True if the current user owns the guild. |
+| `owner_id` | `Snowflake` |  |
+| `permissions?` | `PermissionBitset` |  |
+| `afk_channel_id` | `?Snowflake` |  |
+| `afk_timeout` | `integer` |  |
+| `verification_level` | `integer` |  |
+| `default_message_notifications` | `integer` |  |
+| `explicit_content_filter` | `integer` |  |
+| `roles` | `array of Role` |  |
+| `emojis` | `array of Emoji` |  |
+| `features` | `array of string` |  |
+| `mfa_level` | `integer` |  |
+| `application_id?` | `?Snowflake` |  |
+| `system_channel_id` | `?Snowflake` |  |
+| `system_channel_flags` | `integer` | Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. |
+| `rules_channel_id?` | `?Snowflake` |  |
+| `max_members?` | `integer` |  |
+| `vanity_url_code?` | `?string` |  |
+| `description?` | `?string` |  |
+| `banner?` | `?string` | Banner image hash (CDN path banners/{guild_id}/{hash}), or null. |
+| `preferred_locale` | `string` |  |
+| `public_updates_channel_id?` | `?Snowflake` |  |
+| `nsfw_level?` | `integer` |  |
+| `approximate_member_count?` | `integer` |  |
+| `approximate_presence_count?` | `integer` |  |
+| `voice_region` | `string` | Discordy: voice region ID used to allocate voice nodes. |
+| `audit_log_enabled?` | `boolean` | Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention. |
+| `audit_log_retention_days?` | `30 or 90 or 365` | Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job. |
+| `prune_admin_only?` | `boolean` | Discordy: when true, only administrators may prune inactive members. |
+| `joined_at?` | `string (date-time)` |  |
+| `large?` | `boolean` |  |
+| `unavailable?` | `boolean` |  |
+| `member_count` | `integer` |  |
+| `members` | `array of GuildMember` |  |
+| `channels` | `array of Channel` |  |
+| `threads` | `array of Channel` |  |
+| `presences?` | `array of PresenceUpdateEvent` |  |
+| `voice_states` | `array of VoiceState` |  |
+| `thread_members` | `map of object` |  |
 
 ### IdentifyProperties
 

@@ -208,7 +208,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GuildFull"
+                  "$ref": "#/components/schemas/GatewayGuildState"
                 }
               }
             }
@@ -1193,6 +1193,10 @@
           "member_count": {
             "type": "integer"
           },
+          "is_thread_member": {
+            "type": "boolean",
+            "description": "Voics: whether the requesting user has joined this thread; omitted from shared events."
+          },
           "thread_metadata": {
             "$ref": "#/components/schemas/ThreadMetadata"
           },
@@ -1746,50 +1750,9 @@
           }
         }
       },
-      "GuildFolder": {
-        "title": "GuildFolder",
-        "description": "One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.",
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "color",
-          "guild_ids"
-        ],
-        "properties": {
-          "id": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "description": "Folder id chosen by the client (stable per user); null for a single un-foldered server."
-          },
-          "name": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "maxLength": 32
-          },
-          "color": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "description": "RGB colour as 0xRRGGBB."
-          },
-          "guild_ids": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Snowflake"
-            },
-            "maxItems": 200
-          }
-        }
-      },
-      "GuildFull": {
-        "title": "GuildFull",
-        "description": "A guild with its full state (GUILD_CREATE payload and the internal guild state endpoint).",
+      "GatewayGuildState": {
+        "title": "GatewayGuildState",
+        "description": "Internal gateway seed. Thread membership state must not be sent to clients.",
         "type": "object",
         "required": [
           "id",
@@ -1813,7 +1776,8 @@
           "members",
           "channels",
           "threads",
-          "voice_states"
+          "voice_states",
+          "thread_members"
         ],
         "properties": {
           "id": {
@@ -2039,6 +2003,70 @@
             "items": {
               "$ref": "#/components/schemas/VoiceState"
             }
+          },
+          "thread_members": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "version",
+                "user_ids"
+              ],
+              "properties": {
+                "version": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "user_ids": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "GuildFolder": {
+        "title": "GuildFolder",
+        "description": "One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "color",
+          "guild_ids"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Folder id chosen by the client (stable per user); null for a single un-foldered server."
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 32
+          },
+          "color": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "RGB colour as 0xRRGGBB."
+          },
+          "guild_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            },
+            "maxItems": 200
           }
         }
       },
@@ -3753,7 +3781,7 @@
           "guilds": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/GuildFull"
+              "$ref": "#/components/schemas/GatewayGuildState"
             }
           },
           "private_channels": {

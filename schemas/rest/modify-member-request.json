@@ -34,6 +34,10 @@
       ],
       "description": "Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice."
     },
+    "suppress": {
+      "type": "boolean",
+      "description": "For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage."
+    },
     "communication_disabled_until": {
       "type": [
         "string",

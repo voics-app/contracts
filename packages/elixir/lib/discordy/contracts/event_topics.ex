@@ -49,6 +49,15 @@ defmodule Discordy.Contracts.EventTopics do
   @spec guild_ban_remove() :: String.t()
   def guild_ban_remove, do: "discordy.guild.v1"
 
+  @spec stage_instance_create() :: String.t()
+  def stage_instance_create, do: "discordy.guild.v1"
+
+  @spec stage_instance_update() :: String.t()
+  def stage_instance_update, do: "discordy.guild.v1"
+
+  @spec stage_instance_delete() :: String.t()
+  def stage_instance_delete, do: "discordy.guild.v1"
+
   @spec guild_emojis_update() :: String.t()
   def guild_emojis_update, do: "discordy.guild.v1"
 
@@ -72,6 +81,9 @@ defmodule Discordy.Contracts.EventTopics do
 
   @spec thread_update() :: String.t()
   def thread_update, do: "discordy.guild.v1"
+
+  @spec thread_members_update() :: String.t()
+  def thread_members_update, do: "discordy.guild.v1"
 
   @spec thread_delete() :: String.t()
   def thread_delete, do: "discordy.guild.v1"
@@ -176,6 +188,9 @@ defmodule Discordy.Contracts.EventTopics do
       guild_member_remove: "discordy.guild.v1",
       guild_ban_add: "discordy.guild.v1",
       guild_ban_remove: "discordy.guild.v1",
+      stage_instance_create: "discordy.guild.v1",
+      stage_instance_update: "discordy.guild.v1",
+      stage_instance_delete: "discordy.guild.v1",
       guild_emojis_update: "discordy.guild.v1",
       soundboard_sound_create: "discordy.guild.v1",
       soundboard_sound_update: "discordy.guild.v1",
@@ -184,6 +199,7 @@ defmodule Discordy.Contracts.EventTopics do
       invite_delete: "discordy.guild.v1",
       thread_create: "discordy.guild.v1",
       thread_update: "discordy.guild.v1",
+      thread_members_update: "discordy.guild.v1",
       thread_delete: "discordy.guild.v1",
       application_command_permissions_update: "discordy.guild.v1",
       message_create: "discordy.message.v1",

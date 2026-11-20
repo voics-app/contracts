@@ -57,6 +57,12 @@ pub enum DispatchEvent {
     GuildBanAdd(GuildBanEvent),
     #[serde(rename = "GUILD_BAN_REMOVE")]
     GuildBanRemove(GuildBanEvent),
+    #[serde(rename = "STAGE_INSTANCE_CREATE")]
+    StageInstanceCreate(StageInstance),
+    #[serde(rename = "STAGE_INSTANCE_UPDATE")]
+    StageInstanceUpdate(StageInstance),
+    #[serde(rename = "STAGE_INSTANCE_DELETE")]
+    StageInstanceDelete(StageInstance),
     #[serde(rename = "GUILD_EMOJIS_UPDATE")]
     GuildEmojisUpdate(GuildEmojisUpdateEvent),
     #[serde(rename = "SOUNDBOARD_SOUND_CREATE")]
@@ -73,6 +79,8 @@ pub enum DispatchEvent {
     ThreadCreate(Channel),
     #[serde(rename = "THREAD_UPDATE")]
     ThreadUpdate(Channel),
+    #[serde(rename = "THREAD_MEMBERS_UPDATE")]
+    ThreadMembersUpdate(ThreadMembersUpdate),
     #[serde(rename = "THREAD_DELETE")]
     ThreadDelete(Channel),
     #[serde(rename = "APPLICATION_COMMAND_PERMISSIONS_UPDATE")]
@@ -151,6 +159,9 @@ impl DispatchEvent {
             Self::GuildMemberRemove(_) => "GUILD_MEMBER_REMOVE",
             Self::GuildBanAdd(_) => "GUILD_BAN_ADD",
             Self::GuildBanRemove(_) => "GUILD_BAN_REMOVE",
+            Self::StageInstanceCreate(_) => "STAGE_INSTANCE_CREATE",
+            Self::StageInstanceUpdate(_) => "STAGE_INSTANCE_UPDATE",
+            Self::StageInstanceDelete(_) => "STAGE_INSTANCE_DELETE",
             Self::GuildEmojisUpdate(_) => "GUILD_EMOJIS_UPDATE",
             Self::SoundboardSoundCreate(_) => "SOUNDBOARD_SOUND_CREATE",
             Self::SoundboardSoundUpdate(_) => "SOUNDBOARD_SOUND_UPDATE",
@@ -159,6 +170,7 @@ impl DispatchEvent {
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",
             Self::ThreadUpdate(_) => "THREAD_UPDATE",
+            Self::ThreadMembersUpdate(_) => "THREAD_MEMBERS_UPDATE",
             Self::ThreadDelete(_) => "THREAD_DELETE",
             Self::ApplicationCommandPermissionsUpdate(_) => {
                 "APPLICATION_COMMAND_PERMISSIONS_UPDATE"
@@ -224,6 +236,12 @@ pub enum BusEvent {
     GuildBanAdd(GuildBanEvent),
     #[serde(rename = "GUILD_BAN_REMOVE")]
     GuildBanRemove(GuildBanEvent),
+    #[serde(rename = "STAGE_INSTANCE_CREATE")]
+    StageInstanceCreate(StageInstance),
+    #[serde(rename = "STAGE_INSTANCE_UPDATE")]
+    StageInstanceUpdate(StageInstance),
+    #[serde(rename = "STAGE_INSTANCE_DELETE")]
+    StageInstanceDelete(StageInstance),
     #[serde(rename = "GUILD_EMOJIS_UPDATE")]
     GuildEmojisUpdate(GuildEmojisUpdateEvent),
     #[serde(rename = "SOUNDBOARD_SOUND_CREATE")]
@@ -240,6 +258,8 @@ pub enum BusEvent {
     ThreadCreate(Channel),
     #[serde(rename = "THREAD_UPDATE")]
     ThreadUpdate(Channel),
+    #[serde(rename = "THREAD_MEMBERS_UPDATE")]
+    ThreadMembersUpdate(ThreadMembersUpdate),
     #[serde(rename = "THREAD_DELETE")]
     ThreadDelete(Channel),
     #[serde(rename = "APPLICATION_COMMAND_PERMISSIONS_UPDATE")]
@@ -317,6 +337,9 @@ impl BusEvent {
             Self::GuildMemberRemove(_) => "GUILD_MEMBER_REMOVE",
             Self::GuildBanAdd(_) => "GUILD_BAN_ADD",
             Self::GuildBanRemove(_) => "GUILD_BAN_REMOVE",
+            Self::StageInstanceCreate(_) => "STAGE_INSTANCE_CREATE",
+            Self::StageInstanceUpdate(_) => "STAGE_INSTANCE_UPDATE",
+            Self::StageInstanceDelete(_) => "STAGE_INSTANCE_DELETE",
             Self::GuildEmojisUpdate(_) => "GUILD_EMOJIS_UPDATE",
             Self::SoundboardSoundCreate(_) => "SOUNDBOARD_SOUND_CREATE",
             Self::SoundboardSoundUpdate(_) => "SOUNDBOARD_SOUND_UPDATE",
@@ -325,6 +348,7 @@ impl BusEvent {
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",
             Self::ThreadUpdate(_) => "THREAD_UPDATE",
+            Self::ThreadMembersUpdate(_) => "THREAD_MEMBERS_UPDATE",
             Self::ThreadDelete(_) => "THREAD_DELETE",
             Self::ApplicationCommandPermissionsUpdate(_) => {
                 "APPLICATION_COMMAND_PERMISSIONS_UPDATE"

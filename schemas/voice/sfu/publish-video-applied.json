@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/sfu/publish-video-applied.json",
+  "title": "SfuPublishVideoApplied",
+  "type": "object",
+  "required": ["evt", "session_id"],
+  "properties": {
+    "evt": { "const": "publish_video_applied" },
+    "req": { "type": ["string", "null"] },
+    "session_id": { "type": "string" }
+  }
+}

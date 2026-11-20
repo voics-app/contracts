@@ -99,6 +99,10 @@ export type ScheduledMessage = ScheduledMessage1;
  */
 export type SessionsReplaceEvent = Session[];
 /**
+ * A thread member's Snowflake or @me for the authenticated user.
+ */
+export type ThreadMemberTarget = string;
+/**
  * Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.
  */
 export type UserReadStates = ReadState[];
@@ -479,6 +483,14 @@ export interface AttachmentReference {
    */
   description?: string;
   /**
+   * Duration of a recorded voice message in seconds.
+   */
+  duration_secs?: number;
+  /**
+   * Base64-encoded amplitude samples for a recorded voice message.
+   */
+  waveform?: string;
+  /**
    * AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
    */
   flags?: number;
@@ -585,6 +597,10 @@ export interface Channel {
   video_quality_mode?: number;
   message_count?: number;
   member_count?: number;
+  /**
+   * Voics: whether the requesting user has joined this thread; omitted from shared events.
+   */
+  is_thread_member?: boolean;
   thread_metadata?: ThreadMetadata;
   member?: ThreadMember;
   default_auto_archive_duration?: number;
@@ -794,6 +810,12 @@ export interface BackupCodesVerificationRequest {
    * Replaces every backup code and returns the new plaintext codes once.
    */
   regenerate?: boolean;
+}
+/**
+ * Change visibility of an existing badge grant owned by the caller.
+ */
+export interface BadgeVisibilityRequest {
+  visible: boolean;
 }
 /**
  * A guild ban.
@@ -1208,7 +1230,7 @@ export interface CreateMessageRequest {
   components?: MessageComponent[];
   attachments?: AttachmentReference[];
   /**
-   * MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped.
+   * MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components.
    */
   flags?: number;
 }
@@ -1394,6 +1416,15 @@ export interface CreateSoundboardSoundRequest {
    * Base64-encoded canonical PCM WAV, no data URI.
    */
   sound: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "CreateStageInstanceRequest".
+ */
+export interface CreateStageInstanceRequest {
+  channel_id: Snowflake;
+  topic: string;
+  privacy_level?: 2;
 }
 /**
  * POST /channels/{id}/threads body. Forum channels require `message`.
@@ -1836,6 +1867,130 @@ export interface GatewayFrame {
   t?: string | null;
 }
 /**
+ * Internal gateway seed. Thread membership state must not be sent to clients.
+ */
+export interface GatewayGuildState {
+  id: Snowflake;
+  name: string;
+  icon: string | null;
+  /**
+   * Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
+   */
+  splash?: string | null;
+  discovery_splash?: string | null;
+  /**
+   * True if the current user owns the guild.
+   */
+  owner?: boolean;
+  owner_id: Snowflake;
+  permissions?: PermissionBitset;
+  afk_channel_id: Snowflake | null;
+  afk_timeout: number;
+  verification_level: number;
+  default_message_notifications: number;
+  explicit_content_filter: number;
+  roles: Role[];
+  emojis: Emoji[];
+  features: string[];
+  mfa_level: number;
+  application_id?: Snowflake | null;
+  system_channel_id: Snowflake | null;
+  /**
+   * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+   */
+  system_channel_flags: number;
+  rules_channel_id?: Snowflake | null;
+  max_members?: number;
+  vanity_url_code?: string | null;
+  description?: string | null;
+  /**
+   * Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
+   */
+  banner?: string | null;
+  preferred_locale: string;
+  public_updates_channel_id?: Snowflake | null;
+  nsfw_level?: number;
+  approximate_member_count?: number;
+  approximate_presence_count?: number;
+  /**
+   * Discordy: voice region ID used to allocate voice nodes.
+   */
+  voice_region: string;
+  /**
+   * Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+   */
+  audit_log_enabled?: boolean;
+  /**
+   * Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+   */
+  audit_log_retention_days?: 30 | 90 | 365;
+  /**
+   * Discordy: when true, only administrators may prune inactive members.
+   */
+  prune_admin_only?: boolean;
+  joined_at?: string;
+  large?: boolean;
+  unavailable?: boolean;
+  member_count: number;
+  members: GuildMember[];
+  channels: Channel[];
+  threads: Channel[];
+  presences?: PresenceUpdateEvent[];
+  voice_states: VoiceState[];
+  thread_members: {
+    [k: string]:
+      | {
+          version: number;
+          user_ids: Snowflake[];
+        }
+      | undefined;
+  };
+}
+/**
+ * A guild role.
+ */
+export interface Role {
+  id: Snowflake;
+  name: string;
+  color: number;
+  hoist: boolean;
+  icon?: string | null;
+  unicode_emoji?: string | null;
+  position: number;
+  permissions: PermissionBitset;
+  managed: boolean;
+  mentionable: boolean;
+  flags: number;
+  tags?: RoleTags;
+}
+/**
+ * Tags of a managed role.
+ */
+export interface RoleTags {
+  bot_id?: Snowflake;
+  integration_id?: Snowflake;
+}
+/**
+ * PRESENCE_UPDATE dispatch.
+ */
+export interface PresenceUpdateEvent {
+  user: PartialUser;
+  guild_id?: Snowflake;
+  status: "online" | "idle" | "dnd" | "offline";
+  activities: Activity[];
+  client_status: ClientStatus;
+}
+/**
+ * A user reference that only guarantees the ID (presence updates, audit logs).
+ */
+export interface PartialUser {
+  id: Snowflake;
+  username?: string;
+  global_name?: string | null;
+  avatar?: string | null;
+  bot?: boolean;
+}
+/**
  * A guild (server). `voice_region` is a Discordy extra.
  */
 export interface Guild {
@@ -1897,30 +2052,6 @@ export interface Guild {
    * Discordy: when true, only administrators may prune inactive members.
    */
   prune_admin_only?: boolean;
-}
-/**
- * A guild role.
- */
-export interface Role {
-  id: Snowflake;
-  name: string;
-  color: number;
-  hoist: boolean;
-  icon?: string | null;
-  unicode_emoji?: string | null;
-  position: number;
-  permissions: PermissionBitset;
-  managed: boolean;
-  mentionable: boolean;
-  flags: number;
-  tags?: RoleTags;
-}
-/**
- * Tags of a managed role.
- */
-export interface RoleTags {
-  bot_id?: Snowflake;
-  integration_id?: Snowflake;
 }
 /**
  * Permissions of an application's command(s) in a guild.
@@ -2056,26 +2187,6 @@ export interface GuildFull {
   threads: Channel[];
   presences?: PresenceUpdateEvent[];
   voice_states: VoiceState[];
-}
-/**
- * PRESENCE_UPDATE dispatch.
- */
-export interface PresenceUpdateEvent {
-  user: PartialUser;
-  guild_id?: Snowflake;
-  status: "online" | "idle" | "dnd" | "offline";
-  activities: Activity[];
-  client_status: ClientStatus;
-}
-/**
- * A user reference that only guarantees the ID (presence updates, audit logs).
- */
-export interface PartialUser {
-  id: Snowflake;
-  username?: string;
-  global_name?: string | null;
-  avatar?: string | null;
-  bot?: boolean;
 }
 /**
  * An application whose bot is currently installed in this server.
@@ -3083,6 +3194,10 @@ export interface ModifyMemberRequest {
    * Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice.
    */
   channel_id?: Snowflake | null;
+  /**
+   * For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage.
+   */
+  suppress?: boolean;
   communication_disabled_until?: string | null;
   flags?: number;
   /**
@@ -3104,6 +3219,14 @@ export interface ModifyMemberRequest {
 export interface ModifySoundboardSoundRequest {
   name?: string;
   volume?: number;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "ModifyStageInstanceRequest".
+ */
+export interface ModifyStageInstanceRequest {
+  topic: string;
+  privacy_level?: 2;
 }
 /**
  * PATCH /users/@me/settings body (partial).
@@ -3423,6 +3546,13 @@ export interface ProbeVoiceTokenClaims {
   probe_id: string;
 }
 /**
+ * An earned badge and the owner-selected visibility.
+ */
+export interface ProfileBadge {
+  id: string;
+  visible: boolean;
+}
+/**
  * POST /guilds/{id}/prune body.
  */
 export interface PruneRequest {
@@ -3507,7 +3637,7 @@ export interface ReadyApplication {
 }
 export interface ReadyEvent1 {
   user: User;
-  guilds: GuildFull[];
+  guilds: GatewayGuildState[];
   private_channels: Channel[];
   relationships: Relationship[];
   user_settings: UserSettings;
@@ -3826,7 +3956,33 @@ export interface SfuCreateSession {
   ice_ufrag: string;
   ice_pwd: string;
   remote_fingerprint: string;
+  /**
+   * Audio forwarding capability; absent preserves legacy permissive behavior.
+   */
+  can_publish_audio?: boolean;
+  /**
+   * Camera and screen forwarding capability; absent preserves legacy permissive behavior.
+   */
+  can_publish_video?: boolean;
   codecs: VoiceCodec[];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuPublishAudioApplied".
+ */
+export interface SfuPublishAudioApplied {
+  evt: "publish_audio_applied";
+  req?: string | null;
+  session_id: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuPublishVideoApplied".
+ */
+export interface SfuPublishVideoApplied {
+  evt: "publish_video_applied";
+  req?: string | null;
+  session_id: string;
 }
 /**
  * SFU control event: reply to create_session.
@@ -3837,6 +3993,24 @@ export interface SfuSessionCreated {
   local_ufrag: string;
   local_pwd: string;
   fingerprint: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuSetPublishAudio".
+ */
+export interface SfuSetPublishAudio {
+  cmd: "set_publish_audio";
+  session_id: string;
+  allowed: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuSetPublishVideo".
+ */
+export interface SfuSetPublishVideo {
+  cmd: "set_publish_video";
+  session_id: string;
+  allowed: boolean;
 }
 /**
  * SFU control command: update simulcast layer preferences.
@@ -3927,6 +4101,17 @@ export interface SpeakingPayload {
   user_id?: Snowflake;
 }
 /**
+ * A live guild-only stage instance.
+ */
+export interface StageInstance {
+  id: Snowflake;
+  guild_id: Snowflake;
+  channel_id: Snowflake;
+  topic: string;
+  privacy_level: 2;
+  discoverable_disabled: boolean;
+}
+/**
  * Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.
  */
 export interface StreamViewersPayload {
@@ -3948,6 +4133,18 @@ export interface SuspendUserRequest {
    * Null suspends indefinitely.
    */
   until: string | null;
+}
+/**
+ * A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.
+ */
+export interface ThreadMembersUpdate {
+  id: Snowflake;
+  guild_id: Snowflake;
+  member_count: number;
+  added_members: ThreadMember[];
+  removed_member_ids: Snowflake[];
+  _membership_version?: number;
+  _member_ids?: Snowflake[];
 }
 /**
  * A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.
@@ -4068,7 +4265,7 @@ export interface UserProfile {
  */
 export interface UserReadyState {
   user: User;
-  guilds: GuildFull[];
+  guilds: GatewayGuildState[];
   private_channels: Channel[];
   relationships: Relationship[];
   user_settings: UserSettings;
@@ -4169,7 +4366,7 @@ export interface VoiceIdentifyPayload {
   video: boolean;
 }
 /**
- * VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.
+ * VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved/disconnected a member or changed their stage speaker status. The gateway applies it to the live voice session and never dispatches it directly to clients.
  */
 export interface VoiceMemberMoveEvent {
   guild_id: Snowflake;
@@ -4177,7 +4374,11 @@ export interface VoiceMemberMoveEvent {
   /**
    * The voice channel to move the member to, or null to disconnect them.
    */
-  channel_id: Snowflake | null;
+  channel_id?: Snowflake | null;
+  /**
+   * Stage audience status: false promotes to speaker; true moves to audience.
+   */
+  suppress?: boolean;
 }
 /**
  * Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
@@ -4215,6 +4416,15 @@ export interface VoiceNodeRegistration {
   node_id: string;
   region: string;
   ws_url: string;
+  /**
+   * Optional private IPv4 address for node-affine internal control. It is never derived from ws_url and requires control_port and registration_lease.
+   */
+  control_ip?: string;
+  control_port?: number;
+  /**
+   * Decimal identity of this registration's current etcd lease; stale control commands must be rejected.
+   */
+  registration_lease?: string;
   public_ip: string;
   udp_port: number;
   users: number;

@@ -419,6 +419,27 @@
         "description": "A user was unbanned."
       },
       {
+        "name": "STAGE_INSTANCE_CREATE",
+        "payload": "objects/stage-instance.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A stage instance was started."
+      },
+      {
+        "name": "STAGE_INSTANCE_UPDATE",
+        "payload": "objects/stage-instance.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A stage instance was updated."
+      },
+      {
+        "name": "STAGE_INSTANCE_DELETE",
+        "payload": "objects/stage-instance.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A stage instance was ended."
+      },
+      {
         "name": "GUILD_EMOJIS_UPDATE",
         "payload": "gateway/dispatch/guild-emojis-update.json",
         "source": "api",
@@ -473,6 +494,13 @@
         "source": "api",
         "topic": "discordy.guild.v1",
         "description": "A thread was updated."
+      },
+      {
+        "name": "THREAD_MEMBERS_UPDATE",
+        "payload": "events/thread-members-update.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "Thread membership changed; underscore-prefixed bus state is private to the gateway."
       },
       {
         "name": "THREAD_DELETE",
@@ -937,6 +965,16 @@
         "name": "set_sink_wants",
         "payload": "voice/sfu/set-sink-wants.json",
         "description": "Updates simulcast layer preferences for a session."
+      },
+      {
+        "name": "set_publish_audio",
+        "payload": "voice/sfu/set-publish-audio.json",
+        "description": "Changes audio publishing permission for a session."
+      },
+      {
+        "name": "set_publish_video",
+        "payload": "voice/sfu/set-publish-video.json",
+        "description": "Changes camera and screen publishing permission for a session."
       }
     ],
     "sfu_events": [
@@ -944,6 +982,16 @@
         "name": "session_created",
         "payload": "voice/sfu/session-created.json",
         "description": "Reply to create_session with the SFU's ICE/DTLS parameters."
+      },
+      {
+        "name": "publish_audio_applied",
+        "payload": "voice/sfu/publish-audio-applied.json",
+        "description": "Acknowledges an audio publishing permission change."
+      },
+      {
+        "name": "publish_video_applied",
+        "payload": "voice/sfu/publish-video-applied.json",
+        "description": "Acknowledges a video publishing permission change."
       },
       {
         "name": "speaking",
@@ -1246,7 +1294,7 @@
       ]
     },
     "MessageFlags": {
-      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications.",
+      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.",
       "values": [
         {
           "name": "SUPPRESS_EMBEDS",
@@ -1259,6 +1307,10 @@
         {
           "name": "EPHEMERAL",
           "value": 64
+        },
+        {
+          "name": "IS_VOICE_MESSAGE",
+          "value": 8192
         }
       ]
     },
@@ -1555,7 +1607,7 @@
       ]
     },
     "AuditLogEvent": {
-      "description": "Audit log action types (Discord values) used by Discordy.",
+      "description": "Audit log action types used by Discordy, including Voics extensions.",
       "values": [
         {
           "name": "GUILD_UPDATE",
@@ -1700,6 +1752,14 @@
         {
           "name": "APPLICATION_COMMAND_PERMISSION_UPDATE",
           "value": 121
+        },
+        {
+          "name": "BAN_APPEAL_ACCEPT",
+          "value": 200
+        },
+        {
+          "name": "BAN_APPEAL_DENY",
+          "value": 201
         }
       ]
     }

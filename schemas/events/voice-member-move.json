@@ -2,12 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/events/voice-member-move.json",
   "title": "VoiceMemberMoveEvent",
-  "description": "VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.",
+  "description": "VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved/disconnected a member or changed their stage speaker status. The gateway applies it to the live voice session and never dispatches it directly to clients.",
   "type": "object",
   "required": [
     "guild_id",
-    "user_id",
-    "channel_id"
+    "user_id"
   ],
   "properties": {
     "guild_id": {
@@ -26,6 +25,10 @@
         }
       ],
       "description": "The voice channel to move the member to, or null to disconnect them."
+    },
+    "suppress": {
+      "type": "boolean",
+      "description": "Stage audience status: false promotes to speaker; true moves to audience."
     }
   }
 }

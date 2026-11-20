@@ -106,19 +106,21 @@ export const Permissions = {
   PIN_MESSAGES: 1n << 51n,
   /** Allows bypassing slowmode restrictions */
   BYPASS_SLOWMODE: 1n << 52n,
+  /** Allows configuring and reviewing ban appeals */
+  MANAGE_BAN_APPEALS: 1n << 53n,
 } as const;
 export type PermissionsKey = keyof typeof Permissions;
 
 /** Derived permission sets. */
 export const PermissionSets = {
   /** Every known permission. */
-  ALL: 8866461766385663n,
+  ALL: 17873661021126655n,
 } as const;
 export type PermissionSetsKey = keyof typeof PermissionSets;
 
 /** Gateway intent bit flags (Discord values). */
 export const Intents = {
-  /** Events: GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE, CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE, THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE. */
+  /** Events: GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE, CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE, THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE, STAGE_INSTANCE_CREATE, STAGE_INSTANCE_UPDATE, STAGE_INSTANCE_DELETE. */
   GUILDS: 1 << 0,
   /** Privileged. Events: GUILD_MEMBER_ADD, GUILD_MEMBER_UPDATE, GUILD_MEMBER_REMOVE. */
   GUILD_MEMBERS: 1 << 1,
@@ -258,6 +260,9 @@ export const DispatchEvents = {
   GUILD_MEMBER_REMOVE: "GUILD_MEMBER_REMOVE",
   GUILD_BAN_ADD: "GUILD_BAN_ADD",
   GUILD_BAN_REMOVE: "GUILD_BAN_REMOVE",
+  STAGE_INSTANCE_CREATE: "STAGE_INSTANCE_CREATE",
+  STAGE_INSTANCE_UPDATE: "STAGE_INSTANCE_UPDATE",
+  STAGE_INSTANCE_DELETE: "STAGE_INSTANCE_DELETE",
   GUILD_EMOJIS_UPDATE: "GUILD_EMOJIS_UPDATE",
   SOUNDBOARD_SOUND_CREATE: "SOUNDBOARD_SOUND_CREATE",
   SOUNDBOARD_SOUND_UPDATE: "SOUNDBOARD_SOUND_UPDATE",
@@ -266,6 +271,7 @@ export const DispatchEvents = {
   INVITE_DELETE: "INVITE_DELETE",
   THREAD_CREATE: "THREAD_CREATE",
   THREAD_UPDATE: "THREAD_UPDATE",
+  THREAD_MEMBERS_UPDATE: "THREAD_MEMBERS_UPDATE",
   THREAD_DELETE: "THREAD_DELETE",
   APPLICATION_COMMAND_PERMISSIONS_UPDATE: "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
   MESSAGE_CREATE: "MESSAGE_CREATE",
@@ -364,6 +370,10 @@ export const SfuCommands = {
   CLOSE_SESSION: "close_session",
   /** Updates simulcast layer preferences for a session. */
   SET_SINK_WANTS: "set_sink_wants",
+  /** Changes audio publishing permission for a session. */
+  SET_PUBLISH_AUDIO: "set_publish_audio",
+  /** Changes camera and screen publishing permission for a session. */
+  SET_PUBLISH_VIDEO: "set_publish_video",
 } as const;
 export type SfuCommandsKey = keyof typeof SfuCommands;
 
@@ -371,6 +381,10 @@ export type SfuCommandsKey = keyof typeof SfuCommands;
 export const SfuEvents = {
   /** Reply to create_session with the SFU's ICE/DTLS parameters. */
   SESSION_CREATED: "session_created",
+  /** Acknowledges an audio publishing permission change. */
+  PUBLISH_AUDIO_APPLIED: "publish_audio_applied",
+  /** Acknowledges a video publishing permission change. */
+  PUBLISH_VIDEO_APPLIED: "publish_video_applied",
   /** Voice activity detected on an SSRC. */
   SPEAKING: "speaking",
   /** The opted-in viewers of a screen share changed; carries the full list. */
@@ -414,6 +428,9 @@ export const EventTopics = {
   GUILD_MEMBER_REMOVE: "discordy.guild.v1",
   GUILD_BAN_ADD: "discordy.guild.v1",
   GUILD_BAN_REMOVE: "discordy.guild.v1",
+  STAGE_INSTANCE_CREATE: "discordy.guild.v1",
+  STAGE_INSTANCE_UPDATE: "discordy.guild.v1",
+  STAGE_INSTANCE_DELETE: "discordy.guild.v1",
   GUILD_EMOJIS_UPDATE: "discordy.guild.v1",
   SOUNDBOARD_SOUND_CREATE: "discordy.guild.v1",
   SOUNDBOARD_SOUND_UPDATE: "discordy.guild.v1",
@@ -422,6 +439,7 @@ export const EventTopics = {
   INVITE_DELETE: "discordy.guild.v1",
   THREAD_CREATE: "discordy.guild.v1",
   THREAD_UPDATE: "discordy.guild.v1",
+  THREAD_MEMBERS_UPDATE: "discordy.guild.v1",
   THREAD_DELETE: "discordy.guild.v1",
   APPLICATION_COMMAND_PERMISSIONS_UPDATE: "discordy.guild.v1",
   MESSAGE_CREATE: "discordy.message.v1",
@@ -543,11 +561,12 @@ export const MessageType = {
 } as const;
 export type MessageTypeKey = keyof typeof MessageType;
 
-/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications. */
+/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording. */
 export const MessageFlags = {
   SUPPRESS_EMBEDS: 4,
   SUPPRESS_NOTIFICATIONS: 4096,
   EPHEMERAL: 64,
+  IS_VOICE_MESSAGE: 8192,
 } as const;
 export type MessageFlagsKey = keyof typeof MessageFlags;
 
@@ -669,7 +688,7 @@ export const ActivityType = {
 } as const;
 export type ActivityTypeKey = keyof typeof ActivityType;
 
-/** Audit log action types (Discord values) used by Discordy. */
+/** Audit log action types used by Discordy, including Voics extensions. */
 export const AuditLogEvent = {
   GUILD_UPDATE: 1,
   CHANNEL_CREATE: 10,
@@ -707,6 +726,8 @@ export const AuditLogEvent = {
   THREAD_UPDATE: 111,
   THREAD_DELETE: 112,
   APPLICATION_COMMAND_PERMISSION_UPDATE: 121,
+  BAN_APPEAL_ACCEPT: 200,
+  BAN_APPEAL_DENY: 201,
 } as const;
 export type AuditLogEventKey = keyof typeof AuditLogEvent;
 

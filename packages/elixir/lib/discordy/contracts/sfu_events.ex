@@ -11,6 +11,18 @@ defmodule Discordy.Contracts.SfuEvents do
   def session_created, do: "session_created"
 
   @doc ~S"""
+  Acknowledges an audio publishing permission change.
+  """
+  @spec publish_audio_applied() :: String.t()
+  def publish_audio_applied, do: "publish_audio_applied"
+
+  @doc ~S"""
+  Acknowledges a video publishing permission change.
+  """
+  @spec publish_video_applied() :: String.t()
+  def publish_video_applied, do: "publish_video_applied"
+
+  @doc ~S"""
   Voice activity detected on an SSRC.
   """
   @spec speaking() :: String.t()
@@ -33,6 +45,8 @@ defmodule Discordy.Contracts.SfuEvents do
   def entries do
     %{
       session_created: "session_created",
+      publish_audio_applied: "publish_audio_applied",
+      publish_video_applied: "publish_video_applied",
       speaking: "speaking",
       stream_viewers: "stream_viewers",
       stats: "stats"

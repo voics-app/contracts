@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-stage-instance-request.json",
+  "title": "CreateStageInstanceRequest",
+  "type": "object",
+  "required": ["channel_id", "topic"],
+  "properties": {
+    "channel_id": { "$ref": "../objects/snowflake.json" },
+    "topic": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "privacy_level": { "type": "integer", "const": 2 }
+  }
+}
