@@ -411,6 +411,8 @@ export interface components {
             guild_id?: components["schemas"]["Snowflake"];
             icon?: string | null;
             id: components["schemas"]["Snowflake"];
+            /** @description Voics: whether the requesting user has joined this thread; omitted from shared events. */
+            is_thread_member?: boolean;
             last_message_id?: components["schemas"]["Snowflake"] | null;
             /** Format: date-time */
             last_pin_timestamp?: string | null;
@@ -623,22 +625,10 @@ export interface components {
             voice_allocations: number;
         };
         /**
-         * GuildFolder
-         * @description One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.
+         * GatewayGuildState
+         * @description Internal gateway seed. Thread membership state must not be sent to clients.
          */
-        GuildFolder: {
-            /** @description RGB colour as 0xRRGGBB. */
-            color: number | null;
-            guild_ids: components["schemas"]["Snowflake"][];
-            /** @description Folder id chosen by the client (stable per user); null for a single un-foldered server. */
-            id: number | null;
-            name: string | null;
-        };
-        /**
-         * GuildFull
-         * @description A guild with its full state (GUILD_CREATE payload and the internal guild state endpoint).
-         */
-        GuildFull: {
+        GatewayGuildState: {
             afk_channel_id: components["schemas"]["Snowflake"] | null;
             afk_timeout: number;
             application_id?: components["schemas"]["Snowflake"] | null;
@@ -691,6 +681,12 @@ export interface components {
             /** @description Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. */
             system_channel_flags: number;
             system_channel_id: components["schemas"]["Snowflake"] | null;
+            thread_members: {
+                [key: string]: {
+                    user_ids: components["schemas"]["Snowflake"][];
+                    version: number;
+                };
+            };
             threads: components["schemas"]["Channel"][];
             unavailable?: boolean;
             vanity_url_code?: string | null;
@@ -698,6 +694,18 @@ export interface components {
             /** @description Discordy: voice region ID used to allocate voice nodes. */
             voice_region: string;
             voice_states: components["schemas"]["VoiceState"][];
+        };
+        /**
+         * GuildFolder
+         * @description One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.
+         */
+        GuildFolder: {
+            /** @description RGB colour as 0xRRGGBB. */
+            color: number | null;
+            guild_ids: components["schemas"]["Snowflake"][];
+            /** @description Folder id chosen by the client (stable per user); null for a single un-foldered server. */
+            id: number | null;
+            name: string | null;
         };
         /**
          * GuildMember
@@ -1304,7 +1312,7 @@ export interface components {
          * @description GET /internal/v1/users/{user_id}/ready: the state used to build READY.
          */
         UserReadyState: {
-            guilds: components["schemas"]["GuildFull"][];
+            guilds: components["schemas"]["GatewayGuildState"][];
             /** @description The user's private notes keyed by the noted user's id. */
             notes: {
                 [key: string]: string;
@@ -1738,7 +1746,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GuildFull"];
+                    "application/json": components["schemas"]["GatewayGuildState"];
                 };
             };
             401: components["responses"]["Unauthorized"];

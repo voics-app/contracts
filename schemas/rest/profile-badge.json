@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/profile-badge.json",
+  "title": "ProfileBadge",
+  "description": "An earned badge and the owner-selected visibility.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+    },
+    "visible": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "id",
+    "visible"
+  ],
+  "additionalProperties": false
+}

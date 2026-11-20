@@ -73,6 +73,9 @@ defmodule Discordy.Contracts.EventTopics do
   @spec thread_update() :: String.t()
   def thread_update, do: "discordy.guild.v1"
 
+  @spec thread_members_update() :: String.t()
+  def thread_members_update, do: "discordy.guild.v1"
+
   @spec thread_delete() :: String.t()
   def thread_delete, do: "discordy.guild.v1"
 
@@ -184,6 +187,7 @@ defmodule Discordy.Contracts.EventTopics do
       invite_delete: "discordy.guild.v1",
       thread_create: "discordy.guild.v1",
       thread_update: "discordy.guild.v1",
+      thread_members_update: "discordy.guild.v1",
       thread_delete: "discordy.guild.v1",
       application_command_permissions_update: "discordy.guild.v1",
       message_create: "discordy.message.v1",

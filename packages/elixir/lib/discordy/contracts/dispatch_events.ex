@@ -100,6 +100,9 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec thread_update() :: String.t()
   def thread_update, do: "THREAD_UPDATE"
 
+  @spec thread_members_update() :: String.t()
+  def thread_members_update, do: "THREAD_MEMBERS_UPDATE"
+
   @spec thread_delete() :: String.t()
   def thread_delete, do: "THREAD_DELETE"
 
@@ -208,6 +211,7 @@ defmodule Discordy.Contracts.DispatchEvents do
       invite_delete: "INVITE_DELETE",
       thread_create: "THREAD_CREATE",
       thread_update: "THREAD_UPDATE",
+      thread_members_update: "THREAD_MEMBERS_UPDATE",
       thread_delete: "THREAD_DELETE",
       application_command_permissions_update: "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
       message_create: "MESSAGE_CREATE",
