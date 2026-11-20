@@ -352,6 +352,41 @@ paths:
       responses:
         "200":
           description: First message, last message ID and exact stored count per channel.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [summaries]
+                properties:
+                  summaries:
+                    type: array
+                    items:
+                      type: object
+                      required: [channel_id, message_count, first_message, last_message_id]
+                      properties:
+                        channel_id:
+                          $ref: ../schemas/objects/snowflake.json
+                        message_count:
+                          type: integer
+                          minimum: 0
+                        first_message:
+                          anyOf:
+                            - type: object
+                              required: [id, content, attachments]
+                              properties:
+                                id:
+                                  $ref: ../schemas/objects/snowflake.json
+                                content:
+                                  type: string
+                                attachments:
+                                  type: array
+                                  items:
+                                    $ref: ../schemas/objects/attachment.json
+                            - type: "null"
+                        last_message_id:
+                          anyOf:
+                            - $ref: ../schemas/objects/snowflake.json
+                            - type: "null"
         "401":
           $ref: "#/components/responses/Unauthorized"
   /channels/{channel_id}/messages:

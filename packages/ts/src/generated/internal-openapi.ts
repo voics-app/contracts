@@ -1829,7 +1829,20 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        summaries: {
+                            channel_id: components["schemas"]["Snowflake"];
+                            first_message: {
+                                attachments: components["schemas"]["Attachment"][];
+                                content: string;
+                                id: components["schemas"]["Snowflake"];
+                            } | null;
+                            last_message_id: components["schemas"]["Snowflake"] | null;
+                            message_count: number;
+                        }[];
+                    };
+                };
             };
             401: components["responses"]["Unauthorized"];
         };
