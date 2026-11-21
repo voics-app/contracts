@@ -105,6 +105,8 @@
       { "name": "MESSAGE_UPDATE", "payload": "gateway/dispatch/message-event.json", "source": "messages", "topic": "discordy.message.v1", "description": "A message was edited." },
       { "name": "MESSAGE_DELETE", "payload": "gateway/dispatch/message-delete.json", "source": "messages", "topic": "discordy.message.v1", "description": "A message was deleted." },
       { "name": "MESSAGE_DELETE_BULK", "payload": "gateway/dispatch/message-delete-bulk.json", "source": "messages", "topic": "discordy.message.v1", "description": "Several messages were deleted at once." },
+      {"name":"MESSAGE_POLL_VOTE_ADD","payload":"gateway/dispatch/message-poll-vote-add.json","source":"messages","topic":"discordy.message.v1","description":"Authoritative poll counts and complete actor selection after a vote add."},
+      {"name":"MESSAGE_POLL_VOTE_REMOVE","payload":"gateway/dispatch/message-poll-vote-remove.json","source":"messages","topic":"discordy.message.v1","description":"Authoritative poll counts and complete actor selection after a vote remove."},
       { "name": "MESSAGE_REACTION_ADD", "payload": "gateway/dispatch/message-reaction-add.json", "source": "messages", "topic": "discordy.message.v1", "description": "A user reacted to a message." },
       { "name": "MESSAGE_REACTION_REMOVE", "payload": "gateway/dispatch/message-reaction-remove.json", "source": "messages", "topic": "discordy.message.v1", "description": "A user removed a reaction." },
       { "name": "MESSAGE_REACTION_REMOVE_ALL", "payload": "gateway/dispatch/message-reaction-remove-all.json", "source": "messages", "topic": "discordy.message.v1", "description": "All reactions were removed from a message." },
