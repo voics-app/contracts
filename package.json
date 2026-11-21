@@ -1,5 +1,5 @@
 {
-  "name": "@discordy-voics/contracts-workspace",
+  "name": "@voics-app/contracts-workspace",
   "private": true,
   "version": "0.1.0",
   "description": "Discordy contracts: OpenAPI, JSON Schemas, constants and generated packages.",
@@ -10,11 +10,11 @@
     "node": ">=24"
   },
   "scripts": {
-    "validate": "pnpm --filter @discordy-voics/contracts-codegen run validate",
-    "codegen": "pnpm --filter @discordy-voics/contracts-codegen run codegen",
+    "validate": "pnpm --filter @voics-app/contracts-codegen run validate",
+    "codegen": "pnpm --filter @voics-app/contracts-codegen run codegen",
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
-    "build": "pnpm --filter @discordy-voics/contracts run build"
+    "build": "pnpm --filter @voics-app/contracts run build"
   }
 }
