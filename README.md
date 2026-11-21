@@ -1,4 +1,4 @@
-# discordy-voics/contracts
+# voics-app/contracts
 
 Single source of truth for every Discordy wire contract: the public REST API (OpenAPI 3.1), the internal
 service API, JSON Schemas for gateway opcodes and dispatches, the Redpanda event envelope, voice frames,
@@ -14,7 +14,7 @@ Rust and Elixir, and into the protocol reference docs.
 | `permissions.json`, `intents.json`, `protocol.json` | Registries (exact Discord bit values, opcodes, topics, settings) |
 | `fixtures/` | Valid and invalid sample payloads checked by `pnpm validate` |
 | `codegen/` | Validation and generation pipeline (TypeScript, Clean Architecture) |
-| `packages/ts` | npm `@discordy-voics/contracts` |
+| `packages/ts` | npm `@voics-app/contracts` |
 | `packages/rust` | crate `discordy-contracts` |
 | `packages/elixir` | Hex-style package `discordy_contracts` (`Discordy.Contracts.*`) |
 | `reference/*.md` | Generated protocol docs (`rest`, `gateway`, `events`, `voice`) to copy into the docs repo |
@@ -45,9 +45,9 @@ Golden tests assert `ADMINISTRATOR == 8`, `VIEW_CHANNEL == 1024` and `CONNECT ==
 
 ## Consuming
 
-- TypeScript: `@discordy-voics/contracts` from GitHub Packages (`import { Permissions, type User } from "@discordy-voics/contracts"`).
-- Rust: `discordy-contracts = { git = "https://github.com/discordy-voics/contracts", tag = "vX.Y.Z" }`.
-- Elixir: `{:discordy_contracts, github: "discordy-voics/contracts", tag: "vX.Y.Z", sparse: "packages/elixir"}`.
+- TypeScript: `@voics-app/contracts` from GitHub Packages (`import { Permissions, type User } from "@voics-app/contracts"`).
+- Rust: `discordy-contracts = { git = "https://github.com/voics-app/contracts", tag = "vX.Y.Z" }`.
+- Elixir: `{:discordy_contracts, github: "voics-app/contracts", tag: "vX.Y.Z", sparse: "packages/elixir"}`.
 
 ## Configuration
 
@@ -60,7 +60,7 @@ publishes the npm package; the tag itself is the Rust and Elixir release.
 
 ## Pending owner actions
 
-- Create the `discordy-voics/contracts` GitHub repository and push `main`, `develop`.
+- Create the `voics-app/contracts` GitHub repository and push `main`, `develop`.
 - Allow `GITHUB_TOKEN` package publishing for the organization, so `release.yml` can publish to GitHub Packages.
 
 ## Git hooks
