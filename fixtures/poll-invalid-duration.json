@@ -1,0 +1,25 @@
+{
+  "schema": "rest/poll-create.json",
+  "valid": false,
+  "data": {
+    "question": {
+      "text": "Which route?"
+    },
+    "answers": [
+      {
+        "poll_media": {
+          "text": "Forest"
+        }
+      },
+      {
+        "poll_media": {
+          "text": "River",
+          "emoji": {
+            "name": "🌊"
+          }
+        }
+      }
+    ],
+    "duration": 769
+  }
+}
