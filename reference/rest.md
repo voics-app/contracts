@@ -94,6 +94,12 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/users/@me/notes/{user_id}` | api | — | 204 No Content | Delete the current user's private note about a user |
 | `GET` | `/users/@me/channels` | api | — | `array of Channel` | List DMs and group DMs |
 | `POST` | `/users/@me/channels` | api | `CreateDmRequest` | `Channel` | Open a DM or create a group DM |
+| `GET` | `/users/@me/favourites` | api | — | `array of Snowflake` | List the caller's private favourite friend IDs |
+| `PUT` | `/users/@me/favourites/{user_id}` | api | — | 204 No Content | Mark an existing friend as a favourite |
+| `DELETE` | `/users/@me/favourites/{user_id}` | api | — | 204 No Content | Remove a favourite mark |
+| `POST` | `/users/@me/friend-invites` | api | — | `CreateFriendInviteResponse` | Create a personal friend invite |
+| `DELETE` | `/users/@me/friend-invites` | api | — | 204 No Content | Revoke the caller's current personal friend invite |
+| `POST` | `/friend-invites` | api | `UseFriendInviteRequest` | 204 No Content | Send a friend request to the invite owner |
 | `GET` | `/users/@me/relationships` | api | — | `array of Relationship` | List relationships |
 | `GET` | `/users/@me/relationships/{user_id}` | api | — | `Relationship` | Get the relationship with a user |
 | `PUT` | `/users/@me/relationships/{user_id}` | api | `PutRelationshipRequest` | 204 No Content | Send or accept a friend request, or block a user |
@@ -2131,6 +2137,15 @@ POST /guilds/{id}/emojis body.
 | `image` | `string` | Data URI, 256 KiB max. |
 | `roles?` | `array of Snowflake` |  |
 
+### CreateFriendInviteResponse
+
+One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `token` | `string` | Unpadded base64url secret generated from 32 random bytes. |
+| `expires_at` | `string (date-time)` | Expiry 24 hours after creation. |
+
 ### CreateGuildFromTemplateRequest
 
 POST /guilds/templates/{code} body.
@@ -2895,6 +2910,14 @@ POST /devices/{id}/key-packages body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `packages` | `array of string` |  |
+
+### UseFriendInviteRequest
+
+Present a personal friend invite to send a request to its owner.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `token` | `string` | Bearer token returned at creation. |
 
 ### UserProfile
 

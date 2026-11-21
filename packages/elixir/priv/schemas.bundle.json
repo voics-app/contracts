@@ -2147,6 +2147,26 @@
         }
       }
     },
+    "CreateFriendInviteResponse": {
+      "title": "CreateFriendInviteResponse",
+      "description": "One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.",
+      "type": "object",
+      "required": [
+        "token",
+        "expires_at"
+      ],
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "Unpadded base64url secret generated from 32 random bytes."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Expiry 24 hours after creation."
+        }
+      }
+    },
     "CreateGuildFromTemplateRequest": {
       "title": "CreateGuildFromTemplateRequest",
       "description": "POST /guilds/templates/{code} body.",
@@ -11479,6 +11499,20 @@
         },
         "region": {
           "type": "string"
+        }
+      }
+    },
+    "UseFriendInviteRequest": {
+      "title": "UseFriendInviteRequest",
+      "description": "Present a personal friend invite to send a request to its owner.",
+      "type": "object",
+      "required": [
+        "token"
+      ],
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "Bearer token returned at creation."
         }
       }
     },

@@ -1729,6 +1729,14 @@ pub struct CreateEmojiRequest {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub roles: ::std::vec::Vec<Snowflake>,
 }
+///One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateFriendInviteResponse {
+    ///Expiry 24 hours after creation.
+    pub expires_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    ///Unpadded base64url secret generated from 32 random bytes.
+    pub token: ::std::string::String,
+}
 ///POST /guilds/templates/{code} body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct CreateGuildFromTemplateRequest {
@@ -10969,6 +10977,12 @@ impl ::std::convert::TryFrom<::std::string::String> for UsageTickEventComponent 
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
     }
+}
+///Present a personal friend invite to send a request to its owner.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct UseFriendInviteRequest {
+    ///Bearer token returned at creation.
+    pub token: ::std::string::String,
 }
 ///A Discordy user (Discord v10 User object).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
