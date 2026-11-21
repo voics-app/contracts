@@ -43,6 +43,222 @@
     }
   ],
   "paths": {
+    "/scheduled-event-deliveries/claim": {
+      "post": {
+        "operationId": "claimScheduledEventDelivery",
+        "summary": "Lease one pending event push delivery for 60 seconds",
+        "tags": [
+          "api"
+        ],
+        "responses": {
+          "200": {
+            "description": "A lease or null when no delivery is ready.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "description": "Lease carries delivery_id, lease_id, guild_id, event_id, user_id, scheduled_start_time and revision."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/scheduled-event-deliveries/{delivery_id}/resolve": {
+      "post": {
+        "operationId": "resolveScheduledEventDelivery",
+        "summary": "Recheck one leased delivery and resolve its current eligible token",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "name": "delivery_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "lease_id"
+                ],
+                "properties": {
+                  "lease_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current live eligible token, or null when no longer eligible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "Lease expired or was replaced."
+          }
+        }
+      }
+    },
+    "/scheduled-event-deliveries/{delivery_id}/finish": {
+      "post": {
+        "operationId": "finishScheduledEventDelivery",
+        "summary": "Acknowledge a terminal result or release the lease for retry",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "name": "delivery_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "lease_id",
+                  "retry_after_secs"
+                ],
+                "properties": {
+                  "lease_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "retry_after_secs": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1,
+                    "maximum": 60
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Delivery acknowledged or scheduled for retry."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "Lease expired or was replaced."
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/scheduled-events/{event_id}/push-targets": {
+      "get": {
+        "operationId": "getScheduledEventPushTargets",
+        "summary": "Recheck one event reminder recipient and return live notification tokens",
+        "description": "Rechecks membership, channel visibility, current interest, mute, do-not-disturb, start time and schedule revision. Event names are not returned; pushes must use generic text. An empty users array means no push.",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "name": "guild_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "scheduled_start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "revision",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current permitted live notification tokens, or an empty audience.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledEventPushTargets"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/id-reservations": {
       "post": {
         "operationId": "reserveMessageIds",
@@ -533,6 +749,185 @@
           },
           "409": {
             "description": "The channel is not in standard delivery mode (code 50160)."
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/messages/{message_id}/crossposted": {
+      "post": {
+        "operationId": "markAnnouncementCrossposted",
+        "summary": "Mark a stored announcement as published (messages service)",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/message_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated source message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not a publishable announcement."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/crossposts": {
+      "post": {
+        "operationId": "deliverAnnouncementCrosspost",
+        "summary": "Deliver a claimed announcement to a follower channel (messages service)",
+        "description": "The caller supplies a reserved ID and must not blindly retry an ambiguous result after the destination has disappeared.",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "source_channel_id",
+                  "message_id",
+                  "webhook_id",
+                  "webhook_name",
+                  "snapshot"
+                ],
+                "properties": {
+                  "source_channel_id": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  "message_id": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  "webhook_id": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  "webhook_name": {
+                    "type": "string"
+                  },
+                  "snapshot": {
+                    "type": "object",
+                    "required": [
+                      "content"
+                    ],
+                    "properties": {
+                      "content": {
+                        "type": "string"
+                      },
+                      "embeds": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": true
+                        }
+                      },
+                      "attachments": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "filename",
+                            "size"
+                          ],
+                          "properties": {
+                            "id": {
+                              "$ref": "#/components/schemas/Snowflake"
+                            },
+                            "filename": {
+                              "type": "string"
+                            },
+                            "size": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "content_type": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "width": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0
+                            },
+                            "height": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0
+                            },
+                            "description": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "flags": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stored destination message, or an already present matching destination.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid snapshot or unavailable attachment."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "Destination does not support standard delivery."
           }
         }
       }
@@ -3722,6 +4117,75 @@
           }
         }
       },
+      "ScheduledEventPushTargets": {
+        "title": "ScheduledEventPushTargets",
+        "description": "Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.",
+        "type": "object",
+        "required": [
+          "users",
+          "next_after"
+        ],
+        "properties": {
+          "users": {
+            "type": "array",
+            "maxItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "user_id",
+                "tokens"
+              ],
+              "properties": {
+                "user_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "tokens": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "platform",
+                      "token",
+                      "environment",
+                      "previews",
+                      "only_mentions"
+                    ],
+                    "properties": {
+                      "platform": {
+                        "type": "string",
+                        "enum": [
+                          "apns",
+                          "fcm"
+                        ]
+                      },
+                      "token": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "environment": {
+                        "type": "string",
+                        "enum": [
+                          "production",
+                          "sandbox"
+                        ]
+                      },
+                      "previews": {
+                        "type": "boolean"
+                      },
+                      "only_mentions": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "next_after": {
+            "type": "null"
+          }
+        }
+      },
       "SelectOption": {
         "title": "SelectOption",
         "description": "An option of a string select menu.",
@@ -4099,6 +4563,16 @@
             "type": "string",
             "maxLength": 16,
             "description": "Skin tone modifier of the emoji picker; empty for the default."
+          },
+          "favorite_gifs": {
+            "type": "array",
+            "maxItems": 100,
+            "description": "Favorite GIF media links, synced across devices.",
+            "items": {
+              "type": "string",
+              "maxLength": 2048,
+              "pattern": "^https://"
+            }
           },
           "recent_reactions": {
             "type": "array",

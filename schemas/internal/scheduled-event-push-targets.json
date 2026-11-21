@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/scheduled-event-push-targets.json",
+  "title": "ScheduledEventPushTargets",
+  "description": "Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.",
+  "type": "object",
+  "required": ["users", "next_after"],
+  "properties": {
+    "users": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["user_id", "tokens"],
+        "properties": {
+          "user_id": { "$ref": "../objects/snowflake.json" },
+          "tokens": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["platform", "token", "environment", "previews", "only_mentions"],
+              "properties": {
+                "platform": { "type": "string", "enum": ["apns", "fcm"] },
+                "token": { "type": "string", "minLength": 1 },
+                "environment": { "type": "string", "enum": ["production", "sandbox"] },
+                "previews": { "type": "boolean" },
+                "only_mentions": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "next_after": { "type": "null" }
+  }
+}

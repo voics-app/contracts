@@ -10,6 +10,21 @@ defmodule Discordy.Contracts.EventTopics do
   @spec guild_create() :: String.t()
   def guild_create, do: "discordy.guild.v1"
 
+  @spec guild_scheduled_event_create() :: String.t()
+  def guild_scheduled_event_create, do: "discordy.guild.v1"
+
+  @spec guild_scheduled_event_update() :: String.t()
+  def guild_scheduled_event_update, do: "discordy.guild.v1"
+
+  @spec guild_scheduled_event_delete() :: String.t()
+  def guild_scheduled_event_delete, do: "discordy.guild.v1"
+
+  @spec guild_scheduled_event_user_add() :: String.t()
+  def guild_scheduled_event_user_add, do: "discordy.guild.v1"
+
+  @spec guild_scheduled_event_user_remove() :: String.t()
+  def guild_scheduled_event_user_remove, do: "discordy.guild.v1"
+
   @spec guild_update() :: String.t()
   def guild_update, do: "discordy.guild.v1"
 
@@ -112,6 +127,9 @@ defmodule Discordy.Contracts.EventTopics do
   @spec user_update() :: String.t()
   def user_update, do: "discordy.user.v1"
 
+  @spec guild_scheduled_event_start() :: String.t()
+  def guild_scheduled_event_start, do: "discordy.user.v1"
+
   @spec user_settings_update() :: String.t()
   def user_settings_update, do: "discordy.user.v1"
 
@@ -163,6 +181,11 @@ defmodule Discordy.Contracts.EventTopics do
     %{
       typing_start: "discordy.message.v1",
       guild_create: "discordy.guild.v1",
+      guild_scheduled_event_create: "discordy.guild.v1",
+      guild_scheduled_event_update: "discordy.guild.v1",
+      guild_scheduled_event_delete: "discordy.guild.v1",
+      guild_scheduled_event_user_add: "discordy.guild.v1",
+      guild_scheduled_event_user_remove: "discordy.guild.v1",
       guild_update: "discordy.guild.v1",
       guild_delete: "discordy.guild.v1",
       channel_create: "discordy.guild.v1",
@@ -197,6 +220,7 @@ defmodule Discordy.Contracts.EventTopics do
       message_ack: "discordy.message.v1",
       read_state_update: "discordy.message.v1",
       user_update: "discordy.user.v1",
+      guild_scheduled_event_start: "discordy.user.v1",
       user_settings_update: "discordy.user.v1",
       user_guild_settings_update: "discordy.user.v1",
       user_note_update: "discordy.user.v1",

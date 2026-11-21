@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/guild-scheduled-event-user.json",
+  "title": "GuildScheduledEventUser",
+  "description": "A user's interest in a guild event changed.",
+  "type": "object",
+  "required": ["guild_scheduled_event_id", "user_id", "guild_id"],
+  "properties": {
+    "guild_scheduled_event_id": { "$ref": "../../objects/snowflake.json" },
+    "user_id": { "$ref": "../../objects/snowflake.json" },
+    "guild_id": { "$ref": "../../objects/snowflake.json" }
+  }
+}

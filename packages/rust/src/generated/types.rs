@@ -1838,6 +1838,168 @@ impl<'de> ::serde::Deserialize<'de> for CreateGuildRequestName {
             })
     }
 }
+///Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateGuildScheduledEventRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub description: ::std::option::Option<CreateGuildScheduledEventRequestDescription>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub entity_metadata: ::std::option::Option<ScheduledEventMetadata>,
+    pub entity_type: CreateGuildScheduledEventRequestEntityType,
+    ///Image data URI, subject to the standard image upload limits.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub image: ::std::option::Option<::std::string::String>,
+    pub name: CreateGuildScheduledEventRequestName,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub scheduled_end_time: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    pub scheduled_start_time: ::chrono::DateTime<::chrono::offset::Utc>,
+}
+///`CreateGuildScheduledEventRequestDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateGuildScheduledEventRequestDescription(::std::string::String);
+impl ::std::ops::Deref for CreateGuildScheduledEventRequestDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateGuildScheduledEventRequestDescription> for ::std::string::String {
+    fn from(value: CreateGuildScheduledEventRequestDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateGuildScheduledEventRequestDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 1000usize {
+            return Err("longer than 1000 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateGuildScheduledEventRequestDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for CreateGuildScheduledEventRequestDescription
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateGuildScheduledEventRequestDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`CreateGuildScheduledEventRequestEntityType`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct CreateGuildScheduledEventRequestEntityType(i64);
+impl ::std::ops::Deref for CreateGuildScheduledEventRequestEntityType {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateGuildScheduledEventRequestEntityType> for i64 {
+    fn from(value: CreateGuildScheduledEventRequestEntityType) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for CreateGuildScheduledEventRequestEntityType {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![1_i64, 2_i64, 3_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateGuildScheduledEventRequestEntityType {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`CreateGuildScheduledEventRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateGuildScheduledEventRequestName(::std::string::String);
+impl ::std::ops::Deref for CreateGuildScheduledEventRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateGuildScheduledEventRequestName> for ::std::string::String {
+    fn from(value: CreateGuildScheduledEventRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateGuildScheduledEventRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("\\S").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"\\S\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateGuildScheduledEventRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateGuildScheduledEventRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateGuildScheduledEventRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///POST /guilds/{guild_id}/templates body. A guild has at most one template.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct CreateGuildTemplateRequest {
@@ -4154,6 +4316,266 @@ pub struct GuildRoleEvent {
     pub guild_id: Snowflake,
     pub role: Role,
 }
+///A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildScheduledEvent {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub creator_id: ::std::option::Option<Snowflake>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub description: ::std::option::Option<GuildScheduledEventDescription>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub entity_metadata: ::std::option::Option<ScheduledEventMetadata>,
+    pub entity_type: GuildScheduledEventEntityType,
+    pub guild_id: Snowflake,
+    pub id: Snowflake,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub image: ::std::option::Option<::std::string::String>,
+    pub name: GuildScheduledEventName,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub scheduled_end_time: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    pub scheduled_start_time: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub status: GuildScheduledEventStatus,
+    pub user_count: u64,
+}
+///`GuildScheduledEventDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildScheduledEventDescription(::std::string::String);
+impl ::std::ops::Deref for GuildScheduledEventDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildScheduledEventDescription> for ::std::string::String {
+    fn from(value: GuildScheduledEventDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildScheduledEventDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 1000usize {
+            return Err("longer than 1000 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildScheduledEventDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildScheduledEventDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildScheduledEventDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`GuildScheduledEventEntityType`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct GuildScheduledEventEntityType(i64);
+impl ::std::ops::Deref for GuildScheduledEventEntityType {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildScheduledEventEntityType> for i64 {
+    fn from(value: GuildScheduledEventEntityType) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for GuildScheduledEventEntityType {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![1_i64, 2_i64, 3_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildScheduledEventEntityType {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`GuildScheduledEventName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildScheduledEventName(::std::string::String);
+impl ::std::ops::Deref for GuildScheduledEventName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildScheduledEventName> for ::std::string::String {
+    fn from(value: GuildScheduledEventName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildScheduledEventName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildScheduledEventName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildScheduledEventName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildScheduledEventName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///User-targeted reminder. Resolve the event and current interest again before presenting details; access may have changed after enqueue.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildScheduledEventStart {
+    pub dedupe_key: GuildScheduledEventStartDedupeKey,
+    pub guild_id: Snowflake,
+    pub guild_scheduled_event_id: Snowflake,
+    pub revision: u64,
+    pub scheduled_start_time: ::chrono::DateTime<::chrono::offset::Utc>,
+}
+///`GuildScheduledEventStartDedupeKey`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildScheduledEventStartDedupeKey(::std::string::String);
+impl ::std::ops::Deref for GuildScheduledEventStartDedupeKey {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildScheduledEventStartDedupeKey> for ::std::string::String {
+    fn from(value: GuildScheduledEventStartDedupeKey) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildScheduledEventStartDedupeKey {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildScheduledEventStartDedupeKey {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildScheduledEventStartDedupeKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildScheduledEventStartDedupeKey {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`GuildScheduledEventStatus`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct GuildScheduledEventStatus(i64);
+impl ::std::ops::Deref for GuildScheduledEventStatus {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildScheduledEventStatus> for i64 {
+    fn from(value: GuildScheduledEventStatus) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for GuildScheduledEventStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![1_i64, 2_i64, 3_i64, 4_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildScheduledEventStatus {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///A user's interest in a guild event changed.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildScheduledEventUser {
+    pub guild_id: Snowflake,
+    pub guild_scheduled_event_id: Snowflake,
+    pub user_id: Snowflake,
+}
 ///A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildTemplate {
@@ -4358,6 +4780,9 @@ pub struct IdentifyPayload {
     pub device_id: ::std::option::Option<Snowflake>,
     ///Intent bitfield (intents.json). User sessions implicitly get all intents.
     pub intents: u64,
+    ///Opt into passive updates. Omitted means active. Requires certified versioned read states; otherwise identification closes with retryable 4000. A session that has used passive mode cannot resume and must identify again.
+    #[serde(default)]
+    pub passive: bool,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub presence: ::std::option::Option<PresenceUpdatePayload>,
     pub properties: IdentifyProperties,
@@ -4796,6 +5221,68 @@ impl ::std::convert::From<::std::collections::HashMap<::std::string::String, i64
 {
     fn from(value: ::std::collections::HashMap<::std::string::String, i64>) -> Self {
         Self(value)
+    }
+}
+///`MemberVerification`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MemberVerification {
+    pub enabled: bool,
+    ///Whether the caller must accept the rules.
+    pub pending: bool,
+    pub revision: u64,
+    pub rules: ::std::vec::Vec<MemberVerificationRulesItem>,
+}
+///`MemberVerificationRulesItem`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct MemberVerificationRulesItem(::std::string::String);
+impl ::std::ops::Deref for MemberVerificationRulesItem {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<MemberVerificationRulesItem> for ::std::string::String {
+    fn from(value: MemberVerificationRulesItem) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for MemberVerificationRulesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for MemberVerificationRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for MemberVerificationRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for MemberVerificationRulesItem {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 ///A standard-mode message.
@@ -6002,6 +6489,206 @@ impl<'de> ::serde::Deserialize<'de> for ModifyGuildRequestName {
             })
     }
 }
+///Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct ModifyGuildScheduledEventRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub description: ::std::option::Option<ModifyGuildScheduledEventRequestDescription>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub entity_metadata: ::std::option::Option<ScheduledEventMetadata>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub entity_type: ::std::option::Option<ModifyGuildScheduledEventRequestEntityType>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub image: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub name: ::std::option::Option<ModifyGuildScheduledEventRequestName>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub scheduled_end_time: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub scheduled_start_time: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub status: ::std::option::Option<ModifyGuildScheduledEventRequestStatus>,
+}
+///`ModifyGuildScheduledEventRequestDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyGuildScheduledEventRequestDescription(::std::string::String);
+impl ::std::ops::Deref for ModifyGuildScheduledEventRequestDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyGuildScheduledEventRequestDescription> for ::std::string::String {
+    fn from(value: ModifyGuildScheduledEventRequestDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyGuildScheduledEventRequestDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 1000usize {
+            return Err("longer than 1000 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyGuildScheduledEventRequestDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for ModifyGuildScheduledEventRequestDescription
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyGuildScheduledEventRequestDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`ModifyGuildScheduledEventRequestEntityType`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ModifyGuildScheduledEventRequestEntityType(i64);
+impl ::std::ops::Deref for ModifyGuildScheduledEventRequestEntityType {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyGuildScheduledEventRequestEntityType> for i64 {
+    fn from(value: ModifyGuildScheduledEventRequestEntityType) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for ModifyGuildScheduledEventRequestEntityType {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![1_i64, 2_i64, 3_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyGuildScheduledEventRequestEntityType {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`ModifyGuildScheduledEventRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyGuildScheduledEventRequestName(::std::string::String);
+impl ::std::ops::Deref for ModifyGuildScheduledEventRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyGuildScheduledEventRequestName> for ::std::string::String {
+    fn from(value: ModifyGuildScheduledEventRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyGuildScheduledEventRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("\\S").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"\\S\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyGuildScheduledEventRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyGuildScheduledEventRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyGuildScheduledEventRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`ModifyGuildScheduledEventRequestStatus`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ModifyGuildScheduledEventRequestStatus(i64);
+impl ::std::ops::Deref for ModifyGuildScheduledEventRequestStatus {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyGuildScheduledEventRequestStatus> for i64 {
+    fn from(value: ModifyGuildScheduledEventRequestStatus) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for ModifyGuildScheduledEventRequestStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![1_i64, 2_i64, 3_i64, 4_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyGuildScheduledEventRequestStatus {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
 ///PATCH /guilds/{guild_id}/templates/{code} body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyGuildTemplateRequest {
@@ -6657,6 +7344,139 @@ pub struct OAuth2Guild {
     pub name: ::std::string::String,
     pub permissions: PermissionBitset,
 }
+///`OnboardingConfig`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingConfig {
+    pub enabled: bool,
+    pub questions: ::std::vec::Vec<OnboardingQuestion>,
+}
+///`OnboardingOption`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingOption {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    pub label: OnboardingOptionLabel,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub role_id: ::std::option::Option<Snowflake>,
+}
+///`OnboardingOptionLabel`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct OnboardingOptionLabel(::std::string::String);
+impl ::std::ops::Deref for OnboardingOptionLabel {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<OnboardingOptionLabel> for ::std::string::String {
+    fn from(value: OnboardingOptionLabel) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for OnboardingOptionLabel {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for OnboardingOptionLabel {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for OnboardingOptionLabel {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for OnboardingOptionLabel {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`OnboardingQuestion`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingQuestion {
+    pub options: ::std::vec::Vec<OnboardingOption>,
+    pub title: OnboardingQuestionTitle,
+}
+///`OnboardingQuestionTitle`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct OnboardingQuestionTitle(::std::string::String);
+impl ::std::ops::Deref for OnboardingQuestionTitle {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<OnboardingQuestionTitle> for ::std::string::String {
+    fn from(value: OnboardingQuestionTitle) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for OnboardingQuestionTitle {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for OnboardingQuestionTitle {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for OnboardingQuestionTitle {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for OnboardingQuestionTitle {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`OnboardingResponse`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingResponse {
+    pub config: OnboardingConfig,
+    pub revision: u64,
+}
 ///Op 22 P2P_SIGNAL. Relayed only, never persisted.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct P2pSignalPayload {
@@ -6751,6 +7571,23 @@ pub struct PartialUser {
     pub id: Snowflake,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub username: ::std::option::Option<::std::string::String>,
+}
+///At most one coalesced update every five seconds when values changed; absent fields are unchanged. Unread is the existing count of unread channels, derived by clients from channel latest-message and read markers, not a message count. Guild channels and voice updates are filtered by current view permissions.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct PassiveUpdateV2Event {
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub channels: ::std::vec::Vec<PassiveUpdateV2EventChannelsItem>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub read_states: ::std::vec::Vec<ReadStateUpdateEvent>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub voice_states: ::std::vec::Vec<VoiceState>,
+}
+///`PassiveUpdateV2EventChannelsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PassiveUpdateV2EventChannelsItem {
+    pub channel_id: Snowflake,
+    pub guild_id: Snowflake,
+    pub last_message_id: Snowflake,
 }
 ///Registered second factor metadata. Credential public keys and challenges are never included.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -8889,6 +9726,250 @@ pub struct RoleTags {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub integration_id: ::std::option::Option<Snowflake>,
 }
+///The location of an external event.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ScheduledEventMetadata {
+    pub location: ScheduledEventMetadataLocation,
+}
+///`ScheduledEventMetadataLocation`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ScheduledEventMetadataLocation(::std::string::String);
+impl ::std::ops::Deref for ScheduledEventMetadataLocation {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ScheduledEventMetadataLocation> for ::std::string::String {
+    fn from(value: ScheduledEventMetadataLocation) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ScheduledEventMetadataLocation {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("\\S").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"\\S\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledEventMetadataLocation {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ScheduledEventMetadataLocation {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ScheduledEventMetadataLocation {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ScheduledEventPushTargets {
+    pub next_after: (),
+    pub users: ::std::vec::Vec<ScheduledEventPushTargetsUsersItem>,
+}
+///`ScheduledEventPushTargetsUsersItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ScheduledEventPushTargetsUsersItem {
+    pub tokens: ::std::vec::Vec<ScheduledEventPushTargetsUsersItemTokensItem>,
+    pub user_id: Snowflake,
+}
+///`ScheduledEventPushTargetsUsersItemTokensItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ScheduledEventPushTargetsUsersItemTokensItem {
+    pub environment: ScheduledEventPushTargetsUsersItemTokensItemEnvironment,
+    pub only_mentions: bool,
+    pub platform: ScheduledEventPushTargetsUsersItemTokensItemPlatform,
+    pub previews: bool,
+    pub token: ScheduledEventPushTargetsUsersItemTokensItemToken,
+}
+///`ScheduledEventPushTargetsUsersItemTokensItemEnvironment`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ScheduledEventPushTargetsUsersItemTokensItemEnvironment {
+    #[serde(rename = "production")]
+    Production,
+    #[serde(rename = "sandbox")]
+    Sandbox,
+}
+impl ::std::fmt::Display for ScheduledEventPushTargetsUsersItemTokensItemEnvironment {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Production => f.write_str("production"),
+            Self::Sandbox => f.write_str("sandbox"),
+        }
+    }
+}
+impl ::std::str::FromStr for ScheduledEventPushTargetsUsersItemTokensItemEnvironment {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "production" => Ok(Self::Production),
+            "sandbox" => Ok(Self::Sandbox),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledEventPushTargetsUsersItemTokensItemEnvironment {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for ScheduledEventPushTargetsUsersItemTokensItemEnvironment
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`ScheduledEventPushTargetsUsersItemTokensItemPlatform`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ScheduledEventPushTargetsUsersItemTokensItemPlatform {
+    #[serde(rename = "apns")]
+    Apns,
+    #[serde(rename = "fcm")]
+    Fcm,
+}
+impl ::std::fmt::Display for ScheduledEventPushTargetsUsersItemTokensItemPlatform {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Apns => f.write_str("apns"),
+            Self::Fcm => f.write_str("fcm"),
+        }
+    }
+}
+impl ::std::str::FromStr for ScheduledEventPushTargetsUsersItemTokensItemPlatform {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "apns" => Ok(Self::Apns),
+            "fcm" => Ok(Self::Fcm),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledEventPushTargetsUsersItemTokensItemPlatform {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for ScheduledEventPushTargetsUsersItemTokensItemPlatform
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`ScheduledEventPushTargetsUsersItemTokensItemToken`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ScheduledEventPushTargetsUsersItemTokensItemToken(::std::string::String);
+impl ::std::ops::Deref for ScheduledEventPushTargetsUsersItemTokensItemToken {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ScheduledEventPushTargetsUsersItemTokensItemToken>
+    for ::std::string::String
+{
+    fn from(value: ScheduledEventPushTargetsUsersItemTokensItemToken) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ScheduledEventPushTargetsUsersItemTokensItemToken {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledEventPushTargetsUsersItemTokensItemToken {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for ScheduledEventPushTargetsUsersItemTokensItemToken
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ScheduledEventPushTargetsUsersItemTokensItemToken {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 #[serde(deny_unknown_fields)]
@@ -9266,6 +10347,11 @@ pub struct SessionDescriptionPayload {
     pub ice_ufrag: ::std::string::String,
     pub video_codec: ::std::string::String,
 }
+///Op 27 SESSION_MODE. Switching to passive requires certified read states. Switching active fetches read states and refreshes guild snapshots before that guild resumes full dispatch.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SessionModePayload {
+    pub passive: bool,
+}
 ///SESSION_REVOKE bus event (discordy.user.v1, routed to the user in target_user_ids). Login sessions were revoked (DELETE /users/@me/sessions/{id}, POST /users/@me/sessions/logout-all). The gateway closes every live connection whose authenticated session id is listed, with close code 4004, and never dispatches it to clients.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct SessionRevokeEvent {
@@ -9298,6 +10384,65 @@ pub struct SetDeliveryModeRequest {
     ///Null clears the per-chat override.
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub mode: ::std::option::Option<DeliveryMode>,
+}
+///`SetMemberVerificationRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SetMemberVerificationRequest {
+    pub enabled: bool,
+    pub rules: ::std::vec::Vec<SetMemberVerificationRequestRulesItem>,
+}
+///`SetMemberVerificationRequestRulesItem`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct SetMemberVerificationRequestRulesItem(::std::string::String);
+impl ::std::ops::Deref for SetMemberVerificationRequestRulesItem {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<SetMemberVerificationRequestRulesItem> for ::std::string::String {
+    fn from(value: SetMemberVerificationRequestRulesItem) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for SetMemberVerificationRequestRulesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for SetMemberVerificationRequestRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for SetMemberVerificationRequestRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for SetMemberVerificationRequestRulesItem {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///SFU control command: close a media session.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -9994,6 +11139,9 @@ pub struct UserPreferences {
     ///Default restriction on new guild-related DMs; missing means false.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub default_guilds_restricted: ::std::option::Option<bool>,
+    ///Favorite GIF media links, synced across devices.
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub favorite_gifs: ::std::vec::Vec<UserPreferencesFavoriteGifsItem>,
     ///Chat font scale.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub font_scale: ::std::option::Option<f64>,
@@ -10122,6 +11270,61 @@ impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesAccent {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///`UserPreferencesFavoriteGifsItem`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserPreferencesFavoriteGifsItem(::std::string::String);
+impl ::std::ops::Deref for UserPreferencesFavoriteGifsItem {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserPreferencesFavoriteGifsItem> for ::std::string::String {
+    fn from(value: UserPreferencesFavoriteGifsItem) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserPreferencesFavoriteGifsItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 2048usize {
+            return Err("longer than 2048 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^https://").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^https://\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPreferencesFavoriteGifsItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesFavoriteGifsItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserPreferencesFavoriteGifsItem {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 ///`UserPreferencesGuildDmRestrictionsKey`
@@ -12129,7 +13332,7 @@ impl<'de> ::serde::Deserialize<'de> for WebauthnLoginStartRequestTicket {
             })
     }
 }
-///An incoming or application webhook.
+///An incoming, channel-follower or application webhook.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Webhook {
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
@@ -12154,6 +13357,122 @@ pub struct Webhook {
     pub url: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user: ::std::option::Option<User>,
+}
+///`WelcomeScreen`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WelcomeScreen {
+    pub channels: ::std::vec::Vec<WelcomeScreenChannelsItem>,
+    pub description: WelcomeScreenDescription,
+    pub enabled: bool,
+}
+///`WelcomeScreenChannelsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WelcomeScreenChannelsItem {
+    pub channel_id: Snowflake,
+    pub description: WelcomeScreenChannelsItemDescription,
+}
+///`WelcomeScreenChannelsItemDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WelcomeScreenChannelsItemDescription(::std::string::String);
+impl ::std::ops::Deref for WelcomeScreenChannelsItemDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WelcomeScreenChannelsItemDescription> for ::std::string::String {
+    fn from(value: WelcomeScreenChannelsItemDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WelcomeScreenChannelsItemDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WelcomeScreenChannelsItemDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WelcomeScreenChannelsItemDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WelcomeScreenChannelsItemDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`WelcomeScreenDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WelcomeScreenDescription(::std::string::String);
+impl ::std::ops::Deref for WelcomeScreenDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WelcomeScreenDescription> for ::std::string::String {
+    fn from(value: WelcomeScreenDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WelcomeScreenDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WelcomeScreenDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WelcomeScreenDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WelcomeScreenDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 /// Generation of default values for serde.
 pub mod defaults {

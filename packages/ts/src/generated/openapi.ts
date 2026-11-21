@@ -377,6 +377,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/followers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Follow an announcement channel into another server */
+        post: operations["followAnnouncementChannel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/invites": {
         parameters: {
             query?: never;
@@ -445,6 +462,23 @@ export interface paths {
         put?: never;
         /** Mark a channel read up to a message (publishes MESSAGE_ACK) */
         post: operations["ackMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/messages/{message_id}/crosspost": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish an announcement to its followers */
+        post: operations["publishAnnouncement"];
         delete?: never;
         options?: never;
         head?: never;
@@ -853,6 +887,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/connections/github/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Complete a GitHub authorization */
+        get: operations["githubConnectionCallback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/devices": {
         parameters: {
             query?: never;
@@ -949,6 +1000,77 @@ export interface paths {
         put?: never;
         /** Report a currently discoverable listing for moderation */
         post: operations["reportDiscoveryGuild"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gifs/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Browse GIF categories */
+        get: operations["gifCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gifs/previews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh signed previews for favorite GIFs */
+        post: operations["signGifPreviews"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gifs/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search GIFs */
+        get: operations["searchGifs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gifs/trending": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Browse trending GIFs
+         * @description Returns the configured Tenor-v2-compatible provider's featured response. Disabled with 503 until configured.
+         */
+        get: operations["trendingGifs"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1171,6 +1293,23 @@ export interface paths {
         patch: operations["modifyGuildEmoji"];
         trace?: never;
     };
+    "/guilds/{guild_id}/followed-channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List announcement channels followed by a server */
+        get: operations["listFollowedChannels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/insights": {
         parameters: {
             query?: never;
@@ -1248,6 +1387,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/member-verification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get current rules and the caller's pending status */
+        get: operations["getMemberVerification"];
+        /** Replace rules screening configuration (MANAGE_GUILD) */
+        put: operations["putMemberVerification"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/member-verification/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept the current version of the server rules
+         * @description A stale revision returns 409; fetch and display the current rules before retrying.
+         */
+        post: operations["acceptMemberVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/members": {
         parameters: {
             query?: never;
@@ -1316,6 +1499,47 @@ export interface paths {
         get: operations["searchGuildMessages"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/onboarding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get onboarding questions and their revision */
+        get: operations["getGuildOnboarding"];
+        /** Replace onboarding questions (MANAGE_GUILD; roles also require MANAGE_ROLES) */
+        put: operations["putGuildOnboarding"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/onboarding/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply one choice per question once, after accepting the rules */
+        post: operations["completeGuildOnboarding"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1402,6 +1626,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/scheduled-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List events visible to the guild member */
+        get: operations["listGuildScheduledEvents"];
+        put?: never;
+        /** Create an event (requires CREATE_EVENTS or MANAGE_EVENTS) */
+        post: operations["createGuildScheduledEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/scheduled-events/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get a visible event */
+        get: operations["getGuildScheduledEvent"];
+        put?: never;
+        post?: never;
+        /** Delete an event */
+        delete: operations["deleteGuildScheduledEvent"];
+        options?: never;
+        head?: never;
+        /** Modify an event */
+        patch: operations["modifyGuildScheduledEvent"];
+        trace?: never;
+    };
+    "/guilds/{guild_id}/scheduled-events/{event_id}/users/@me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get the caller's interest in an event */
+        get: operations["getOwnGuildScheduledEventInterest"];
+        /** Mark the caller interested (idempotent) */
+        put: operations["putOwnGuildScheduledEventInterest"];
+        post?: never;
+        /** Remove the caller's interest (idempotent) */
+        delete: operations["deleteOwnGuildScheduledEventInterest"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/templates": {
         parameters: {
             query?: never;
@@ -1473,6 +1763,27 @@ export interface paths {
         /** List a guild's webhooks */
         get: operations["listGuildWebhooks"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/welcome-screen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get the welcome screen, filtered to channels the caller can view */
+        get: operations["getWelcomeScreen"];
+        /** Replace the welcome screen (MANAGE_GUILD) */
+        put: operations["putWelcomeScreen"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1707,6 +2018,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{user_id}/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        /** List a user's visible linked accounts */
+        get: operations["listUserConnections"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/devices": {
         parameters: {
             query?: never;
@@ -1842,6 +2172,62 @@ export interface paths {
          */
         put: operations["setChannelDeliveryMode"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the current user's linked accounts */
+        get: operations["listConnections"];
+        /** Set a linked account's profile visibility */
+        put: operations["updateConnection"];
+        post?: never;
+        /** Remove a linked account */
+        delete: operations["removeConnection"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/connections/{provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: "github";
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** Set profile visibility of a linked account */
+        put: operations["setConnectionVisibility"];
+        post?: never;
+        /** Remove a linked account */
+        delete: operations["deleteConnection"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/connections/github/authorize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Begin GitHub authorization in the browser */
+        post: operations["authorizeGithubConnection"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2843,6 +3229,24 @@ export interface components {
             voice_region?: string;
         };
         /**
+         * CreateGuildScheduledEventRequest
+         * @description Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.
+         */
+        CreateGuildScheduledEventRequest: {
+            channel_id?: components["schemas"]["Snowflake"] | null;
+            description?: string | null;
+            entity_metadata?: components["schemas"]["ScheduledEventMetadata"] | null;
+            /** @enum {integer} */
+            entity_type: 1 | 2 | 3;
+            /** @description Image data URI, subject to the standard image upload limits. */
+            image?: string | null;
+            name: string;
+            /** Format: date-time */
+            scheduled_end_time?: string | null;
+            /** Format: date-time */
+            scheduled_start_time: string;
+        } & unknown;
+        /**
          * CreateGuildTemplateRequest
          * @description POST /guilds/{guild_id}/templates body. A guild has at most one template.
          */
@@ -3375,6 +3779,29 @@ export interface components {
             suppress_roles: boolean;
         };
         /**
+         * GuildScheduledEvent
+         * @description A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).
+         */
+        GuildScheduledEvent: {
+            channel_id: components["schemas"]["Snowflake"] | null;
+            creator_id: components["schemas"]["Snowflake"] | null;
+            description: string | null;
+            entity_metadata: components["schemas"]["ScheduledEventMetadata"] | null;
+            /** @enum {integer} */
+            entity_type: 1 | 2 | 3;
+            guild_id: components["schemas"]["Snowflake"];
+            id: components["schemas"]["Snowflake"];
+            image: string | null;
+            name: string;
+            /** Format: date-time */
+            scheduled_end_time: string | null;
+            /** Format: date-time */
+            scheduled_start_time: string;
+            /** @enum {integer} */
+            status: 1 | 2 | 3 | 4;
+            user_count: number;
+        };
+        /**
          * GuildTemplate
          * @description A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
          */
@@ -3485,6 +3912,14 @@ export interface components {
             password: string;
             /** @description TOTP code or backup code. When 2FA is enabled and this is absent the api answers 401 with code 60008 and a ticket for POST /auth/mfa/totp. */
             totp?: string;
+        };
+        /** MemberVerification */
+        MemberVerification: {
+            enabled: boolean;
+            /** @description Whether the caller must accept the rules. */
+            pending: boolean;
+            revision: number;
+            rules: string[];
         };
         /**
          * Message
@@ -3790,6 +4225,25 @@ export interface components {
             voice_region?: string;
         };
         /**
+         * ModifyGuildScheduledEventRequest
+         * @description Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.
+         */
+        ModifyGuildScheduledEventRequest: {
+            channel_id?: components["schemas"]["Snowflake"] | null;
+            description?: string | null;
+            entity_metadata?: components["schemas"]["ScheduledEventMetadata"] | null;
+            /** @enum {integer} */
+            entity_type?: 1 | 2 | 3;
+            image?: string | null;
+            name?: string;
+            /** Format: date-time */
+            scheduled_end_time?: string | null;
+            /** Format: date-time */
+            scheduled_start_time?: string;
+            /** @enum {integer} */
+            status?: 1 | 2 | 3 | 4;
+        } & (unknown & unknown & unknown);
+        /**
          * ModifyGuildTemplateRequest
          * @description PATCH /guilds/{guild_id}/templates/{code} body.
          */
@@ -3924,6 +4378,27 @@ export interface components {
             installation_revision: components["schemas"]["BotInstallationRevision"];
             name: string;
             permissions: components["schemas"]["PermissionBitset"];
+        };
+        /** OnboardingConfig */
+        OnboardingConfig: {
+            enabled: boolean;
+            questions: components["schemas"]["OnboardingQuestion"][];
+        };
+        /** OnboardingOption */
+        OnboardingOption: {
+            channel_id: components["schemas"]["Snowflake"] | null;
+            label: string;
+            role_id: components["schemas"]["Snowflake"] | null;
+        };
+        /** OnboardingQuestion */
+        OnboardingQuestion: {
+            options: components["schemas"]["OnboardingOption"][];
+            title: string;
+        };
+        /** OnboardingResponse */
+        OnboardingResponse: {
+            config: components["schemas"]["OnboardingConfig"];
+            revision: number;
         };
         /**
          * PartialChannel
@@ -4331,6 +4806,13 @@ export interface components {
             integration_id?: components["schemas"]["Snowflake"];
         };
         /**
+         * ScheduledEventMetadata
+         * @description The location of an external event.
+         */
+        ScheduledEventMetadata: {
+            location: string;
+        };
+        /**
          * ScheduledMessage
          * @description Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
          */
@@ -4413,6 +4895,11 @@ export interface components {
         SetDeliveryModeRequest: {
             /** @description Null clears the per-chat override. */
             mode: components["schemas"]["DeliveryMode"] | null;
+        };
+        /** SetMemberVerificationRequest */
+        SetMemberVerificationRequest: {
+            enabled: boolean;
+            rules: string[];
         };
         /**
          * Snowflake
@@ -4597,6 +5084,8 @@ export interface components {
             animate_stickers?: boolean;
             /** @description Default restriction on new guild-related DMs; missing means false. */
             default_guilds_restricted?: boolean;
+            /** @description Favorite GIF media links, synced across devices. */
+            favorite_gifs?: string[];
             /** @description Chat font scale. */
             font_scale?: number;
             /** @description Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior. */
@@ -4766,7 +5255,7 @@ export interface components {
         };
         /**
          * Webhook
-         * @description An incoming or application webhook.
+         * @description An incoming, channel-follower or application webhook.
          */
         Webhook: {
             application_id: components["schemas"]["Snowflake"] | null;
@@ -4782,6 +5271,15 @@ export interface components {
             /** @description Execution URL returned only by create and reset-token. Treat as a secret. */
             url?: string;
             user?: components["schemas"]["User"];
+        };
+        /** WelcomeScreen */
+        WelcomeScreen: {
+            channels: {
+                channel_id: components["schemas"]["Snowflake"];
+                description: string;
+            }[];
+            description: string;
+            enabled: boolean;
         };
     };
     responses: {
@@ -5854,6 +6352,57 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    followAnnouncementChannel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    webhook_channel_id: components["schemas"]["Snowflake"];
+                };
+            };
+        };
+        responses: {
+            /** @description Follower created; no webhook token is issued. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        channel_id: components["schemas"]["Snowflake"];
+                        webhook_id: components["schemas"]["Snowflake"];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description The destination already follows this source. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            429: components["responses"]["RateLimited"];
+            /** @description Announcement delivery is disabled or unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     createChannelInvite: {
         parameters: {
             query?: never;
@@ -6078,6 +6627,50 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    publishAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Publication queued and source marked CROSSPOSTED. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description This message was already reserved for publication. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            429: components["responses"]["RateLimited"];
+            /** @description Announcement delivery is disabled or unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     deleteAllReactions: {
@@ -7006,6 +7599,31 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    githubConnectionCallback: {
+        parameters: {
+            query: {
+                /** @description Present on approval. */
+                code?: string;
+                /** @description Present when the user declines. */
+                error?: "access_denied";
+                state: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Account linked or authorization cancelled; browser may be closed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+        };
+    };
     createDevice: {
         parameters: {
             query?: never;
@@ -7178,6 +7796,146 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    gifCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Provider response containing category tags. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+            /** @description Provider not configured or unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    signGifPreviews: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    urls: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Signed media proxy URLs in request order. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        urls: string[];
+                    };
+                };
+            };
+            /** @description A URL is outside the configured provider media hosts. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+            /** @description Provider or media signer unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    searchGifs: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Provider response containing results and media_formats. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Invalid search query. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+            /** @description Provider not configured or unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    trendingGifs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Provider response containing results and media_formats. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+            /** @description Provider not configured or unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     createGuild: {
@@ -7945,6 +8703,37 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listFollowedChannels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Source channel, destination channel and follower webhook IDs. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        channel_id: components["schemas"]["Snowflake"];
+                        webhook_channel_id: components["schemas"]["Snowflake"];
+                        webhook_id: components["schemas"]["Snowflake"];
+                    }[];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     getGuildInsights: {
         parameters: {
             query?: {
@@ -8065,6 +8854,97 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    getMemberVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current screening configuration and revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberVerification"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    putMemberVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetMemberVerificationRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved configuration with new revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberVerification"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    acceptMemberVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    revision: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description The rules changed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     listGuildMembers: {
@@ -8307,6 +9187,103 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    getGuildOnboarding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Configuration and revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    putGuildOnboarding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OnboardingConfig"];
+            };
+        };
+        responses: {
+            /** @description Saved configuration and revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    completeGuildOnboarding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    choices: number[];
+                    revision: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Suggested channel IDs from the selected options. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        channel_ids: components["schemas"]["Snowflake"][];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description Configuration changed, an eligible role changed, or onboarding was already completed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getGuildPruneCount: {
         parameters: {
             query?: {
@@ -8522,6 +9499,232 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    listGuildScheduledEvents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Events visible to the caller. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildScheduledEvent"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createGuildScheduledEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGuildScheduledEventRequest"];
+            };
+        };
+        responses: {
+            /** @description Event created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildScheduledEvent"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getGuildScheduledEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Event. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildScheduledEvent"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteGuildScheduledEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Event deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    modifyGuildScheduledEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModifyGuildScheduledEventRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated event. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildScheduledEvent"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getOwnGuildScheduledEventInterest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current interest. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        interested: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    putOwnGuildScheduledEventInterest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Interest recorded. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteOwnGuildScheduledEventInterest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Scheduled event ID. */
+                event_id: components["schemas"]["Snowflake"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Interest removed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
     listGuildTemplates: {
@@ -8761,6 +9964,61 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    getWelcomeScreen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Welcome screen. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WelcomeScreen"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    putWelcomeScreen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WelcomeScreen"];
+            };
+        };
+        responses: {
+            /** @description Saved welcome screen. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WelcomeScreen"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     getGuildWidgetSettings: {
@@ -9258,6 +10516,35 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listUserConnections: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Visible connections. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        account_id: string;
+                        name: string;
+                        /** @enum {string} */
+                        provider: "github";
+                        visible: boolean;
+                    }[];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
     listUserDevices: {
         parameters: {
             query?: never;
@@ -9517,6 +10804,167 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    listConnections: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Connections including hidden accounts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        account_id: string;
+                        name: string;
+                        /** @enum {string} */
+                        provider: "github";
+                        visible: boolean;
+                    }[];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    updateConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    provider: "github";
+                    visible: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Visibility updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    removeConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    provider: "github";
+                };
+            };
+        };
+        responses: {
+            /** @description Connection removed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    setConnectionVisibility: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: "github";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    visible: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Visibility updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    deleteConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: "github";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Connection removed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    authorizeGithubConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Provider authorization URL. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uri */
+                        url: string;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Provider disabled or unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     deleteAccount: {
