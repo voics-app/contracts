@@ -1576,6 +1576,8 @@ Client preferences that follow the account across devices (client#123). Sparse: 
 
 | Field | Type | Description |
 | --- | --- | --- |
+| `default_guilds_restricted?` | `boolean` | Default restriction on new guild-related DMs; missing means false. |
+| `guild_dm_restrictions?` | `map of ?boolean` | Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior. |
 | `hide_age_restricted_channels?` | `boolean` | Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization. |
 | `accent?` | `"iris" or "aurora" or "ember" or "rose" or "citrine" or "sky"` | Accent colour preset. |
 | `reduce_motion?` | `boolean` |  |
