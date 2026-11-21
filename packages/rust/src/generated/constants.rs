@@ -400,6 +400,7 @@ pub mod dispatch_events {
     pub const STAGE_INSTANCE_UPDATE: &str = "STAGE_INSTANCE_UPDATE";
     pub const STAGE_INSTANCE_DELETE: &str = "STAGE_INSTANCE_DELETE";
     pub const GUILD_EMOJIS_UPDATE: &str = "GUILD_EMOJIS_UPDATE";
+    pub const GUILD_STICKERS_UPDATE: &str = "GUILD_STICKERS_UPDATE";
     pub const INVITE_CREATE: &str = "INVITE_CREATE";
     pub const INVITE_DELETE: &str = "INVITE_DELETE";
     pub const THREAD_CREATE: &str = "THREAD_CREATE";
@@ -476,6 +477,7 @@ pub mod dispatch_events {
         ("STAGE_INSTANCE_UPDATE", STAGE_INSTANCE_UPDATE),
         ("STAGE_INSTANCE_DELETE", STAGE_INSTANCE_DELETE),
         ("GUILD_EMOJIS_UPDATE", GUILD_EMOJIS_UPDATE),
+        ("GUILD_STICKERS_UPDATE", GUILD_STICKERS_UPDATE),
         ("INVITE_CREATE", INVITE_CREATE),
         ("INVITE_DELETE", INVITE_DELETE),
         ("THREAD_CREATE", THREAD_CREATE),
@@ -709,6 +711,7 @@ pub mod event_topics {
     pub const STAGE_INSTANCE_UPDATE: &str = "discordy.guild.v1";
     pub const STAGE_INSTANCE_DELETE: &str = "discordy.guild.v1";
     pub const GUILD_EMOJIS_UPDATE: &str = "discordy.guild.v1";
+    pub const GUILD_STICKERS_UPDATE: &str = "discordy.guild.v1";
     pub const INVITE_CREATE: &str = "discordy.guild.v1";
     pub const INVITE_DELETE: &str = "discordy.guild.v1";
     pub const THREAD_CREATE: &str = "discordy.guild.v1";
@@ -778,6 +781,7 @@ pub mod event_topics {
         ("STAGE_INSTANCE_UPDATE", STAGE_INSTANCE_UPDATE),
         ("STAGE_INSTANCE_DELETE", STAGE_INSTANCE_DELETE),
         ("GUILD_EMOJIS_UPDATE", GUILD_EMOJIS_UPDATE),
+        ("GUILD_STICKERS_UPDATE", GUILD_STICKERS_UPDATE),
         ("INVITE_CREATE", INVITE_CREATE),
         ("INVITE_DELETE", INVITE_DELETE),
         ("THREAD_CREATE", THREAD_CREATE),

@@ -189,6 +189,13 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | `Emoji` | Get a custom emoji |
 | `PATCH` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | `ModifyEmojiRequest` | `Emoji` | Modify a custom emoji |
 | `DELETE` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | 204 No Content | Delete a custom emoji |
+| `GET` | `/stickers/packs` | api | — | `array of Sticker` | List the built-in sticker pack |
+| `GET` | `/stickers/{sticker_id}/asset` | api | — | `map of any` | Get a built-in sticker asset |
+| `GET` | `/guilds/{guild_id}/stickers` | api | — | `array of Sticker` | List custom stickers |
+| `POST` | `/guilds/{guild_id}/stickers` | api | `CreateStickerRequest` | `Sticker` | Create a custom sticker |
+| `GET` | `/guilds/{guild_id}/stickers/{sticker_id}` | api | — | `Sticker` | Get a custom sticker |
+| `PATCH` | `/guilds/{guild_id}/stickers/{sticker_id}` | api | `ModifyStickerRequest` | `Sticker` | Modify a custom sticker |
+| `DELETE` | `/guilds/{guild_id}/stickers/{sticker_id}` | api | — | 204 No Content | Delete a custom sticker |
 | `GET` | `/guilds/{guild_id}/invites` | api | — | `array of Invite` | List a guild's invites |
 | `GET` | `/guilds/{guild_id}/member-verification` | api | — | `MemberVerification` | Get current rules and the caller's pending status |
 | `PUT` | `/guilds/{guild_id}/member-verification` | api | `SetMemberVerificationRequest` | `MemberVerification` | Replace rules screening configuration (MANAGE_GUILD) |
@@ -1240,6 +1247,7 @@ A standard-mode message.
 | `components?` | `array of MessageComponent` |  |
 | `position?` | `integer` |  |
 | `message_snapshots?` | `array of MessageSnapshot` | Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. |
+| `sticker_items?` | `array of StickerItem` |  |
 | `poll?` | `Poll` |  |
 
 ### MessageCall
@@ -1687,6 +1695,29 @@ A live guild-only stage instance.
 | `topic` | `string` |  |
 | `privacy_level` | `2` |  |
 | `discoverable_disabled` | `boolean` |  |
+
+### Sticker
+
+A guild or built-in sticker.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `format_type` | `1 or 2 or 3 or 4` | 1 PNG, 2 APNG, 3 Lottie, 4 GIF. |
+| `guild_id?` | `Snowflake` |  |
+| `tags?` | `string` |  |
+| `available` | `boolean` |  |
+
+### StickerItem
+
+Immutable display metadata stored with a message.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `format_type` | `1 or 2 or 3 or 4` | 1 PNG, 2 APNG, 3 Lottie, 4 GIF. |
 
 ### TemplateChannel
 
@@ -2241,6 +2272,7 @@ POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies w
 | `components?` | `array of MessageComponent` |  |
 | `attachments?` | `array of AttachmentReference` |  |
 | `flags?` | `integer` | MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components. |
+| `sticker_ids?` | `array of Snowflake` |  |
 | `poll?` | `PollCreate` |  |
 
 ### CreateReportRequest
@@ -2275,6 +2307,16 @@ POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New s
 | `channel_id` | `Snowflake` |  |
 | `topic` | `string` |  |
 | `privacy_level?` | `2` |  |
+
+### CreateStickerRequest
+
+Create a guild sticker from a data URI.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
+| `tags` | `string` |  |
+| `image` | `string` | Data URI containing a PNG, APNG, GIF or Lottie JSON sticker. |
 
 ### CreateThreadRequest
 
@@ -2653,6 +2695,15 @@ PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed onl
 | --- | --- | --- |
 | `topic` | `string` |  |
 | `privacy_level?` | `2` |  |
+
+### ModifyStickerRequest
+
+Modify a guild sticker.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name?` | `string` |  |
+| `tags?` | `string` |  |
 
 ### ModifyUserSettingsRequest
 

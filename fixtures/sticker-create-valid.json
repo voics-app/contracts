@@ -1,0 +1,8 @@
+{
+  "schema": "rest/create-sticker-request.json",
+  "data": {
+    "name": "wave",
+    "tags": "wave",
+    "image": "data:application/json;base64,e30="
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/sticker.json",
+  "title": "Sticker",
+  "description": "A guild or built-in sticker.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "format_type",
+    "available"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "./snowflake.json"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 30
+    },
+    "format_type": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "description": "1 PNG, 2 APNG, 3 Lottie, 4 GIF."
+    },
+    "guild_id": {
+      "$ref": "./snowflake.json"
+    },
+    "tags": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "available": {
+      "type": "boolean"
+    }
+  }
+}

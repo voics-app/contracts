@@ -153,6 +153,13 @@
         "$ref": "./message-snapshot.json"
       }
     },
+    "sticker_items": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "$ref": "./sticker-item.json"
+      }
+    },
     "poll": {
       "$ref": "./poll.json"
     }

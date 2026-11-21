@@ -77,6 +77,8 @@ pub enum DispatchEvent {
     StageInstanceDelete(StageInstance),
     #[serde(rename = "GUILD_EMOJIS_UPDATE")]
     GuildEmojisUpdate(GuildEmojisUpdateEvent),
+    #[serde(rename = "GUILD_STICKERS_UPDATE")]
+    GuildStickersUpdate(GuildStickersUpdateEvent),
     #[serde(rename = "INVITE_CREATE")]
     InviteCreate(InviteCreateEvent),
     #[serde(rename = "INVITE_DELETE")]
@@ -181,6 +183,7 @@ impl DispatchEvent {
             Self::StageInstanceUpdate(_) => "STAGE_INSTANCE_UPDATE",
             Self::StageInstanceDelete(_) => "STAGE_INSTANCE_DELETE",
             Self::GuildEmojisUpdate(_) => "GUILD_EMOJIS_UPDATE",
+            Self::GuildStickersUpdate(_) => "GUILD_STICKERS_UPDATE",
             Self::InviteCreate(_) => "INVITE_CREATE",
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",
@@ -272,6 +275,8 @@ pub enum BusEvent {
     StageInstanceDelete(StageInstance),
     #[serde(rename = "GUILD_EMOJIS_UPDATE")]
     GuildEmojisUpdate(GuildEmojisUpdateEvent),
+    #[serde(rename = "GUILD_STICKERS_UPDATE")]
+    GuildStickersUpdate(GuildStickersUpdateEvent),
     #[serde(rename = "INVITE_CREATE")]
     InviteCreate(InviteCreateEvent),
     #[serde(rename = "INVITE_DELETE")]
@@ -374,6 +379,7 @@ impl BusEvent {
             Self::StageInstanceUpdate(_) => "STAGE_INSTANCE_UPDATE",
             Self::StageInstanceDelete(_) => "STAGE_INSTANCE_DELETE",
             Self::GuildEmojisUpdate(_) => "GUILD_EMOJIS_UPDATE",
+            Self::GuildStickersUpdate(_) => "GUILD_STICKERS_UPDATE",
             Self::InviteCreate(_) => "INVITE_CREATE",
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",

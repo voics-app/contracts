@@ -292,6 +292,7 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `STAGE_INSTANCE_UPDATE` | `StageInstance` | api | `discordy.guild.v1` | A stage instance was updated. |
 | `STAGE_INSTANCE_DELETE` | `StageInstance` | api | `discordy.guild.v1` | A stage instance was ended. |
 | `GUILD_EMOJIS_UPDATE` | `GuildEmojisUpdateEvent` | api | `discordy.guild.v1` | A guild's emojis changed. |
+| `GUILD_STICKERS_UPDATE` | `GuildStickersUpdateEvent` | api | `discordy.guild.v1` | A guild's stickers changed. |
 | `INVITE_CREATE` | `InviteCreateEvent` | api | `discordy.guild.v1` | An invite was created. |
 | `INVITE_DELETE` | `InviteDeleteEvent` | api | `discordy.guild.v1` | An invite was deleted. |
 | `THREAD_CREATE` | `Channel` | api | `discordy.guild.v1` | A thread was created. |
@@ -493,6 +494,15 @@ GUILD_EMOJIS_UPDATE dispatch.
 | `guild_id` | `Snowflake` |  |
 | `emojis` | `array of Emoji` |  |
 
+### GuildStickersUpdateEvent
+
+GUILD_STICKERS_UPDATE dispatch.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `guild_id` | `Snowflake` |  |
+| `stickers` | `array of Sticker` |  |
+
 ### InviteCreateEvent
 
 INVITE_CREATE dispatch.
@@ -569,6 +579,7 @@ MESSAGE_CREATE / MESSAGE_UPDATE dispatch: a message plus guild context.
 | `components?` | `array of MessageComponent` |  |
 | `position?` | `integer` |  |
 | `message_snapshots?` | `array of MessageSnapshot` | Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. |
+| `sticker_items?` | `array of StickerItem` |  |
 | `poll?` | `Poll` |  |
 | `guild_id?` | `Snowflake` |  |
 | `member?` | `GuildMember` |  |

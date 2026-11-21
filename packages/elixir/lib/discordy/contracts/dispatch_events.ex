@@ -106,6 +106,9 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec guild_emojis_update() :: String.t()
   def guild_emojis_update, do: "GUILD_EMOJIS_UPDATE"
 
+  @spec guild_stickers_update() :: String.t()
+  def guild_stickers_update, do: "GUILD_STICKERS_UPDATE"
+
   @spec invite_create() :: String.t()
   def invite_create, do: "INVITE_CREATE"
 
@@ -240,6 +243,7 @@ defmodule Discordy.Contracts.DispatchEvents do
       stage_instance_update: "STAGE_INSTANCE_UPDATE",
       stage_instance_delete: "STAGE_INSTANCE_DELETE",
       guild_emojis_update: "GUILD_EMOJIS_UPDATE",
+      guild_stickers_update: "GUILD_STICKERS_UPDATE",
       invite_create: "INVITE_CREATE",
       invite_delete: "INVITE_DELETE",
       thread_create: "THREAD_CREATE",

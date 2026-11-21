@@ -2439,6 +2439,14 @@
           "type": "integer",
           "description": "MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components."
         },
+        "sticker_ids": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
+        },
         "poll": {
           "$ref": "#/$defs/PollCreate"
         }
@@ -2606,6 +2614,31 @@
         "privacy_level": {
           "type": "integer",
           "const": 2
+        }
+      }
+    },
+    "CreateStickerRequest": {
+      "title": "CreateStickerRequest",
+      "description": "Create a guild sticker from a data URI.",
+      "type": "object",
+      "required": [
+        "name",
+        "tags",
+        "image"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 30
+        },
+        "tags": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "image": {
+          "type": "string",
+          "description": "Data URI containing a PNG, APNG, GIF or Lottie JSON sticker."
         }
       }
     },
@@ -5437,6 +5470,26 @@
         }
       }
     },
+    "GuildStickersUpdateEvent": {
+      "title": "GuildStickersUpdateEvent",
+      "description": "GUILD_STICKERS_UPDATE dispatch.",
+      "type": "object",
+      "required": [
+        "guild_id",
+        "stickers"
+      ],
+      "properties": {
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "stickers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Sticker"
+          }
+        }
+      }
+    },
     "GuildTemplate": {
       "title": "GuildTemplate",
       "description": "A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.",
@@ -6590,6 +6643,13 @@
             "$ref": "#/$defs/MessageSnapshot"
           }
         },
+        "sticker_items": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/StickerItem"
+          }
+        },
         "poll": {
           "$ref": "#/$defs/Poll"
         }
@@ -6913,6 +6973,13 @@
           "description": "Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.",
           "items": {
             "$ref": "#/$defs/MessageSnapshot"
+          }
+        },
+        "sticker_items": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/StickerItem"
           }
         },
         "poll": {
@@ -7270,6 +7337,13 @@
             },
             "flags": {
               "type": "integer"
+            },
+            "sticker_items": {
+              "type": "array",
+              "maxItems": 3,
+              "items": {
+                "$ref": "#/$defs/StickerItem"
+              }
             }
           }
         }
@@ -8218,6 +8292,23 @@
         "privacy_level": {
           "type": "integer",
           "const": 2
+        }
+      }
+    },
+    "ModifyStickerRequest": {
+      "title": "ModifyStickerRequest",
+      "description": "Modify a guild sticker.",
+      "type": "object",
+      "required": [],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 30
+        },
+        "tags": {
+          "type": "string",
+          "maxLength": 200
         }
       }
     },
@@ -11403,6 +11494,77 @@
         },
         "discoverable_disabled": {
           "type": "boolean"
+        }
+      }
+    },
+    "Sticker": {
+      "title": "Sticker",
+      "description": "A guild or built-in sticker.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "format_type",
+        "available"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 30
+        },
+        "format_type": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "description": "1 PNG, 2 APNG, 3 Lottie, 4 GIF."
+        },
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "tags": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "available": {
+          "type": "boolean"
+        }
+      }
+    },
+    "StickerItem": {
+      "title": "StickerItem",
+      "description": "Immutable display metadata stored with a message.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "format_type"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 30
+        },
+        "format_type": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "description": "1 PNG, 2 APNG, 3 Lottie, 4 GIF."
         }
       }
     },

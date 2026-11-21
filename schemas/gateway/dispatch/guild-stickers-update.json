@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/guild-stickers-update.json",
+  "title": "GuildStickersUpdateEvent",
+  "description": "GUILD_STICKERS_UPDATE dispatch.",
+  "type": "object",
+  "required": [
+    "guild_id",
+    "stickers"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "stickers": {
+      "type": "array",
+      "items": {
+        "$ref": "../../objects/sticker.json"
+      }
+    }
+  }
+}

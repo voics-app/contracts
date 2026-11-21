@@ -477,6 +477,54 @@
         }
       }
     },
+    "/channels/{channel_id}/users/{user_id}/stickers/{sticker_id}": {
+      "get": {
+        "operationId": "resolveMessageSticker",
+        "summary": "Resolve an available guild sticker for a message author and destination",
+        "description": "Checks current account eligibility, channel membership, view and send permissions, Standard delivery and that the sticker is built-in or belongs to the destination guild. Authorization and message storage are not one transaction.",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/user_id"
+          },
+          {
+            "name": "sticker_id",
+            "in": "path",
+            "required": true,
+            "description": "Sticker ID.",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available sticker metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sticker"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/channels/{channel_id}/notification-recipients": {
       "get": {
         "operationId": "listNotificationRecipients",
@@ -3415,6 +3463,13 @@
               "$ref": "#/components/schemas/MessageSnapshot"
             }
           },
+          "sticker_items": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "$ref": "#/components/schemas/StickerItem"
+            }
+          },
           "poll": {
             "$ref": "#/components/schemas/Poll"
           }
@@ -3626,6 +3681,13 @@
               },
               "flags": {
                 "type": "integer"
+              },
+              "sticker_items": {
+                "type": "array",
+                "maxItems": 3,
+                "items": {
+                  "$ref": "#/components/schemas/StickerItem"
+                }
               }
             }
           }
@@ -4428,6 +4490,77 @@
         "examples": [
           "1234567890123456789"
         ]
+      },
+      "Sticker": {
+        "title": "Sticker",
+        "description": "A guild or built-in sticker.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "format_type",
+          "available"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 30
+          },
+          "format_type": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "description": "1 PNG, 2 APNG, 3 Lottie, 4 GIF."
+          },
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "tags": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "available": {
+            "type": "boolean"
+          }
+        }
+      },
+      "StickerItem": {
+        "title": "StickerItem",
+        "description": "Immutable display metadata stored with a message.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "format_type"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 30
+          },
+          "format_type": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "description": "1 PNG, 2 APNG, 3 Lottie, 4 GIF."
+          }
+        }
       },
       "SuspendUserRequest": {
         "title": "SuspendUserRequest",

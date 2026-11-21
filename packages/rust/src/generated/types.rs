@@ -2230,6 +2230,8 @@ pub struct CreateMessageRequest {
     pub nonce: ::std::option::Option<CreateMessageRequestNonce>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub poll: ::std::option::Option<PollCreate>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub sticker_ids: ::std::option::Option<::std::vec::Vec<Snowflake>>,
     ///Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events.
     #[serde(default)]
     pub tts: bool,
@@ -2644,6 +2646,117 @@ impl ::std::convert::TryFrom<::std::string::String> for CreateStageInstanceReque
     }
 }
 impl<'de> ::serde::Deserialize<'de> for CreateStageInstanceRequestTopic {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Create a guild sticker from a data URI.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateStickerRequest {
+    ///Data URI containing a PNG, APNG, GIF or Lottie JSON sticker.
+    pub image: ::std::string::String,
+    pub name: CreateStickerRequestName,
+    pub tags: CreateStickerRequestTags,
+}
+///`CreateStickerRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateStickerRequestName(::std::string::String);
+impl ::std::ops::Deref for CreateStickerRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateStickerRequestName> for ::std::string::String {
+    fn from(value: CreateStickerRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateStickerRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 30usize {
+            return Err("longer than 30 characters".into());
+        }
+        if value.chars().count() < 2usize {
+            return Err("shorter than 2 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateStickerRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateStickerRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateStickerRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`CreateStickerRequestTags`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateStickerRequestTags(::std::string::String);
+impl ::std::ops::Deref for CreateStickerRequestTags {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateStickerRequestTags> for ::std::string::String {
+    fn from(value: CreateStickerRequestTags) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateStickerRequestTags {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 200usize {
+            return Err("longer than 200 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateStickerRequestTags {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateStickerRequestTags {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateStickerRequestTags {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -4785,6 +4898,12 @@ pub struct GuildScheduledEventUser {
     pub guild_scheduled_event_id: Snowflake,
     pub user_id: Snowflake,
 }
+///GUILD_STICKERS_UPDATE dispatch.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildStickersUpdateEvent {
+    pub guild_id: Snowflake,
+    pub stickers: ::std::vec::Vec<Sticker>,
+}
 ///A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildTemplate {
@@ -5543,6 +5662,8 @@ pub struct Message {
     pub reactions: ::std::vec::Vec<Reaction>,
     #[serde(default)]
     pub referenced_message: ::std::boxed::Box<::std::option::Option<Message>>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub sticker_items: ::std::vec::Vec<StickerItem>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub thread: ::std::option::Option<Channel>,
     pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
@@ -5681,6 +5802,8 @@ pub struct MessageEvent {
     pub reactions: ::std::vec::Vec<Reaction>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub referenced_message: ::std::option::Option<Message>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub sticker_items: ::std::vec::Vec<StickerItem>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub thread: ::std::option::Option<Channel>,
     pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
@@ -5916,6 +6039,8 @@ pub struct MessageSnapshotMessage {
     pub flags: ::std::option::Option<i64>,
     pub mention_roles: ::std::vec::Vec<Snowflake>,
     pub mentions: ::std::vec::Vec<User>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub sticker_items: ::std::vec::Vec<StickerItem>,
     pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
     #[serde(rename = "type")]
     pub type_: i64,
@@ -7289,6 +7414,117 @@ impl ::std::convert::TryFrom<::std::string::String> for ModifyStageInstanceReque
     }
 }
 impl<'de> ::serde::Deserialize<'de> for ModifyStageInstanceRequestTopic {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Modify a guild sticker.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct ModifyStickerRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub name: ::std::option::Option<ModifyStickerRequestName>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub tags: ::std::option::Option<ModifyStickerRequestTags>,
+}
+///`ModifyStickerRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyStickerRequestName(::std::string::String);
+impl ::std::ops::Deref for ModifyStickerRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyStickerRequestName> for ::std::string::String {
+    fn from(value: ModifyStickerRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyStickerRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 30usize {
+            return Err("longer than 30 characters".into());
+        }
+        if value.chars().count() < 2usize {
+            return Err("shorter than 2 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyStickerRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyStickerRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyStickerRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`ModifyStickerRequestTags`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyStickerRequestTags(::std::string::String);
+impl ::std::ops::Deref for ModifyStickerRequestTags {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyStickerRequestTags> for ::std::string::String {
+    fn from(value: ModifyStickerRequestTags) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyStickerRequestTags {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 200usize {
+            return Err("longer than 200 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyStickerRequestTags {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyStickerRequestTags {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyStickerRequestTags {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -11074,6 +11310,251 @@ impl ::std::convert::TryFrom<::std::string::String> for StageInstanceTopic {
     }
 }
 impl<'de> ::serde::Deserialize<'de> for StageInstanceTopic {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///A guild or built-in sticker.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct Sticker {
+    pub available: bool,
+    ///1 PNG, 2 APNG, 3 Lottie, 4 GIF.
+    pub format_type: StickerFormatType,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub guild_id: ::std::option::Option<Snowflake>,
+    pub id: Snowflake,
+    pub name: StickerName,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub tags: ::std::option::Option<StickerTags>,
+}
+///1 PNG, 2 APNG, 3 Lottie, 4 GIF.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct StickerFormatType(i64);
+impl ::std::ops::Deref for StickerFormatType {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<StickerFormatType> for i64 {
+    fn from(value: StickerFormatType) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for StickerFormatType {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![1_i64, 2_i64, 3_i64, 4_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for StickerFormatType {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///Immutable display metadata stored with a message.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct StickerItem {
+    ///1 PNG, 2 APNG, 3 Lottie, 4 GIF.
+    pub format_type: StickerItemFormatType,
+    pub id: Snowflake,
+    pub name: StickerItemName,
+}
+///1 PNG, 2 APNG, 3 Lottie, 4 GIF.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct StickerItemFormatType(i64);
+impl ::std::ops::Deref for StickerItemFormatType {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<StickerItemFormatType> for i64 {
+    fn from(value: StickerItemFormatType) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for StickerItemFormatType {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![1_i64, 2_i64, 3_i64, 4_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for StickerItemFormatType {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`StickerItemName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct StickerItemName(::std::string::String);
+impl ::std::ops::Deref for StickerItemName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<StickerItemName> for ::std::string::String {
+    fn from(value: StickerItemName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for StickerItemName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 30usize {
+            return Err("longer than 30 characters".into());
+        }
+        if value.chars().count() < 2usize {
+            return Err("shorter than 2 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for StickerItemName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for StickerItemName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for StickerItemName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`StickerName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct StickerName(::std::string::String);
+impl ::std::ops::Deref for StickerName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<StickerName> for ::std::string::String {
+    fn from(value: StickerName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for StickerName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 30usize {
+            return Err("longer than 30 characters".into());
+        }
+        if value.chars().count() < 2usize {
+            return Err("shorter than 2 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for StickerName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for StickerName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for StickerName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`StickerTags`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct StickerTags(::std::string::String);
+impl ::std::ops::Deref for StickerTags {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<StickerTags> for ::std::string::String {
+    fn from(value: StickerTags) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for StickerTags {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 200usize {
+            return Err("longer than 200 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for StickerTags {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for StickerTags {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for StickerTags {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,

@@ -4572,6 +4572,296 @@
         }
       }
     },
+    "/stickers/packs": {
+      "get": {
+        "operationId": "listBuiltInStickers",
+        "summary": "List the built-in sticker pack",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Built-in sticker metadata; IDs 1?3 are reserved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sticker"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/stickers/{sticker_id}/asset": {
+      "get": {
+        "operationId": "getBuiltInStickerAsset",
+        "summary": "Get a built-in sticker asset",
+        "description": "Returns a self-contained Lottie JSON document; this endpoint is public.",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "security": [],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/sticker_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Self-contained Lottie JSON asset.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/stickers": {
+      "get": {
+        "operationId": "listGuildStickers",
+        "summary": "List custom stickers",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sticker"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createGuildSticker",
+        "summary": "Create a custom sticker",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStickerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sticker"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/stickers/{sticker_id}": {
+      "get": {
+        "operationId": "getGuildSticker",
+        "summary": "Get a custom sticker",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "$ref": "#/components/parameters/sticker_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sticker"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "modifyGuildSticker",
+        "summary": "Modify a custom sticker",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "$ref": "#/components/parameters/sticker_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyStickerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sticker"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteGuildSticker",
+        "summary": "Delete a custom sticker",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "$ref": "#/components/parameters/sticker_id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/invites": {
       "get": {
         "operationId": "listGuildInvites",
@@ -10640,6 +10930,15 @@
           "$ref": "#/components/schemas/Snowflake"
         }
       },
+      "sticker_id": {
+        "name": "sticker_id",
+        "in": "path",
+        "required": true,
+        "description": "Sticker ID.",
+        "schema": {
+          "$ref": "#/components/schemas/Snowflake"
+        }
+      },
       "overwrite_id": {
         "name": "overwrite_id",
         "in": "path",
@@ -12723,6 +13022,14 @@
             "type": "integer",
             "description": "MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components."
           },
+          "sticker_ids": {
+            "type": "array",
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
           "poll": {
             "$ref": "#/components/schemas/PollCreate"
           }
@@ -12890,6 +13197,31 @@
           "privacy_level": {
             "type": "integer",
             "const": 2
+          }
+        }
+      },
+      "CreateStickerRequest": {
+        "title": "CreateStickerRequest",
+        "description": "Create a guild sticker from a data URI.",
+        "type": "object",
+        "required": [
+          "name",
+          "tags",
+          "image"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 30
+          },
+          "tags": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "image": {
+            "type": "string",
+            "description": "Data URI containing a PNG, APNG, GIF or Lottie JSON sticker."
           }
         }
       },
@@ -15004,6 +15336,13 @@
               "$ref": "#/components/schemas/MessageSnapshot"
             }
           },
+          "sticker_items": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "$ref": "#/components/schemas/StickerItem"
+            }
+          },
           "poll": {
             "$ref": "#/components/schemas/Poll"
           }
@@ -15245,6 +15584,13 @@
               },
               "flags": {
                 "type": "integer"
+              },
+              "sticker_items": {
+                "type": "array",
+                "maxItems": 3,
+                "items": {
+                  "$ref": "#/components/schemas/StickerItem"
+                }
               }
             }
           }
@@ -16151,6 +16497,23 @@
           "privacy_level": {
             "type": "integer",
             "const": 2
+          }
+        }
+      },
+      "ModifyStickerRequest": {
+        "title": "ModifyStickerRequest",
+        "description": "Modify a guild sticker.",
+        "type": "object",
+        "required": [],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 30
+          },
+          "tags": {
+            "type": "string",
+            "maxLength": 200
           }
         }
       },
@@ -18020,6 +18383,77 @@
           },
           "discoverable_disabled": {
             "type": "boolean"
+          }
+        }
+      },
+      "Sticker": {
+        "title": "Sticker",
+        "description": "A guild or built-in sticker.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "format_type",
+          "available"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 30
+          },
+          "format_type": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "description": "1 PNG, 2 APNG, 3 Lottie, 4 GIF."
+          },
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "tags": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "available": {
+            "type": "boolean"
+          }
+        }
+      },
+      "StickerItem": {
+        "title": "StickerItem",
+        "description": "Immutable display metadata stored with a message.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "format_type"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 30
+          },
+          "format_type": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "description": "1 PNG, 2 APNG, 3 Lottie, 4 GIF."
           }
         }
       },

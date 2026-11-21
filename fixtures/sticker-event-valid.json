@@ -1,0 +1,16 @@
+{
+  "schema": "gateway/dispatch/guild-stickers-update.json",
+  "data": {
+    "guild_id": "12345678901234567",
+    "stickers": [
+      {
+        "id": "12345678901234568",
+        "guild_id": "12345678901234567",
+        "name": "wave",
+        "tags": "wave",
+        "format_type": 1,
+        "available": true
+      }
+    ]
+  }
+}

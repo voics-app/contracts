@@ -1301,6 +1301,10 @@ export interface CreateMessageRequest {
    * MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components.
    */
   flags?: number;
+  /**
+   * @maxItems 3
+   */
+  sticker_ids?: [] | [Snowflake] | [Snowflake, Snowflake] | [Snowflake, Snowflake, Snowflake];
   poll?: PollCreate;
 }
 /**
@@ -1699,6 +1703,17 @@ export interface CreateStageInstanceRequest {
   channel_id: Snowflake;
   topic: string;
   privacy_level?: 2;
+}
+/**
+ * Create a guild sticker from a data URI.
+ */
+export interface CreateStickerRequest {
+  name: string;
+  tags: string;
+  /**
+   * Data URI containing a PNG, APNG, GIF or Lottie JSON sticker.
+   */
+  image: string;
 }
 /**
  * POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
@@ -2675,6 +2690,27 @@ export interface GuildScheduledEventUser {
   guild_id: Snowflake;
 }
 /**
+ * GUILD_STICKERS_UPDATE dispatch.
+ */
+export interface GuildStickersUpdateEvent {
+  guild_id: Snowflake;
+  stickers: Sticker[];
+}
+/**
+ * A guild or built-in sticker.
+ */
+export interface Sticker {
+  id: Snowflake;
+  name: string;
+  /**
+   * 1 PNG, 2 APNG, 3 Lottie, 4 GIF.
+   */
+  format_type: 1 | 2 | 3 | 4;
+  guild_id?: Snowflake;
+  tags?: string;
+  available: boolean;
+}
+/**
  * A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
  */
 export interface GuildTemplate {
@@ -2976,6 +3012,10 @@ export interface Message {
    * Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.
    */
   message_snapshots?: MessageSnapshot[];
+  /**
+   * @maxItems 3
+   */
+  sticker_items?: [] | [StickerItem] | [StickerItem, StickerItem] | [StickerItem, StickerItem, StickerItem];
   poll?: Poll;
 }
 /**
@@ -3029,7 +3069,22 @@ export interface MessageSnapshot {
     embeds: Embed[];
     type: number;
     flags?: number;
+    /**
+     * @maxItems 3
+     */
+    sticker_items?: [] | [StickerItem] | [StickerItem, StickerItem] | [StickerItem, StickerItem, StickerItem];
   };
+}
+/**
+ * Immutable display metadata stored with a message.
+ */
+export interface StickerItem {
+  id: Snowflake;
+  name: string;
+  /**
+   * 1 PNG, 2 APNG, 3 Lottie, 4 GIF.
+   */
+  format_type: 1 | 2 | 3 | 4;
 }
 /**
  * A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit.
@@ -3567,6 +3622,10 @@ export interface MessageEvent {
    * Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.
    */
   message_snapshots?: MessageSnapshot[];
+  /**
+   * @maxItems 3
+   */
+  sticker_items?: [] | [StickerItem] | [StickerItem, StickerItem] | [StickerItem, StickerItem, StickerItem];
   poll?: Poll;
   guild_id?: Snowflake;
   member?: GuildMember;
@@ -5496,6 +5555,13 @@ export interface ModifyMemberRequest {
 export interface ModifyStageInstanceRequest {
   topic: string;
   privacy_level?: 2;
+}
+/**
+ * Modify a guild sticker.
+ */
+export interface ModifyStickerRequest {
+  name?: string;
+  tags?: string;
 }
 /**
  * PATCH /users/@me/settings body (partial).
