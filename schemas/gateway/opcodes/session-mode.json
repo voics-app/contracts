@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/opcodes/session-mode.json",
+  "title": "SessionModePayload",
+  "description": "Op 27 SESSION_MODE. Switching to passive requires certified read states. Switching active fetches read states and refreshes guild snapshots before that guild resumes full dispatch.",
+  "type": "object",
+  "required": [
+    "passive"
+  ],
+  "properties": {
+    "passive": {
+      "type": "boolean"
+    }
+  }
+}

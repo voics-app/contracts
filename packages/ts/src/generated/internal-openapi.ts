@@ -107,6 +107,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/crossposts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Deliver a claimed announcement to a follower channel (messages service)
+         * @description The caller supplies a reserved ID and must not blindly retry an ambiguous result after the destination has disappeared.
+         */
+        post: operations["deliverAnnouncementCrosspost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/forum-start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Store the reserved opening message after a durable API claim
+         * @description The messages service atomically stores an idempotency marker and the reserved opening message in one partition; a replay cannot recreate a deleted opening.
+         */
+        post: operations["createForumStart"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/last-message-id": {
         parameters: {
             query?: never;
@@ -158,6 +198,23 @@ export interface paths {
         patch: operations["updateMessageCall"];
         trace?: never;
     };
+    "/channels/{channel_id}/messages/{message_id}/crossposted": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark a stored announcement as published (messages service) */
+        post: operations["markAnnouncementCrossposted"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/notification-recipients": {
         parameters: {
             query?: never;
@@ -198,6 +255,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/forum-summaries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Summarize already authorized Standard forum posts */
+        post: operations["forumSummaries"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/scheduled-events/{event_id}/push-targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recheck one event reminder recipient and return live notification tokens
+         * @description Rechecks membership, channel visibility, current interest, mute, do-not-disturb, start time and schedule revision. Event names are not returned; pushes must use generic text. An empty users array means no push.
+         */
+        get: operations["getScheduledEventPushTargets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/state": {
         parameters: {
             query?: never;
@@ -226,6 +320,57 @@ export interface paths {
         put?: never;
         /** Acquire or renew a committed Snowflake interval for one messages process */
         post: operations["reserveMessageIds"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scheduled-event-deliveries/{delivery_id}/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Acknowledge a terminal result or release the lease for retry */
+        post: operations["finishScheduledEventDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scheduled-event-deliveries/{delivery_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Recheck one leased delivery and resolve its current eligible token */
+        post: operations["resolveScheduledEventDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scheduled-event-deliveries/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Lease one pending event push delivery for 60 seconds */
+        post: operations["claimScheduledEventDelivery"];
         delete?: never;
         options?: never;
         head?: never;
@@ -428,6 +573,17 @@ export interface components {
             /** @description Discordy: effective delivery mode. Always present on full channel objects. */
             delivery_mode?: components["schemas"]["DeliveryMode"];
             flags?: number;
+            /** @description First stored message preview for a Standard forum post. */
+            forum_first_message?: {
+                attachments: components["schemas"]["Attachment"][];
+                content: string;
+                id: components["schemas"]["Snowflake"];
+            };
+            /**
+             * @description Forum post creation status. Non-published posts are returned only to the author on a matching retry.
+             * @enum {string}
+             */
+            forum_post_status?: "pending" | "dispatching" | "publishing" | "published" | "failed";
             guild_id?: components["schemas"]["Snowflake"];
             icon?: string | null;
             id: components["schemas"]["Snowflake"];
@@ -451,6 +607,8 @@ export interface components {
             position?: number;
             rate_limit_per_user?: number;
             recipients?: components["schemas"]["User"][];
+            /** @description Forum posts must have at least one available tag. */
+            require_tags?: boolean;
             rtc_region?: string | null;
             /** @description Voice channels only: whether members can send messages to the channel chat. Defaults to true. */
             text_chat_enabled?: boolean;
@@ -1247,6 +1405,25 @@ export interface components {
             integration_id?: components["schemas"]["Snowflake"];
         };
         /**
+         * ScheduledEventPushTargets
+         * @description Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.
+         */
+        ScheduledEventPushTargets: {
+            next_after: null;
+            users: {
+                tokens: {
+                    /** @enum {string} */
+                    environment: "production" | "sandbox";
+                    only_mentions: boolean;
+                    /** @enum {string} */
+                    platform: "apns" | "fcm";
+                    previews: boolean;
+                    token: string;
+                }[];
+                user_id: components["schemas"]["Snowflake"];
+            }[];
+        };
+        /**
          * SelectOption
          * @description An option of a string select menu.
          */
@@ -1388,6 +1565,8 @@ export interface components {
             animate_stickers?: boolean;
             /** @description Default restriction on new guild-related DMs; missing means false. */
             default_guilds_restricted?: boolean;
+            /** @description Favorite GIF media links, synced across devices. */
+            favorite_gifs?: string[];
             /** @description Chat font scale. */
             font_scale?: number;
             /** @description Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior. */
@@ -1711,6 +1890,108 @@ export interface operations {
             404: components["responses"]["NotFound"];
         };
     };
+    deliverAnnouncementCrosspost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    message_id: components["schemas"]["Snowflake"];
+                    snapshot: {
+                        attachments?: {
+                            content_type?: string | null;
+                            description?: string | null;
+                            filename: string;
+                            flags?: number | null;
+                            height?: number | null;
+                            id: components["schemas"]["Snowflake"];
+                            size: number;
+                            width?: number | null;
+                        }[];
+                        content: string;
+                        embeds?: {
+                            [key: string]: unknown;
+                        }[];
+                    };
+                    source_channel_id: components["schemas"]["Snowflake"];
+                    webhook_id: components["schemas"]["Snowflake"];
+                    webhook_name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Stored destination message, or an already present matching destination. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description Invalid snapshot or unavailable attachment. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Destination does not support standard delivery. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    createForumStart: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    author_id: components["schemas"]["Snowflake"];
+                    content: string;
+                    message_id: components["schemas"]["Snowflake"];
+                };
+            };
+        };
+        responses: {
+            /** @description Stored message. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description The reserved opening message was deleted; the marker prevents recreation. */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getLastMessageId: {
         parameters: {
             query?: never;
@@ -1816,6 +2097,40 @@ export interface operations {
             404: components["responses"]["NotFound"];
         };
     };
+    markAnnouncementCrossposted: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Updated source message. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description Not a publishable announcement. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+        };
+    };
     listNotificationRecipients: {
         parameters: {
             query: {
@@ -1891,6 +2206,72 @@ export interface operations {
             404: components["responses"]["NotFound"];
         };
     };
+    forumSummaries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    channel_ids: components["schemas"]["Snowflake"][];
+                };
+            };
+        };
+        responses: {
+            /** @description First message, last message ID and exact stored count per channel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        summaries: {
+                            channel_id: components["schemas"]["Snowflake"];
+                            first_message: {
+                                attachments: components["schemas"]["Attachment"][];
+                                content: string;
+                                id: components["schemas"]["Snowflake"];
+                            } | null;
+                            last_message_id: components["schemas"]["Snowflake"] | null;
+                            message_count: number;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    getScheduledEventPushTargets: {
+        parameters: {
+            query: {
+                revision: number;
+                scheduled_start_time: string;
+                user_id: components["schemas"]["Snowflake"];
+            };
+            header?: never;
+            path: {
+                event_id: components["schemas"]["Snowflake"];
+                guild_id: components["schemas"]["Snowflake"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current permitted live notification tokens, or an empty audience. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduledEventPushTargets"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
     getGuildState: {
         parameters: {
             query?: never;
@@ -1953,6 +2334,100 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    finishScheduledEventDelivery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                delivery_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    lease_id: string;
+                    retry_after_secs: number | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Delivery acknowledged or scheduled for retry. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Lease expired or was replaced. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    resolveScheduledEventDelivery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                delivery_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    lease_id: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Current live eligible token, or null when no longer eligible. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never> | null;
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Lease expired or was replaced. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    claimScheduledEventDelivery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A lease or null when no delivery is ready. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never> | null;
+                };
+            };
+            401: components["responses"]["Unauthorized"];
         };
     };
     getUserReadStates: {

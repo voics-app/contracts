@@ -112,6 +112,12 @@ defmodule Discordy.Contracts.GatewayOpcodes do
   @spec call_ring() :: non_neg_integer()
   def call_ring, do: 26
 
+  @doc ~S"""
+  Switch the session between passive and active; activation requests a full refresh.
+  """
+  @spec session_mode() :: non_neg_integer()
+  def session_mode, do: 27
+
   @doc "Every entry of this group, keyed by atom."
   @spec entries() :: %{atom() => non_neg_integer()}
   def entries do
@@ -133,7 +139,8 @@ defmodule Discordy.Contracts.GatewayOpcodes do
       voice_telemetry: 23,
       watch_together: 24,
       call_decline: 25,
-      call_ring: 26
+      call_ring: 26,
+      session_mode: 27
     }
   end
 

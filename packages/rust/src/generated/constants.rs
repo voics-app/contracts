@@ -211,12 +211,14 @@ pub mod intents {
     pub const DIRECT_MESSAGE_REACTIONS: u32 = 1 << 13;
     /// Events: TYPING_START.
     pub const DIRECT_MESSAGE_TYPING: u32 = 1 << 14;
+    /// Privileged. Events: none (gates data, not events).
+    pub const MESSAGE_CONTENT: u32 = 1 << 15;
+    /// Events: GUILD_SCHEDULED_EVENT_CREATE, GUILD_SCHEDULED_EVENT_UPDATE, GUILD_SCHEDULED_EVENT_DELETE, GUILD_SCHEDULED_EVENT_USER_ADD, GUILD_SCHEDULED_EVENT_USER_REMOVE.
+    pub const GUILD_SCHEDULED_EVENTS: u32 = 1 << 16;
     /// Events: MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE.
     pub const GUILD_MESSAGE_POLLS: u32 = 1 << 24;
     /// Events: MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE.
     pub const DIRECT_MESSAGE_POLLS: u32 = 1 << 25;
-    /// Privileged. Events: none (gates data, not events).
-    pub const MESSAGE_CONTENT: u32 = 1 << 15;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u32)] = &[
@@ -235,9 +237,10 @@ pub mod intents {
         ("DIRECT_MESSAGES", DIRECT_MESSAGES),
         ("DIRECT_MESSAGE_REACTIONS", DIRECT_MESSAGE_REACTIONS),
         ("DIRECT_MESSAGE_TYPING", DIRECT_MESSAGE_TYPING),
+        ("MESSAGE_CONTENT", MESSAGE_CONTENT),
+        ("GUILD_SCHEDULED_EVENTS", GUILD_SCHEDULED_EVENTS),
         ("GUILD_MESSAGE_POLLS", GUILD_MESSAGE_POLLS),
         ("DIRECT_MESSAGE_POLLS", DIRECT_MESSAGE_POLLS),
-        ("MESSAGE_CONTENT", MESSAGE_CONTENT),
     ];
 }
 
@@ -246,7 +249,7 @@ pub mod intent_sets {
     /// Intents that require approval for bots.
     pub const PRIVILEGED: u32 = 33026;
     /// Every known intent (implicit for user sessions).
-    pub const ALL: u32 = 50397183;
+    pub const ALL: u32 = 50462719;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u32)] = &[("PRIVILEGED", PRIVILEGED), ("ALL", ALL)];
@@ -290,6 +293,8 @@ pub mod gateway_opcodes {
     pub const CALL_DECLINE: u8 = 25;
     /// Rings 1 to 10 members of a DM channel for a call the sender is in.
     pub const CALL_RING: u8 = 26;
+    /// Switch the session between passive and active; activation requests a full refresh.
+    pub const SESSION_MODE: u8 = 27;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -311,6 +316,7 @@ pub mod gateway_opcodes {
         ("WATCH_TOGETHER", WATCH_TOGETHER),
         ("CALL_DECLINE", CALL_DECLINE),
         ("CALL_RING", CALL_RING),
+        ("SESSION_MODE", SESSION_MODE),
     ];
 }
 
@@ -361,6 +367,7 @@ pub mod gateway_close_codes {
 /// Gateway dispatch event names (`t`).
 pub mod dispatch_events {
     pub const READY: &str = "READY";
+    pub const PASSIVE_UPDATE_V2: &str = "PASSIVE_UPDATE_V2";
     pub const RESUMED: &str = "RESUMED";
     pub const PRESENCE_UPDATE: &str = "PRESENCE_UPDATE";
     pub const TYPING_START: &str = "TYPING_START";
@@ -371,6 +378,11 @@ pub mod dispatch_events {
     pub const CALL_DELETE: &str = "CALL_DELETE";
     pub const GUILD_MEMBERS_CHUNK: &str = "GUILD_MEMBERS_CHUNK";
     pub const GUILD_CREATE: &str = "GUILD_CREATE";
+    pub const GUILD_SCHEDULED_EVENT_CREATE: &str = "GUILD_SCHEDULED_EVENT_CREATE";
+    pub const GUILD_SCHEDULED_EVENT_UPDATE: &str = "GUILD_SCHEDULED_EVENT_UPDATE";
+    pub const GUILD_SCHEDULED_EVENT_DELETE: &str = "GUILD_SCHEDULED_EVENT_DELETE";
+    pub const GUILD_SCHEDULED_EVENT_USER_ADD: &str = "GUILD_SCHEDULED_EVENT_USER_ADD";
+    pub const GUILD_SCHEDULED_EVENT_USER_REMOVE: &str = "GUILD_SCHEDULED_EVENT_USER_REMOVE";
     pub const GUILD_UPDATE: &str = "GUILD_UPDATE";
     pub const GUILD_DELETE: &str = "GUILD_DELETE";
     pub const CHANNEL_CREATE: &str = "CHANNEL_CREATE";
@@ -408,6 +420,7 @@ pub mod dispatch_events {
     pub const READ_STATE_UPDATE: &str = "READ_STATE_UPDATE";
     pub const READ_STATE_SYNC: &str = "READ_STATE_SYNC";
     pub const USER_UPDATE: &str = "USER_UPDATE";
+    pub const GUILD_SCHEDULED_EVENT_START: &str = "GUILD_SCHEDULED_EVENT_START";
     pub const USER_SETTINGS_UPDATE: &str = "USER_SETTINGS_UPDATE";
     pub const USER_GUILD_SETTINGS_UPDATE: &str = "USER_GUILD_SETTINGS_UPDATE";
     pub const USER_NOTE_UPDATE: &str = "USER_NOTE_UPDATE";
@@ -422,6 +435,7 @@ pub mod dispatch_events {
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, &str)] = &[
         ("READY", READY),
+        ("PASSIVE_UPDATE_V2", PASSIVE_UPDATE_V2),
         ("RESUMED", RESUMED),
         ("PRESENCE_UPDATE", PRESENCE_UPDATE),
         ("TYPING_START", TYPING_START),
@@ -432,6 +446,17 @@ pub mod dispatch_events {
         ("CALL_DELETE", CALL_DELETE),
         ("GUILD_MEMBERS_CHUNK", GUILD_MEMBERS_CHUNK),
         ("GUILD_CREATE", GUILD_CREATE),
+        ("GUILD_SCHEDULED_EVENT_CREATE", GUILD_SCHEDULED_EVENT_CREATE),
+        ("GUILD_SCHEDULED_EVENT_UPDATE", GUILD_SCHEDULED_EVENT_UPDATE),
+        ("GUILD_SCHEDULED_EVENT_DELETE", GUILD_SCHEDULED_EVENT_DELETE),
+        (
+            "GUILD_SCHEDULED_EVENT_USER_ADD",
+            GUILD_SCHEDULED_EVENT_USER_ADD,
+        ),
+        (
+            "GUILD_SCHEDULED_EVENT_USER_REMOVE",
+            GUILD_SCHEDULED_EVENT_USER_REMOVE,
+        ),
         ("GUILD_UPDATE", GUILD_UPDATE),
         ("GUILD_DELETE", GUILD_DELETE),
         ("CHANNEL_CREATE", CHANNEL_CREATE),
@@ -471,6 +496,7 @@ pub mod dispatch_events {
         ("READ_STATE_UPDATE", READ_STATE_UPDATE),
         ("READ_STATE_SYNC", READ_STATE_SYNC),
         ("USER_UPDATE", USER_UPDATE),
+        ("GUILD_SCHEDULED_EVENT_START", GUILD_SCHEDULED_EVENT_START),
         ("USER_SETTINGS_UPDATE", USER_SETTINGS_UPDATE),
         ("USER_GUILD_SETTINGS_UPDATE", USER_GUILD_SETTINGS_UPDATE),
         ("USER_NOTE_UPDATE", USER_NOTE_UPDATE),
@@ -645,6 +671,11 @@ pub mod topics {
 pub mod event_topics {
     pub const TYPING_START: &str = "discordy.message.v1";
     pub const GUILD_CREATE: &str = "discordy.guild.v1";
+    pub const GUILD_SCHEDULED_EVENT_CREATE: &str = "discordy.guild.v1";
+    pub const GUILD_SCHEDULED_EVENT_UPDATE: &str = "discordy.guild.v1";
+    pub const GUILD_SCHEDULED_EVENT_DELETE: &str = "discordy.guild.v1";
+    pub const GUILD_SCHEDULED_EVENT_USER_ADD: &str = "discordy.guild.v1";
+    pub const GUILD_SCHEDULED_EVENT_USER_REMOVE: &str = "discordy.guild.v1";
     pub const GUILD_UPDATE: &str = "discordy.guild.v1";
     pub const GUILD_DELETE: &str = "discordy.guild.v1";
     pub const CHANNEL_CREATE: &str = "discordy.guild.v1";
@@ -680,6 +711,7 @@ pub mod event_topics {
     pub const MESSAGE_ACK: &str = "discordy.message.v1";
     pub const READ_STATE_UPDATE: &str = "discordy.message.v1";
     pub const USER_UPDATE: &str = "discordy.user.v1";
+    pub const GUILD_SCHEDULED_EVENT_START: &str = "discordy.user.v1";
     pub const USER_SETTINGS_UPDATE: &str = "discordy.user.v1";
     pub const USER_GUILD_SETTINGS_UPDATE: &str = "discordy.user.v1";
     pub const USER_NOTE_UPDATE: &str = "discordy.user.v1";
@@ -700,6 +732,17 @@ pub mod event_topics {
     pub const ALL_ENTRIES: &[(&str, &str)] = &[
         ("TYPING_START", TYPING_START),
         ("GUILD_CREATE", GUILD_CREATE),
+        ("GUILD_SCHEDULED_EVENT_CREATE", GUILD_SCHEDULED_EVENT_CREATE),
+        ("GUILD_SCHEDULED_EVENT_UPDATE", GUILD_SCHEDULED_EVENT_UPDATE),
+        ("GUILD_SCHEDULED_EVENT_DELETE", GUILD_SCHEDULED_EVENT_DELETE),
+        (
+            "GUILD_SCHEDULED_EVENT_USER_ADD",
+            GUILD_SCHEDULED_EVENT_USER_ADD,
+        ),
+        (
+            "GUILD_SCHEDULED_EVENT_USER_REMOVE",
+            GUILD_SCHEDULED_EVENT_USER_REMOVE,
+        ),
         ("GUILD_UPDATE", GUILD_UPDATE),
         ("GUILD_DELETE", GUILD_DELETE),
         ("CHANNEL_CREATE", CHANNEL_CREATE),
@@ -738,6 +781,7 @@ pub mod event_topics {
         ("MESSAGE_ACK", MESSAGE_ACK),
         ("READ_STATE_UPDATE", READ_STATE_UPDATE),
         ("USER_UPDATE", USER_UPDATE),
+        ("GUILD_SCHEDULED_EVENT_START", GUILD_SCHEDULED_EVENT_START),
         ("USER_SETTINGS_UPDATE", USER_SETTINGS_UPDATE),
         ("USER_GUILD_SETTINGS_UPDATE", USER_GUILD_SETTINGS_UPDATE),
         ("USER_NOTE_UPDATE", USER_NOTE_UPDATE),
@@ -905,6 +949,8 @@ pub mod message_type {
 
 /// Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.
 pub mod message_flags {
+    pub const CROSSPOSTED: u16 = 1;
+    pub const IS_CROSSPOST: u16 = 2;
     pub const SUPPRESS_EMBEDS: u16 = 4;
     pub const SUPPRESS_NOTIFICATIONS: u16 = 4096;
     pub const EPHEMERAL: u16 = 64;
@@ -912,6 +958,8 @@ pub mod message_flags {
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u16)] = &[
+        ("CROSSPOSTED", CROSSPOSTED),
+        ("IS_CROSSPOST", IS_CROSSPOST),
         ("SUPPRESS_EMBEDS", SUPPRESS_EMBEDS),
         ("SUPPRESS_NOTIFICATIONS", SUPPRESS_NOTIFICATIONS),
         ("EPHEMERAL", EPHEMERAL),
