@@ -178,6 +178,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/scheduled-events/{event_id}/push-targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recheck one event reminder recipient and return live notification tokens
+         * @description Rechecks membership, channel visibility, current interest, mute, do-not-disturb, start time and schedule revision. Event names are not returned; pushes must use generic text. An empty users array means no push.
+         */
+        get: operations["getScheduledEventPushTargets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/state": {
         parameters: {
             query?: never;
@@ -206,6 +226,57 @@ export interface paths {
         put?: never;
         /** Acquire or renew a committed Snowflake interval for one messages process */
         post: operations["reserveMessageIds"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scheduled-event-deliveries/{delivery_id}/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Acknowledge a terminal result or release the lease for retry */
+        post: operations["finishScheduledEventDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scheduled-event-deliveries/{delivery_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Recheck one leased delivery and resolve its current eligible token */
+        post: operations["resolveScheduledEventDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scheduled-event-deliveries/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Lease one pending event push delivery for 60 seconds */
+        post: operations["claimScheduledEventDelivery"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1225,6 +1296,25 @@ export interface components {
             integration_id?: components["schemas"]["Snowflake"];
         };
         /**
+         * ScheduledEventPushTargets
+         * @description Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.
+         */
+        ScheduledEventPushTargets: {
+            next_after: null;
+            users: {
+                tokens: {
+                    /** @enum {string} */
+                    environment: "production" | "sandbox";
+                    only_mentions: boolean;
+                    /** @enum {string} */
+                    platform: "apns" | "fcm";
+                    previews: boolean;
+                    token: string;
+                }[];
+                user_id: components["schemas"]["Snowflake"];
+            }[];
+        };
+        /**
          * SelectOption
          * @description An option of a string select menu.
          */
@@ -1810,6 +1900,34 @@ export interface operations {
             };
         };
     };
+    getScheduledEventPushTargets: {
+        parameters: {
+            query: {
+                revision: number;
+                scheduled_start_time: string;
+                user_id: components["schemas"]["Snowflake"];
+            };
+            header?: never;
+            path: {
+                event_id: components["schemas"]["Snowflake"];
+                guild_id: components["schemas"]["Snowflake"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current permitted live notification tokens, or an empty audience. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduledEventPushTargets"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
     getGuildState: {
         parameters: {
             query?: never;
@@ -1872,6 +1990,100 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    finishScheduledEventDelivery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                delivery_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    lease_id: string;
+                    retry_after_secs: number | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Delivery acknowledged or scheduled for retry. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Lease expired or was replaced. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    resolveScheduledEventDelivery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                delivery_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    lease_id: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Current live eligible token, or null when no longer eligible. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never> | null;
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Lease expired or was replaced. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    claimScheduledEventDelivery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A lease or null when no delivery is ready. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never> | null;
+                };
+            };
+            401: components["responses"]["Unauthorized"];
         };
     };
     getUserReadStates: {

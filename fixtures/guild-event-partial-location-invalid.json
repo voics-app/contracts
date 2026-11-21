@@ -1,0 +1,5 @@
+{
+  "schema": "rest/modify-guild-scheduled-event-request.json",
+  "valid": false,
+  "data": { "entity_metadata": { "location": "Park" } }
+}

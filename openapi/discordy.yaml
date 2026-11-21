@@ -391,6 +391,149 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /users/@me/connections:
+    get:
+      operationId: listConnections
+      summary: List the current user's linked accounts
+      tags: [Users]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Connections including hidden accounts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [provider, account_id, name, visible]
+                  properties:
+                    provider: { type: string, enum: [github] }
+                    account_id: { type: string }
+                    name: { type: string }
+                    visible: { type: boolean }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+    put:
+      operationId: updateConnection
+      summary: Set a linked account's profile visibility
+      tags: [Users]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider, visible]
+              properties:
+                provider: { type: string, enum: [github] }
+                visible: { type: boolean }
+      responses:
+        "204": { description: Visibility updated. }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+    delete:
+      operationId: removeConnection
+      summary: Remove a linked account
+      tags: [Users]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider]
+              properties:
+                provider: { type: string, enum: [github] }
+      responses:
+        "204": { description: Connection removed. }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+  /users/@me/connections/github/authorize:
+    post:
+      operationId: authorizeGithubConnection
+      summary: Begin GitHub authorization in the browser
+      tags: [Users]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Provider authorization URL.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url]
+                properties:
+                  url: { type: string, format: uri }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "503": { description: Provider disabled or unavailable. }
+  /users/@me/connections/{provider}:
+    parameters:
+      - { in: path, name: provider, required: true, schema: { type: string, enum: [github] } }
+    put:
+      operationId: setConnectionVisibility
+      summary: Set profile visibility of a linked account
+      tags: [Users]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [visible]
+              properties:
+                visible: { type: boolean }
+      responses:
+        "204": { description: Visibility updated. }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+    delete:
+      operationId: deleteConnection
+      summary: Remove a linked account
+      tags: [Users]
+      x-discordy-service: api
+      responses:
+        "204": { description: Connection removed. }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+  /users/{user_id}/connections:
+    parameters:
+      - { in: path, name: user_id, required: true, schema: { type: string } }
+    get:
+      operationId: listUserConnections
+      summary: List a user's visible linked accounts
+      tags: [Users]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Visible connections.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [provider, account_id, name, visible]
+                  properties:
+                    provider: { type: string, enum: [github] }
+                    account_id: { type: string }
+                    name: { type: string }
+                    visible: { type: boolean }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+  /connections/github/callback:
+    get:
+      operationId: githubConnectionCallback
+      summary: Complete a GitHub authorization
+      security: []
+      tags: [Users]
+      x-discordy-service: api
+      parameters:
+        - { in: query, name: state, required: true, schema: { type: string } }
+        - { in: query, name: code, required: false, schema: { type: string }, description: Present on approval. }
+        - { in: query, name: error, required: false, schema: { type: string, enum: [access_denied] }, description: Present when the user declines. }
+      responses:
+        "200": { description: Account linked or authorization cancelled; browser may be closed. }
+        "400": { $ref: '#/components/responses/BadRequest' }
   /users/@me:
     get:
       operationId: getCurrentUser
@@ -2161,6 +2304,169 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/member-verification:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    get:
+      operationId: getMemberVerification
+      summary: Get current rules and the caller's pending status
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Current screening configuration and revision.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/member-verification.json
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      operationId: putMemberVerification
+      summary: Replace rules screening configuration (MANAGE_GUILD)
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/member-verification-request.json
+      responses:
+        "200":
+          description: Saved configuration with new revision.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/member-verification.json
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /guilds/{guild_id}/member-verification/accept:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    post:
+      operationId: acceptMemberVerification
+      summary: Accept the current version of the server rules
+      description: A stale revision returns 409; fetch and display the current rules before retrying.
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [revision]
+              properties:
+                revision: { type: integer, minimum: 0 }
+      responses:
+        "204": { description: Accepted. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { description: The rules changed. }
+  /guilds/{guild_id}/onboarding:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    get:
+      operationId: getGuildOnboarding
+      summary: Get onboarding questions and their revision
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Configuration and revision.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/onboarding-response.json }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      operationId: putGuildOnboarding
+      summary: Replace onboarding questions (MANAGE_GUILD; roles also require MANAGE_ROLES)
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: ../schemas/objects/onboarding-config.json }
+      responses:
+        "200":
+          description: Saved configuration and revision.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/onboarding-response.json }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /guilds/{guild_id}/onboarding/complete:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    post:
+      operationId: completeGuildOnboarding
+      summary: Apply one choice per question once, after accepting the rules
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [revision, choices]
+              properties:
+                revision: { type: integer, minimum: 0 }
+                choices: { type: array, maxItems: 5, items: { type: integer, minimum: 0 } }
+      responses:
+        "200":
+          description: Suggested channel IDs from the selected options.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [channel_ids]
+                properties:
+                  channel_ids: { type: array, items: { $ref: ../schemas/objects/snowflake.json } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { description: "Configuration changed, an eligible role changed, or onboarding was already completed." }
+  /guilds/{guild_id}/welcome-screen:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    get:
+      operationId: getWelcomeScreen
+      summary: Get the welcome screen, filtered to channels the caller can view
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Welcome screen.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/welcome-screen.json }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      operationId: putWelcomeScreen
+      summary: Replace the welcome screen (MANAGE_GUILD)
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: ../schemas/objects/welcome-screen.json }
+      responses:
+        "200":
+          description: Saved welcome screen.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/welcome-screen.json }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
   /guilds/{guild_id}/vanity-url:
     parameters:
       - $ref: "#/components/parameters/guild_id"
@@ -2919,6 +3225,148 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/scheduled-events:
+    get:
+      operationId: listGuildScheduledEvents
+      summary: List events visible to the guild member
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Events visible to the caller.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../schemas/objects/guild-scheduled-event.json
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      operationId: createGuildScheduledEvent
+      summary: Create an event (requires CREATE_EVENTS or MANAGE_EVENTS)
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/create-guild-scheduled-event-request.json
+      responses:
+        "201":
+          description: Event created.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/guild-scheduled-event.json
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /guilds/{guild_id}/scheduled-events/{event_id}:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+      - name: event_id
+        in: path
+        required: true
+        description: Scheduled event ID.
+        schema: { $ref: ../schemas/objects/snowflake.json }
+    get:
+      operationId: getGuildScheduledEvent
+      summary: Get a visible event
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Event.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/guild-scheduled-event.json }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: modifyGuildScheduledEvent
+      summary: Modify an event
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: ../schemas/rest/modify-guild-scheduled-event-request.json }
+      responses:
+        "200":
+          description: Updated event.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/guild-scheduled-event.json }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteGuildScheduledEvent
+      summary: Delete an event
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "204": { description: Event deleted. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /guilds/{guild_id}/scheduled-events/{event_id}/users/@me:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+      - name: event_id
+        in: path
+        required: true
+        description: Scheduled event ID.
+        schema: { $ref: ../schemas/objects/snowflake.json }
+    get:
+      operationId: getOwnGuildScheduledEventInterest
+      summary: Get the caller's interest in an event
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Current interest.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [interested]
+                properties:
+                  interested: { type: boolean }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    put:
+      operationId: putOwnGuildScheduledEventInterest
+      summary: Mark the caller interested (idempotent)
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "204": { description: Interest recorded. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteOwnGuildScheduledEventInterest
+      summary: Remove the caller's interest (idempotent)
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "204": { description: Interest removed. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
   /guilds/{guild_id}/templates:
     get:
       operationId: listGuildTemplates

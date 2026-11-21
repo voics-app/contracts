@@ -18,6 +18,10 @@ export type DeliveryMode = "standard" | "ephemeral" | "p2p";
  */
 export type BotInstallationRevision = string;
 /**
+ * Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.
+ */
+export type CreateGuildScheduledEventRequest = CreateGuildScheduledEventRequest1;
+/**
  * File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
  */
 export type CreateReportRequest = CreateReportRequest1;
@@ -61,6 +65,10 @@ export type InvalidSessionPayload = boolean;
  * Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
  */
 export type ReadStateVersion = string;
+/**
+ * Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.
+ */
+export type ModifyGuildScheduledEventRequest = ModifyGuildScheduledEventRequest1;
 /**
  * A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
  */
@@ -1187,6 +1195,25 @@ export interface CreateGuildRequest {
   verification_level?: number;
   default_message_notifications?: number;
   explicit_content_filter?: number;
+}
+export interface CreateGuildScheduledEventRequest1 {
+  name: string;
+  description?: string | null;
+  entity_type: 1 | 2 | 3;
+  channel_id?: Snowflake | null;
+  entity_metadata?: ScheduledEventMetadata | null;
+  scheduled_start_time: string;
+  scheduled_end_time?: string | null;
+  /**
+   * Image data URI, subject to the standard image upload limits.
+   */
+  image?: string | null;
+}
+/**
+ * The location of an external event.
+ */
+export interface ScheduledEventMetadata {
+  location: string;
 }
 /**
  * POST /guilds/{guild_id}/templates body. A guild has at most one template.
@@ -2499,6 +2526,42 @@ export interface GuildRoleEvent {
   role: Role;
 }
 /**
+ * A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).
+ */
+export interface GuildScheduledEvent {
+  id: Snowflake;
+  guild_id: Snowflake;
+  channel_id: Snowflake | null;
+  creator_id: Snowflake | null;
+  name: string;
+  description: string | null;
+  scheduled_start_time: string;
+  scheduled_end_time: string | null;
+  status: 1 | 2 | 3 | 4;
+  entity_type: 1 | 2 | 3;
+  entity_metadata: ScheduledEventMetadata | null;
+  image: string | null;
+  user_count: number;
+}
+/**
+ * User-targeted reminder. Resolve the event and current interest again before presenting details; access may have changed after enqueue.
+ */
+export interface GuildScheduledEventStart {
+  guild_id: Snowflake;
+  guild_scheduled_event_id: Snowflake;
+  scheduled_start_time: string;
+  revision: number;
+  dedupe_key: string;
+}
+/**
+ * A user's interest in a guild event changed.
+ */
+export interface GuildScheduledEventUser {
+  guild_scheduled_event_id: Snowflake;
+  user_id: Snowflake;
+  guild_id: Snowflake;
+}
+/**
  * A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
  */
 export interface GuildTemplate {
@@ -3153,6 +3216,154 @@ export interface MediaSinkWantsPayload {
   [k: string]: number | undefined;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "MemberVerification".
+ */
+export interface MemberVerification {
+  enabled: boolean;
+  /**
+   * @maxItems 20
+   */
+  rules:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
+  revision: number;
+  /**
+   * Whether the caller must accept the rules.
+   */
+  pending: boolean;
+}
+/**
  * MESSAGE_ACK dispatch (read-state sync across the user's devices).
  */
 export interface MessageAckEvent {
@@ -3567,6 +3778,17 @@ export interface ModifyGuildRequest {
    */
   prune_admin_only?: boolean;
 }
+export interface ModifyGuildScheduledEventRequest1 {
+  name?: string;
+  description?: string | null;
+  entity_type?: 1 | 2 | 3;
+  channel_id?: Snowflake | null;
+  entity_metadata?: ScheduledEventMetadata | null;
+  scheduled_start_time?: string;
+  scheduled_end_time?: string | null;
+  image?: string | null;
+  status?: 1 | 2 | 3 | 4;
+}
 /**
  * PATCH /guilds/{guild_id}/templates/{code} body.
  */
@@ -3833,6 +4055,100 @@ export interface OAuth2AuthorizeResponse {
    * Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI.
    */
   location: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingConfig".
+ */
+export interface OnboardingConfig {
+  enabled: boolean;
+  /**
+   * @maxItems 5
+   */
+  questions:
+    | []
+    | [OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion, OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion, OnboardingQuestion, OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion, OnboardingQuestion, OnboardingQuestion, OnboardingQuestion];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingQuestion".
+ */
+export interface OnboardingQuestion {
+  title: string;
+  /**
+   * @minItems 1
+   * @maxItems 10
+   */
+  options:
+    | [OnboardingOption]
+    | [OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingOption".
+ */
+export interface OnboardingOption {
+  label: string;
+  role_id: Snowflake | null;
+  channel_id: Snowflake | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingResponse".
+ */
+export interface OnboardingResponse {
+  config: OnboardingConfig;
+  revision: number;
 }
 /**
  * Op 22 P2P_SIGNAL. Relayed only, never persisted.
@@ -4330,6 +4646,29 @@ export interface RoleRequest {
    */
   position?: number;
 }
+/**
+ * Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.
+ */
+export interface ScheduledEventPushTargets {
+  /**
+   * @maxItems 1
+   */
+  users:
+    | []
+    | [
+        {
+          user_id: Snowflake;
+          tokens: {
+            platform: "apns" | "fcm";
+            token: string;
+            environment: "production" | "sandbox";
+            previews: boolean;
+            only_mentions: boolean;
+          }[];
+        }
+      ];
+  next_after: null;
+}
 export interface ScheduledMessage1 {
   id: ScheduledMessageId;
   channel_id: Snowflake;
@@ -4445,6 +4784,149 @@ export interface SetDeliveryModeRequest {
    * Null clears the per-chat override.
    */
   mode: DeliveryMode | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SetMemberVerificationRequest".
+ */
+export interface SetMemberVerificationRequest {
+  enabled: boolean;
+  /**
+   * @maxItems 20
+   */
+  rules:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
 }
 /**
  * SFU control command: close a media session.
@@ -4983,4 +5465,87 @@ export interface WebauthnLoginFinishRequest {
  */
 export interface WebauthnLoginStartRequest {
   ticket: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "WelcomeScreen".
+ */
+export interface WelcomeScreen {
+  enabled: boolean;
+  description: string;
+  /**
+   * @maxItems 5
+   */
+  channels:
+    | []
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ];
 }

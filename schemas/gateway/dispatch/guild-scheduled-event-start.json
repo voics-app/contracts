@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/guild-scheduled-event-start.json",
+  "title": "GuildScheduledEventStart",
+  "description": "User-targeted reminder. Resolve the event and current interest again before presenting details; access may have changed after enqueue.",
+  "type": "object",
+  "required": ["guild_id", "guild_scheduled_event_id", "scheduled_start_time", "revision", "dedupe_key"],
+  "properties": {
+    "guild_id": { "$ref": "../../objects/snowflake.json" },
+    "guild_scheduled_event_id": { "$ref": "../../objects/snowflake.json" },
+    "scheduled_start_time": { "type": "string", "format": "date-time" },
+    "revision": { "type": "integer", "minimum": 0 },
+    "dedupe_key": { "type": "string", "minLength": 1 }
+  }
+}

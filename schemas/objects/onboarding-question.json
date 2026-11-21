@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/onboarding-question.json",
+  "title": "OnboardingQuestion",
+  "type": "object",
+  "required": ["title", "options"],
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "options": { "type": "array", "minItems": 1, "maxItems": 10, "items": { "$ref": "./onboarding-option.json" } }
+  }
+}
