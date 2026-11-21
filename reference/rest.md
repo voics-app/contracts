@@ -155,7 +155,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PATCH` | `/guilds/{guild_id}` | api | `ModifyGuildRequest` | `Guild` | Modify a guild (including voice_region) |
 | `DELETE` | `/guilds/{guild_id}` | api | — | 204 No Content | Delete a guild (owner only) |
 | `GET` | `/guilds/{guild_id}/insights` | api | — | `GuildInsights` | Get daily server activity (MANAGE_GUILD) |
-| `GET` | `/guilds/{guild_id}/widget.json` | api | — | `object` | Get an enabled guild's public widget |
+| `GET` | `/guilds/{guild_id}/widget.json` | api | — | `GuildWidget` | Get an enabled guild's public widget |
 | `GET` | `/guilds/{guild_id}/widget` | api | — | `GuildWidgetSettings` | Get widget settings (MANAGE_GUILD) |
 | `PATCH` | `/guilds/{guild_id}/widget` | api | `GuildWidgetPatch` | `GuildWidgetSettings` | Update widget settings (MANAGE_GUILD) |
 | `GET` | `/guilds/{guild_id}/channels` | api | — | `array of Channel` | List a guild's channels |
@@ -2415,6 +2415,19 @@ Period status and the number of days in each coverage state for this source.
 | `voice_coverage` | `boolean` |  |
 | `coverage` | `object` |  |
 | `days` | `array of object` |  |
+
+### GuildWidget
+
+Public view of a guild with its widget enabled. Anonymous callers see only what the @everyone role can see.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `icon` | `?string` |  |
+| `instant_invite` | `?string` | Code of a usable, non-temporary invite to the widget channel; null when there is none. |
+| `presence_count` | `?integer` | Members online now; null when presence is unavailable. |
+| `channels` | `array of object` |  |
 
 ### GuildWidgetPatch
 

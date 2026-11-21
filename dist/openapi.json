@@ -2799,7 +2799,7 @@
       "get": {
         "operationId": "getPublicGuildWidget",
         "summary": "Get an enabled guild's public widget",
-        "description": "Disabled widgets return 404. The response deliberately omits channels, members and invites.",
+        "description": "Disabled widgets return 404. Lists the channels the @everyone role can view (NSFW channels excluded), an invite code for the widget channel and the online count. Members are never listed.",
         "security": [],
         "tags": [
           "Guilds"
@@ -2812,30 +2812,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Public guild identity.",
+            "description": "Public guild widget.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "required": [
-                    "id",
-                    "name",
-                    "icon"
-                  ],
-                  "properties": {
-                    "id": {
-                      "$ref": "#/components/schemas/Snowflake"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "icon": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  }
+                  "$ref": "#/components/schemas/GuildWidget"
                 }
               }
             }
@@ -14542,6 +14523,70 @@
           "is_dirty": {
             "type": "boolean",
             "description": "Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
+          }
+        }
+      },
+      "GuildWidget": {
+        "title": "GuildWidget",
+        "description": "Public view of a guild with its widget enabled. Anonymous callers see only what the @everyone role can see.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "icon",
+          "instant_invite",
+          "presence_count",
+          "channels"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "instant_invite": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Code of a usable, non-temporary invite to the widget channel; null when there is none."
+          },
+          "presence_count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Members online now; null when presence is unavailable."
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name",
+                "position"
+              ],
+              "properties": {
+                "id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "position": {
+                  "type": "integer"
+                }
+              }
+            }
           }
         }
       },

@@ -1681,7 +1681,7 @@ paths:
     get:
       operationId: getPublicGuildWidget
       summary: Get an enabled guild's public widget
-      description: Disabled widgets return 404. The response deliberately omits channels, members and invites.
+      description: Disabled widgets return 404. Lists the channels the @everyone role can view (NSFW channels excluded), an invite code for the widget channel and the online count. Members are never listed.
       security: []
       tags: [Guilds]
       x-discordy-service: api
@@ -1689,19 +1689,11 @@ paths:
         - $ref: "#/components/parameters/guild_id"
       responses:
         "200":
-          description: Public guild identity.
+          description: Public guild widget.
           content:
             application/json:
               schema:
-                type: object
-                required: [id, name, icon]
-                properties:
-                  id:
-                    $ref: ../schemas/objects/snowflake.json
-                  name:
-                    type: string
-                  icon:
-                    type: [string, "null"]
+                $ref: ../schemas/rest/guild-widget.json
         "404":
           $ref: "#/components/responses/NotFound"
   /guilds/{guild_id}/widget:

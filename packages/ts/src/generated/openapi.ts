@@ -1838,7 +1838,7 @@ export interface paths {
         };
         /**
          * Get an enabled guild's public widget
-         * @description Disabled widgets return 404. The response deliberately omits channels, members and invites.
+         * @description Disabled widgets return 404. Lists the channels the @everyone role can view (NSFW channels excluded), an invite code for the widget channel and the online count. Members are never listed.
          */
         get: operations["getPublicGuildWidget"];
         put?: never;
@@ -3987,6 +3987,24 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
             usage_count: number;
+        };
+        /**
+         * GuildWidget
+         * @description Public view of a guild with its widget enabled. Anonymous callers see only what the @everyone role can see.
+         */
+        GuildWidget: {
+            channels: {
+                id: components["schemas"]["Snowflake"];
+                name: string;
+                position: number;
+            }[];
+            icon: string | null;
+            id: components["schemas"]["Snowflake"];
+            /** @description Code of a usable, non-temporary invite to the widget channel; null when there is none. */
+            instant_invite: string | null;
+            name: string;
+            /** @description Members online now; null when presence is unavailable. */
+            presence_count: number | null;
         };
         /** GuildWidgetPatch */
         GuildWidgetPatch: {
@@ -10338,17 +10356,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Public guild identity. */
+            /** @description Public guild widget. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        icon: string | null;
-                        id: components["schemas"]["Snowflake"];
-                        name: string;
-                    };
+                    "application/json": components["schemas"]["GuildWidget"];
                 };
             };
             404: components["responses"]["NotFound"];

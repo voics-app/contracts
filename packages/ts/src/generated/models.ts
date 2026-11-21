@@ -2760,6 +2760,27 @@ export interface TemplateOverwrite {
   deny: PermissionBitset;
 }
 /**
+ * Public view of a guild with its widget enabled. Anonymous callers see only what the @everyone role can see.
+ */
+export interface GuildWidget {
+  id: Snowflake;
+  name: string;
+  icon: string | null;
+  /**
+   * Code of a usable, non-temporary invite to the widget channel; null when there is none.
+   */
+  instant_invite: string | null;
+  /**
+   * Members online now; null when presence is unavailable.
+   */
+  presence_count: number | null;
+  channels: {
+    id: Snowflake;
+    name: string;
+    position: number;
+  }[];
+}
+/**
  * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
  * via the `definition` "GuildWidgetPatch".
  */

@@ -4905,6 +4905,28 @@ impl<'de> ::serde::Deserialize<'de> for GuildTemplateName {
             })
     }
 }
+///Public view of a guild with its widget enabled. Anonymous callers see only what the @everyone role can see.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildWidget {
+    pub channels: ::std::vec::Vec<GuildWidgetChannelsItem>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub icon: ::std::option::Option<::std::string::String>,
+    pub id: Snowflake,
+    ///Code of a usable, non-temporary invite to the widget channel; null when there is none.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub instant_invite: ::std::option::Option<::std::string::String>,
+    pub name: ::std::string::String,
+    ///Members online now; null when presence is unavailable.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub presence_count: ::std::option::Option<u64>,
+}
+///`GuildWidgetChannelsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildWidgetChannelsItem {
+    pub id: Snowflake,
+    pub name: ::std::string::String,
+    pub position: i64,
+}
 ///`GuildWidgetPatch`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 #[serde(deny_unknown_fields)]
