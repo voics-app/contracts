@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/onboarding-option.json",
+  "title": "OnboardingOption",
+  "type": "object",
+  "required": ["label", "role_id", "channel_id"],
+  "properties": {
+    "label": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "role_id": { "anyOf": [{ "$ref": "./snowflake.json" }, { "type": "null" }] },
+    "channel_id": { "anyOf": [{ "$ref": "./snowflake.json" }, { "type": "null" }] }
+  }
+}

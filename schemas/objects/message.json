@@ -152,6 +152,9 @@
       "items": {
         "$ref": "./message-snapshot.json"
       }
+    },
+    "poll": {
+      "$ref": "./poll.json"
     }
   },
   "$defs": {

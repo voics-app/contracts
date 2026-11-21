@@ -1,0 +1,9 @@
+{
+  "schema": "rest/create-guild-scheduled-event-request.json",
+  "valid": false,
+  "data": {
+    "name": "Meetup",
+    "entity_type": 2,
+    "scheduled_start_time": "2026-12-01T12:00:00Z"
+  }
+}

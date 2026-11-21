@@ -82,6 +82,178 @@
     }
   ],
   "paths": {
+    "/gifs/previews": {
+      "post": {
+        "operationId": "signGifPreviews",
+        "summary": "Refresh signed previews for favorite GIFs",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "urls"
+                ],
+                "properties": {
+                  "urls": {
+                    "type": "array",
+                    "maxItems": 48,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Signed media proxy URLs in request order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "urls"
+                  ],
+                  "properties": {
+                    "urls": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A URL is outside the configured provider media hosts."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "description": "Provider or media signer unavailable."
+          }
+        }
+      }
+    },
+    "/gifs/trending": {
+      "get": {
+        "operationId": "trendingGifs",
+        "summary": "Browse trending GIFs",
+        "description": "Returns the configured Tenor-v2-compatible provider's featured response. Disabled with 503 until configured.",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Provider response containing results and media_formats.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "description": "Provider not configured or unavailable."
+          }
+        }
+      }
+    },
+    "/gifs/search": {
+      "get": {
+        "operationId": "searchGifs",
+        "summary": "Search GIFs",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Provider response containing results and media_formats.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search query."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "description": "Provider not configured or unavailable."
+          }
+        }
+      }
+    },
+    "/gifs/categories": {
+      "get": {
+        "operationId": "gifCategories",
+        "summary": "Browse GIF categories",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Provider response containing category tags.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "description": "Provider not configured or unavailable."
+          }
+        }
+      }
+    },
     "/reports": {
       "post": {
         "operationId": "createReport",
@@ -610,6 +782,354 @@
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/users/@me/connections": {
+      "get": {
+        "operationId": "listConnections",
+        "summary": "List the current user's linked accounts",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Connections including hidden accounts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "provider",
+                      "account_id",
+                      "name",
+                      "visible"
+                    ],
+                    "properties": {
+                      "provider": {
+                        "type": "string",
+                        "enum": [
+                          "github"
+                        ]
+                      },
+                      "account_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "visible": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateConnection",
+        "summary": "Set a linked account's profile visibility",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "provider",
+                  "visible"
+                ],
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "github"
+                    ]
+                  },
+                  "visible": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Visibility updated."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeConnection",
+        "summary": "Remove a linked account",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "provider"
+                ],
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "github"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Connection removed."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/users/@me/connections/github/authorize": {
+      "post": {
+        "operationId": "authorizeGithubConnection",
+        "summary": "Begin GitHub authorization in the browser",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Provider authorization URL.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "url"
+                  ],
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "description": "Provider disabled or unavailable."
+          }
+        }
+      }
+    },
+    "/users/@me/connections/{provider}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "provider",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "github"
+            ]
+          }
+        }
+      ],
+      "put": {
+        "operationId": "setConnectionVisibility",
+        "summary": "Set profile visibility of a linked account",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "visible"
+                ],
+                "properties": {
+                  "visible": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Visibility updated."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteConnection",
+        "summary": "Remove a linked account",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "204": {
+            "description": "Connection removed."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/users/{user_id}/connections": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "user_id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "listUserConnections",
+        "summary": "List a user's visible linked accounts",
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Visible connections.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "provider",
+                      "account_id",
+                      "name",
+                      "visible"
+                    ],
+                    "properties": {
+                      "provider": {
+                        "type": "string",
+                        "enum": [
+                          "github"
+                        ]
+                      },
+                      "account_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "visible": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/connections/github/callback": {
+      "get": {
+        "operationId": "githubConnectionCallback",
+        "summary": "Complete a GitHub authorization",
+        "security": [],
+        "tags": [
+          "Users"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "state",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "code",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Present on approval."
+          },
+          {
+            "in": "query",
+            "name": "error",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "access_denied"
+              ]
+            },
+            "description": "Present when the user declines."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account linked or authorization cancelled; browser may be closed."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           }
         }
       }
@@ -3790,6 +4310,349 @@
         }
       }
     },
+    "/guilds/{guild_id}/member-verification": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "get": {
+        "operationId": "getMemberVerification",
+        "summary": "Get current rules and the caller's pending status",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Current screening configuration and revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberVerification"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putMemberVerification",
+        "summary": "Replace rules screening configuration (MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetMemberVerificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved configuration with new revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberVerification"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/member-verification/accept": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "post": {
+        "operationId": "acceptMemberVerification",
+        "summary": "Accept the current version of the server rules",
+        "description": "A stale revision returns 409; fetch and display the current rules before retrying.",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "revision"
+                ],
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Accepted."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "description": "The rules changed."
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/onboarding": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "get": {
+        "operationId": "getGuildOnboarding",
+        "summary": "Get onboarding questions and their revision",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Configuration and revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putGuildOnboarding",
+        "summary": "Replace onboarding questions (MANAGE_GUILD; roles also require MANAGE_ROLES)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnboardingConfig"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved configuration and revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/onboarding/complete": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "post": {
+        "operationId": "completeGuildOnboarding",
+        "summary": "Apply one choice per question once, after accepting the rules",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "revision",
+                  "choices"
+                ],
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "choices": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Suggested channel IDs from the selected options.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "channel_ids"
+                  ],
+                  "properties": {
+                    "channel_ids": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Snowflake"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "description": "Configuration changed, an eligible role changed, or onboarding was already completed."
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/welcome-screen": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "get": {
+        "operationId": "getWelcomeScreen",
+        "summary": "Get the welcome screen, filtered to channels the caller can view",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Welcome screen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelcomeScreen"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putWelcomeScreen",
+        "summary": "Replace the welcome screen (MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WelcomeScreen"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved welcome screen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelcomeScreen"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/vanity-url": {
       "parameters": [
         {
@@ -4390,7 +5253,7 @@
     "/channels/{channel_id}/threads": {
       "get": {
         "operationId": "listChannelThreads",
-        "summary": "List visible active or archived threads under a channel",
+        "summary": "List visible active or archived threads under a channel; in a forum channel the active list is the published forum posts",
         "tags": [
           "Channels"
         ],
@@ -4474,8 +5337,205 @@
               }
             }
           },
+          "202": {
+            "description": "Forum post is pending or delivery is being reconciled. Retry the same request ID and body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Channel"
+                }
+              }
+            }
+          },
           "400": {
             "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/followers": {
+      "post": {
+        "operationId": "followAnnouncementChannel",
+        "summary": "Follow an announcement channel into another server",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "webhook_channel_id"
+                ],
+                "properties": {
+                  "webhook_channel_id": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Follower created; no webhook token is issued.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "channel_id",
+                    "webhook_id"
+                  ],
+                  "properties": {
+                    "channel_id": {
+                      "$ref": "#/components/schemas/Snowflake"
+                    },
+                    "webhook_id": {
+                      "$ref": "#/components/schemas/Snowflake"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "The destination already follows this source."
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "description": "Announcement delivery is disabled or unavailable."
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/messages/{message_id}/crosspost": {
+      "post": {
+        "operationId": "publishAnnouncement",
+        "summary": "Publish an announcement to its followers",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/message_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Publication queued and source marked CROSSPOSTED.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "This message was already reserved for publication."
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "description": "Announcement delivery is disabled or unavailable."
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/followed-channels": {
+      "get": {
+        "operationId": "listFollowedChannels",
+        "summary": "List announcement channels followed by a server",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Source channel, destination channel and follower webhook IDs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "channel_id",
+                      "webhook_channel_id",
+                      "webhook_id"
+                    ],
+                    "properties": {
+                      "channel_id": {
+                        "$ref": "#/components/schemas/Snowflake"
+                      },
+                      "webhook_channel_id": {
+                        "$ref": "#/components/schemas/Snowflake"
+                      },
+                      "webhook_id": {
+                        "$ref": "#/components/schemas/Snowflake"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
@@ -4986,6 +6046,298 @@
         }
       }
     },
+    "/guilds/{guild_id}/scheduled-events": {
+      "get": {
+        "operationId": "listGuildScheduledEvents",
+        "summary": "List events visible to the guild member",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Events visible to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuildScheduledEvent"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createGuildScheduledEvent",
+        "summary": "Create an event (requires CREATE_EVENTS or MANAGE_EVENTS)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGuildScheduledEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildScheduledEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/scheduled-events/{event_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        },
+        {
+          "name": "event_id",
+          "in": "path",
+          "required": true,
+          "description": "Scheduled event ID.",
+          "schema": {
+            "$ref": "#/components/schemas/Snowflake"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getGuildScheduledEvent",
+        "summary": "Get a visible event",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Event.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildScheduledEvent"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "modifyGuildScheduledEvent",
+        "summary": "Modify an event",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyGuildScheduledEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated event.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildScheduledEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteGuildScheduledEvent",
+        "summary": "Delete an event",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "204": {
+            "description": "Event deleted."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/scheduled-events/{event_id}/users/@me": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        },
+        {
+          "name": "event_id",
+          "in": "path",
+          "required": true,
+          "description": "Scheduled event ID.",
+          "schema": {
+            "$ref": "#/components/schemas/Snowflake"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getOwnGuildScheduledEventInterest",
+        "summary": "Get the caller's interest in an event",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Current interest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "interested"
+                  ],
+                  "properties": {
+                    "interested": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putOwnGuildScheduledEventInterest",
+        "summary": "Mark the caller interested (idempotent)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "204": {
+            "description": "Interest recorded."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteOwnGuildScheduledEventInterest",
+        "summary": "Remove the caller's interest (idempotent)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "204": {
+            "description": "Interest removed."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/templates": {
       "get": {
         "operationId": "listGuildTemplates",
@@ -5491,6 +6843,223 @@
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/polls/{message_id}": {
+      "get": {
+        "operationId": "getPoll",
+        "summary": "Get an authoritative poll snapshot for the current viewer",
+        "description": "Fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in a Standard channel are required. Results include every answer count and the viewer's vote version. This side-effect-free query repairs missed events; refresh visible polls on foreground and reconnect. A missing/non-poll/deleted message is 404. This additive contract requires the polls implementation before use.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/message_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PollSnapshot"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/PollConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/PollUnavailable"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/polls/{message_id}/answers/{answer_id}/@me": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/channel_id"
+        },
+        {
+          "$ref": "#/components/parameters/message_id"
+        },
+        {
+          "name": "answer_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          }
+        }
+      ],
+      "put": {
+        "operationId": "selectPollAnswer",
+        "summary": "Select a poll answer with your current vote revision",
+        "description": "Authenticated human users only, with fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in a Standard channel. Single-choice selection replaces the previous answer atomically; multi-choice adds this answer. An already-satisfied retry is a no-op. A stale version that changes the selection conflicts. The global results version is not the voter precondition. Bots cannot vote. At most 100000 distinct participants, including retracted voters, are admitted.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PollVoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PollSnapshot"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/PollConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/PollUnavailable"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removePollAnswer",
+        "summary": "Retract a poll answer with your current vote revision",
+        "description": "Same fresh access and human-user restrictions as selecting an answer. Removing an already-absent answer is a no-op. Retain the original expected version when retrying a lost response; refresh after a conflicting later selection.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "expected_vote_version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PollVersion"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PollSnapshot"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/PollConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/PollUnavailable"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/polls/{message_id}/expire": {
+      "post": {
+        "operationId": "expirePoll",
+        "summary": "End your own poll early",
+        "description": "The original author alone may end a poll, with fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in the Standard channel. MANAGE_MESSAGES grants deletion, not author impersonation. Repeated expiry returns the already-finalized result. A competing vote either commits before the closing fence and is counted, or is rejected. Publishes MESSAGE_UPDATE with complete finalized results. Public bot authors may end their own poll but may not vote.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/message_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message with finalized poll results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/PollConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/PollUnavailable"
           }
         }
       }
@@ -8830,6 +10399,36 @@
       }
     },
     "responses": {
+      "PollSnapshot": {
+        "description": "Complete results and the authenticated viewer's selection.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PollSnapshot"
+            }
+          }
+        }
+      },
+      "PollConflict": {
+        "description": "Private delivery (50160), or closed/overdue poll, stale changing voter revision or participant-cap exhaustion (50035 with poll, expected_vote_version or poll.participants field error). No requested vote mutation occurred.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "PollUnavailable": {
+        "description": "Temporary dependency failure or bounded CAS retry exhaustion. An uncertain transport response is reconciled by GET or an identical retry, never by incrementing a local count.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
       "ScheduledMessageResult": {
         "description": "Current author-private scheduled-message state.",
         "content": {
@@ -10112,6 +11711,44 @@
               "null"
             ],
             "description": "Discordy: per-channel voice region override; null uses the guild's voice_region."
+          },
+          "require_tags": {
+            "type": "boolean",
+            "description": "Forum posts must have at least one available tag."
+          },
+          "forum_post_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "dispatching",
+              "publishing",
+              "published",
+              "failed"
+            ],
+            "description": "Forum post creation status. Non-published posts are returned only to the author on a matching retry."
+          },
+          "forum_first_message": {
+            "type": "object",
+            "description": "First stored message preview for a Standard forum post.",
+            "required": [
+              "id",
+              "content",
+              "attachments"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              "content": {
+                "type": "string"
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Attachment"
+                }
+              }
+            }
           }
         }
       },
@@ -10513,6 +12150,122 @@
           }
         }
       },
+      "CreateGuildScheduledEventRequest": {
+        "title": "CreateGuildScheduledEventRequest",
+        "description": "Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.",
+        "type": "object",
+        "required": [
+          "name",
+          "entity_type",
+          "scheduled_start_time"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "\\S"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1000
+          },
+          "entity_type": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "channel_id": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entity_metadata": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ScheduledEventMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scheduled_start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scheduled_end_time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Image data URI, subject to the standard image upload limits."
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "entity_type": {
+                  "const": 3
+                }
+              },
+              "required": [
+                "entity_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "scheduled_end_time",
+                "entity_metadata"
+              ],
+              "properties": {
+                "scheduled_end_time": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "entity_metadata": {
+                  "$ref": "#/components/schemas/ScheduledEventMetadata"
+                },
+                "channel_id": {
+                  "type": "null"
+                }
+              }
+            },
+            "else": {
+              "required": [
+                "channel_id"
+              ],
+              "properties": {
+                "channel_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "entity_metadata": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
       "CreateGuildTemplateRequest": {
         "title": "CreateGuildTemplateRequest",
         "description": "POST /guilds/{guild_id}/templates body. A guild has at most one template.",
@@ -10560,7 +12313,7 @@
       },
       "CreateMessageRequest": {
         "title": "CreateMessageRequest",
-        "description": "POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).",
+        "description": "POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160). A poll requires fresh SEND_POLLS in addition to normal send permissions. Its definition cannot be edited or forwarded; public bots use the same permissions, and internal/webhook/interaction poll creation is rejected. Poll-only messages are valid. Private delivery never stores polls.",
         "type": "object",
         "properties": {
           "content": {
@@ -10604,6 +12357,9 @@
           "flags": {
             "type": "integer",
             "description": "MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components."
+          },
+          "poll": {
+            "$ref": "#/components/schemas/PollCreate"
           }
         }
       },
@@ -10752,7 +12508,7 @@
       },
       "CreateThreadRequest": {
         "title": "CreateThreadRequest",
-        "description": "POST /channels/{id}/threads body. Forum channels require `message`.",
+        "description": "POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.",
         "type": "object",
         "required": [
           "name"
@@ -10791,7 +12547,23 @@
             }
           },
           "message": {
-            "$ref": "#/components/schemas/CreateMessageRequest"
+            "type": "object",
+            "required": [
+              "content"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            }
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Required for forum posts, scoped to the author and forum."
           }
         }
       },
@@ -11518,6 +13290,28 @@
           }
         }
       },
+      "FriendSourceFlags": {
+        "title": "FriendSourceFlags",
+        "description": "Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "all",
+          "mutual_friends",
+          "mutual_guilds"
+        ],
+        "properties": {
+          "all": {
+            "type": "boolean"
+          },
+          "mutual_friends": {
+            "type": "boolean"
+          },
+          "mutual_guilds": {
+            "type": "boolean"
+          }
+        }
+      },
       "Guild": {
         "title": "Guild",
         "description": "A guild (server). `voice_region` is a Discordy extra.",
@@ -12001,6 +13795,114 @@
           }
         }
       },
+      "GuildScheduledEvent": {
+        "title": "GuildScheduledEvent",
+        "description": "A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).",
+        "type": "object",
+        "required": [
+          "id",
+          "guild_id",
+          "channel_id",
+          "creator_id",
+          "name",
+          "description",
+          "scheduled_start_time",
+          "scheduled_end_time",
+          "status",
+          "entity_type",
+          "entity_metadata",
+          "image",
+          "user_count"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "channel_id": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "creator_id": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1000
+          },
+          "scheduled_start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scheduled_end_time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "entity_type": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "entity_metadata": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ScheduledEventMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "user_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
       "GuildTemplate": {
         "title": "GuildTemplate",
         "description": "A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.",
@@ -12314,6 +14216,38 @@
           }
         }
       },
+      "MemberVerification": {
+        "title": "MemberVerification",
+        "type": "object",
+        "required": [
+          "enabled",
+          "rules",
+          "revision",
+          "pending"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "rules": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            }
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pending": {
+            "type": "boolean",
+            "description": "Whether the caller must accept the rules."
+          }
+        }
+      },
       "Message": {
         "title": "Message",
         "description": "A standard-mode message.",
@@ -12466,6 +14400,9 @@
             "items": {
               "$ref": "#/components/schemas/MessageSnapshot"
             }
+          },
+          "poll": {
+            "$ref": "#/components/schemas/Poll"
           }
         }
       },
@@ -12907,6 +14844,88 @@
               "string",
               "null"
             ]
+          },
+          "available_tags": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                "moderated": {
+                  "type": "boolean"
+                },
+                "emoji_id": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Snowflake"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "emoji_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "applied_tags": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "default_sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              null
+            ]
+          },
+          "default_forum_layout": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          "default_reaction_emoji": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DefaultReaction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "require_tags": {
+            "type": "boolean"
+          },
+          "flags": {
+            "type": "integer",
+            "description": "Forum post flags; bit 1 pins a post and requires MANAGE_THREADS."
           }
         }
       },
@@ -13264,6 +15283,165 @@
           }
         }
       },
+      "ModifyGuildScheduledEventRequest": {
+        "title": "ModifyGuildScheduledEventRequest",
+        "description": "Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "\\S"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1000
+          },
+          "entity_type": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "channel_id": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entity_metadata": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ScheduledEventMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scheduled_start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scheduled_end_time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "channel_id": {}
+                  },
+                  "required": [
+                    "channel_id"
+                  ]
+                },
+                {
+                  "properties": {
+                    "entity_metadata": {}
+                  },
+                  "required": [
+                    "entity_metadata"
+                  ]
+                }
+              ]
+            },
+            "then": {
+              "properties": {
+                "entity_type": {}
+              },
+              "required": [
+                "entity_type"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "entity_type": {
+                  "enum": [
+                    1,
+                    2
+                  ]
+                }
+              },
+              "required": [
+                "entity_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "channel_id"
+              ],
+              "properties": {
+                "channel_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "entity_metadata": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "entity_type": {
+                  "const": 3
+                }
+              },
+              "required": [
+                "entity_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "entity_metadata"
+              ],
+              "properties": {
+                "channel_id": {
+                  "type": "null"
+                },
+                "entity_metadata": {
+                  "$ref": "#/components/schemas/ScheduledEventMetadata"
+                }
+              }
+            }
+          }
+        ]
+      },
       "ModifyGuildTemplateRequest": {
         "title": "ModifyGuildTemplateRequest",
         "description": "PATCH /guilds/{guild_id}/templates/{code} body.",
@@ -13442,6 +15620,22 @@
           "preferences": {
             "$ref": "#/components/schemas/UserPreferences",
             "description": "Merged key by key into the stored preferences."
+          },
+          "friend_source_flags": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Partial friend-request source update; omitted flags retain their values.",
+            "properties": {
+              "all": {
+                "type": "boolean"
+              },
+              "mutual_friends": {
+                "type": "boolean"
+              },
+              "mutual_guilds": {
+                "type": "boolean"
+              }
+            }
           }
         }
       },
@@ -13632,6 +15826,102 @@
               }
             ],
             "description": "Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation."
+          }
+        }
+      },
+      "OnboardingConfig": {
+        "title": "OnboardingConfig",
+        "type": "object",
+        "required": [
+          "enabled",
+          "questions"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "questions": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/OnboardingQuestion"
+            }
+          }
+        }
+      },
+      "OnboardingOption": {
+        "title": "OnboardingOption",
+        "type": "object",
+        "required": [
+          "label",
+          "role_id",
+          "channel_id"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "role_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "channel_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "OnboardingQuestion": {
+        "title": "OnboardingQuestion",
+        "type": "object",
+        "required": [
+          "title",
+          "options"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "options": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/OnboardingOption"
+            }
+          }
+        }
+      },
+      "OnboardingResponse": {
+        "title": "OnboardingResponse",
+        "type": "object",
+        "required": [
+          "config",
+          "revision"
+        ],
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/OnboardingConfig"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
           }
         }
       },
@@ -13897,6 +16187,349 @@
             "$ref": "#/components/schemas/PermissionBitset"
           }
         }
+      },
+      "Poll": {
+        "title": "Poll",
+        "type": "object",
+        "required": [
+          "question",
+          "answers",
+          "expiry",
+          "allow_multiselect",
+          "layout_type"
+        ],
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/PollQuestion"
+          },
+          "answers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollAnswer"
+            }
+          },
+          "expiry": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "allow_multiselect": {
+            "type": "boolean"
+          },
+          "layout_type": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "results": {
+            "$ref": "#/components/schemas/PollResults"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit."
+      },
+      "PollAnswer": {
+        "title": "PollAnswer",
+        "type": "object",
+        "required": [
+          "answer_id",
+          "poll_media"
+        ],
+        "properties": {
+          "answer_id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "poll_media": {
+            "$ref": "#/components/schemas/PollMedia"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PollAnswerCount": {
+        "title": "PollAnswerCount",
+        "type": "object",
+        "required": [
+          "id",
+          "count"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "me_voted": {
+            "type": "boolean",
+            "description": "Absent in public events: unknown, not false."
+          }
+        },
+        "additionalProperties": false
+      },
+      "PollCreate": {
+        "title": "PollCreate",
+        "type": "object",
+        "required": [
+          "question",
+          "answers"
+        ],
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/PollQuestion"
+          },
+          "answers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "type": "object",
+              "required": [
+                "poll_media"
+              ],
+              "properties": {
+                "poll_media": {
+                  "$ref": "#/components/schemas/PollMedia"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 768,
+            "default": 24,
+            "description": "Whole hours from server acceptance."
+          },
+          "allow_multiselect": {
+            "type": "boolean",
+            "default": false
+          },
+          "layout_type": {
+            "type": "integer",
+            "enum": [
+              1
+            ],
+            "default": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Immutable poll definition for a Standard public message. Answer IDs and expiry are server assigned. Unsupported internal/webhook/interaction, scheduled and forward creation is rejected."
+      },
+      "PollEmoji": {
+        "title": "PollEmoji",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "additionalProperties": false,
+        "description": "Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names."
+      },
+      "PollMedia": {
+        "title": "PollMedia",
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 55,
+            "pattern": "\\S"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/PollEmoji"
+          }
+        },
+        "additionalProperties": false,
+        "description": "An answer label, optionally decorated with a Unicode emoji."
+      },
+      "PollQuestion": {
+        "title": "PollQuestion",
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "pattern": "\\S"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Plain text. Does not produce mentions or embeds."
+      },
+      "PollResults": {
+        "title": "PollResults",
+        "type": "object",
+        "required": [
+          "version",
+          "is_finalized",
+          "answer_counts"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "#/components/schemas/PollVersion"
+          },
+          "is_finalized": {
+            "type": "boolean"
+          },
+          "answer_counts": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollAnswerCount"
+            },
+            "description": "Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer."
+          },
+          "vote_version": {
+            "$ref": "#/components/schemas/PollVersion",
+            "description": "Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Authoritative counts. Replace by results version; never add/subtract event deltas."
+      },
+      "PollSnapshot": {
+        "title": "PollSnapshot",
+        "type": "object",
+        "required": [
+          "question",
+          "answers",
+          "expiry",
+          "allow_multiselect",
+          "layout_type",
+          "results"
+        ],
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/PollQuestion"
+          },
+          "answers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollAnswer"
+            }
+          },
+          "expiry": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "allow_multiselect": {
+            "type": "boolean"
+          },
+          "layout_type": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "results": {
+            "$ref": "#/components/schemas/PollViewerResults"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Viewer-authorized poll snapshot. GET is side-effect-free. Refresh visible polls on foreground/reconnect to repair missed publication."
+      },
+      "PollVersion": {
+        "title": "PollVersion",
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]{0,18})$",
+        "description": "Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed."
+      },
+      "PollViewerAnswerCount": {
+        "title": "PollViewerAnswerCount",
+        "type": "object",
+        "required": [
+          "id",
+          "count",
+          "me_voted"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "me_voted": {
+            "type": "boolean",
+            "description": "Absent in public events: unknown, not false."
+          }
+        },
+        "additionalProperties": false
+      },
+      "PollViewerResults": {
+        "title": "PollViewerResults",
+        "type": "object",
+        "required": [
+          "version",
+          "is_finalized",
+          "answer_counts",
+          "vote_version"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "#/components/schemas/PollVersion"
+          },
+          "is_finalized": {
+            "type": "boolean"
+          },
+          "answer_counts": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollViewerAnswerCount"
+            },
+            "description": "Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer."
+          },
+          "vote_version": {
+            "$ref": "#/components/schemas/PollVersion",
+            "description": "Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Authenticated snapshot with explicit selection for every answer and the viewer revision, including zero for a first-time viewer."
+      },
+      "PollVoteRequest": {
+        "title": "PollVoteRequest",
+        "type": "object",
+        "required": [
+          "expected_vote_version"
+        ],
+        "properties": {
+          "expected_vote_version": {
+            "$ref": "#/components/schemas/PollVersion"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The revision of your own vote, not the global results. An already-satisfied retry is a no-op; any stale request that changes your selection conflicts."
       },
       "ProfileBadge": {
         "title": "ProfileBadge",
@@ -14299,6 +16932,22 @@
           }
         }
       },
+      "ScheduledEventMetadata": {
+        "title": "ScheduledEventMetadata",
+        "description": "The location of an external event.",
+        "type": "object",
+        "required": [
+          "location"
+        ],
+        "properties": {
+          "location": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "\\S"
+          }
+        }
+      },
       "ScheduledMessage": {
         "title": "ScheduledMessage",
         "description": "Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.",
@@ -14679,6 +17328,28 @@
               }
             ],
             "description": "Null clears the per-chat override."
+          }
+        }
+      },
+      "SetMemberVerificationRequest": {
+        "title": "SetMemberVerificationRequest",
+        "type": "object",
+        "required": [
+          "enabled",
+          "rules"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "rules": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            }
           }
         }
       },
@@ -15170,6 +17841,24 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "default_guilds_restricted": {
+            "type": "boolean",
+            "description": "Default restriction on new guild-related DMs; missing means false."
+          },
+          "guild_dm_restrictions": {
+            "type": "object",
+            "maxProperties": 200,
+            "propertyNames": {
+              "pattern": "^[0-9]{1,20}$"
+            },
+            "additionalProperties": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "description": "Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior."
+          },
           "hide_age_restricted_channels": {
             "type": "boolean",
             "description": "Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization."
@@ -15276,6 +17965,16 @@
             "type": "string",
             "maxLength": 16,
             "description": "Skin tone modifier of the emoji picker; empty for the default."
+          },
+          "favorite_gifs": {
+            "type": "array",
+            "maxItems": 100,
+            "description": "Favorite GIF media links, synced across devices.",
+            "items": {
+              "type": "string",
+              "maxLength": 2048,
+              "pattern": "^https://"
+            }
           },
           "recent_reactions": {
             "type": "array",
@@ -15461,6 +18160,9 @@
           "preferences": {
             "$ref": "#/components/schemas/UserPreferences",
             "description": "Synced client preferences (appearance, chat, notification sounds, emoji). Sparse."
+          },
+          "friend_source_flags": {
+            "$ref": "#/components/schemas/FriendSourceFlags"
           }
         }
       },
@@ -15623,7 +18325,7 @@
       },
       "Webhook": {
         "title": "Webhook",
-        "description": "An incoming or application webhook.",
+        "description": "An incoming, channel-follower or application webhook.",
         "type": "object",
         "required": [
           "id",
@@ -15693,6 +18395,45 @@
           "url": {
             "type": "string",
             "description": "Execution URL returned only by create and reset-token. Treat as a secret."
+          }
+        }
+      },
+      "WelcomeScreen": {
+        "title": "WelcomeScreen",
+        "type": "object",
+        "required": [
+          "enabled",
+          "description",
+          "channels"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "channels": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "type": "object",
+              "required": [
+                "channel_id",
+                "description"
+              ],
+              "properties": {
+                "channel_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                }
+              }
+            }
           }
         }
       }

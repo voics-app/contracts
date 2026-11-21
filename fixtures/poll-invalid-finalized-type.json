@@ -1,0 +1,46 @@
+{
+  "schema": "objects/poll-snapshot.json",
+  "valid": false,
+  "data": {
+    "question": {
+      "text": "Which route?"
+    },
+    "answers": [
+      {
+        "answer_id": 1,
+        "poll_media": {
+          "text": "Forest"
+        }
+      },
+      {
+        "answer_id": 2,
+        "poll_media": {
+          "text": "River",
+          "emoji": {
+            "name": "🌊"
+          }
+        }
+      }
+    ],
+    "expiry": "2026-11-19T12:00:00Z",
+    "allow_multiselect": false,
+    "layout_type": 1,
+    "results": {
+      "version": "3",
+      "is_finalized": "yes",
+      "answer_counts": [
+        {
+          "id": 1,
+          "count": 2,
+          "me_voted": true
+        },
+        {
+          "id": 2,
+          "count": 1,
+          "me_voted": false
+        }
+      ],
+      "vote_version": "1"
+    }
+  }
+}

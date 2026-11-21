@@ -1,0 +1,10 @@
+{
+  "schema": "rest/create-guild-scheduled-event-request.json",
+  "data": {
+    "name": "Meetup",
+    "entity_type": 3,
+    "entity_metadata": { "location": "Park" },
+    "scheduled_start_time": "2026-12-01T12:00:00Z",
+    "scheduled_end_time": "2026-12-01T13:00:00Z"
+  }
+}

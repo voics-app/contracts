@@ -23,6 +23,102 @@ tags:
   - name: gateway
     description: Served by gateway (port 4000).
 paths:
+  /scheduled-event-deliveries/claim:
+    post:
+      operationId: claimScheduledEventDelivery
+      summary: Lease one pending event push delivery for 60 seconds
+      tags: [api]
+      responses:
+        "200":
+          description: A lease or null when no delivery is ready.
+          content:
+            application/json:
+              schema: { type: [object, "null"], description: "Lease carries delivery_id, lease_id, guild_id, event_id, user_id, scheduled_start_time and revision." }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /scheduled-event-deliveries/{delivery_id}/resolve:
+    post:
+      operationId: resolveScheduledEventDelivery
+      summary: Recheck one leased delivery and resolve its current eligible token
+      tags: [api]
+      parameters:
+        - name: delivery_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lease_id]
+              properties: { lease_id: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Current live eligible token, or null when no longer eligible.
+          content:
+            application/json:
+              schema: { type: [object, "null"] }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { description: Lease expired or was replaced. }
+  /scheduled-event-deliveries/{delivery_id}/finish:
+    post:
+      operationId: finishScheduledEventDelivery
+      summary: Acknowledge a terminal result or release the lease for retry
+      tags: [api]
+      parameters:
+        - name: delivery_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lease_id, retry_after_secs]
+              properties:
+                lease_id: { type: string, format: uuid }
+                retry_after_secs: { type: [integer, "null"], minimum: 1, maximum: 60 }
+      responses:
+        "204": { description: Delivery acknowledged or scheduled for retry. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { description: Lease expired or was replaced. }
+  /guilds/{guild_id}/scheduled-events/{event_id}/push-targets:
+    get:
+      operationId: getScheduledEventPushTargets
+      summary: Recheck one event reminder recipient and return live notification tokens
+      description: Rechecks membership, channel visibility, current interest, mute, do-not-disturb, start time and schedule revision. Event names are not returned; pushes must use generic text. An empty users array means no push.
+      tags: [api]
+      parameters:
+        - name: guild_id
+          in: path
+          required: true
+          schema: { $ref: ../schemas/objects/snowflake.json }
+        - name: event_id
+          in: path
+          required: true
+          schema: { $ref: ../schemas/objects/snowflake.json }
+        - name: user_id
+          in: query
+          required: true
+          schema: { $ref: ../schemas/objects/snowflake.json }
+        - name: scheduled_start_time
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+        - name: revision
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0 }
+      responses:
+        "200":
+          description: Current permitted live notification tokens, or an empty audience.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/internal/scheduled-event-push-targets.json }
+        "401": { $ref: "#/components/responses/Unauthorized" }
   /id-reservations:
     post:
       operationId: reserveMessageIds
@@ -296,6 +392,99 @@ paths:
                   $ref: ../schemas/internal/admin-guild.json
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /channels/{channel_id}/forum-start:
+    post:
+      operationId: createForumStart
+      summary: Store the reserved opening message after a durable API claim
+      description: The messages service atomically stores an idempotency marker and the reserved opening message in one partition; a replay cannot recreate a deleted opening.
+      tags:
+        - messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [author_id, message_id, content]
+              properties:
+                author_id:
+                  $ref: ../schemas/objects/snowflake.json
+                message_id:
+                  $ref: ../schemas/objects/snowflake.json
+                content:
+                  type: string
+      responses:
+        "200":
+          description: Stored message.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "410":
+          description: The reserved opening message was deleted; the marker prevents recreation.
+  /forum-summaries:
+    post:
+      operationId: forumSummaries
+      summary: Summarize already authorized Standard forum posts
+      tags:
+        - messages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [channel_ids]
+              properties:
+                channel_ids:
+                  type: array
+                  maxItems: 50
+                  items:
+                    $ref: ../schemas/objects/snowflake.json
+      responses:
+        "200":
+          description: First message, last message ID and exact stored count per channel.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [summaries]
+                properties:
+                  summaries:
+                    type: array
+                    items:
+                      type: object
+                      required: [channel_id, message_count, first_message, last_message_id]
+                      properties:
+                        channel_id:
+                          $ref: ../schemas/objects/snowflake.json
+                        message_count:
+                          type: integer
+                          minimum: 0
+                        first_message:
+                          anyOf:
+                            - type: object
+                              required: [id, content, attachments]
+                              properties:
+                                id:
+                                  $ref: ../schemas/objects/snowflake.json
+                                content:
+                                  type: string
+                                attachments:
+                                  type: array
+                                  items:
+                                    $ref: ../schemas/objects/attachment.json
+                            - type: "null"
+                        last_message_id:
+                          anyOf:
+                            - $ref: ../schemas/objects/snowflake.json
+                            - type: "null"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /channels/{channel_id}/messages:
     post:
       operationId: createInternalMessage
@@ -323,6 +512,72 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "409":
           description: The channel is not in standard delivery mode (code 50160).
+  /channels/{channel_id}/messages/{message_id}/crossposted:
+    post:
+      operationId: markAnnouncementCrossposted
+      summary: Mark a stored announcement as published (messages service)
+      tags: [messages]
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      responses:
+        "200":
+          description: Updated source message.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/message.json }
+        "400": { description: Not a publishable announcement. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /channels/{channel_id}/crossposts:
+    post:
+      operationId: deliverAnnouncementCrosspost
+      summary: Deliver a claimed announcement to a follower channel (messages service)
+      description: The caller supplies a reserved ID and must not blindly retry an ambiguous result after the destination has disappeared.
+      tags: [messages]
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source_channel_id, message_id, webhook_id, webhook_name, snapshot]
+              properties:
+                source_channel_id: { $ref: ../schemas/objects/snowflake.json }
+                message_id: { $ref: ../schemas/objects/snowflake.json }
+                webhook_id: { $ref: ../schemas/objects/snowflake.json }
+                webhook_name: { type: string }
+                snapshot:
+                  type: object
+                  required: [content]
+                  properties:
+                    content: { type: string }
+                    embeds: { type: array, items: { type: object, additionalProperties: true } }
+                    attachments:
+                      type: array
+                      items:
+                        type: object
+                        required: [id, filename, size]
+                        properties:
+                          id: { $ref: ../schemas/objects/snowflake.json }
+                          filename: { type: string }
+                          size: { type: integer, minimum: 0 }
+                          content_type: { type: [string, "null"] }
+                          width: { type: [integer, "null"], minimum: 0 }
+                          height: { type: [integer, "null"], minimum: 0 }
+                          description: { type: [string, "null"] }
+                          flags: { type: [integer, "null"], minimum: 0 }
+      responses:
+        "200":
+          description: Stored destination message, or an already present matching destination.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/message.json }
+        "400": { description: Invalid snapshot or unavailable attachment. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { description: Destination does not support standard delivery. }
   /channels/{channel_id}/messages/{message_id}/call:
     patch:
       operationId: updateMessageCall

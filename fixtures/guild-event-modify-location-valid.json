@@ -1,0 +1,4 @@
+{
+  "schema": "rest/modify-guild-scheduled-event-request.json",
+  "data": { "entity_type": 3, "channel_id": null, "entity_metadata": { "location": "Park" } }
+}
