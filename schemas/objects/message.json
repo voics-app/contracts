@@ -159,6 +159,9 @@
       "items": {
         "$ref": "./sticker-item.json"
       }
+    },
+    "poll": {
+      "$ref": "./poll.json"
     }
   },
   "$defs": {

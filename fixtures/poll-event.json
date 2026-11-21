@@ -1,0 +1,27 @@
+{
+  "schema": "gateway/dispatch/message-poll-vote-add.json",
+  "data": {
+    "user_id": "7",
+    "channel_id": "8",
+    "message_id": "9",
+    "answer_id": 1,
+    "answer_ids": [
+      1
+    ],
+    "vote_version": "1",
+    "results": {
+      "version": "3",
+      "is_finalized": false,
+      "answer_counts": [
+        {
+          "id": 1,
+          "count": 2
+        },
+        {
+          "id": 2,
+          "count": 1
+        }
+      ]
+    }
+  }
+}

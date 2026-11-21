@@ -1,4 +1,4 @@
-# discordy-voics/contracts
+# voics-app/contracts
 
 Single source of truth for every Discordy wire contract: the public REST API (OpenAPI 3.1), the internal
 service API, JSON Schemas for gateway opcodes and dispatches, the Redpanda event envelope, voice frames,
@@ -22,6 +22,8 @@ Its evidence is server-owned channel metadata only (ID, guild, parent, name, typ
 age-restricted flag); it never snapshots messages or a member list. The `guild`
 target remains exclusive to public discovery listing reports.
 
+`preferences.default_guilds_restricted` and `preferences.guild_dm_restrictions` control initiation of new guild-related DMs. The server map is merged per entry; null removes an override. Existing conversations and direct connections are not revoked, and one permissive shared server permits a new conversation. This is not a general stranger-DM or spam filter.
+
 `preferences.hide_age_restricted_channels` is an optional account preference for client#76.
 Missing means false. It uses the existing key-by-key settings PATCH and settings events;
 it does not attest age or change server permissions. Clients still require explicit
@@ -38,7 +40,7 @@ current template-visible structure with the saved snapshot until explicit sync.
 | `permissions.json`, `intents.json`, `protocol.json` | Registries (exact Discord bit values, opcodes, topics, settings) |
 | `fixtures/` | Valid and invalid sample payloads checked by `pnpm validate` |
 | `codegen/` | Validation and generation pipeline (TypeScript, Clean Architecture) |
-| `packages/ts` | npm `@discordy-voics/contracts` |
+| `packages/ts` | npm `@voics-app/contracts` |
 | `packages/rust` | crate `discordy-contracts` |
 | `packages/snowflake` | shared fallible `voics-snowflake` interval issuer (API/messages) |
 | `packages/elixir` | Hex-style package `discordy_contracts` (`Discordy.Contracts.*`) |
@@ -147,9 +149,9 @@ it, or 2–32 ASCII letters, digits and hyphens. Codes resolve case-insensitivel
 through the existing invite preview and accept routes. A public text channel is
 required; bans and membership limits apply to joins just as for ordinary invites.
 
-- TypeScript: `@discordy-voics/contracts` from GitHub Packages (`import { Permissions, type User } from "@discordy-voics/contracts"`).
-- Rust: `discordy-contracts = { git = "https://github.com/discordy-voics/contracts", tag = "vX.Y.Z" }`.
-- Elixir: `{:discordy_contracts, github: "discordy-voics/contracts", tag: "vX.Y.Z", sparse: "packages/elixir"}`.
+- TypeScript: `@voics-app/contracts` from GitHub Packages (`import { Permissions, type User } from "@voics-app/contracts"`).
+- Rust: `discordy-contracts = { git = "https://github.com/voics-app/contracts", tag = "vX.Y.Z" }`.
+- Elixir: `{:discordy_contracts, github: "voics-app/contracts", tag: "vX.Y.Z", sparse: "packages/elixir"}`.
 
 ## Configuration
 
@@ -193,7 +195,7 @@ publishes the npm package; the tag itself is the Rust and Elixir release.
 
 ## Pending owner actions
 
-- Create the `discordy-voics/contracts` GitHub repository and push `main`, `develop`.
+- Create the `voics-app/contracts` GitHub repository and push `main`, `develop`.
 - Allow `GITHUB_TOKEN` package publishing for the organization, so `release.yml` can publish to GitHub Packages.
 
 ## Git hooks
@@ -203,3 +205,5 @@ Tests run locally, not in CI. Install [lefthook](https://github.com/evilmartians
 ## Passkey second factors
 
 The additive WebAuthn MFA routes retain password login, TOTP and hashed, single-use recovery codes. See the generated REST reference for registration and login ceremonies. Clients convert WebAuthn binary fields to/from unpadded base64url; the API stores ceremony state with a five-minute expiry and consumes it atomically. Passkey names and last-used timestamps are account-private.
+
+`friend_source_flags` selects who may initiate a friend request. Existing accounts default to everyone; selected mutual-friend and mutual-server sources use OR semantics. Existing friendships and pending requests continue, and blocks take precedence.
