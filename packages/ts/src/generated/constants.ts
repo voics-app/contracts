@@ -120,7 +120,7 @@ export type PermissionSetsKey = keyof typeof PermissionSets;
 
 /** Gateway intent bit flags (Discord values). */
 export const Intents = {
-  /** Events: GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE, CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE, THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE. */
+  /** Events: GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE, CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE, THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE, STAGE_INSTANCE_CREATE, STAGE_INSTANCE_UPDATE, STAGE_INSTANCE_DELETE. */
   GUILDS: 1 << 0,
   /** Privileged. Events: GUILD_MEMBER_ADD, GUILD_MEMBER_UPDATE, GUILD_MEMBER_REMOVE. */
   GUILD_MEMBERS: 1 << 1,
@@ -274,6 +274,9 @@ export const DispatchEvents = {
   GUILD_MEMBER_REMOVE: "GUILD_MEMBER_REMOVE",
   GUILD_BAN_ADD: "GUILD_BAN_ADD",
   GUILD_BAN_REMOVE: "GUILD_BAN_REMOVE",
+  STAGE_INSTANCE_CREATE: "STAGE_INSTANCE_CREATE",
+  STAGE_INSTANCE_UPDATE: "STAGE_INSTANCE_UPDATE",
+  STAGE_INSTANCE_DELETE: "STAGE_INSTANCE_DELETE",
   GUILD_EMOJIS_UPDATE: "GUILD_EMOJIS_UPDATE",
   GUILD_STICKERS_UPDATE: "GUILD_STICKERS_UPDATE",
   INVITE_CREATE: "INVITE_CREATE",
@@ -380,6 +383,10 @@ export const SfuCommands = {
   CLOSE_SESSION: "close_session",
   /** Updates simulcast layer preferences for a session. */
   SET_SINK_WANTS: "set_sink_wants",
+  /** Changes audio publishing permission for a session. */
+  SET_PUBLISH_AUDIO: "set_publish_audio",
+  /** Changes camera and screen publishing permission for a session. */
+  SET_PUBLISH_VIDEO: "set_publish_video",
 } as const;
 export type SfuCommandsKey = keyof typeof SfuCommands;
 
@@ -387,6 +394,10 @@ export type SfuCommandsKey = keyof typeof SfuCommands;
 export const SfuEvents = {
   /** Reply to create_session with the SFU's ICE/DTLS parameters. */
   SESSION_CREATED: "session_created",
+  /** Acknowledges an audio publishing permission change. */
+  PUBLISH_AUDIO_APPLIED: "publish_audio_applied",
+  /** Acknowledges a video publishing permission change. */
+  PUBLISH_VIDEO_APPLIED: "publish_video_applied",
   /** Voice activity detected on an SSRC. */
   SPEAKING: "speaking",
   /** The opted-in viewers of a screen share changed; carries the full list. */
@@ -435,6 +446,9 @@ export const EventTopics = {
   GUILD_MEMBER_REMOVE: "discordy.guild.v1",
   GUILD_BAN_ADD: "discordy.guild.v1",
   GUILD_BAN_REMOVE: "discordy.guild.v1",
+  STAGE_INSTANCE_CREATE: "discordy.guild.v1",
+  STAGE_INSTANCE_UPDATE: "discordy.guild.v1",
+  STAGE_INSTANCE_DELETE: "discordy.guild.v1",
   GUILD_EMOJIS_UPDATE: "discordy.guild.v1",
   GUILD_STICKERS_UPDATE: "discordy.guild.v1",
   INVITE_CREATE: "discordy.guild.v1",

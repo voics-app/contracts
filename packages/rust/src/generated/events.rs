@@ -69,6 +69,12 @@ pub enum DispatchEvent {
     GuildBanAdd(GuildBanEvent),
     #[serde(rename = "GUILD_BAN_REMOVE")]
     GuildBanRemove(GuildBanEvent),
+    #[serde(rename = "STAGE_INSTANCE_CREATE")]
+    StageInstanceCreate(StageInstance),
+    #[serde(rename = "STAGE_INSTANCE_UPDATE")]
+    StageInstanceUpdate(StageInstance),
+    #[serde(rename = "STAGE_INSTANCE_DELETE")]
+    StageInstanceDelete(StageInstance),
     #[serde(rename = "GUILD_EMOJIS_UPDATE")]
     GuildEmojisUpdate(GuildEmojisUpdateEvent),
     #[serde(rename = "GUILD_STICKERS_UPDATE")]
@@ -173,6 +179,9 @@ impl DispatchEvent {
             Self::GuildMemberRemove(_) => "GUILD_MEMBER_REMOVE",
             Self::GuildBanAdd(_) => "GUILD_BAN_ADD",
             Self::GuildBanRemove(_) => "GUILD_BAN_REMOVE",
+            Self::StageInstanceCreate(_) => "STAGE_INSTANCE_CREATE",
+            Self::StageInstanceUpdate(_) => "STAGE_INSTANCE_UPDATE",
+            Self::StageInstanceDelete(_) => "STAGE_INSTANCE_DELETE",
             Self::GuildEmojisUpdate(_) => "GUILD_EMOJIS_UPDATE",
             Self::GuildStickersUpdate(_) => "GUILD_STICKERS_UPDATE",
             Self::InviteCreate(_) => "INVITE_CREATE",
@@ -258,6 +267,12 @@ pub enum BusEvent {
     GuildBanAdd(GuildBanEvent),
     #[serde(rename = "GUILD_BAN_REMOVE")]
     GuildBanRemove(GuildBanEvent),
+    #[serde(rename = "STAGE_INSTANCE_CREATE")]
+    StageInstanceCreate(StageInstance),
+    #[serde(rename = "STAGE_INSTANCE_UPDATE")]
+    StageInstanceUpdate(StageInstance),
+    #[serde(rename = "STAGE_INSTANCE_DELETE")]
+    StageInstanceDelete(StageInstance),
     #[serde(rename = "GUILD_EMOJIS_UPDATE")]
     GuildEmojisUpdate(GuildEmojisUpdateEvent),
     #[serde(rename = "GUILD_STICKERS_UPDATE")]
@@ -360,6 +375,9 @@ impl BusEvent {
             Self::GuildMemberRemove(_) => "GUILD_MEMBER_REMOVE",
             Self::GuildBanAdd(_) => "GUILD_BAN_ADD",
             Self::GuildBanRemove(_) => "GUILD_BAN_REMOVE",
+            Self::StageInstanceCreate(_) => "STAGE_INSTANCE_CREATE",
+            Self::StageInstanceUpdate(_) => "STAGE_INSTANCE_UPDATE",
+            Self::StageInstanceDelete(_) => "STAGE_INSTANCE_DELETE",
             Self::GuildEmojisUpdate(_) => "GUILD_EMOJIS_UPDATE",
             Self::GuildStickersUpdate(_) => "GUILD_STICKERS_UPDATE",
             Self::InviteCreate(_) => "INVITE_CREATE",

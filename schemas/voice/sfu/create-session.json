@@ -28,6 +28,14 @@
     "remote_fingerprint": {
       "type": "string"
     },
+    "can_publish_audio": {
+      "type": "boolean",
+      "description": "Audio forwarding capability; absent preserves legacy permissive behavior."
+    },
+    "can_publish_video": {
+      "type": "boolean",
+      "description": "Camera and screen forwarding capability; absent preserves legacy permissive behavior."
+    },
     "codecs": {
       "type": "array",
       "items": {

@@ -97,6 +97,9 @@
       { "name": "GUILD_MEMBER_REMOVE", "payload": "gateway/dispatch/guild-member-remove.json", "source": "api", "topic": "discordy.guild.v1", "description": "A user left or was removed from a guild." },
       { "name": "GUILD_BAN_ADD", "payload": "gateway/dispatch/guild-ban.json", "source": "api", "topic": "discordy.guild.v1", "description": "A user was banned." },
       { "name": "GUILD_BAN_REMOVE", "payload": "gateway/dispatch/guild-ban.json", "source": "api", "topic": "discordy.guild.v1", "description": "A user was unbanned." },
+      { "name": "STAGE_INSTANCE_CREATE", "payload": "objects/stage-instance.json", "source": "api", "topic": "discordy.guild.v1", "description": "A stage instance was started." },
+      { "name": "STAGE_INSTANCE_UPDATE", "payload": "objects/stage-instance.json", "source": "api", "topic": "discordy.guild.v1", "description": "A stage instance was updated." },
+      { "name": "STAGE_INSTANCE_DELETE", "payload": "objects/stage-instance.json", "source": "api", "topic": "discordy.guild.v1", "description": "A stage instance was ended." },
       { "name": "GUILD_EMOJIS_UPDATE", "payload": "gateway/dispatch/guild-emojis-update.json", "source": "api", "topic": "discordy.guild.v1", "description": "A guild's emojis changed." },
       { "name": "GUILD_STICKERS_UPDATE", "payload": "gateway/dispatch/guild-stickers-update.json", "source": "api", "topic": "discordy.guild.v1", "description": "A guild's stickers changed." },
       { "name": "INVITE_CREATE", "payload": "gateway/dispatch/invite-create.json", "source": "api", "topic": "discordy.guild.v1", "description": "An invite was created." },
@@ -189,10 +192,14 @@
     "sfu_commands": [
       { "name": "create_session", "payload": "voice/sfu/create-session.json", "description": "Creates (or, after an SFU restart, re-creates) a media session." },
       { "name": "close_session", "payload": "voice/sfu/close-session.json", "description": "Closes a media session." },
-      { "name": "set_sink_wants", "payload": "voice/sfu/set-sink-wants.json", "description": "Updates simulcast layer preferences for a session." }
+      { "name": "set_sink_wants", "payload": "voice/sfu/set-sink-wants.json", "description": "Updates simulcast layer preferences for a session." },
+      { "name": "set_publish_audio", "payload": "voice/sfu/set-publish-audio.json", "description": "Changes audio publishing permission for a session." },
+      { "name": "set_publish_video", "payload": "voice/sfu/set-publish-video.json", "description": "Changes camera and screen publishing permission for a session." }
     ],
     "sfu_events": [
       { "name": "session_created", "payload": "voice/sfu/session-created.json", "description": "Reply to create_session with the SFU's ICE/DTLS parameters." },
+      { "name": "publish_audio_applied", "payload": "voice/sfu/publish-audio-applied.json", "description": "Acknowledges an audio publishing permission change." },
+      { "name": "publish_video_applied", "payload": "voice/sfu/publish-video-applied.json", "description": "Acknowledges a video publishing permission change." },
       { "name": "speaking", "payload": "voice/sfu/speaking.json", "description": "Voice activity detected on an SSRC." },
       { "name": "stream_viewers", "payload": "voice/sfu/stream-viewers.json", "description": "The opted-in viewers of a screen share changed; carries the full list." },
       { "name": "stats", "payload": "voice/sfu/stats.json", "description": "Periodic SFU load statistics." }

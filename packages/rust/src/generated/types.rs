@@ -1335,6 +1335,9 @@ pub struct Channel {
     pub require_tags: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rtc_region: ::std::option::Option<::std::string::String>,
+    ///Voice-channel status text, or null when unset.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub status: ::std::option::Option<ChannelStatus>,
     ///Voice channels only: whether members can send messages to the channel chat. Defaults to true.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub text_chat_enabled: ::std::option::Option<bool>,
@@ -1515,6 +1518,61 @@ pub struct ChannelPosition {
 pub struct ChannelRecipientEvent {
     pub channel_id: Snowflake,
     pub user: User,
+}
+///Voice-channel status text, or null when unset.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ChannelStatus(::std::string::String);
+impl ::std::ops::Deref for ChannelStatus {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ChannelStatus> for ::std::string::String {
+    fn from(value: ChannelStatus) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ChannelStatus {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 500usize {
+            return Err("longer than 500 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[^\\u0000]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[^\\u0000]*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ChannelStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ChannelStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ChannelStatus {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///POST /users/{id}/devices/{did}/key-packages/claim response.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -1728,6 +1786,14 @@ pub struct CreateEmojiRequest {
     pub name: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub roles: ::std::vec::Vec<Snowflake>,
+}
+///One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateFriendInviteResponse {
+    ///Expiry 24 hours after creation.
+    pub expires_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    ///Unpadded base64url secret generated from 32 random bytes.
+    pub token: ::std::string::String,
 }
 ///POST /guilds/templates/{code} body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -2529,6 +2595,67 @@ pub struct CreateScheduledMessageRequest {
     pub message: ScheduledMessageDraft,
     pub request_id: ScheduledMessageId,
     pub scheduled_at: ::chrono::DateTime<::chrono::offset::Utc>,
+}
+///`CreateStageInstanceRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateStageInstanceRequest {
+    pub channel_id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub privacy_level: ::std::option::Option<i64>,
+    pub topic: CreateStageInstanceRequestTopic,
+}
+///`CreateStageInstanceRequestTopic`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateStageInstanceRequestTopic(::std::string::String);
+impl ::std::ops::Deref for CreateStageInstanceRequestTopic {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateStageInstanceRequestTopic> for ::std::string::String {
+    fn from(value: CreateStageInstanceRequestTopic) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateStageInstanceRequestTopic {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateStageInstanceRequestTopic {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Create a guild sticker from a data URI.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -4099,6 +4226,148 @@ impl<'de> ::serde::Deserialize<'de> for GuildFullAuditLogRetentionDays {
             .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
     }
 }
+///`GuildInsights`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildInsights {
+    pub coverage: GuildInsightsCoverage,
+    pub days: ::std::vec::Vec<GuildInsightsDaysItem>,
+    pub message_coverage: bool,
+    pub period: GuildInsightsPeriod,
+    pub voice_coverage: bool,
+}
+///`GuildInsightsCoverage`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildInsightsCoverage {
+    pub membership: GuildInsightsCoverageSummary,
+    pub messages: GuildInsightsCoverageSummary,
+    pub voice: GuildInsightsCoverageSummary,
+}
+///Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum GuildInsightsCoverageState {
+    #[serde(rename = "complete")]
+    Complete,
+    #[serde(rename = "partial")]
+    Partial,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+impl ::std::fmt::Display for GuildInsightsCoverageState {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Complete => f.write_str("complete"),
+            Self::Partial => f.write_str("partial"),
+            Self::Unavailable => f.write_str("unavailable"),
+        }
+    }
+}
+impl ::std::str::FromStr for GuildInsightsCoverageState {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "complete" => Ok(Self::Complete),
+            "partial" => Ok(Self::Partial),
+            "unavailable" => Ok(Self::Unavailable),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildInsightsCoverageState {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildInsightsCoverageState {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///Period status and the number of days in each coverage state for this source.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildInsightsCoverageSummary {
+    pub complete_days: u64,
+    pub partial_days: u64,
+    pub status: GuildInsightsCoverageState,
+    pub unavailable_days: u64,
+}
+///`GuildInsightsDaysItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildInsightsDaysItem {
+    ///API activity schema initialization, not proof of complete voice coverage.
+    pub activity_source_initialized_at_ms: i64,
+    pub coverage: GuildInsightsDaysItemCoverage,
+    pub date: ::chrono::naive::NaiveDate,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub leavers: ::std::option::Option<u64>,
+    pub membership_complete: bool,
+    ///False means the observed count may omit writes.
+    pub message_complete: bool,
+    ///Marker schema initialization, not proof of full producer coverage.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub message_source_initialized_at_ms: ::std::option::Option<u64>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub messages: ::std::option::Option<u64>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub new_members: ::std::option::Option<u64>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub voice_minutes: ::std::option::Option<f64>,
+}
+///`GuildInsightsDaysItemCoverage`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildInsightsDaysItemCoverage {
+    pub membership: GuildInsightsCoverageState,
+    pub messages: GuildInsightsCoverageState,
+    pub voice: GuildInsightsCoverageState,
+}
+///`GuildInsightsPeriod`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct GuildInsightsPeriod(i64);
+impl ::std::ops::Deref for GuildInsightsPeriod {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildInsightsPeriod> for i64 {
+    fn from(value: GuildInsightsPeriod) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for GuildInsightsPeriod {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![7_i64, 30_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildInsightsPeriod {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
 ///An application whose bot is currently installed in this server.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildIntegration {
@@ -4291,6 +4560,16 @@ pub struct GuildMembersChunkEvent {
     pub not_found: ::std::vec::Vec<Snowflake>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub presences: ::std::vec::Vec<PresenceUpdateEvent>,
+}
+///`GuildMessageActivity`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildMessageActivity {
+    pub count: u64,
+    pub coverage_complete: bool,
+    ///Marker schema initialization, not proof of full producer coverage.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub source_initialized_at_ms: ::std::option::Option<u64>,
+    pub utc_day: i64,
 }
 ///The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -4744,6 +5023,22 @@ impl<'de> ::serde::Deserialize<'de> for GuildTemplateName {
                 <D::Error as ::serde::de::Error>::custom(e.to_string())
             })
     }
+}
+///`GuildWidgetPatch`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct GuildWidgetPatch {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub enabled: ::std::option::Option<bool>,
+}
+///`GuildWidgetSettings`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildWidgetSettings {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    pub enabled: bool,
 }
 ///Op 1 HEARTBEAT: the last sequence number received, or null.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -7016,6 +7311,9 @@ pub struct ModifyMemberRequest {
     pub nick: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub roles: ::std::vec::Vec<Snowflake>,
+    ///For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub suppress: ::std::option::Option<bool>,
 }
 ///Server-specific About me; trimmed, null or blank restores the global bio.
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -7056,6 +7354,66 @@ impl ::std::convert::TryFrom<::std::string::String> for ModifyMemberRequestBio {
     }
 }
 impl<'de> ::serde::Deserialize<'de> for ModifyMemberRequestBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`ModifyStageInstanceRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ModifyStageInstanceRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub privacy_level: ::std::option::Option<i64>,
+    pub topic: ModifyStageInstanceRequestTopic,
+}
+///`ModifyStageInstanceRequestTopic`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyStageInstanceRequestTopic(::std::string::String);
+impl ::std::ops::Deref for ModifyStageInstanceRequestTopic {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyStageInstanceRequestTopic> for ::std::string::String {
+    fn from(value: ModifyStageInstanceRequestTopic) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyStageInstanceRequestTopic {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyStageInstanceRequestTopic {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -10752,11 +11110,33 @@ pub struct SfuCloseSession {
 ///SFU control command (NDJSON line): create or rebuild a media session.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct SfuCreateSession {
+    ///Audio forwarding capability; absent preserves legacy permissive behavior.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub can_publish_audio: ::std::option::Option<bool>,
+    ///Camera and screen forwarding capability; absent preserves legacy permissive behavior.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub can_publish_video: ::std::option::Option<bool>,
     pub cmd: ::serde_json::Value,
     pub codecs: ::std::vec::Vec<VoiceCodec>,
     pub ice_pwd: ::std::string::String,
     pub ice_ufrag: ::std::string::String,
     pub remote_fingerprint: ::std::string::String,
+    pub session_id: ::std::string::String,
+}
+///`SfuPublishAudioApplied`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuPublishAudioApplied {
+    pub evt: ::serde_json::Value,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub req: ::std::option::Option<::std::string::String>,
+    pub session_id: ::std::string::String,
+}
+///`SfuPublishVideoApplied`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuPublishVideoApplied {
+    pub evt: ::serde_json::Value,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub req: ::std::option::Option<::std::string::String>,
     pub session_id: ::std::string::String,
 }
 ///SFU control event: reply to create_session.
@@ -10766,6 +11146,20 @@ pub struct SfuSessionCreated {
     pub fingerprint: ::std::string::String,
     pub local_pwd: ::std::string::String,
     pub local_ufrag: ::std::string::String,
+    pub session_id: ::std::string::String,
+}
+///`SfuSetPublishAudio`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuSetPublishAudio {
+    pub allowed: bool,
+    pub cmd: ::serde_json::Value,
+    pub session_id: ::std::string::String,
+}
+///`SfuSetPublishVideo`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuSetPublishVideo {
+    pub allowed: bool,
+    pub cmd: ::serde_json::Value,
     pub session_id: ::std::string::String,
 }
 ///SFU control command: update simulcast layer preferences.
@@ -10863,6 +11257,69 @@ pub struct SpeakingPayload {
     pub ssrc: u64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: ::std::option::Option<Snowflake>,
+}
+///A live guild-only stage instance.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct StageInstance {
+    pub channel_id: Snowflake,
+    pub discoverable_disabled: bool,
+    pub guild_id: Snowflake,
+    pub id: Snowflake,
+    pub privacy_level: i64,
+    pub topic: StageInstanceTopic,
+}
+///`StageInstanceTopic`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct StageInstanceTopic(::std::string::String);
+impl ::std::ops::Deref for StageInstanceTopic {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<StageInstanceTopic> for ::std::string::String {
+    fn from(value: StageInstanceTopic) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for StageInstanceTopic {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for StageInstanceTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for StageInstanceTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for StageInstanceTopic {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///A guild or built-in sticker.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -11450,6 +11907,12 @@ impl ::std::convert::TryFrom<::std::string::String> for UsageTickEventComponent 
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
     }
+}
+///Present a personal friend invite to send a request to its owner.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct UseFriendInviteRequest {
+    ///Bearer token returned at creation.
+    pub token: ::std::string::String,
 }
 ///A Discordy user (Discord v10 User object).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -12565,6 +13028,75 @@ pub struct VideoPayload {
     pub user_id: ::std::option::Option<Snowflake>,
     pub video_ssrc: u64,
 }
+///`VoiceActivityCheckpoint`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct VoiceActivityCheckpoint {
+    pub connected: bool,
+    pub generation_id: ::uuid::Uuid,
+    pub guild_id: Snowflake,
+    pub observed_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub session_id: VoiceActivityCheckpointSessionId,
+    pub user_id: Snowflake,
+}
+///`VoiceActivityCheckpointSessionId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceActivityCheckpointSessionId(::std::string::String);
+impl ::std::ops::Deref for VoiceActivityCheckpointSessionId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceActivityCheckpointSessionId> for ::std::string::String {
+    fn from(value: VoiceActivityCheckpointSessionId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceActivityCheckpointSessionId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[^\\u0000]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[^\\u0000]*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceActivityCheckpointSessionId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceActivityCheckpointSessionId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceActivityCheckpointSessionId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceCodec {
@@ -12722,13 +13254,16 @@ pub struct VoiceIdentifyPayload {
     pub user_id: Snowflake,
     pub video: bool,
 }
-///VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.
+///VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved/disconnected a member or changed their stage speaker status. The gateway applies it to the live voice session and never dispatches it directly to clients.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceMemberMoveEvent {
     ///The voice channel to move the member to, or null to disconnect them.
-    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub channel_id: ::std::option::Option<Snowflake>,
     pub guild_id: Snowflake,
+    ///Stage audience status: false promotes to speaker; true moves to audience.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub suppress: ::std::option::Option<bool>,
     pub user_id: Snowflake,
 }
 ///Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
@@ -13145,6 +13680,11 @@ impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeHealthStatus {
 ///etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceNodeRegistration {
+    ///Optional private IPv4 address for node-affine internal control. It is never derived from ws_url and requires control_port and registration_lease.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub control_ip: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub control_port: ::std::option::Option<::std::num::NonZeroU64>,
     pub cpu_pct: f64,
     pub draining: bool,
     pub egress_bps: u64,
@@ -13154,10 +13694,65 @@ pub struct VoiceNodeRegistration {
     pub probe_required: bool,
     pub public_ip: ::std::string::String,
     pub region: ::std::string::String,
+    ///Decimal identity of this registration's current etcd lease; stale control commands must be rejected.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub registration_lease: ::std::option::Option<VoiceNodeRegistrationRegistrationLease>,
     pub udp_port: u64,
     pub users: u64,
     pub version: ::std::string::String,
     pub ws_url: ::std::string::String,
+}
+///Decimal identity of this registration's current etcd lease; stale control commands must be rejected.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceNodeRegistrationRegistrationLease(::std::string::String);
+impl ::std::ops::Deref for VoiceNodeRegistrationRegistrationLease {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceNodeRegistrationRegistrationLease> for ::std::string::String {
+    fn from(value: VoiceNodeRegistrationRegistrationLease) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceNodeRegistrationRegistrationLease {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[1-9][0-9]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[1-9][0-9]*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceNodeRegistrationRegistrationLease {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeRegistrationRegistrationLease {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceNodeRegistrationRegistrationLease {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///VOICE_QUALITY telemetry sample (discordy.telemetry.v1).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -13294,6 +13889,68 @@ pub struct VoiceStateUpdatePayload {
     pub self_mute: bool,
     pub self_stream: bool,
     pub self_video: bool,
+}
+///`VoiceStatusRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct VoiceStatusRequest {
+    ///Text to display, or null to clear.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub status: ::std::option::Option<VoiceStatusRequestStatus>,
+}
+///Text to display, or null to clear.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceStatusRequestStatus(::std::string::String);
+impl ::std::ops::Deref for VoiceStatusRequestStatus {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceStatusRequestStatus> for ::std::string::String {
+    fn from(value: VoiceStatusRequestStatus) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceStatusRequestStatus {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 500usize {
+            return Err("longer than 500 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[^\\u0000]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[^\\u0000]*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceStatusRequestStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceStatusRequestStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceStatusRequestStatus {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///A simulcast video stream layer.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

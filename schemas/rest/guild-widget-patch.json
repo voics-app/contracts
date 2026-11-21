@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/guild-widget-patch.json",
+  "title": "GuildWidgetPatch",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "enabled": { "type": "boolean" },
+    "channel_id": { "anyOf": [{ "$ref": "../objects/snowflake.json" }, { "type": "null" }] }
+  }
+}

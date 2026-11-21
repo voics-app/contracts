@@ -34,6 +34,10 @@ export type ScheduledMessageId = string;
  */
 export type ScheduledMessageRevision = number;
 /**
+ * Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+ */
+export type GuildInsightsCoverageState = "complete" | "partial" | "unavailable";
+/**
  * Op 1 HEARTBEAT: the last sequence number received, or null.
  */
 export type HeartbeatPayload = number | null;
@@ -589,6 +593,10 @@ export interface Channel {
   permission_overwrites?: PermissionOverwrite[];
   name?: string | null;
   topic?: string | null;
+  /**
+   * Voice-channel status text, or null when unset.
+   */
+  status?: string | null;
   nsfw?: boolean;
   /**
    * Voice channels only: whether members can send messages to the channel chat. Defaults to true.
@@ -1192,6 +1200,19 @@ export interface CreateEmojiRequest {
   roles?: Snowflake[];
 }
 /**
+ * One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+ */
+export interface CreateFriendInviteResponse {
+  /**
+   * Unpadded base64url secret generated from 32 random bytes.
+   */
+  token: string;
+  /**
+   * Expiry 24 hours after creation.
+   */
+  expires_at: string;
+}
+/**
  * POST /guilds/templates/{code} body.
  */
 export interface CreateGuildFromTemplateRequest {
@@ -1673,6 +1694,15 @@ export interface ScheduledMessageDraft {
    * Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics.
    */
   silent?: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "CreateStageInstanceRequest".
+ */
+export interface CreateStageInstanceRequest {
+  channel_id: Snowflake;
+  topic: string;
+  privacy_level?: 2;
 }
 /**
  * Create a guild sticker from a data URI.
@@ -2327,6 +2357,15 @@ export interface Guild {
   prune_admin_only?: boolean;
 }
 /**
+ * Period status and the number of days in each coverage state for this source.
+ */
+export interface GuildInsightsCoverageSummary {
+  status: GuildInsightsCoverageState;
+  complete_days: number;
+  partial_days: number;
+  unavailable_days: number;
+}
+/**
  * Permissions of an application's command(s) in a guild.
  */
 export interface GuildApplicationCommandPermissions {
@@ -2462,6 +2501,45 @@ export interface GuildFull {
   voice_states: VoiceState[];
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildInsights".
+ */
+export interface GuildInsights {
+  period: 7 | 30;
+  message_coverage: boolean;
+  voice_coverage: boolean;
+  coverage: {
+    membership: GuildInsightsCoverageSummary;
+    messages: GuildInsightsCoverageSummary;
+    voice: GuildInsightsCoverageSummary;
+  };
+  days: {
+    date: string;
+    new_members: number | null;
+    leavers: number | null;
+    membership_complete: boolean;
+    messages: number | null;
+    /**
+     * False means the observed count may omit writes.
+     */
+    message_complete: boolean;
+    /**
+     * Marker schema initialization, not proof of full producer coverage.
+     */
+    message_source_initialized_at_ms: number | null;
+    /**
+     * API activity schema initialization, not proof of complete voice coverage.
+     */
+    activity_source_initialized_at_ms: number;
+    voice_minutes: number | null;
+    coverage: {
+      membership: GuildInsightsCoverageState;
+      messages: GuildInsightsCoverageState;
+      voice: GuildInsightsCoverageState;
+    };
+  }[];
+}
+/**
  * An application whose bot is currently installed in this server.
  */
 export interface GuildIntegration {
@@ -2516,6 +2594,19 @@ export interface GuildMembersChunkEvent {
   not_found?: Snowflake[];
   presences?: PresenceUpdateEvent[];
   nonce?: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildMessageActivity".
+ */
+export interface GuildMessageActivity {
+  utc_day: number;
+  count: number;
+  coverage_complete: boolean;
+  /**
+   * Marker schema initialization, not proof of full producer coverage.
+   */
+  source_initialized_at_ms: number | null;
 }
 /**
  * The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
@@ -2703,6 +2794,22 @@ export interface TemplateOverwrite {
   type: number;
   allow: PermissionBitset;
   deny: PermissionBitset;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildWidgetPatch".
+ */
+export interface GuildWidgetPatch {
+  enabled?: boolean;
+  channel_id?: Snowflake | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildWidgetSettings".
+ */
+export interface GuildWidgetSettings {
+  enabled: boolean;
+  channel_id: Snowflake | null;
 }
 /**
  * Op 10 HELLO.
@@ -5422,6 +5529,10 @@ export interface ModifyMemberRequest {
    * Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice.
    */
   channel_id?: Snowflake | null;
+  /**
+   * For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage.
+   */
+  suppress?: boolean;
   communication_disabled_until?: string | null;
   flags?: number;
   /**
@@ -5436,6 +5547,14 @@ export interface ModifyMemberRequest {
    * Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image.
    */
   banner?: string | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "ModifyStageInstanceRequest".
+ */
+export interface ModifyStageInstanceRequest {
+  topic: string;
+  privacy_level?: 2;
 }
 /**
  * Modify a guild sticker.
@@ -6571,7 +6690,33 @@ export interface SfuCreateSession {
   ice_ufrag: string;
   ice_pwd: string;
   remote_fingerprint: string;
+  /**
+   * Audio forwarding capability; absent preserves legacy permissive behavior.
+   */
+  can_publish_audio?: boolean;
+  /**
+   * Camera and screen forwarding capability; absent preserves legacy permissive behavior.
+   */
+  can_publish_video?: boolean;
   codecs: VoiceCodec[];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuPublishAudioApplied".
+ */
+export interface SfuPublishAudioApplied {
+  evt: "publish_audio_applied";
+  req?: string | null;
+  session_id: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuPublishVideoApplied".
+ */
+export interface SfuPublishVideoApplied {
+  evt: "publish_video_applied";
+  req?: string | null;
+  session_id: string;
 }
 /**
  * SFU control event: reply to create_session.
@@ -6582,6 +6727,24 @@ export interface SfuSessionCreated {
   local_ufrag: string;
   local_pwd: string;
   fingerprint: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuSetPublishAudio".
+ */
+export interface SfuSetPublishAudio {
+  cmd: "set_publish_audio";
+  session_id: string;
+  allowed: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuSetPublishVideo".
+ */
+export interface SfuSetPublishVideo {
+  cmd: "set_publish_video";
+  session_id: string;
+  allowed: boolean;
 }
 /**
  * SFU control command: update simulcast layer preferences.
@@ -6637,6 +6800,17 @@ export interface SpeakingPayload {
   speaking: number;
   ssrc: number;
   user_id?: Snowflake;
+}
+/**
+ * A live guild-only stage instance.
+ */
+export interface StageInstance {
+  id: Snowflake;
+  guild_id: Snowflake;
+  channel_id: Snowflake;
+  topic: string;
+  privacy_level: 2;
+  discoverable_disabled: boolean;
 }
 /**
  * Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.
@@ -6756,6 +6930,15 @@ export interface UsageTickEvent {
   region?: string;
 }
 /**
+ * Present a personal friend invite to send a request to its owner.
+ */
+export interface UseFriendInviteRequest {
+  /**
+   * Bearer token returned at creation.
+   */
+  token: string;
+}
+/**
  * A private note the current user wrote about another user. Visible only to its author.
  */
 export interface UserNote {
@@ -6854,6 +7037,18 @@ export interface VoiceStream {
   active?: boolean;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "VoiceActivityCheckpoint".
+ */
+export interface VoiceActivityCheckpoint {
+  guild_id: Snowflake;
+  user_id: Snowflake;
+  session_id: string;
+  generation_id: string;
+  observed_at: string;
+  connected: boolean;
+}
+/**
  * Every voice WebSocket frame (both directions).
  */
 export interface VoiceFrame {
@@ -6889,7 +7084,7 @@ export interface VoiceIdentifyPayload {
   video: boolean;
 }
 /**
- * VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.
+ * VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved/disconnected a member or changed their stage speaker status. The gateway applies it to the live voice session and never dispatches it directly to clients.
  */
 export interface VoiceMemberMoveEvent {
   guild_id: Snowflake;
@@ -6897,7 +7092,11 @@ export interface VoiceMemberMoveEvent {
   /**
    * The voice channel to move the member to, or null to disconnect them.
    */
-  channel_id: Snowflake | null;
+  channel_id?: Snowflake | null;
+  /**
+   * Stage audience status: false promotes to speaker; true moves to audience.
+   */
+  suppress?: boolean;
 }
 /**
  * Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
@@ -6935,6 +7134,15 @@ export interface VoiceNodeRegistration {
   node_id: string;
   region: string;
   ws_url: string;
+  /**
+   * Optional private IPv4 address for node-affine internal control. It is never derived from ws_url and requires control_port and registration_lease.
+   */
+  control_ip?: string;
+  control_port?: number;
+  /**
+   * Decimal identity of this registration's current etcd lease; stale control commands must be rejected.
+   */
+  registration_lease?: string;
   public_ip: string;
   udp_port: number;
   users: number;
@@ -7008,6 +7216,16 @@ export interface VoiceStateUpdatePayload {
   self_deaf: boolean;
   self_video: boolean;
   self_stream: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "VoiceStatusRequest".
+ */
+export interface VoiceStatusRequest {
+  /**
+   * Text to display, or null to clear.
+   */
+  status: string | null;
 }
 /**
  * Op 23 VOICE_TELEMETRY.

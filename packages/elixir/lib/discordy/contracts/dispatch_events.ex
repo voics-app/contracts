@@ -94,6 +94,15 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec guild_ban_remove() :: String.t()
   def guild_ban_remove, do: "GUILD_BAN_REMOVE"
 
+  @spec stage_instance_create() :: String.t()
+  def stage_instance_create, do: "STAGE_INSTANCE_CREATE"
+
+  @spec stage_instance_update() :: String.t()
+  def stage_instance_update, do: "STAGE_INSTANCE_UPDATE"
+
+  @spec stage_instance_delete() :: String.t()
+  def stage_instance_delete, do: "STAGE_INSTANCE_DELETE"
+
   @spec guild_emojis_update() :: String.t()
   def guild_emojis_update, do: "GUILD_EMOJIS_UPDATE"
 
@@ -230,6 +239,9 @@ defmodule Discordy.Contracts.DispatchEvents do
       guild_member_remove: "GUILD_MEMBER_REMOVE",
       guild_ban_add: "GUILD_BAN_ADD",
       guild_ban_remove: "GUILD_BAN_REMOVE",
+      stage_instance_create: "STAGE_INSTANCE_CREATE",
+      stage_instance_update: "STAGE_INSTANCE_UPDATE",
+      stage_instance_delete: "STAGE_INSTANCE_DELETE",
       guild_emojis_update: "GUILD_EMOJIS_UPDATE",
       guild_stickers_update: "GUILD_STICKERS_UPDATE",
       invite_create: "INVITE_CREATE",

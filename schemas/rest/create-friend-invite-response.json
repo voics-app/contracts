@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-friend-invite-response.json",
+  "title": "CreateFriendInviteResponse",
+  "description": "One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.",
+  "type": "object",
+  "required": [
+    "token",
+    "expires_at"
+  ],
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "Unpadded base64url secret generated from 32 random bytes."
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiry 24 hours after creation."
+    }
+  }
+}
