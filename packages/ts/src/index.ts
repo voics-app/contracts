@@ -6,7 +6,7 @@
  * - Constants: `Permissions` (bigint flags), `Intents`, `GatewayOpcodes`, `ErrorCodes`, enums and settings.
  * - Payload maps and typed frames: `DispatchPayloads`, `DispatchFrame`, `TypedEventEnvelope`, ...
  *
- * The bundled JSON Schemas ship under `@discordy-voics/contracts/schemas/*.json`.
+ * The bundled JSON Schemas ship under `@voics-app/contracts/schemas/*.json`.
  */
 export * from "./generated/models.js";
 export * from "./generated/constants.js";
