@@ -14,7 +14,7 @@ defmodule Discordy.Contracts.MixProject do
       deps: deps(),
       description:
         "Discordy contract constants (permissions, intents, opcodes, enums) and JSON Schemas.",
-      source_url: "https://github.com/discordy-voics/contracts",
+      source_url: "https://github.com/voics-app/contracts",
       docs: [main: "Discordy.Contracts"]
     ]
   end

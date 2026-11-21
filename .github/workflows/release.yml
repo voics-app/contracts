@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com
-          scope: "@discordy-voics"
+          scope: "@voics-app"
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - name: Publish to GitHub Packages
