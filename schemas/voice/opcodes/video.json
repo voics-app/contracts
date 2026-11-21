@@ -32,6 +32,15 @@
     "user_id": {
       "$ref": "../../objects/snowflake.json",
       "description": "Set by the server when relaying another user's announcement."
+    },
+    "soundboard_ssrc": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 4294967295,
+      "description": "Separate soundboard audio SSRC, when negotiated."
     }
   }
 }

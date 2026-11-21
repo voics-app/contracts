@@ -1692,6 +1692,17 @@ export interface ScheduledMessageDraft {
   silent?: boolean;
 }
 /**
+ * Create a sound with a canonical 48 kHz mono 16-bit PCM WAV of at most five seconds.
+ */
+export interface CreateSoundboardSoundRequest {
+  name: string;
+  volume?: number;
+  /**
+   * Base64-encoded canonical PCM WAV, no data URI.
+   */
+  sound: string;
+}
+/**
  * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
  * via the `definition` "CreateStageInstanceRequest".
  */
@@ -5490,6 +5501,13 @@ export interface ModifyMemberRequest {
   banner?: string | null;
 }
 /**
+ * Update sound metadata.
+ */
+export interface ModifySoundboardSoundRequest {
+  name?: string;
+  volume?: number;
+}
+/**
  * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
  * via the `definition` "ModifyStageInstanceRequest".
  */
@@ -6109,6 +6127,20 @@ export interface PublicDevice {
   identity_key_b64: string;
 }
 /**
+ * Proposed voice op 41, sent only to the affected session after the SFU has applied the capability. This is informational; the SFU enforces publication. Absence, expiry, stale revision or disconnection means deny.
+ */
+export interface PublishPermissionsPayload {
+  session_id: string;
+  revision: number;
+  /**
+   * Unix milliseconds; a bounded deadline enforced by the SFU.
+   */
+  expires_at: number;
+  can_publish_audio: boolean;
+  can_publish_video: boolean;
+  can_publish_soundboard: boolean;
+}
+/**
  * PUT /users/@me/notes/{user_id} body. An empty or missing note deletes the note.
  */
 export interface PutNoteRequest {
@@ -6387,6 +6419,17 @@ export interface SelectProtocolData {
   ice_pwd: string;
   fingerprint: string;
   setup: "actpass";
+  /**
+   * Client-selected outbound SSRCs. Soundboard is separate from microphone audio.
+   */
+  ssrcs?: {
+    audio: number;
+    soundboard?: number;
+    video?: number;
+    rtx?: number;
+    screen?: number;
+    screen_rtx?: number;
+  };
 }
 /**
  * Voice op 1 SELECT_PROTOCOL.
@@ -6405,6 +6448,13 @@ export interface VoiceCodec {
   priority: number;
   payload_type: number;
   rtx_payload_type?: number;
+}
+/**
+ * Request authorization to play a sound in the current voice channel.
+ */
+export interface SendSoundboardSoundRequest {
+  sound_id: Snowflake;
+  source_guild_id: Snowflake;
 }
 /**
  * An active gateway session of the current user.
@@ -6725,6 +6775,39 @@ export interface SfuStreamViewers {
   viewers: string[];
 }
 /**
+ * Guild sound metadata. Audio is fetched separately.
+ */
+export interface SoundboardSound {
+  id: Snowflake;
+  guild_id: Snowflake;
+  creator_id: Snowflake | null;
+  name: string;
+  volume: number;
+}
+/**
+ * Soundboard metadata change.
+ */
+export interface SoundboardSoundCreateEvent {
+  guild_id: Snowflake;
+  sound_id: Snowflake;
+  sound: SoundboardSound;
+}
+/**
+ * Soundboard metadata change.
+ */
+export interface SoundboardSoundDeleteEvent {
+  guild_id: Snowflake;
+  sound_id: Snowflake;
+}
+/**
+ * Soundboard metadata change.
+ */
+export interface SoundboardSoundUpdateEvent {
+  guild_id: Snowflake;
+  sound_id: Snowflake;
+  sound: SoundboardSound;
+}
+/**
  * Voice op 5 SPEAKING.
  */
 export interface SpeakingPayload {
@@ -6958,6 +7041,10 @@ export interface VideoPayload {
   rtx_ssrc: number;
   streams: VoiceStream[];
   user_id?: Snowflake;
+  /**
+   * Separate soundboard audio SSRC, when negotiated.
+   */
+  soundboard_ssrc?: number | null;
 }
 /**
  * A simulcast video stream layer.
@@ -7113,6 +7200,10 @@ export interface VoiceReadyPayload {
   port: number;
   modes: "dtls-srtp"[];
   streams: VoiceStream[];
+  /**
+   * True only when the node supports the fully enforced soundboard transport. Missing or false disables the extra sender track.
+   */
+  soundboard_transport?: boolean;
 }
 /**
  * A voice region.

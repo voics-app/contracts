@@ -2594,6 +2594,73 @@ pub struct CreateScheduledMessageRequest {
     pub request_id: ScheduledMessageId,
     pub scheduled_at: ::chrono::DateTime<::chrono::offset::Utc>,
 }
+///Create a sound with a canonical 48 kHz mono 16-bit PCM WAV of at most five seconds.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateSoundboardSoundRequest {
+    pub name: CreateSoundboardSoundRequestName,
+    ///Base64-encoded canonical PCM WAV, no data URI.
+    pub sound: ::std::string::String,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub volume: ::std::option::Option<f64>,
+}
+///`CreateSoundboardSoundRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateSoundboardSoundRequestName(::std::string::String);
+impl ::std::ops::Deref for CreateSoundboardSoundRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateSoundboardSoundRequestName> for ::std::string::String {
+    fn from(value: CreateSoundboardSoundRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateSoundboardSoundRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 32usize {
+            return Err("longer than 32 characters".into());
+        }
+        if value.chars().count() < 2usize {
+            return Err("shorter than 2 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[A-Za-z0-9_-]+$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[A-Za-z0-9_-]+$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateSoundboardSoundRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateSoundboardSoundRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateSoundboardSoundRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///`CreateStageInstanceRequest`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct CreateStageInstanceRequest {
@@ -7240,6 +7307,72 @@ impl<'de> ::serde::Deserialize<'de> for ModifyMemberRequestBio {
             })
     }
 }
+///Update sound metadata.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct ModifySoundboardSoundRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub name: ::std::option::Option<ModifySoundboardSoundRequestName>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub volume: ::std::option::Option<f64>,
+}
+///`ModifySoundboardSoundRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifySoundboardSoundRequestName(::std::string::String);
+impl ::std::ops::Deref for ModifySoundboardSoundRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifySoundboardSoundRequestName> for ::std::string::String {
+    fn from(value: ModifySoundboardSoundRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifySoundboardSoundRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 32usize {
+            return Err("longer than 32 characters".into());
+        }
+        if value.chars().count() < 2usize {
+            return Err("shorter than 2 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[A-Za-z0-9_-]+$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[A-Za-z0-9_-]+$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifySoundboardSoundRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifySoundboardSoundRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifySoundboardSoundRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///`ModifyStageInstanceRequest`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct ModifyStageInstanceRequest {
@@ -9341,6 +9474,67 @@ pub struct PublicDevice {
     pub device_id: Snowflake,
     pub identity_key_b64: ::std::string::String,
 }
+///Proposed voice op 41, sent only to the affected session after the SFU has applied the capability. This is informational; the SFU enforces publication. Absence, expiry, stale revision or disconnection means deny.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PublishPermissionsPayload {
+    pub can_publish_audio: bool,
+    pub can_publish_soundboard: bool,
+    pub can_publish_video: bool,
+    ///Unix milliseconds; a bounded deadline enforced by the SFU.
+    pub expires_at: i64,
+    pub revision: ::std::num::NonZeroU64,
+    pub session_id: PublishPermissionsPayloadSessionId,
+}
+///`PublishPermissionsPayloadSessionId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PublishPermissionsPayloadSessionId(::std::string::String);
+impl ::std::ops::Deref for PublishPermissionsPayloadSessionId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PublishPermissionsPayloadSessionId> for ::std::string::String {
+    fn from(value: PublishPermissionsPayloadSessionId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PublishPermissionsPayloadSessionId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PublishPermissionsPayloadSessionId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PublishPermissionsPayloadSessionId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PublishPermissionsPayloadSessionId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///PUT /users/@me/notes/{user_id} body. An empty or missing note deletes the note.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct PutNoteRequest {
@@ -10733,6 +10927,23 @@ pub struct SelectProtocolData {
     pub ice_pwd: ::std::string::String,
     pub ice_ufrag: ::std::string::String,
     pub setup: ::serde_json::Value,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub ssrcs: ::std::option::Option<SelectProtocolDataSsrcs>,
+}
+///Client-selected outbound SSRCs. Soundboard is separate from microphone audio.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SelectProtocolDataSsrcs {
+    pub audio: ::std::num::NonZeroU64,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub rtx: ::std::option::Option<u32>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub screen: ::std::option::Option<u32>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub screen_rtx: ::std::option::Option<u32>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub soundboard: ::std::option::Option<::std::num::NonZeroU64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub video: ::std::option::Option<u32>,
 }
 ///Voice op 1 SELECT_PROTOCOL.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -10740,6 +10951,12 @@ pub struct SelectProtocolPayload {
     pub codecs: ::std::vec::Vec<VoiceCodec>,
     pub data: SelectProtocolData,
     pub protocol: ::serde_json::Value,
+}
+///Request authorization to play a sound in the current voice channel.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SendSoundboardSoundRequest {
+    pub sound_id: Snowflake,
+    pub source_guild_id: Snowflake,
 }
 ///An active gateway session of the current user.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -11012,6 +11229,94 @@ impl<'de> ::serde::Deserialize<'de> for Snowflake {
                 <D::Error as ::serde::de::Error>::custom(e.to_string())
             })
     }
+}
+///Guild sound metadata. Audio is fetched separately.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SoundboardSound {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub creator_id: ::std::option::Option<Snowflake>,
+    pub guild_id: Snowflake,
+    pub id: Snowflake,
+    pub name: SoundboardSoundName,
+    pub volume: f64,
+}
+///Soundboard metadata change.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SoundboardSoundCreateEvent {
+    pub guild_id: Snowflake,
+    pub sound: SoundboardSound,
+    pub sound_id: Snowflake,
+}
+///Soundboard metadata change.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SoundboardSoundDeleteEvent {
+    pub guild_id: Snowflake,
+    pub sound_id: Snowflake,
+}
+///`SoundboardSoundName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct SoundboardSoundName(::std::string::String);
+impl ::std::ops::Deref for SoundboardSoundName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<SoundboardSoundName> for ::std::string::String {
+    fn from(value: SoundboardSoundName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for SoundboardSoundName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 32usize {
+            return Err("longer than 32 characters".into());
+        }
+        if value.chars().count() < 2usize {
+            return Err("shorter than 2 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[A-Za-z0-9_-]+$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[A-Za-z0-9_-]+$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for SoundboardSoundName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for SoundboardSoundName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for SoundboardSoundName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Soundboard metadata change.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SoundboardSoundUpdateEvent {
+    pub guild_id: Snowflake,
+    pub sound: SoundboardSound,
+    pub sound_id: Snowflake,
 }
 ///Voice op 5 SPEAKING.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -12541,6 +12846,9 @@ impl<'de> ::serde::Deserialize<'de> for VerifyTotpRequestCode {
 pub struct VideoPayload {
     pub audio_ssrc: u64,
     pub rtx_ssrc: u64,
+    ///Separate soundboard audio SSRC, when negotiated.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub soundboard_ssrc: ::std::option::Option<::std::num::NonZeroU64>,
     pub streams: ::std::vec::Vec<VoiceStream>,
     ///Set by the server when relaying another user's announcement.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -13348,6 +13656,9 @@ pub struct VoiceReadyPayload {
     pub ip: ::std::string::String,
     pub modes: ::std::vec::Vec<::serde_json::Value>,
     pub port: u64,
+    ///True only when the node supports the fully enforced soundboard transport. Missing or false disables the extra sender track.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub soundboard_transport: ::std::option::Option<bool>,
     pub ssrc: u64,
     pub streams: ::std::vec::Vec<VoiceStream>,
 }

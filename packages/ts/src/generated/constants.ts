@@ -278,6 +278,9 @@ export const DispatchEvents = {
   STAGE_INSTANCE_UPDATE: "STAGE_INSTANCE_UPDATE",
   STAGE_INSTANCE_DELETE: "STAGE_INSTANCE_DELETE",
   GUILD_EMOJIS_UPDATE: "GUILD_EMOJIS_UPDATE",
+  SOUNDBOARD_SOUND_CREATE: "SOUNDBOARD_SOUND_CREATE",
+  SOUNDBOARD_SOUND_UPDATE: "SOUNDBOARD_SOUND_UPDATE",
+  SOUNDBOARD_SOUND_DELETE: "SOUNDBOARD_SOUND_DELETE",
   INVITE_CREATE: "INVITE_CREATE",
   INVITE_DELETE: "INVITE_DELETE",
   THREAD_CREATE: "THREAD_CREATE",
@@ -363,6 +366,8 @@ export const VoiceOpcodes = {
   DAVE_MLS_INVALID_COMMIT: 31,
   /** Sent to the streamer only: the full list of users watching their screen share, re-sent on every change. */
   STREAM_VIEWERS: 40,
+  /** Proposed: affected session only, sent after SFU capability acknowledgement. Missing or expired means denied. */
+  PUBLISH_PERMISSIONS: 41,
 } as const;
 export type VoiceOpcodesKey = keyof typeof VoiceOpcodes;
 
@@ -449,6 +454,9 @@ export const EventTopics = {
   STAGE_INSTANCE_UPDATE: "discordy.guild.v1",
   STAGE_INSTANCE_DELETE: "discordy.guild.v1",
   GUILD_EMOJIS_UPDATE: "discordy.guild.v1",
+  SOUNDBOARD_SOUND_CREATE: "discordy.guild.v1",
+  SOUNDBOARD_SOUND_UPDATE: "discordy.guild.v1",
+  SOUNDBOARD_SOUND_DELETE: "discordy.guild.v1",
   INVITE_CREATE: "discordy.guild.v1",
   INVITE_DELETE: "discordy.guild.v1",
   THREAD_CREATE: "discordy.guild.v1",

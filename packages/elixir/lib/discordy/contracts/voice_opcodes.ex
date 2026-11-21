@@ -148,6 +148,12 @@ defmodule Discordy.Contracts.VoiceOpcodes do
   @spec stream_viewers() :: non_neg_integer()
   def stream_viewers, do: 40
 
+  @doc ~S"""
+  Proposed: affected session only, sent after SFU capability acknowledgement. Missing or expired means denied.
+  """
+  @spec publish_permissions() :: non_neg_integer()
+  def publish_permissions, do: 41
+
   @doc "Every entry of this group, keyed by atom."
   @spec entries() :: %{atom() => non_neg_integer()}
   def entries do
@@ -175,7 +181,8 @@ defmodule Discordy.Contracts.VoiceOpcodes do
       dave_mls_announce_commit: 29,
       dave_mls_welcome: 30,
       dave_mls_invalid_commit: 31,
-      stream_viewers: 40
+      stream_viewers: 40,
+      publish_permissions: 41
     }
   end
 

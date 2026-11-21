@@ -106,6 +106,15 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec guild_emojis_update() :: String.t()
   def guild_emojis_update, do: "GUILD_EMOJIS_UPDATE"
 
+  @spec soundboard_sound_create() :: String.t()
+  def soundboard_sound_create, do: "SOUNDBOARD_SOUND_CREATE"
+
+  @spec soundboard_sound_update() :: String.t()
+  def soundboard_sound_update, do: "SOUNDBOARD_SOUND_UPDATE"
+
+  @spec soundboard_sound_delete() :: String.t()
+  def soundboard_sound_delete, do: "SOUNDBOARD_SOUND_DELETE"
+
   @spec invite_create() :: String.t()
   def invite_create, do: "INVITE_CREATE"
 
@@ -240,6 +249,9 @@ defmodule Discordy.Contracts.DispatchEvents do
       stage_instance_update: "STAGE_INSTANCE_UPDATE",
       stage_instance_delete: "STAGE_INSTANCE_DELETE",
       guild_emojis_update: "GUILD_EMOJIS_UPDATE",
+      soundboard_sound_create: "SOUNDBOARD_SOUND_CREATE",
+      soundboard_sound_update: "SOUNDBOARD_SOUND_UPDATE",
+      soundboard_sound_delete: "SOUNDBOARD_SOUND_DELETE",
       invite_create: "INVITE_CREATE",
       invite_delete: "INVITE_DELETE",
       thread_create: "THREAD_CREATE",

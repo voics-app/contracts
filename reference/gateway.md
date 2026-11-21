@@ -292,6 +292,9 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `STAGE_INSTANCE_UPDATE` | `StageInstance` | api | `discordy.guild.v1` | A stage instance was updated. |
 | `STAGE_INSTANCE_DELETE` | `StageInstance` | api | `discordy.guild.v1` | A stage instance was ended. |
 | `GUILD_EMOJIS_UPDATE` | `GuildEmojisUpdateEvent` | api | `discordy.guild.v1` | A guild's emojis changed. |
+| `SOUNDBOARD_SOUND_CREATE` | `SoundboardSoundCreateEvent` | api | `discordy.guild.v1` | A guild soundboard sound changed. |
+| `SOUNDBOARD_SOUND_UPDATE` | `SoundboardSoundUpdateEvent` | api | `discordy.guild.v1` | A guild soundboard sound changed. |
+| `SOUNDBOARD_SOUND_DELETE` | `SoundboardSoundDeleteEvent` | api | `discordy.guild.v1` | A guild soundboard sound changed. |
 | `INVITE_CREATE` | `InviteCreateEvent` | api | `discordy.guild.v1` | An invite was created. |
 | `INVITE_DELETE` | `InviteDeleteEvent` | api | `discordy.guild.v1` | An invite was deleted. |
 | `THREAD_CREATE` | `Channel` | api | `discordy.guild.v1` | A thread was created. |
@@ -492,6 +495,35 @@ GUILD_EMOJIS_UPDATE dispatch.
 | --- | --- | --- |
 | `guild_id` | `Snowflake` |  |
 | `emojis` | `array of Emoji` |  |
+
+### SoundboardSoundCreateEvent
+
+Soundboard metadata change.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `guild_id` | `Snowflake` |  |
+| `sound_id` | `Snowflake` |  |
+| `sound` | `SoundboardSound` |  |
+
+### SoundboardSoundUpdateEvent
+
+Soundboard metadata change.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `guild_id` | `Snowflake` |  |
+| `sound_id` | `Snowflake` |  |
+| `sound` | `SoundboardSound` |  |
+
+### SoundboardSoundDeleteEvent
+
+Soundboard metadata change.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `guild_id` | `Snowflake` |  |
+| `sound_id` | `Snowflake` |  |
 
 ### InviteCreateEvent
 

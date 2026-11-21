@@ -791,6 +791,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/send-soundboard-sound": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Authorize a sound in a voice channel */
+        post: operations["sendSoundboardSound"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/thread-members/{user_id}": {
         parameters: {
             query?: never;
@@ -1707,6 +1724,63 @@ export interface paths {
         post?: never;
         /** Remove the caller's interest (idempotent) */
         delete: operations["deleteOwnGuildScheduledEventInterest"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/soundboard-sounds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List guild sounds */
+        get: operations["listGuildSoundboardSounds"];
+        put?: never;
+        /**
+         * Create a guild sound
+         * @description Names need not be unique. A full guild returns 400 with code 30000.
+         */
+        post: operations["createGuildSoundboardSound"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/soundboard-sounds/{sound_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get sound metadata */
+        get: operations["getGuildSoundboardSound"];
+        put?: never;
+        post?: never;
+        /** Delete a guild sound */
+        delete: operations["deleteGuildSoundboardSound"];
+        options?: never;
+        head?: never;
+        /** Modify sound metadata */
+        patch: operations["modifyGuildSoundboardSound"];
+        trace?: never;
+    };
+    "/guilds/{guild_id}/soundboard-sounds/{sound_id}/audio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Fetch authorized sound audio */
+        get: operations["getGuildSoundboardAudio"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3464,6 +3538,16 @@ export interface components {
             /** Format: date-time */
             scheduled_at: string;
         };
+        /**
+         * CreateSoundboardSoundRequest
+         * @description Create a sound with a canonical 48 kHz mono 16-bit PCM WAV of at most five seconds.
+         */
+        CreateSoundboardSoundRequest: {
+            name: string;
+            /** @description Base64-encoded canonical PCM WAV, no data URI. */
+            sound: string;
+            volume?: number;
+        };
         /** CreateStageInstanceRequest */
         CreateStageInstanceRequest: {
             channel_id: components["schemas"]["Snowflake"];
@@ -4457,6 +4541,14 @@ export interface components {
             /** @description For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage. */
             suppress?: boolean;
         };
+        /**
+         * ModifySoundboardSoundRequest
+         * @description Update sound metadata.
+         */
+        ModifySoundboardSoundRequest: {
+            name?: string;
+            volume?: number;
+        };
         /** ModifyStageInstanceRequest */
         ModifyStageInstanceRequest: {
             /** @constant */
@@ -5080,6 +5172,14 @@ export interface components {
             value: string;
         };
         /**
+         * SendSoundboardSoundRequest
+         * @description Request authorization to play a sound in the current voice channel.
+         */
+        SendSoundboardSoundRequest: {
+            sound_id: components["schemas"]["Snowflake"];
+            source_guild_id: components["schemas"]["Snowflake"];
+        };
+        /**
          * SetDeliveryModeRequest
          * @description PUT /users/@me/channels/{id}/delivery-mode body.
          */
@@ -5098,6 +5198,17 @@ export interface components {
          * @example 1234567890123456789
          */
         Snowflake: string;
+        /**
+         * SoundboardSound
+         * @description Guild sound metadata. Audio is fetched separately.
+         */
+        SoundboardSound: {
+            creator_id: components["schemas"]["Snowflake"] | null;
+            guild_id: components["schemas"]["Snowflake"];
+            id: components["schemas"]["Snowflake"];
+            name: string;
+            volume: number;
+        };
         /**
          * StageInstance
          * @description A live guild-only stage instance.
@@ -7599,6 +7710,53 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    sendSoundboardSound: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendSoundboardSoundRequest"];
+            };
+        };
+        responses: {
+            /** @description Authorization succeeded; media is sent separately through the enforced voice transport. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            /** @description Missing channel access, permissions, voice membership, or an unsupported stage channel. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            /** @description Live voice membership or publication capability cannot be confirmed; no authorization is granted. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     addThreadMember: {
         parameters: {
             query?: never;
@@ -9973,6 +10131,192 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+        };
+    };
+    listGuildSoundboardSounds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SoundboardSound"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    createGuildSoundboardSound: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSoundboardSoundRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SoundboardSound"];
+                };
+            };
+            /** @description Invalid audio or metadata, or the guild has reached its sound limit (code 30000). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildSoundboardSound: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                sound_id: components["schemas"]["Snowflake"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SoundboardSound"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    deleteGuildSoundboardSound: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                sound_id: components["schemas"]["Snowflake"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    modifyGuildSoundboardSound: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                sound_id: components["schemas"]["Snowflake"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModifySoundboardSoundRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SoundboardSound"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildSoundboardAudio: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                sound_id: components["schemas"]["Snowflake"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Canonical PCM WAV audio. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "audio/wav": string;
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
         };
     };
     listGuildTemplates: {

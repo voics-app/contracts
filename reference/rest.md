@@ -189,6 +189,13 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | `Emoji` | Get a custom emoji |
 | `PATCH` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | `ModifyEmojiRequest` | `Emoji` | Modify a custom emoji |
 | `DELETE` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | 204 No Content | Delete a custom emoji |
+| `GET` | `/guilds/{guild_id}/soundboard-sounds` | api | — | `array of SoundboardSound` | List guild sounds |
+| `POST` | `/guilds/{guild_id}/soundboard-sounds` | api | `CreateSoundboardSoundRequest` | `SoundboardSound` | Create a guild sound |
+| `GET` | `/guilds/{guild_id}/soundboard-sounds/{sound_id}` | api | — | `SoundboardSound` | Get sound metadata |
+| `PATCH` | `/guilds/{guild_id}/soundboard-sounds/{sound_id}` | api | `ModifySoundboardSoundRequest` | `SoundboardSound` | Modify sound metadata |
+| `DELETE` | `/guilds/{guild_id}/soundboard-sounds/{sound_id}` | api | — | 204 No Content | Delete a guild sound |
+| `GET` | `/guilds/{guild_id}/soundboard-sounds/{sound_id}/audio` | api | — | — | Fetch authorized sound audio |
+| `POST` | `/channels/{channel_id}/send-soundboard-sound` | api | `SendSoundboardSoundRequest` | 204 No Content | Authorize a sound in a voice channel |
 | `GET` | `/guilds/{guild_id}/invites` | api | — | `array of Invite` | List a guild's invites |
 | `GET` | `/guilds/{guild_id}/member-verification` | api | — | `MemberVerification` | Get current rules and the caller's pending status |
 | `PUT` | `/guilds/{guild_id}/member-verification` | api | `SetMemberVerificationRequest` | `MemberVerification` | Replace rules screening configuration (MANAGE_GUILD) |
@@ -1675,6 +1682,18 @@ A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 
 
 Type: `string`
 
+### SoundboardSound
+
+Guild sound metadata. Audio is fetched separately.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `guild_id` | `Snowflake` |  |
+| `creator_id` | `?Snowflake` |  |
+| `name` | `string` |  |
+| `volume` | `number` |  |
+
 ### StageInstance
 
 A live guild-only stage instance.
@@ -2268,6 +2287,16 @@ POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New s
 | `scheduled_at` | `string (date-time)` |  |
 | `message` | `ScheduledMessageDraft` |  |
 
+### CreateSoundboardSoundRequest
+
+Create a sound with a canonical 48 kHz mono 16-bit PCM WAV of at most five seconds.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
+| `volume?` | `number` |  |
+| `sound` | `string` | Base64-encoded canonical PCM WAV, no data URI. |
+
 ### CreateStageInstanceRequest
 
 | Field | Type | Description |
@@ -2647,6 +2676,15 @@ PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed onl
 | `avatar?` | `?string` | Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
 | `banner?` | `?string` | Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
 
+### ModifySoundboardSoundRequest
+
+Update sound metadata.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name?` | `string` |  |
+| `volume?` | `number` |  |
+
 ### ModifyStageInstanceRequest
 
 | Field | Type | Description |
@@ -2942,6 +2980,15 @@ Author/channel page in schedule UUID order, including active/unknown jobs and te
 | --- | --- | --- |
 | `items` | `array of ScheduledMessage` |  |
 | `next_after` | `?ScheduledMessageId` |  |
+
+### SendSoundboardSoundRequest
+
+Request authorization to play a sound in the current voice channel.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `sound_id` | `Snowflake` |  |
+| `source_guild_id` | `Snowflake` |  |
 
 ### SetDeliveryModeRequest
 

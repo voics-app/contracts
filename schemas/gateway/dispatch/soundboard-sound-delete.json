@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/soundboard-sound-delete.json",
+  "title": "SoundboardSoundDeleteEvent",
+  "description": "Soundboard metadata change.",
+  "type": "object",
+  "required": [
+    "guild_id",
+    "sound_id"
+  ],
+  "properties": {
+    "guild_id": {
+      "$ref": "../../objects/snowflake.json"
+    },
+    "sound_id": {
+      "$ref": "../../objects/snowflake.json"
+    }
+  }
+}

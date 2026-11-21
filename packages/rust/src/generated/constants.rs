@@ -400,6 +400,9 @@ pub mod dispatch_events {
     pub const STAGE_INSTANCE_UPDATE: &str = "STAGE_INSTANCE_UPDATE";
     pub const STAGE_INSTANCE_DELETE: &str = "STAGE_INSTANCE_DELETE";
     pub const GUILD_EMOJIS_UPDATE: &str = "GUILD_EMOJIS_UPDATE";
+    pub const SOUNDBOARD_SOUND_CREATE: &str = "SOUNDBOARD_SOUND_CREATE";
+    pub const SOUNDBOARD_SOUND_UPDATE: &str = "SOUNDBOARD_SOUND_UPDATE";
+    pub const SOUNDBOARD_SOUND_DELETE: &str = "SOUNDBOARD_SOUND_DELETE";
     pub const INVITE_CREATE: &str = "INVITE_CREATE";
     pub const INVITE_DELETE: &str = "INVITE_DELETE";
     pub const THREAD_CREATE: &str = "THREAD_CREATE";
@@ -476,6 +479,9 @@ pub mod dispatch_events {
         ("STAGE_INSTANCE_UPDATE", STAGE_INSTANCE_UPDATE),
         ("STAGE_INSTANCE_DELETE", STAGE_INSTANCE_DELETE),
         ("GUILD_EMOJIS_UPDATE", GUILD_EMOJIS_UPDATE),
+        ("SOUNDBOARD_SOUND_CREATE", SOUNDBOARD_SOUND_CREATE),
+        ("SOUNDBOARD_SOUND_UPDATE", SOUNDBOARD_SOUND_UPDATE),
+        ("SOUNDBOARD_SOUND_DELETE", SOUNDBOARD_SOUND_DELETE),
         ("INVITE_CREATE", INVITE_CREATE),
         ("INVITE_DELETE", INVITE_DELETE),
         ("THREAD_CREATE", THREAD_CREATE),
@@ -564,6 +570,8 @@ pub mod voice_opcodes {
     pub const DAVE_MLS_INVALID_COMMIT: u8 = 31;
     /// Sent to the streamer only: the full list of users watching their screen share, re-sent on every change.
     pub const STREAM_VIEWERS: u8 = 40;
+    /// Proposed: affected session only, sent after SFU capability acknowledgement. Missing or expired means denied.
+    pub const PUBLISH_PERMISSIONS: u8 = 41;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -591,6 +599,7 @@ pub mod voice_opcodes {
         ("DAVE_MLS_WELCOME", DAVE_MLS_WELCOME),
         ("DAVE_MLS_INVALID_COMMIT", DAVE_MLS_INVALID_COMMIT),
         ("STREAM_VIEWERS", STREAM_VIEWERS),
+        ("PUBLISH_PERMISSIONS", PUBLISH_PERMISSIONS),
     ];
 }
 
@@ -709,6 +718,9 @@ pub mod event_topics {
     pub const STAGE_INSTANCE_UPDATE: &str = "discordy.guild.v1";
     pub const STAGE_INSTANCE_DELETE: &str = "discordy.guild.v1";
     pub const GUILD_EMOJIS_UPDATE: &str = "discordy.guild.v1";
+    pub const SOUNDBOARD_SOUND_CREATE: &str = "discordy.guild.v1";
+    pub const SOUNDBOARD_SOUND_UPDATE: &str = "discordy.guild.v1";
+    pub const SOUNDBOARD_SOUND_DELETE: &str = "discordy.guild.v1";
     pub const INVITE_CREATE: &str = "discordy.guild.v1";
     pub const INVITE_DELETE: &str = "discordy.guild.v1";
     pub const THREAD_CREATE: &str = "discordy.guild.v1";
@@ -778,6 +790,9 @@ pub mod event_topics {
         ("STAGE_INSTANCE_UPDATE", STAGE_INSTANCE_UPDATE),
         ("STAGE_INSTANCE_DELETE", STAGE_INSTANCE_DELETE),
         ("GUILD_EMOJIS_UPDATE", GUILD_EMOJIS_UPDATE),
+        ("SOUNDBOARD_SOUND_CREATE", SOUNDBOARD_SOUND_CREATE),
+        ("SOUNDBOARD_SOUND_UPDATE", SOUNDBOARD_SOUND_UPDATE),
+        ("SOUNDBOARD_SOUND_DELETE", SOUNDBOARD_SOUND_DELETE),
         ("INVITE_CREATE", INVITE_CREATE),
         ("INVITE_DELETE", INVITE_DELETE),
         ("THREAD_CREATE", THREAD_CREATE),

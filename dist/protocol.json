@@ -496,6 +496,27 @@
         "description": "A guild's emojis changed."
       },
       {
+        "name": "SOUNDBOARD_SOUND_CREATE",
+        "payload": "gateway/dispatch/soundboard-sound-create.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A guild soundboard sound changed."
+      },
+      {
+        "name": "SOUNDBOARD_SOUND_UPDATE",
+        "payload": "gateway/dispatch/soundboard-sound-update.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A guild soundboard sound changed."
+      },
+      {
+        "name": "SOUNDBOARD_SOUND_DELETE",
+        "payload": "gateway/dispatch/soundboard-sound-delete.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A guild soundboard sound changed."
+      },
+      {
         "name": "INVITE_CREATE",
         "payload": "gateway/dispatch/invite-create.json",
         "source": "api",
@@ -990,6 +1011,13 @@
         "direction": "receive",
         "payload": "voice/opcodes/stream-viewers.json",
         "description": "Sent to the streamer only: the full list of users watching their screen share, re-sent on every change."
+      },
+      {
+        "op": 41,
+        "name": "PUBLISH_PERMISSIONS",
+        "direction": "receive",
+        "payload": "voice/opcodes/publish-permissions.json",
+        "description": "Proposed: affected session only, sent after SFU capability acknowledgement. Missing or expired means denied."
       }
     ],
     "sfu_commands": [
