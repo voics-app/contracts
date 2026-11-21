@@ -850,6 +850,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/voice-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set or clear a voice channel status
+         * @description Requires channel visibility and SET_VOICE_CHANNEL_STATUS or current connection to that channel. Dispatches CHANNEL_UPDATE.
+         */
+        put: operations["setVoiceChannelStatus"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/webhooks": {
         parameters: {
             query?: never;
@@ -980,6 +1000,26 @@ export interface paths {
         put?: never;
         /** Report a currently discoverable listing for moderation */
         post: operations["reportDiscoveryGuild"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/friend-invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a friend request to the invite owner
+         * @description The authenticated opener sends the request using ordinary relationship rules. Expired, revoked and unknown tokens return unknown invite. Opening one's own token is rejected. Existing incoming requests can become friendships.
+         */
+        post: operations["usePersonalFriendInvite"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1282,6 +1322,26 @@ export interface paths {
         };
         /** List announcement channels followed by a server */
         get: operations["listFollowedChannels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/insights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get daily server activity (MANAGE_GUILD)
+         * @description UTC days include today. Null means unavailable. A false completeness flag means a count may omit activity. Voice collection is not yet implemented.
+         */
+        get: operations["getGuildInsights"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1744,6 +1804,44 @@ export interface paths {
         get: operations["getWelcomeScreen"];
         /** Replace the welcome screen (MANAGE_GUILD) */
         put: operations["putWelcomeScreen"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/widget": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get widget settings (MANAGE_GUILD) */
+        get: operations["getGuildWidgetSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update widget settings (MANAGE_GUILD) */
+        patch: operations["updateGuildWidgetSettings"];
+        trace?: never;
+    };
+    "/guilds/{guild_id}/widget.json": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an enabled guild's public widget
+         * @description Disabled widgets return 404. The response deliberately omits channels, members and invites.
+         */
+        get: operations["getPublicGuildWidget"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -2230,6 +2328,74 @@ export interface paths {
          */
         post: operations["disableAccount"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/favourites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the caller's private favourite friend IDs
+         * @description Only the caller can see these IDs. Removing or blocking a friendship clears the corresponding favourite.
+         */
+        get: operations["listFavouriteFriends"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/favourites/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** Mark an existing friend as a favourite */
+        put: operations["addFavouriteFriend"];
+        post?: never;
+        /**
+         * Remove a favourite mark
+         * @description Idempotent, including if the favourite is absent.
+         */
+        delete: operations["removeFavouriteFriend"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/friend-invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a personal friend invite
+         * @description Returns a bearer token once, expiring after 24 hours. Creating a new token invalidates the caller's previous token. Only a hash is stored.
+         */
+        post: operations["createPersonalFriendInvite"];
+        /**
+         * Revoke the caller's current personal friend invite
+         * @description Idempotent when no token exists.
+         */
+        delete: operations["revokePersonalFriendInvite"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3048,6 +3214,8 @@ export interface components {
             /** @description Forum posts must have at least one available tag. */
             require_tags?: boolean;
             rtc_region?: string | null;
+            /** @description Voice-channel status text, or null when unset. */
+            status?: string | null;
             /** @description Voice channels only: whether members can send messages to the channel chat. Defaults to true. */
             text_chat_enabled?: boolean;
             thread_metadata?: components["schemas"]["ThreadMetadata"];
@@ -3178,6 +3346,19 @@ export interface components {
             image: string;
             name: string;
             roles?: components["schemas"]["Snowflake"][];
+        };
+        /**
+         * CreateFriendInviteResponse
+         * @description One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+         */
+        CreateFriendInviteResponse: {
+            /**
+             * Format: date-time
+             * @description Expiry 24 hours after creation.
+             */
+            expires_at: string;
+            /** @description Unpadded base64url secret generated from 32 random bytes. */
+            token: string;
         };
         /**
          * CreateGuildFromTemplateRequest
@@ -3631,6 +3812,22 @@ export interface components {
             voice_region: string;
         };
         /**
+         * Guild Insights Coverage State
+         * @description Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+         * @enum {string}
+         */
+        "Guild Insights Coverage State": "complete" | "partial" | "unavailable";
+        /**
+         * Guild Insights Coverage Summary
+         * @description Period status and the number of days in each coverage state for this source.
+         */
+        "Guild Insights Coverage Summary": {
+            complete_days: number;
+            partial_days: number;
+            status: components["schemas"]["Guild Insights Coverage State"];
+            unavailable_days: number;
+        };
+        /**
          * GuildDiscoverySettings
          * @description A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
          */
@@ -3654,6 +3851,38 @@ export interface components {
             /** @description Folder id chosen by the client (stable per user); null for a single un-foldered server. */
             id: number | null;
             name: string | null;
+        };
+        /** GuildInsights */
+        GuildInsights: {
+            coverage: {
+                membership: components["schemas"]["Guild Insights Coverage Summary"];
+                messages: components["schemas"]["Guild Insights Coverage Summary"];
+                voice: components["schemas"]["Guild Insights Coverage Summary"];
+            };
+            days: {
+                /** @description API activity schema initialization, not proof of complete voice coverage. */
+                activity_source_initialized_at_ms: number;
+                coverage: {
+                    membership: components["schemas"]["Guild Insights Coverage State"];
+                    messages: components["schemas"]["Guild Insights Coverage State"];
+                    voice: components["schemas"]["Guild Insights Coverage State"];
+                };
+                /** Format: date */
+                date: string;
+                leavers: number | null;
+                membership_complete: boolean;
+                /** @description False means the observed count may omit writes. */
+                message_complete: boolean;
+                /** @description Marker schema initialization, not proof of full producer coverage. */
+                message_source_initialized_at_ms: number | null;
+                messages: number | null;
+                new_members: number | null;
+                voice_minutes: number | null;
+            }[];
+            message_coverage: boolean;
+            /** @enum {integer} */
+            period: 7 | 30;
+            voice_coverage: boolean;
         };
         /**
          * GuildIntegration
@@ -3758,6 +3987,16 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
             usage_count: number;
+        };
+        /** GuildWidgetPatch */
+        GuildWidgetPatch: {
+            channel_id?: components["schemas"]["Snowflake"] | null;
+            enabled?: boolean;
+        };
+        /** GuildWidgetSettings */
+        GuildWidgetSettings: {
+            channel_id: components["schemas"]["Snowflake"] | null;
+            enabled: boolean;
         };
         /**
          * InstallParams
@@ -4990,6 +5229,14 @@ export interface components {
             packages: string[];
         };
         /**
+         * UseFriendInviteRequest
+         * @description Present a personal friend invite to send a request to its owner.
+         */
+        UseFriendInviteRequest: {
+            /** @description Bearer token returned at creation. */
+            token: string;
+        };
+        /**
          * User
          * @description A Discordy user (Discord v10 User object).
          */
@@ -5177,6 +5424,11 @@ export interface components {
             id: string;
             name: string;
             optimal: boolean;
+        };
+        /** VoiceStatusRequest */
+        VoiceStatusRequest: {
+            /** @description Text to display, or null to clear. */
+            status: string | null;
         };
         /**
          * WebauthnChallenge
@@ -7499,6 +7751,43 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    setVoiceChannelStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoiceStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description Status saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            /** @description The gateway voice-state lookup is unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     createWebhook: {
         parameters: {
             query?: never;
@@ -7717,6 +8006,33 @@ export interface operations {
         };
         responses: {
             /** @description Report accepted or already open. Listing visibility is unchanged. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    usePersonalFriendInvite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UseFriendInviteRequest"];
+            };
+        };
+        responses: {
+            /** @description Request sent or relationship already in the resulting state. */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -8664,6 +8980,35 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildInsights: {
+        parameters: {
+            query?: {
+                period?: 7 | 30;
+            };
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Daily activity and coverage. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildInsights"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
     listGuildIntegrations: {
@@ -9924,6 +10269,91 @@ export interface operations {
             403: components["responses"]["Forbidden"];
         };
     };
+    getGuildWidgetSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Widget settings. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildWidgetSettings"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateGuildWidgetSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuildWidgetPatch"];
+            };
+        };
+        responses: {
+            /** @description Updated widget settings. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildWidgetSettings"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getPublicGuildWidget: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Public guild identity. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        icon: string | null;
+                        id: components["schemas"]["Snowflake"];
+                        name: string;
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
     listBuiltinGuildTemplates: {
         parameters: {
             query?: never;
@@ -10939,6 +11369,122 @@ export interface operations {
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listFavouriteFriends: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Favourite friend IDs. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Snowflake"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    addFavouriteFriend: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Favourite saved, including an already saved favourite. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    removeFavouriteFriend: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Favourite removed or already absent. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    createPersonalFriendInvite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description New token and expiry. Treat the token as a secret. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateFriendInviteResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    revokePersonalFriendInvite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked or already absent. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             429: components["responses"]["RateLimited"];
         };
     };

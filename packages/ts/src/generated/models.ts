@@ -34,6 +34,10 @@ export type ScheduledMessageId = string;
  */
 export type ScheduledMessageRevision = number;
 /**
+ * Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+ */
+export type GuildInsightsCoverageState = "complete" | "partial" | "unavailable";
+/**
  * Op 1 HEARTBEAT: the last sequence number received, or null.
  */
 export type HeartbeatPayload = number | null;
@@ -589,6 +593,10 @@ export interface Channel {
   permission_overwrites?: PermissionOverwrite[];
   name?: string | null;
   topic?: string | null;
+  /**
+   * Voice-channel status text, or null when unset.
+   */
+  status?: string | null;
   nsfw?: boolean;
   /**
    * Voice channels only: whether members can send messages to the channel chat. Defaults to true.
@@ -1190,6 +1198,19 @@ export interface CreateEmojiRequest {
    */
   image: string;
   roles?: Snowflake[];
+}
+/**
+ * One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+ */
+export interface CreateFriendInviteResponse {
+  /**
+   * Unpadded base64url secret generated from 32 random bytes.
+   */
+  token: string;
+  /**
+   * Expiry 24 hours after creation.
+   */
+  expires_at: string;
 }
 /**
  * POST /guilds/templates/{code} body.
@@ -2321,6 +2342,15 @@ export interface Guild {
   prune_admin_only?: boolean;
 }
 /**
+ * Period status and the number of days in each coverage state for this source.
+ */
+export interface GuildInsightsCoverageSummary {
+  status: GuildInsightsCoverageState;
+  complete_days: number;
+  partial_days: number;
+  unavailable_days: number;
+}
+/**
  * Permissions of an application's command(s) in a guild.
  */
 export interface GuildApplicationCommandPermissions {
@@ -2456,6 +2486,45 @@ export interface GuildFull {
   voice_states: VoiceState[];
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildInsights".
+ */
+export interface GuildInsights {
+  period: 7 | 30;
+  message_coverage: boolean;
+  voice_coverage: boolean;
+  coverage: {
+    membership: GuildInsightsCoverageSummary;
+    messages: GuildInsightsCoverageSummary;
+    voice: GuildInsightsCoverageSummary;
+  };
+  days: {
+    date: string;
+    new_members: number | null;
+    leavers: number | null;
+    membership_complete: boolean;
+    messages: number | null;
+    /**
+     * False means the observed count may omit writes.
+     */
+    message_complete: boolean;
+    /**
+     * Marker schema initialization, not proof of full producer coverage.
+     */
+    message_source_initialized_at_ms: number | null;
+    /**
+     * API activity schema initialization, not proof of complete voice coverage.
+     */
+    activity_source_initialized_at_ms: number;
+    voice_minutes: number | null;
+    coverage: {
+      membership: GuildInsightsCoverageState;
+      messages: GuildInsightsCoverageState;
+      voice: GuildInsightsCoverageState;
+    };
+  }[];
+}
+/**
  * An application whose bot is currently installed in this server.
  */
 export interface GuildIntegration {
@@ -2510,6 +2579,19 @@ export interface GuildMembersChunkEvent {
   not_found?: Snowflake[];
   presences?: PresenceUpdateEvent[];
   nonce?: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildMessageActivity".
+ */
+export interface GuildMessageActivity {
+  utc_day: number;
+  count: number;
+  coverage_complete: boolean;
+  /**
+   * Marker schema initialization, not proof of full producer coverage.
+   */
+  source_initialized_at_ms: number | null;
 }
 /**
  * The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
@@ -2676,6 +2758,22 @@ export interface TemplateOverwrite {
   type: number;
   allow: PermissionBitset;
   deny: PermissionBitset;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildWidgetPatch".
+ */
+export interface GuildWidgetPatch {
+  enabled?: boolean;
+  channel_id?: Snowflake | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildWidgetSettings".
+ */
+export interface GuildWidgetSettings {
+  enabled: boolean;
+  channel_id: Snowflake | null;
 }
 /**
  * Op 10 HELLO.
@@ -6766,6 +6864,15 @@ export interface UsageTickEvent {
   region?: string;
 }
 /**
+ * Present a personal friend invite to send a request to its owner.
+ */
+export interface UseFriendInviteRequest {
+  /**
+   * Bearer token returned at creation.
+   */
+  token: string;
+}
+/**
  * A private note the current user wrote about another user. Visible only to its author.
  */
 export interface UserNote {
@@ -6862,6 +6969,18 @@ export interface VoiceStream {
   ssrc: number;
   rtx_ssrc: number;
   active?: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "VoiceActivityCheckpoint".
+ */
+export interface VoiceActivityCheckpoint {
+  guild_id: Snowflake;
+  user_id: Snowflake;
+  session_id: string;
+  generation_id: string;
+  observed_at: string;
+  connected: boolean;
 }
 /**
  * Every voice WebSocket frame (both directions).
@@ -7031,6 +7150,16 @@ export interface VoiceStateUpdatePayload {
   self_deaf: boolean;
   self_video: boolean;
   self_stream: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "VoiceStatusRequest".
+ */
+export interface VoiceStatusRequest {
+  /**
+   * Text to display, or null to clear.
+   */
+  status: string | null;
 }
 /**
  * Op 23 VOICE_TELEMETRY.

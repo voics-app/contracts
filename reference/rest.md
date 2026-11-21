@@ -94,6 +94,12 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/users/@me/notes/{user_id}` | api | — | 204 No Content | Delete the current user's private note about a user |
 | `GET` | `/users/@me/channels` | api | — | `array of Channel` | List DMs and group DMs |
 | `POST` | `/users/@me/channels` | api | `CreateDmRequest` | `Channel` | Open a DM or create a group DM |
+| `GET` | `/users/@me/favourites` | api | — | `array of Snowflake` | List the caller's private favourite friend IDs |
+| `PUT` | `/users/@me/favourites/{user_id}` | api | — | 204 No Content | Mark an existing friend as a favourite |
+| `DELETE` | `/users/@me/favourites/{user_id}` | api | — | 204 No Content | Remove a favourite mark |
+| `POST` | `/users/@me/friend-invites` | api | — | `CreateFriendInviteResponse` | Create a personal friend invite |
+| `DELETE` | `/users/@me/friend-invites` | api | — | 204 No Content | Revoke the caller's current personal friend invite |
+| `POST` | `/friend-invites` | api | `UseFriendInviteRequest` | 204 No Content | Send a friend request to the invite owner |
 | `GET` | `/users/@me/relationships` | api | — | `array of Relationship` | List relationships |
 | `GET` | `/users/@me/relationships/{user_id}` | api | — | `Relationship` | Get the relationship with a user |
 | `PUT` | `/users/@me/relationships/{user_id}` | api | `PutRelationshipRequest` | 204 No Content | Send or accept a friend request, or block a user |
@@ -148,6 +154,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}` | api | — | `Guild` | Get a guild |
 | `PATCH` | `/guilds/{guild_id}` | api | `ModifyGuildRequest` | `Guild` | Modify a guild (including voice_region) |
 | `DELETE` | `/guilds/{guild_id}` | api | — | 204 No Content | Delete a guild (owner only) |
+| `GET` | `/guilds/{guild_id}/insights` | api | — | `GuildInsights` | Get daily server activity (MANAGE_GUILD) |
+| `GET` | `/guilds/{guild_id}/widget.json` | api | — | `object` | Get an enabled guild's public widget |
+| `GET` | `/guilds/{guild_id}/widget` | api | — | `GuildWidgetSettings` | Get widget settings (MANAGE_GUILD) |
+| `PATCH` | `/guilds/{guild_id}/widget` | api | `GuildWidgetPatch` | `GuildWidgetSettings` | Update widget settings (MANAGE_GUILD) |
 | `GET` | `/guilds/{guild_id}/channels` | api | — | `array of Channel` | List a guild's channels |
 | `POST` | `/guilds/{guild_id}/channels` | api | `CreateChannelRequest` | `Channel` | Create a guild channel |
 | `PATCH` | `/guilds/{guild_id}/channels` | api | `array of ChannelPosition` | 204 No Content | Reorder guild channels |
@@ -236,6 +246,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/channels/{channel_id}` | api | — | `Channel` | Get a channel |
 | `PATCH` | `/channels/{channel_id}` | api | `ModifyChannelRequest` | `Channel` | Modify a channel (including delivery_mode and voice_region) |
 | `DELETE` | `/channels/{channel_id}` | api | — | `Channel` | Delete a channel, leave a group DM or close a DM |
+| `PUT` | `/channels/{channel_id}/voice-status` | api | `VoiceStatusRequest` | 204 No Content | Set or clear a voice channel status |
 | `PUT` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | `EditOverwriteRequest` | 204 No Content | Create or edit a permission overwrite |
 | `DELETE` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | — | 204 No Content | Delete a permission overwrite |
 | `POST` | `/channels/{channel_id}/invites` | api | `CreateInviteRequest` | `Invite` | Create an invite |
@@ -616,6 +627,7 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `permission_overwrites?` | `array of PermissionOverwrite` |  |
 | `name?` | `?string` |  |
 | `topic?` | `?string` |  |
+| `status?` | `?string` | Voice-channel status text, or null when unset. |
 | `nsfw?` | `boolean` |  |
 | `text_chat_enabled?` | `boolean` | Voice channels only: whether members can send messages to the channel chat. Defaults to true. |
 | `last_message_id?` | `?Snowflake` |  |
@@ -2148,6 +2160,15 @@ POST /guilds/{id}/emojis body.
 | `image` | `string` | Data URI, 256 KiB max. |
 | `roles?` | `array of Snowflake` |  |
 
+### CreateFriendInviteResponse
+
+One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `token` | `string` | Unpadded base64url secret generated from 32 random bytes. |
+| `expires_at` | `string (date-time)` | Expiry 24 hours after creation. |
+
 ### CreateGuildFromTemplateRequest
 
 POST /guilds/templates/{code} body.
@@ -2367,6 +2388,47 @@ POST /auth/forgot-password body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `email` | `string (email)` |  |
+
+### Guild Insights Coverage State
+
+Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+
+Type: `"complete" or "partial" or "unavailable"`
+
+### Guild Insights Coverage Summary
+
+Period status and the number of days in each coverage state for this source.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | `Guild Insights Coverage State` |  |
+| `complete_days` | `integer` |  |
+| `partial_days` | `integer` |  |
+| `unavailable_days` | `integer` |  |
+
+### GuildInsights
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `period` | `7 or 30` |  |
+| `message_coverage` | `boolean` |  |
+| `voice_coverage` | `boolean` |  |
+| `coverage` | `object` |  |
+| `days` | `array of object` |  |
+
+### GuildWidgetPatch
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled?` | `boolean` |  |
+| `channel_id?` | `?Snowflake` |  |
+
+### GuildWidgetSettings
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `channel_id` | `?Snowflake` |  |
 
 ### InteractionCallbackData
 
@@ -2929,6 +2991,14 @@ POST /devices/{id}/key-packages body.
 | --- | --- | --- |
 | `packages` | `array of string` |  |
 
+### UseFriendInviteRequest
+
+Present a personal friend invite to send a request to its owner.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `token` | `string` | Bearer token returned at creation. |
+
 ### UserProfile
 
 GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).
@@ -2954,6 +3024,12 @@ POST /users/@me/mfa/totp/verify body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `code` | `string` |  |
+
+### VoiceStatusRequest
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | `?string` | Text to display, or null to clear. |
 
 ### WebauthnChallenge
 

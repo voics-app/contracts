@@ -1,0 +1,1 @@
+{ "schema": "internal/voice-activity-checkpoint.json", "data": { "guild_id": "123", "user_id": "456", "session_id": "session", "generation_id": "0d1eb698-0a0c-4885-892c-7eb4926eef21", "observed_at": "2026-11-19T00:00:00Z", "connected": true } }

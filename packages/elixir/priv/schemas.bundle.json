@@ -1510,6 +1510,15 @@
             "null"
           ]
         },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500,
+          "pattern": "^[^\\u0000]*$",
+          "description": "Voice-channel status text, or null when unset."
+        },
         "nsfw": {
           "type": "boolean"
         },
@@ -2144,6 +2153,26 @@
           "items": {
             "$ref": "#/$defs/Snowflake"
           }
+        }
+      }
+    },
+    "CreateFriendInviteResponse": {
+      "title": "CreateFriendInviteResponse",
+      "description": "One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.",
+      "type": "object",
+      "required": [
+        "token",
+        "expires_at"
+      ],
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "Unpadded base64url secret generated from 32 random bytes."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Expiry 24 hours after creation."
         }
       }
     },
@@ -4260,6 +4289,44 @@
         }
       }
     },
+    "Guild Insights Coverage State": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "partial",
+        "unavailable"
+      ],
+      "description": "Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.",
+      "title": "Guild Insights Coverage State"
+    },
+    "Guild Insights Coverage Summary": {
+      "type": "object",
+      "required": [
+        "status",
+        "complete_days",
+        "partial_days",
+        "unavailable_days"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/Guild Insights Coverage State"
+        },
+        "complete_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "partial_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unavailable_days": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "description": "Period status and the number of days in each coverage state for this source.",
+      "title": "Guild Insights Coverage Summary"
+    },
     "GuildApplicationCommandPermissions": {
       "title": "GuildApplicationCommandPermissions",
       "description": "Permissions of an application's command(s) in a guild.",
@@ -4676,6 +4743,141 @@
         }
       }
     },
+    "GuildInsights": {
+      "title": "GuildInsights",
+      "type": "object",
+      "required": [
+        "period",
+        "days",
+        "coverage",
+        "message_coverage",
+        "voice_coverage"
+      ],
+      "properties": {
+        "period": {
+          "type": "integer",
+          "enum": [
+            7,
+            30
+          ]
+        },
+        "message_coverage": {
+          "type": "boolean"
+        },
+        "voice_coverage": {
+          "type": "boolean"
+        },
+        "coverage": {
+          "type": "object",
+          "required": [
+            "membership",
+            "messages",
+            "voice"
+          ],
+          "properties": {
+            "membership": {
+              "$ref": "#/$defs/Guild Insights Coverage Summary"
+            },
+            "messages": {
+              "$ref": "#/$defs/Guild Insights Coverage Summary"
+            },
+            "voice": {
+              "$ref": "#/$defs/Guild Insights Coverage Summary"
+            }
+          }
+        },
+        "days": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "date",
+              "new_members",
+              "leavers",
+              "membership_complete",
+              "messages",
+              "message_complete",
+              "message_source_initialized_at_ms",
+              "activity_source_initialized_at_ms",
+              "voice_minutes",
+              "coverage"
+            ],
+            "properties": {
+              "date": {
+                "type": "string",
+                "format": "date"
+              },
+              "new_members": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "leavers": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "membership_complete": {
+                "type": "boolean"
+              },
+              "messages": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "message_complete": {
+                "type": "boolean",
+                "description": "False means the observed count may omit writes."
+              },
+              "message_source_initialized_at_ms": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "description": "Marker schema initialization, not proof of full producer coverage."
+              },
+              "activity_source_initialized_at_ms": {
+                "type": "integer",
+                "description": "API activity schema initialization, not proof of complete voice coverage."
+              },
+              "voice_minutes": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "coverage": {
+                "type": "object",
+                "required": [
+                  "membership",
+                  "messages",
+                  "voice"
+                ],
+                "properties": {
+                  "membership": {
+                    "$ref": "#/$defs/Guild Insights Coverage State"
+                  },
+                  "messages": {
+                    "$ref": "#/$defs/Guild Insights Coverage State"
+                  },
+                  "voice": {
+                    "$ref": "#/$defs/Guild Insights Coverage State"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "GuildIntegration": {
       "title": "GuildIntegration",
       "description": "An application whose bot is currently installed in this server.",
@@ -4932,6 +5134,38 @@
         },
         "nonce": {
           "type": "string"
+        }
+      }
+    },
+    "GuildMessageActivity": {
+      "title": "GuildMessageActivity",
+      "type": "object",
+      "required": [
+        "utc_day",
+        "count",
+        "coverage_complete",
+        "source_initialized_at_ms"
+      ],
+      "properties": {
+        "utc_day": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coverage_complete": {
+          "type": "boolean"
+        },
+        "source_initialized_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "description": "Marker schema initialization, not proof of full producer coverage."
         }
       }
     },
@@ -5282,6 +5516,49 @@
         "is_dirty": {
           "type": "boolean",
           "description": "Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
+        }
+      }
+    },
+    "GuildWidgetPatch": {
+      "title": "GuildWidgetPatch",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "channel_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "GuildWidgetSettings": {
+      "title": "GuildWidgetSettings",
+      "type": "object",
+      "required": [
+        "enabled",
+        "channel_id"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "channel_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -11654,6 +11931,20 @@
         }
       }
     },
+    "UseFriendInviteRequest": {
+      "title": "UseFriendInviteRequest",
+      "description": "Present a personal friend invite to send a request to its owner.",
+      "type": "object",
+      "required": [
+        "token"
+      ],
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "Bearer token returned at creation."
+        }
+      }
+    },
     "User": {
       "title": "User",
       "description": "A Discordy user (Discord v10 User object).",
@@ -12288,6 +12579,44 @@
         }
       }
     },
+    "VoiceActivityCheckpoint": {
+      "title": "VoiceActivityCheckpoint",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guild_id",
+        "user_id",
+        "session_id",
+        "generation_id",
+        "observed_at",
+        "connected"
+      ],
+      "properties": {
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "user_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[^\\u0000]*$"
+        },
+        "generation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "connected": {
+          "type": "boolean"
+        }
+      }
+    },
     "VoiceCodec": {
       "title": "VoiceCodec",
       "description": "A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.",
@@ -12891,6 +13220,24 @@
         },
         "self_stream": {
           "type": "boolean"
+        }
+      }
+    },
+    "VoiceStatusRequest": {
+      "title": "VoiceStatusRequest",
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500,
+          "pattern": "^[^\\u0000]*$",
+          "description": "Text to display, or null to clear."
         }
       }
     },

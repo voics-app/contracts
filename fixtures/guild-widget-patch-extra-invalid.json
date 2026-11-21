@@ -1,0 +1,1 @@
+{ "schema": "rest/guild-widget-patch.json", "valid": false, "data": { "enabled": true, "members": [] } }

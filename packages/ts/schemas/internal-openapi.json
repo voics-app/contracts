@@ -1182,6 +1182,126 @@
         }
       }
     },
+    "/voice/activity-checkpoints": {
+      "post": {
+        "operationId": "recordVoiceActivityCheckpoint",
+        "summary": "Record an idempotent gateway voice activity observation",
+        "description": "Observations are scoped by guild, user, session and gateway generation. Only consecutive observations at most 60 seconds apart contribute; coverage remains incomplete.",
+        "tags": [
+          "api"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceActivityCheckpoint"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Observation recorded or already applied."
+          },
+          "400": {
+            "description": "Invalid or out-of-window observation."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/message-activity/{utc_day}": {
+      "get": {
+        "operationId": "getGuildMessageActivity",
+        "summary": "Count observed guild message markers for a UTC day (messages)",
+        "description": "Counts are provisional until producer coverage has been established after rollout. utc_day is days since the Unix epoch; source_initialized_at_ms records the schema migration and does not establish fleet coverage.",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "name": "utc_day",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Observed markers and coverage flag.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildMessageActivity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid day or guild ID."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/channels/{channel_id}/voice-members/{user_id}": {
+      "get": {
+        "operationId": "getVoiceMembership",
+        "summary": "Check a member's current voice channel in the owning gateway guild process",
+        "tags": [
+          "gateway"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current voice membership.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "connected"
+                  ],
+                  "properties": {
+                    "connected": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "description": "The owning process could not be queried."
+          }
+        }
+      }
+    },
     "/voice/nodes/{node_id}/drain": {
       "post": {
         "operationId": "drainVoiceNode",
@@ -1678,6 +1798,15 @@
               "string",
               "null"
             ]
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 500,
+            "pattern": "^[^\\u0000]*$",
+            "description": "Voice-channel status text, or null when unset."
           },
           "nsfw": {
             "type": "boolean"
@@ -2777,6 +2906,38 @@
             ],
             "maxLength": 300,
             "description": "Server-specific About me; trimmed, null or blank restores the global bio."
+          }
+        }
+      },
+      "GuildMessageActivity": {
+        "title": "GuildMessageActivity",
+        "type": "object",
+        "required": [
+          "utc_day",
+          "count",
+          "coverage_complete",
+          "source_initialized_at_ms"
+        ],
+        "properties": {
+          "utc_day": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "coverage_complete": {
+            "type": "boolean"
+          },
+          "source_initialized_at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Marker schema initialization, not proof of full producer coverage."
           }
         }
       },
@@ -4828,6 +4989,44 @@
           },
           "friend_source_flags": {
             "$ref": "#/components/schemas/FriendSourceFlags"
+          }
+        }
+      },
+      "VoiceActivityCheckpoint": {
+        "title": "VoiceActivityCheckpoint",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "guild_id",
+          "user_id",
+          "session_id",
+          "generation_id",
+          "observed_at",
+          "connected"
+        ],
+        "properties": {
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "session_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000]*$"
+          },
+          "generation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "connected": {
+            "type": "boolean"
           }
         }
       },
