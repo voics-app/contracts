@@ -2762,18 +2762,18 @@ PUT /users/@me/channels/{id}/delivery-mode body.
 | --- | --- | --- |
 | `mode` | `?DeliveryMode` | Null clears the per-chat override. |
 
-### ThreadMemberTarget
-
-A thread member's Snowflake or @me for the authenticated user.
-
-Type: `string`
-
 ### SetMemberVerificationRequest
 
 | Field | Type | Description |
 | --- | --- | --- |
 | `enabled` | `boolean` |  |
 | `rules` | `array of string` |  |
+
+### ThreadMemberTarget
+
+A thread member's Snowflake or @me for the authenticated user.
+
+Type: `string`
 
 ### TotpEnrollmentResponse
 
