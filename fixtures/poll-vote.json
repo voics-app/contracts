@@ -1,0 +1,6 @@
+{
+  "schema": "rest/poll-vote-request.json",
+  "data": {
+    "expected_vote_version": "0"
+  }
+}
