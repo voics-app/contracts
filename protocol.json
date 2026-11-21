@@ -49,7 +49,8 @@
       { "op": 23, "name": "VOICE_TELEMETRY", "direction": "send", "payload": "gateway/opcodes/voice-telemetry.json", "description": "Client voice quality sample, published to discordy.telemetry.v1." },
       { "op": 24, "name": "WATCH_TOGETHER", "direction": "both", "payload": "gateway/opcodes/watch-together.json", "description": "Watch Together playback synchronisation." },
       { "op": 25, "name": "CALL_DECLINE", "direction": "send", "payload": "gateway/opcodes/call-decline.json", "description": "Declines the DM call ringing in a channel. The caller's call stops ringing for this user." },
-      { "op": 26, "name": "CALL_RING", "direction": "send", "payload": "gateway/opcodes/call-ring.json", "description": "Rings 1 to 10 members of a DM channel for a call the sender is in." }
+      { "op": 26, "name": "CALL_RING", "direction": "send", "payload": "gateway/opcodes/call-ring.json", "description": "Rings 1 to 10 members of a DM channel for a call the sender is in." },
+      { "op": 27, "name": "SESSION_MODE", "direction": "send", "payload": "gateway/opcodes/session-mode.json", "description": "Switch the session between passive and active; activation requests a full refresh." }
     ],
     "close_codes": [
       { "code": 4000, "name": "UNKNOWN_ERROR", "description": "Unknown error.", "reconnect": true },
@@ -67,6 +68,7 @@
     ],
     "dispatch_events": [
       { "name": "READY", "payload": "gateway/dispatch/ready.json", "source": "gateway", "topic": null, "description": "Initial state after IDENTIFY." },
+      { "name": "PASSIVE_UPDATE_V2", "payload": "gateway/dispatch/passive-update-v2.json", "source": "gateway", "topic": null, "description": "Coalesced passive session changes." },
       { "name": "RESUMED", "payload": null, "source": "gateway", "topic": null, "description": "Replay after RESUME has finished. `d` is null." },
       { "name": "PRESENCE_UPDATE", "payload": "gateway/dispatch/presence-update.json", "source": "gateway", "topic": null, "description": "A user's presence changed." },
       { "name": "TYPING_START", "payload": "gateway/dispatch/typing-start.json", "source": "api", "topic": "discordy.message.v1", "description": "A user started typing." },
@@ -278,6 +280,8 @@
     "MessageFlags": {
       "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.",
       "values": [
+        { "name": "CROSSPOSTED", "value": 1 },
+        { "name": "IS_CROSSPOST", "value": 2 },
         { "name": "SUPPRESS_EMBEDS", "value": 4 },
         { "name": "SUPPRESS_NOTIFICATIONS", "value": 4096 },
         { "name": "EPHEMERAL", "value": 64 },

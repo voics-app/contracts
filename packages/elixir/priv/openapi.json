@@ -4977,6 +4977,193 @@
         }
       }
     },
+    "/channels/{channel_id}/followers": {
+      "post": {
+        "operationId": "followAnnouncementChannel",
+        "summary": "Follow an announcement channel into another server",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "webhook_channel_id"
+                ],
+                "properties": {
+                  "webhook_channel_id": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Follower created; no webhook token is issued.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "channel_id",
+                    "webhook_id"
+                  ],
+                  "properties": {
+                    "channel_id": {
+                      "$ref": "#/components/schemas/Snowflake"
+                    },
+                    "webhook_id": {
+                      "$ref": "#/components/schemas/Snowflake"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "The destination already follows this source."
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "description": "Announcement delivery is disabled or unavailable."
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/messages/{message_id}/crosspost": {
+      "post": {
+        "operationId": "publishAnnouncement",
+        "summary": "Publish an announcement to its followers",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/message_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Publication queued and source marked CROSSPOSTED.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "This message was already reserved for publication."
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "description": "Announcement delivery is disabled or unavailable."
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/followed-channels": {
+      "get": {
+        "operationId": "listFollowedChannels",
+        "summary": "List announcement channels followed by a server",
+        "tags": [
+          "Webhooks"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Source channel, destination channel and follower webhook IDs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "channel_id",
+                      "webhook_channel_id",
+                      "webhook_id"
+                    ],
+                    "properties": {
+                      "channel_id": {
+                        "$ref": "#/components/schemas/Snowflake"
+                      },
+                      "webhook_channel_id": {
+                        "$ref": "#/components/schemas/Snowflake"
+                      },
+                      "webhook_id": {
+                        "$ref": "#/components/schemas/Snowflake"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/channels/{channel_id}/webhooks": {
       "post": {
         "operationId": "createWebhook",
@@ -17706,7 +17893,7 @@
       },
       "Webhook": {
         "title": "Webhook",
-        "description": "An incoming or application webhook.",
+        "description": "An incoming, channel-follower or application webhook.",
         "type": "object",
         "required": [
           "id",

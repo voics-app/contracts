@@ -377,6 +377,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/followers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Follow an announcement channel into another server */
+        post: operations["followAnnouncementChannel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/invites": {
         parameters: {
             query?: never;
@@ -445,6 +462,23 @@ export interface paths {
         put?: never;
         /** Mark a channel read up to a message (publishes MESSAGE_ACK) */
         post: operations["ackMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/messages/{message_id}/crosspost": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish an announcement to its followers */
+        post: operations["publishAnnouncement"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1166,6 +1200,23 @@ export interface paths {
         head?: never;
         /** Modify a custom emoji */
         patch: operations["modifyGuildEmoji"];
+        trace?: never;
+    };
+    "/guilds/{guild_id}/followed-channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List announcement channels followed by a server */
+        get: operations["listFollowedChannels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/guilds/{guild_id}/integrations": {
@@ -5024,7 +5075,7 @@ export interface components {
         };
         /**
          * Webhook
-         * @description An incoming or application webhook.
+         * @description An incoming, channel-follower or application webhook.
          */
         Webhook: {
             application_id: components["schemas"]["Snowflake"] | null;
@@ -6121,6 +6172,57 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    followAnnouncementChannel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    webhook_channel_id: components["schemas"]["Snowflake"];
+                };
+            };
+        };
+        responses: {
+            /** @description Follower created; no webhook token is issued. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        channel_id: components["schemas"]["Snowflake"];
+                        webhook_id: components["schemas"]["Snowflake"];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description The destination already follows this source. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            429: components["responses"]["RateLimited"];
+            /** @description Announcement delivery is disabled or unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     createChannelInvite: {
         parameters: {
             query?: never;
@@ -6345,6 +6447,50 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    publishAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Publication queued and source marked CROSSPOSTED. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description This message was already reserved for publication. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            429: components["responses"]["RateLimited"];
+            /** @description Announcement delivery is disabled or unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     deleteAllReactions: {
@@ -8203,6 +8349,37 @@ export interface operations {
                 };
             };
             400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listFollowedChannels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Source channel, destination channel and follower webhook IDs. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        channel_id: components["schemas"]["Snowflake"];
+                        webhook_channel_id: components["schemas"]["Snowflake"];
+                        webhook_id: components["schemas"]["Snowflake"];
+                    }[];
+                };
+            };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];

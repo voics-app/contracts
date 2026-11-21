@@ -293,6 +293,8 @@ pub mod gateway_opcodes {
     pub const CALL_DECLINE: u8 = 25;
     /// Rings 1 to 10 members of a DM channel for a call the sender is in.
     pub const CALL_RING: u8 = 26;
+    /// Switch the session between passive and active; activation requests a full refresh.
+    pub const SESSION_MODE: u8 = 27;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -314,6 +316,7 @@ pub mod gateway_opcodes {
         ("WATCH_TOGETHER", WATCH_TOGETHER),
         ("CALL_DECLINE", CALL_DECLINE),
         ("CALL_RING", CALL_RING),
+        ("SESSION_MODE", SESSION_MODE),
     ];
 }
 
@@ -364,6 +367,7 @@ pub mod gateway_close_codes {
 /// Gateway dispatch event names (`t`).
 pub mod dispatch_events {
     pub const READY: &str = "READY";
+    pub const PASSIVE_UPDATE_V2: &str = "PASSIVE_UPDATE_V2";
     pub const RESUMED: &str = "RESUMED";
     pub const PRESENCE_UPDATE: &str = "PRESENCE_UPDATE";
     pub const TYPING_START: &str = "TYPING_START";
@@ -430,6 +434,7 @@ pub mod dispatch_events {
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, &str)] = &[
         ("READY", READY),
+        ("PASSIVE_UPDATE_V2", PASSIVE_UPDATE_V2),
         ("RESUMED", RESUMED),
         ("PRESENCE_UPDATE", PRESENCE_UPDATE),
         ("TYPING_START", TYPING_START),
@@ -940,6 +945,8 @@ pub mod message_type {
 
 /// Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.
 pub mod message_flags {
+    pub const CROSSPOSTED: u16 = 1;
+    pub const IS_CROSSPOST: u16 = 2;
     pub const SUPPRESS_EMBEDS: u16 = 4;
     pub const SUPPRESS_NOTIFICATIONS: u16 = 4096;
     pub const EPHEMERAL: u16 = 64;
@@ -947,6 +954,8 @@ pub mod message_flags {
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u16)] = &[
+        ("CROSSPOSTED", CROSSPOSTED),
+        ("IS_CROSSPOST", IS_CROSSPOST),
         ("SUPPRESS_EMBEDS", SUPPRESS_EMBEDS),
         ("SUPPRESS_NOTIFICATIONS", SUPPRESS_NOTIFICATIONS),
         ("EPHEMERAL", EPHEMERAL),

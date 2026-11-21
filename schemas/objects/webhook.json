@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/objects/webhook.json",
   "title": "Webhook",
-  "description": "An incoming or application webhook.",
+  "description": "An incoming, channel-follower or application webhook.",
   "type": "object",
   "required": [
     "id",

@@ -107,6 +107,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/crossposts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Deliver a claimed announcement to a follower channel (messages service)
+         * @description The caller supplies a reserved ID and must not blindly retry an ambiguous result after the destination has disappeared.
+         */
+        post: operations["deliverAnnouncementCrosspost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/forum-start": {
         parameters: {
             query?: never;
@@ -176,6 +196,23 @@ export interface paths {
         head?: never;
         /** Record the end of a call on its system message (messages service) */
         patch: operations["updateMessageCall"];
+        trace?: never;
+    };
+    "/channels/{channel_id}/messages/{message_id}/crossposted": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark a stored announcement as published (messages service) */
+        post: operations["markAnnouncementCrossposted"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/channels/{channel_id}/notification-recipients": {
@@ -1800,6 +1837,69 @@ export interface operations {
             404: components["responses"]["NotFound"];
         };
     };
+    deliverAnnouncementCrosspost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    message_id: components["schemas"]["Snowflake"];
+                    snapshot: {
+                        attachments?: {
+                            content_type?: string | null;
+                            description?: string | null;
+                            filename: string;
+                            flags?: number | null;
+                            height?: number | null;
+                            id: components["schemas"]["Snowflake"];
+                            size: number;
+                            width?: number | null;
+                        }[];
+                        content: string;
+                        embeds?: {
+                            [key: string]: unknown;
+                        }[];
+                    };
+                    source_channel_id: components["schemas"]["Snowflake"];
+                    webhook_id: components["schemas"]["Snowflake"];
+                    webhook_name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Stored destination message, or an already present matching destination. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description Invalid snapshot or unavailable attachment. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Destination does not support standard delivery. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     createForumStart: {
         parameters: {
             query?: never;
@@ -1934,6 +2034,40 @@ export interface operations {
                 };
             };
             /** @description Not a call message or invalid timestamp. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    markAnnouncementCrossposted: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Updated source message. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description Not a publishable announcement. */
             400: {
                 headers: {
                     [name: string]: unknown;

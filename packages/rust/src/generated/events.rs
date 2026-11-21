@@ -11,6 +11,8 @@ use crate::types::*;
 pub enum DispatchEvent {
     #[serde(rename = "READY")]
     Ready(ReadyEvent),
+    #[serde(rename = "PASSIVE_UPDATE_V2")]
+    PassiveUpdateV2(PassiveUpdateV2Event),
     #[serde(rename = "RESUMED")]
     Resumed(Option<serde_json::Value>),
     #[serde(rename = "PRESENCE_UPDATE")]
@@ -140,6 +142,7 @@ impl DispatchEvent {
     pub fn name(&self) -> &'static str {
         match self {
             Self::Ready(_) => "READY",
+            Self::PassiveUpdateV2(_) => "PASSIVE_UPDATE_V2",
             Self::Resumed(_) => "RESUMED",
             Self::PresenceUpdate(_) => "PRESENCE_UPDATE",
             Self::TypingStart(_) => "TYPING_START",
