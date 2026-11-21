@@ -178,6 +178,28 @@
       ]
     },
     {
+      "name": "MESSAGE_CONTENT",
+      "bit": 15,
+      "value": 32768,
+      "privileged": true,
+      "scope": "content",
+      "events": []
+    },
+    {
+      "name": "GUILD_SCHEDULED_EVENTS",
+      "bit": 16,
+      "value": 65536,
+      "privileged": false,
+      "scope": "guild",
+      "events": [
+        "GUILD_SCHEDULED_EVENT_CREATE",
+        "GUILD_SCHEDULED_EVENT_UPDATE",
+        "GUILD_SCHEDULED_EVENT_DELETE",
+        "GUILD_SCHEDULED_EVENT_USER_ADD",
+        "GUILD_SCHEDULED_EVENT_USER_REMOVE"
+      ]
+    },
+    {
       "name": "GUILD_MESSAGE_POLLS",
       "bit": 24,
       "scope": "guild",
@@ -198,14 +220,6 @@
         "MESSAGE_POLL_VOTE_ADD",
         "MESSAGE_POLL_VOTE_REMOVE"
       ]
-    },
-    {
-      "name": "MESSAGE_CONTENT",
-      "bit": 15,
-      "value": 32768,
-      "privileged": true,
-      "scope": "content",
-      "events": []
     }
   ]
 }

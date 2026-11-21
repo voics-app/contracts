@@ -177,6 +177,14 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/templates` | api | — | `array of GuildTemplate` | List the built-in server templates |
 | `GET` | `/guilds/templates/{code}` | api | — | `GuildTemplate` | Resolve a server template by code (built-in or shared) |
 | `POST` | `/guilds/templates/{code}` | api | `CreateGuildFromTemplateRequest` | `Guild` | Create a guild from a template |
+| `GET` | `/guilds/{guild_id}/scheduled-events` | api | — | `array of GuildScheduledEvent` | List events visible to the guild member |
+| `POST` | `/guilds/{guild_id}/scheduled-events` | api | `CreateGuildScheduledEventRequest` | `GuildScheduledEvent` | Create an event (requires CREATE_EVENTS or MANAGE_EVENTS) |
+| `GET` | `/guilds/{guild_id}/scheduled-events/{event_id}` | api | — | `GuildScheduledEvent` | Get a visible event |
+| `PATCH` | `/guilds/{guild_id}/scheduled-events/{event_id}` | api | `ModifyGuildScheduledEventRequest` | `GuildScheduledEvent` | Modify an event |
+| `DELETE` | `/guilds/{guild_id}/scheduled-events/{event_id}` | api | — | 204 No Content | Delete an event |
+| `GET` | `/guilds/{guild_id}/scheduled-events/{event_id}/users/@me` | api | — | `object` | Get the caller's interest in an event |
+| `PUT` | `/guilds/{guild_id}/scheduled-events/{event_id}/users/@me` | api | — | 204 No Content | Mark the caller interested (idempotent) |
+| `DELETE` | `/guilds/{guild_id}/scheduled-events/{event_id}/users/@me` | api | — | 204 No Content | Remove the caller's interest (idempotent) |
 | `GET` | `/guilds/{guild_id}/templates` | api | — | `array of GuildTemplate` | List a guild's templates (requires MANAGE_GUILD) |
 | `POST` | `/guilds/{guild_id}/templates` | api | `CreateGuildTemplateRequest` | `GuildTemplate` | Create a template from the guild (requires MANAGE_GUILD) |
 | `PUT` | `/guilds/{guild_id}/templates/{code}` | api | — | `GuildTemplate` | Re-snapshot a template from the guild (requires MANAGE_GUILD) |
@@ -1004,6 +1012,26 @@ The current user's notification settings for one guild, or for their DMs when gu
 | `hide_muted_channels` | `boolean` |  |
 | `channel_overrides` | `array of ChannelNotificationOverride` | Only channels with a non-default override. |
 
+### GuildScheduledEvent
+
+A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `guild_id` | `Snowflake` |  |
+| `channel_id` | `any` |  |
+| `creator_id` | `any` |  |
+| `name` | `string` |  |
+| `description` | `?string` |  |
+| `scheduled_start_time` | `string (date-time)` |  |
+| `scheduled_end_time` | `?string (date-time)` |  |
+| `status` | `1 or 2 or 3 or 4` |  |
+| `entity_type` | `1 or 2 or 3` |  |
+| `entity_metadata` | `any` |  |
+| `image` | `?string` |  |
+| `user_count` | `integer` |  |
+
 ### GuildTemplate
 
 A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
@@ -1485,6 +1513,14 @@ Tags of a managed role.
 | --- | --- | --- |
 | `bot_id?` | `Snowflake` |  |
 | `integration_id?` | `Snowflake` |  |
+
+### ScheduledEventMetadata
+
+The location of an external event.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `location` | `string` |  |
 
 ### ScheduledMessage
 
@@ -2052,6 +2088,21 @@ POST /guilds body.
 | `default_message_notifications?` | `integer` |  |
 | `explicit_content_filter?` | `integer` |  |
 
+### CreateGuildScheduledEventRequest
+
+Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
+| `description?` | `?string` |  |
+| `entity_type` | `1 or 2 or 3` |  |
+| `channel_id?` | `any` |  |
+| `entity_metadata?` | `any` |  |
+| `scheduled_start_time` | `string (date-time)` |  |
+| `scheduled_end_time?` | `?string (date-time)` |  |
+| `image?` | `?string` | Image data URI, subject to the standard image upload limits. |
+
 ### CreateGuildTemplateRequest
 
 POST /guilds/{guild_id}/templates body. A guild has at most one template.
@@ -2392,6 +2443,22 @@ PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
 | `audit_log_enabled?` | `boolean` | Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves. |
 | `audit_log_retention_days?` | `30 or 90 or 365` | Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job. |
 | `prune_admin_only?` | `boolean` | Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD. |
+
+### ModifyGuildScheduledEventRequest
+
+Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name?` | `string` |  |
+| `description?` | `?string` |  |
+| `entity_type?` | `1 or 2 or 3` |  |
+| `channel_id?` | `any` |  |
+| `entity_metadata?` | `any` |  |
+| `scheduled_start_time?` | `string (date-time)` |  |
+| `scheduled_end_time?` | `?string (date-time)` |  |
+| `image?` | `?string` |  |
+| `status?` | `1 or 2 or 3 or 4` |  |
 
 ### ModifyGuildTemplateRequest
 
