@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/poll-viewer-answer-count.json",
+  "title": "PollViewerAnswerCount",
+  "type": "object",
+  "required": [
+    "id",
+    "count",
+    "me_voted"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "me_voted": {
+      "type": "boolean",
+      "description": "Absent in public events: unknown, not false."
+    }
+  },
+  "additionalProperties": false
+}
