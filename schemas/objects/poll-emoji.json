@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/poll-emoji.json",
+  "title": "PollEmoji",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    }
+  },
+  "additionalProperties": false,
+  "description": "Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names."
+}

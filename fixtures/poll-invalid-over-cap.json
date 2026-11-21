@@ -1,0 +1,8 @@
+{
+  "schema": "objects/poll-answer-count.json",
+  "valid": false,
+  "data": {
+    "id": 1,
+    "count": 100001
+  }
+}

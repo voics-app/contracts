@@ -328,6 +328,41 @@
         "description": "A guild became available or the user joined one."
       },
       {
+        "name": "GUILD_SCHEDULED_EVENT_CREATE",
+        "payload": "objects/guild-scheduled-event.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A guild event was created."
+      },
+      {
+        "name": "GUILD_SCHEDULED_EVENT_UPDATE",
+        "payload": "objects/guild-scheduled-event.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A guild event changed."
+      },
+      {
+        "name": "GUILD_SCHEDULED_EVENT_DELETE",
+        "payload": "objects/guild-scheduled-event.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A guild event was deleted."
+      },
+      {
+        "name": "GUILD_SCHEDULED_EVENT_USER_ADD",
+        "payload": "gateway/dispatch/guild-scheduled-event-user.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A member became interested in an event."
+      },
+      {
+        "name": "GUILD_SCHEDULED_EVENT_USER_REMOVE",
+        "payload": "gateway/dispatch/guild-scheduled-event-user.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "A member removed their interest in an event."
+      },
+      {
         "name": "GUILD_UPDATE",
         "payload": "objects/guild.json",
         "source": "api",
@@ -454,6 +489,13 @@
         "description": "A thread was updated."
       },
       {
+        "name": "THREAD_MEMBERS_UPDATE",
+        "payload": "events/thread-members-update.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "Thread membership changed; underscore-prefixed bus state is private to the gateway."
+      },
+      {
         "name": "THREAD_DELETE",
         "payload": "objects/channel.json",
         "source": "api",
@@ -494,6 +536,20 @@
         "source": "messages",
         "topic": "discordy.message.v1",
         "description": "Several messages were deleted at once."
+      },
+      {
+        "name": "MESSAGE_POLL_VOTE_ADD",
+        "payload": "gateway/dispatch/message-poll-vote-add.json",
+        "source": "messages",
+        "topic": "discordy.message.v1",
+        "description": "Authoritative poll counts and complete actor selection after a vote add."
+      },
+      {
+        "name": "MESSAGE_POLL_VOTE_REMOVE",
+        "payload": "gateway/dispatch/message-poll-vote-remove.json",
+        "source": "messages",
+        "topic": "discordy.message.v1",
+        "description": "Authoritative poll counts and complete actor selection after a vote remove."
       },
       {
         "name": "MESSAGE_REACTION_ADD",
@@ -550,6 +606,13 @@
         "source": "api",
         "topic": "discordy.user.v1",
         "description": "The current user was updated."
+      },
+      {
+        "name": "GUILD_SCHEDULED_EVENT_START",
+        "payload": "gateway/dispatch/guild-scheduled-event-start.json",
+        "source": "api",
+        "topic": "discordy.user.v1",
+        "description": "A scheduled event start reminder targeted to one interested user; recheck access before showing details."
       },
       {
         "name": "USER_SETTINGS_UPDATE",
@@ -1218,7 +1281,7 @@
       ]
     },
     "MessageFlags": {
-      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications.",
+      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.",
       "values": [
         {
           "name": "SUPPRESS_EMBEDS",
@@ -1231,6 +1294,10 @@
         {
           "name": "EPHEMERAL",
           "value": 64
+        },
+        {
+          "name": "IS_VOICE_MESSAGE",
+          "value": 8192
         }
       ]
     },
@@ -1527,7 +1594,7 @@
       ]
     },
     "AuditLogEvent": {
-      "description": "Audit log action types (Discord values) used by Discordy.",
+      "description": "Audit log action types used by Discordy, including Voics extensions.",
       "values": [
         {
           "name": "GUILD_UPDATE",
@@ -1672,6 +1739,14 @@
         {
           "name": "APPLICATION_COMMAND_PERMISSION_UPDATE",
           "value": 121
+        },
+        {
+          "name": "BAN_APPEAL_ACCEPT",
+          "value": 200
+        },
+        {
+          "name": "BAN_APPEAL_DENY",
+          "value": 201
         }
       ]
     }

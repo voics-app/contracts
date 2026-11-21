@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/poll-snapshot.json",
+  "title": "PollSnapshot",
+  "type": "object",
+  "required": [
+    "question",
+    "answers",
+    "expiry",
+    "allow_multiselect",
+    "layout_type",
+    "results"
+  ],
+  "properties": {
+    "question": {
+      "$ref": "./poll-question.json"
+    },
+    "answers": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 10,
+      "items": {
+        "$ref": "./poll-answer.json"
+      }
+    },
+    "expiry": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "allow_multiselect": {
+      "type": "boolean"
+    },
+    "layout_type": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "results": {
+      "$ref": "./poll-viewer-results.json"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Viewer-authorized poll snapshot. GET is side-effect-free. Refresh visible polls on foreground/reconnect to repair missed publication."
+}

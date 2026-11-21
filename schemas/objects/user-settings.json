@@ -107,6 +107,9 @@
     "preferences": {
       "$ref": "./user-preferences.json",
       "description": "Synced client preferences (appearance, chat, notification sounds, emoji). Sparse."
+    },
+    "friend_source_flags": {
+      "$ref": "./friend-source-flags.json"
     }
   },
   "$defs": {

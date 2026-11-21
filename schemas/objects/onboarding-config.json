@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/onboarding-config.json",
+  "title": "OnboardingConfig",
+  "type": "object",
+  "required": ["enabled", "questions"],
+  "properties": {
+    "enabled": { "type": "boolean" },
+    "questions": { "type": "array", "maxItems": 5, "items": { "$ref": "./onboarding-question.json" } }
+  }
+}

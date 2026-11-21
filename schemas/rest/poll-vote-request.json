@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/poll-vote-request.json",
+  "title": "PollVoteRequest",
+  "type": "object",
+  "required": [
+    "expected_vote_version"
+  ],
+  "properties": {
+    "expected_vote_version": {
+      "$ref": "../objects/poll-version.json"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The revision of your own vote, not the global results. An already-satisfied retry is a no-op; any stale request that changes your selection conflicts."
+}
