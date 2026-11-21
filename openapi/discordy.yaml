@@ -3380,6 +3380,137 @@ paths:
           $ref: "#/components/responses/DeliveryModeConflict"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/polls/{message_id}:
+    get:
+      operationId: getPoll
+      summary: Get an authoritative poll snapshot for the current viewer
+      description: Fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in a Standard channel are required. Results include every answer count and the viewer's vote version. This side-effect-free query repairs missed events; refresh visible polls on foreground and reconnect. A missing/non-poll/deleted message is 404. This additive contract requires the polls implementation before use.
+      tags: [Messages]
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      responses:
+        "200":
+          $ref: "#/components/responses/PollSnapshot"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/PollConflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/PollUnavailable"
+  /channels/{channel_id}/polls/{message_id}/answers/{answer_id}/@me:
+    parameters:
+      - $ref: "#/components/parameters/channel_id"
+      - $ref: "#/components/parameters/message_id"
+      - name: answer_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 10
+    put:
+      operationId: selectPollAnswer
+      summary: Select a poll answer with your current vote revision
+      description: Authenticated human users only, with fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in a Standard channel. Single-choice selection replaces the previous answer atomically; multi-choice adds this answer. An already-satisfied retry is a no-op. A stale version that changes the selection conflicts. The global results version is not the voter precondition. Bots cannot vote. At most 100000 distinct participants, including retracted voters, are admitted.
+      tags: [Messages]
+      x-discordy-service: messages
+      security:
+        - UserBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/poll-vote-request.json
+      responses:
+        "200":
+          $ref: "#/components/responses/PollSnapshot"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/PollConflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/PollUnavailable"
+    delete:
+      operationId: removePollAnswer
+      summary: Retract a poll answer with your current vote revision
+      description: Same fresh access and human-user restrictions as selecting an answer. Removing an already-absent answer is a no-op. Retain the original expected version when retrying a lost response; refresh after a conflicting later selection.
+      tags: [Messages]
+      x-discordy-service: messages
+      security:
+        - UserBearer: []
+      parameters:
+        - name: expected_vote_version
+          in: query
+          required: true
+          schema:
+            $ref: ../schemas/objects/poll-version.json
+      responses:
+        "200":
+          $ref: "#/components/responses/PollSnapshot"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/PollConflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/PollUnavailable"
+  /channels/{channel_id}/polls/{message_id}/expire:
+    post:
+      operationId: expirePoll
+      summary: End your own poll early
+      description: The original author alone may end a poll, with fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in the Standard channel. MANAGE_MESSAGES grants deletion, not author impersonation. Repeated expiry returns the already-finalized result. A competing vote either commits before the closing fence and is counted, or is rejected. Publishes MESSAGE_UPDATE with complete finalized results. Public bot authors may end their own poll but may not vote.
+      tags: [Messages]
+      x-discordy-service: messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      responses:
+        "200":
+          description: Message with finalized poll results.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/PollConflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/PollUnavailable"
   /channels/{channel_id}/messages/scheduled:
     get:
       operationId: listScheduledMessages
@@ -5439,6 +5570,24 @@ components:
       schema:
         type: string
   responses:
+    PollSnapshot:
+      description: Complete results and the authenticated viewer's selection.
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/objects/poll-snapshot.json
+    PollConflict:
+      description: Private delivery (50160), or closed/overdue poll, stale changing voter revision or participant-cap exhaustion (50035 with poll, expected_vote_version or poll.participants field error). No requested vote mutation occurred.
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/objects/error.json
+    PollUnavailable:
+      description: Temporary dependency failure or bounded CAS retry exhaustion. An uncertain transport response is reconciled by GET or an identical retry, never by incrementing a local count.
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/objects/error.json
     ScheduledMessageResult:
       description: Current author-private scheduled-message state.
       content:

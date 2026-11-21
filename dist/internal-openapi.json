@@ -1934,6 +1934,28 @@
           }
         }
       },
+      "FriendSourceFlags": {
+        "title": "FriendSourceFlags",
+        "description": "Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "all",
+          "mutual_friends",
+          "mutual_guilds"
+        ],
+        "properties": {
+          "all": {
+            "type": "boolean"
+          },
+          "mutual_friends": {
+            "type": "boolean"
+          },
+          "mutual_guilds": {
+            "type": "boolean"
+          }
+        }
+      },
       "GatewayAdminStats": {
         "title": "GatewayAdminStats",
         "description": "GET /internal/v1/admin/stats on gateway.",
@@ -2844,6 +2866,9 @@
             "items": {
               "$ref": "#/components/schemas/MessageSnapshot"
             }
+          },
+          "poll": {
+            "$ref": "#/components/schemas/Poll"
           }
         }
       },
@@ -3339,6 +3364,183 @@
             "$ref": "#/components/schemas/PermissionBitset"
           }
         }
+      },
+      "Poll": {
+        "title": "Poll",
+        "type": "object",
+        "required": [
+          "question",
+          "answers",
+          "expiry",
+          "allow_multiselect",
+          "layout_type"
+        ],
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/PollQuestion"
+          },
+          "answers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollAnswer"
+            }
+          },
+          "expiry": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "allow_multiselect": {
+            "type": "boolean"
+          },
+          "layout_type": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "results": {
+            "$ref": "#/components/schemas/PollResults"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit."
+      },
+      "PollAnswer": {
+        "title": "PollAnswer",
+        "type": "object",
+        "required": [
+          "answer_id",
+          "poll_media"
+        ],
+        "properties": {
+          "answer_id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "poll_media": {
+            "$ref": "#/components/schemas/PollMedia"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PollAnswerCount": {
+        "title": "PollAnswerCount",
+        "type": "object",
+        "required": [
+          "id",
+          "count"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "me_voted": {
+            "type": "boolean",
+            "description": "Absent in public events: unknown, not false."
+          }
+        },
+        "additionalProperties": false
+      },
+      "PollEmoji": {
+        "title": "PollEmoji",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "additionalProperties": false,
+        "description": "Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names."
+      },
+      "PollMedia": {
+        "title": "PollMedia",
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 55,
+            "pattern": "\\S"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/PollEmoji"
+          }
+        },
+        "additionalProperties": false,
+        "description": "An answer label, optionally decorated with a Unicode emoji."
+      },
+      "PollQuestion": {
+        "title": "PollQuestion",
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "pattern": "\\S"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Plain text. Does not produce mentions or embeds."
+      },
+      "PollResults": {
+        "title": "PollResults",
+        "type": "object",
+        "required": [
+          "version",
+          "is_finalized",
+          "answer_counts"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "#/components/schemas/PollVersion"
+          },
+          "is_finalized": {
+            "type": "boolean"
+          },
+          "answer_counts": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollAnswerCount"
+            },
+            "description": "Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer."
+          },
+          "vote_version": {
+            "$ref": "#/components/schemas/PollVersion",
+            "description": "Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Authoritative counts. Replace by results version; never add/subtract event deltas."
+      },
+      "PollVersion": {
+        "title": "PollVersion",
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]{0,18})$",
+        "description": "Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed."
       },
       "PresenceUpdateEvent": {
         "title": "PresenceUpdateEvent",
@@ -3897,6 +4099,24 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "default_guilds_restricted": {
+            "type": "boolean",
+            "description": "Default restriction on new guild-related DMs; missing means false."
+          },
+          "guild_dm_restrictions": {
+            "type": "object",
+            "maxProperties": 200,
+            "propertyNames": {
+              "pattern": "^[0-9]{1,20}$"
+            },
+            "additionalProperties": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "description": "Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior."
+          },
           "hide_age_restricted_channels": {
             "type": "boolean",
             "description": "Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization."
@@ -4208,6 +4428,9 @@
           "preferences": {
             "$ref": "#/components/schemas/UserPreferences",
             "description": "Synced client preferences (appearance, chat, notification sounds, emoji). Sparse."
+          },
+          "friend_source_flags": {
+            "$ref": "#/components/schemas/FriendSourceFlags"
           }
         }
       },

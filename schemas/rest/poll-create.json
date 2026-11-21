@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/poll-create.json",
+  "title": "PollCreate",
+  "type": "object",
+  "required": [
+    "question",
+    "answers"
+  ],
+  "properties": {
+    "question": {
+      "$ref": "../objects/poll-question.json"
+    },
+    "answers": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": [
+          "poll_media"
+        ],
+        "properties": {
+          "poll_media": {
+            "$ref": "../objects/poll-media.json"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "duration": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 768,
+      "default": 24,
+      "description": "Whole hours from server acceptance."
+    },
+    "allow_multiselect": {
+      "type": "boolean",
+      "default": false
+    },
+    "layout_type": {
+      "type": "integer",
+      "enum": [
+        1
+      ],
+      "default": 1
+    }
+  },
+  "additionalProperties": false,
+  "description": "Immutable poll definition for a Standard public message. Answer IDs and expiry are server assigned. Unsupported internal/webhook/interaction, scheduled and forward creation is rejected."
+}

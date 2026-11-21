@@ -19,6 +19,8 @@
     { "name": "DIRECT_MESSAGE_REACTIONS", "bit": 13, "value": 8192, "privileged": false, "scope": "direct", "events": ["MESSAGE_REACTION_ADD", "MESSAGE_REACTION_REMOVE", "MESSAGE_REACTION_REMOVE_ALL"] },
     { "name": "DIRECT_MESSAGE_TYPING", "bit": 14, "value": 16384, "privileged": false, "scope": "direct", "events": ["TYPING_START"] },
     { "name": "MESSAGE_CONTENT", "bit": 15, "value": 32768, "privileged": true, "scope": "content", "events": [] },
-    { "name": "GUILD_SCHEDULED_EVENTS", "bit": 16, "value": 65536, "privileged": false, "scope": "guild", "events": ["GUILD_SCHEDULED_EVENT_CREATE", "GUILD_SCHEDULED_EVENT_UPDATE", "GUILD_SCHEDULED_EVENT_DELETE", "GUILD_SCHEDULED_EVENT_USER_ADD", "GUILD_SCHEDULED_EVENT_USER_REMOVE"] }
+    { "name": "GUILD_SCHEDULED_EVENTS", "bit": 16, "value": 65536, "privileged": false, "scope": "guild", "events": ["GUILD_SCHEDULED_EVENT_CREATE", "GUILD_SCHEDULED_EVENT_UPDATE", "GUILD_SCHEDULED_EVENT_DELETE", "GUILD_SCHEDULED_EVENT_USER_ADD", "GUILD_SCHEDULED_EVENT_USER_REMOVE"] },
+    {"name":"GUILD_MESSAGE_POLLS","bit":24,"scope":"guild","value":16777216,"privileged":false,"events":["MESSAGE_POLL_VOTE_ADD","MESSAGE_POLL_VOTE_REMOVE"]},
+    {"name":"DIRECT_MESSAGE_POLLS","bit":25,"scope":"direct","value":33554432,"privileged":false,"events":["MESSAGE_POLL_VOTE_ADD","MESSAGE_POLL_VOTE_REMOVE"]}
   ]
 }
