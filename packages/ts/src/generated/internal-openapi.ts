@@ -127,6 +127,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/forum-start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Store the reserved opening message after a durable API claim
+         * @description The messages service atomically stores an idempotency marker and the reserved opening message in one partition; a replay cannot recreate a deleted opening.
+         */
+        post: operations["createForumStart"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/last-message-id": {
         parameters: {
             query?: never;
@@ -209,6 +229,23 @@ export interface paths {
         get: operations["listNotificationRecipients"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/forum-summaries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Summarize already authorized Standard forum posts */
+        post: operations["forumSummaries"];
         delete?: never;
         options?: never;
         head?: never;
@@ -516,6 +553,17 @@ export interface components {
             /** @description Discordy: effective delivery mode. Always present on full channel objects. */
             delivery_mode?: components["schemas"]["DeliveryMode"];
             flags?: number;
+            /** @description First stored message preview for a Standard forum post. */
+            forum_first_message?: {
+                attachments: components["schemas"]["Attachment"][];
+                content: string;
+                id: components["schemas"]["Snowflake"];
+            };
+            /**
+             * @description Forum post creation status. Non-published posts are returned only to the author on a matching retry.
+             * @enum {string}
+             */
+            forum_post_status?: "pending" | "dispatching" | "publishing" | "published" | "failed";
             guild_id?: components["schemas"]["Snowflake"];
             icon?: string | null;
             id: components["schemas"]["Snowflake"];
@@ -539,6 +587,8 @@ export interface components {
             position?: number;
             rate_limit_per_user?: number;
             recipients?: components["schemas"]["User"][];
+            /** @description Forum posts must have at least one available tag. */
+            require_tags?: boolean;
             rtc_region?: string | null;
             /** @description Voice channels only: whether members can send messages to the channel chat. Defaults to true. */
             text_chat_enabled?: boolean;
@@ -1852,6 +1902,45 @@ export interface operations {
             };
         };
     };
+    createForumStart: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    author_id: components["schemas"]["Snowflake"];
+                    content: string;
+                    message_id: components["schemas"]["Snowflake"];
+                };
+            };
+        };
+        responses: {
+            /** @description Stored message. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description The reserved opening message was deleted; the marker prevents recreation. */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getLastMessageId: {
         parameters: {
             query?: never;
@@ -2034,6 +2123,44 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    forumSummaries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    channel_ids: components["schemas"]["Snowflake"][];
+                };
+            };
+        };
+        responses: {
+            /** @description First message, last message ID and exact stored count per channel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        summaries: {
+                            channel_id: components["schemas"]["Snowflake"];
+                            first_message: {
+                                attachments: components["schemas"]["Attachment"][];
+                                content: string;
+                                id: components["schemas"]["Snowflake"];
+                            } | null;
+                            last_message_id: components["schemas"]["Snowflake"] | null;
+                            message_count: number;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
         };
     };
     getScheduledEventPushTargets: {

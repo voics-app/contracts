@@ -5037,7 +5037,7 @@
     "/channels/{channel_id}/threads": {
       "get": {
         "operationId": "listChannelThreads",
-        "summary": "List visible active or archived threads under a channel",
+        "summary": "List visible active or archived threads under a channel; in a forum channel the active list is the published forum posts",
         "tags": [
           "Channels"
         ],
@@ -5113,6 +5113,16 @@
         "responses": {
           "201": {
             "description": "Success.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Channel"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Forum post is pending or delivery is being reconciled. Retry the same request ID and body.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11485,6 +11495,44 @@
               "null"
             ],
             "description": "Discordy: per-channel voice region override; null uses the guild's voice_region."
+          },
+          "require_tags": {
+            "type": "boolean",
+            "description": "Forum posts must have at least one available tag."
+          },
+          "forum_post_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "dispatching",
+              "publishing",
+              "published",
+              "failed"
+            ],
+            "description": "Forum post creation status. Non-published posts are returned only to the author on a matching retry."
+          },
+          "forum_first_message": {
+            "type": "object",
+            "description": "First stored message preview for a Standard forum post.",
+            "required": [
+              "id",
+              "content",
+              "attachments"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              "content": {
+                "type": "string"
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Attachment"
+                }
+              }
+            }
           }
         }
       },
@@ -12224,7 +12272,7 @@
       },
       "CreateThreadRequest": {
         "title": "CreateThreadRequest",
-        "description": "POST /channels/{id}/threads body. Forum channels require `message`.",
+        "description": "POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.",
         "type": "object",
         "required": [
           "name"
@@ -12263,7 +12311,23 @@
             }
           },
           "message": {
-            "$ref": "#/components/schemas/CreateMessageRequest"
+            "type": "object",
+            "required": [
+              "content"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            }
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Required for forum posts, scoped to the author and forum."
           }
         }
       },
@@ -14544,6 +14608,88 @@
               "string",
               "null"
             ]
+          },
+          "available_tags": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                "moderated": {
+                  "type": "boolean"
+                },
+                "emoji_id": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Snowflake"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "emoji_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "applied_tags": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "default_sort_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              null
+            ]
+          },
+          "default_forum_layout": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          "default_reaction_emoji": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DefaultReaction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "require_tags": {
+            "type": "boolean"
+          },
+          "flags": {
+            "type": "integer",
+            "description": "Forum post flags; bit 1 pins a post and requires MANAGE_THREADS."
           }
         }
       },
