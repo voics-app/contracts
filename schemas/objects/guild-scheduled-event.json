@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/guild-scheduled-event.json",
+  "title": "GuildScheduledEvent",
+  "description": "A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).",
+  "type": "object",
+  "required": ["id", "guild_id", "channel_id", "creator_id", "name", "description", "scheduled_start_time", "scheduled_end_time", "status", "entity_type", "entity_metadata", "image", "user_count"],
+  "properties": {
+    "id": { "$ref": "./snowflake.json" },
+    "guild_id": { "$ref": "./snowflake.json" },
+    "channel_id": { "oneOf": [{ "$ref": "./snowflake.json" }, { "type": "null" }] },
+    "creator_id": { "oneOf": [{ "$ref": "./snowflake.json" }, { "type": "null" }] },
+    "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "description": { "type": ["string", "null"], "maxLength": 1000 },
+    "scheduled_start_time": { "type": "string", "format": "date-time" },
+    "scheduled_end_time": { "type": ["string", "null"], "format": "date-time" },
+    "status": { "type": "integer", "enum": [1, 2, 3, 4] },
+    "entity_type": { "type": "integer", "enum": [1, 2, 3] },
+    "entity_metadata": { "oneOf": [{ "$ref": "./scheduled-event-metadata.json" }, { "type": "null" }] },
+    "image": { "type": ["string", "null"] },
+    "user_count": { "type": "integer", "minimum": 0 }
+  }
+}

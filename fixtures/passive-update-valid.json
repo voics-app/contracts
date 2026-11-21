@@ -1,0 +1,36 @@
+{
+  "schema": "gateway/dispatch/passive-update-v2.json",
+  "data": {
+    "channels": [
+      {
+        "guild_id": "100",
+        "channel_id": "10",
+        "last_message_id": "1010"
+      }
+    ],
+    "read_states": [
+      {
+        "channel_id": "10",
+        "last_message_id": "1000",
+        "mention_count": 1,
+        "read_state_version": "1"
+      }
+    ],
+    "voice_states": [
+      {
+        "guild_id": "100",
+        "channel_id": "12",
+        "user_id": "2",
+        "session_id": "session",
+        "deaf": false,
+        "mute": false,
+        "self_deaf": false,
+        "self_mute": false,
+        "self_video": false,
+        "self_stream": false,
+        "suppress": false,
+        "request_to_speak_timestamp": null
+      }
+    ]
+  }
+}

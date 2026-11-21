@@ -18,6 +18,10 @@ export type DeliveryMode = "standard" | "ephemeral" | "p2p";
  */
 export type BotInstallationRevision = string;
 /**
+ * Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.
+ */
+export type CreateGuildScheduledEventRequest = CreateGuildScheduledEventRequest1;
+/**
  * File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
  */
 export type CreateReportRequest = CreateReportRequest1;
@@ -29,6 +33,10 @@ export type ScheduledMessageId = string;
  * Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.
  */
 export type ScheduledMessageRevision = number;
+/**
+ * Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+ */
+export type GuildInsightsCoverageState = "complete" | "partial" | "unavailable";
 /**
  * Op 1 HEARTBEAT: the last sequence number received, or null.
  */
@@ -61,6 +69,10 @@ export type InvalidSessionPayload = boolean;
  * Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
  */
 export type ReadStateVersion = string;
+/**
+ * Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.
+ */
+export type ModifyGuildScheduledEventRequest = ModifyGuildScheduledEventRequest1;
 /**
  * A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
  */
@@ -581,6 +593,10 @@ export interface Channel {
   permission_overwrites?: PermissionOverwrite[];
   name?: string | null;
   topic?: string | null;
+  /**
+   * Voice-channel status text, or null when unset.
+   */
+  status?: string | null;
   nsfw?: boolean;
   /**
    * Voice channels only: whether members can send messages to the channel chat. Defaults to true.
@@ -626,6 +642,22 @@ export interface Channel {
    * Discordy: per-channel voice region override; null uses the guild's voice_region.
    */
   voice_region?: string | null;
+  /**
+   * Forum posts must have at least one available tag.
+   */
+  require_tags?: boolean;
+  /**
+   * Forum post creation status. Non-published posts are returned only to the author on a matching retry.
+   */
+  forum_post_status?: "pending" | "dispatching" | "publishing" | "published" | "failed";
+  /**
+   * First stored message preview for a Standard forum post.
+   */
+  forum_first_message?: {
+    id: Snowflake;
+    content: string;
+    attachments: Attachment[];
+  };
 }
 /**
  * A channel permission overwrite for a role or member.
@@ -706,7 +738,7 @@ export interface DefaultReaction {
   emoji_name: string | null;
 }
 /**
- * An incoming or application webhook.
+ * An incoming, channel-follower or application webhook.
  */
 export interface Webhook {
   id: Snowflake;
@@ -1168,6 +1200,19 @@ export interface CreateEmojiRequest {
   roles?: Snowflake[];
 }
 /**
+ * One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+ */
+export interface CreateFriendInviteResponse {
+  /**
+   * Unpadded base64url secret generated from 32 random bytes.
+   */
+  token: string;
+  /**
+   * Expiry 24 hours after creation.
+   */
+  expires_at: string;
+}
+/**
  * POST /guilds/templates/{code} body.
  */
 export interface CreateGuildFromTemplateRequest {
@@ -1187,6 +1232,25 @@ export interface CreateGuildRequest {
   verification_level?: number;
   default_message_notifications?: number;
   explicit_content_filter?: number;
+}
+export interface CreateGuildScheduledEventRequest1 {
+  name: string;
+  description?: string | null;
+  entity_type: 1 | 2 | 3;
+  channel_id?: Snowflake | null;
+  entity_metadata?: ScheduledEventMetadata | null;
+  scheduled_start_time: string;
+  scheduled_end_time?: string | null;
+  /**
+   * Image data URI, subject to the standard image upload limits.
+   */
+  image?: string | null;
+}
+/**
+ * The location of an external event.
+ */
+export interface ScheduledEventMetadata {
+  location: string;
 }
 /**
  * POST /guilds/{guild_id}/templates body. A guild has at most one template.
@@ -1648,7 +1712,7 @@ export interface CreateStageInstanceRequest {
   privacy_level?: 2;
 }
 /**
- * POST /channels/{id}/threads body. Forum channels require `message`.
+ * POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
  */
 export interface CreateThreadRequest {
   name: string;
@@ -1657,7 +1721,13 @@ export interface CreateThreadRequest {
   invitable?: boolean;
   rate_limit_per_user?: number | null;
   applied_tags?: Snowflake[];
-  message?: CreateMessageRequest;
+  message?: {
+    content: string;
+  };
+  /**
+   * Required for forum posts, scoped to the author and forum.
+   */
+  request_id?: string;
 }
 /**
  * POST /channels/{id}/webhooks body.
@@ -2283,6 +2353,15 @@ export interface Guild {
   prune_admin_only?: boolean;
 }
 /**
+ * Period status and the number of days in each coverage state for this source.
+ */
+export interface GuildInsightsCoverageSummary {
+  status: GuildInsightsCoverageState;
+  complete_days: number;
+  partial_days: number;
+  unavailable_days: number;
+}
+/**
  * Permissions of an application's command(s) in a guild.
  */
 export interface GuildApplicationCommandPermissions {
@@ -2418,6 +2497,45 @@ export interface GuildFull {
   voice_states: VoiceState[];
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildInsights".
+ */
+export interface GuildInsights {
+  period: 7 | 30;
+  message_coverage: boolean;
+  voice_coverage: boolean;
+  coverage: {
+    membership: GuildInsightsCoverageSummary;
+    messages: GuildInsightsCoverageSummary;
+    voice: GuildInsightsCoverageSummary;
+  };
+  days: {
+    date: string;
+    new_members: number | null;
+    leavers: number | null;
+    membership_complete: boolean;
+    messages: number | null;
+    /**
+     * False means the observed count may omit writes.
+     */
+    message_complete: boolean;
+    /**
+     * Marker schema initialization, not proof of full producer coverage.
+     */
+    message_source_initialized_at_ms: number | null;
+    /**
+     * API activity schema initialization, not proof of complete voice coverage.
+     */
+    activity_source_initialized_at_ms: number;
+    voice_minutes: number | null;
+    coverage: {
+      membership: GuildInsightsCoverageState;
+      messages: GuildInsightsCoverageState;
+      voice: GuildInsightsCoverageState;
+    };
+  }[];
+}
+/**
  * An application whose bot is currently installed in this server.
  */
 export interface GuildIntegration {
@@ -2474,6 +2592,19 @@ export interface GuildMembersChunkEvent {
   nonce?: string;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildMessageActivity".
+ */
+export interface GuildMessageActivity {
+  utc_day: number;
+  count: number;
+  coverage_complete: boolean;
+  /**
+   * Marker schema initialization, not proof of full producer coverage.
+   */
+  source_initialized_at_ms: number | null;
+}
+/**
  * The current user's notification settings for one guild, or for their DMs when guild_id is null (Discord's user guild settings). A channel override beats the guild level, which beats the guild's default_message_notifications. A muted guild mutes all its channels. Private to the user, synced to every session.
  */
 export interface GuildNotificationSettings {
@@ -2517,6 +2648,42 @@ export interface GuildRoleDeleteEvent {
 export interface GuildRoleEvent {
   guild_id: Snowflake;
   role: Role;
+}
+/**
+ * A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).
+ */
+export interface GuildScheduledEvent {
+  id: Snowflake;
+  guild_id: Snowflake;
+  channel_id: Snowflake | null;
+  creator_id: Snowflake | null;
+  name: string;
+  description: string | null;
+  scheduled_start_time: string;
+  scheduled_end_time: string | null;
+  status: 1 | 2 | 3 | 4;
+  entity_type: 1 | 2 | 3;
+  entity_metadata: ScheduledEventMetadata | null;
+  image: string | null;
+  user_count: number;
+}
+/**
+ * User-targeted reminder. Resolve the event and current interest again before presenting details; access may have changed after enqueue.
+ */
+export interface GuildScheduledEventStart {
+  guild_id: Snowflake;
+  guild_scheduled_event_id: Snowflake;
+  scheduled_start_time: string;
+  revision: number;
+  dedupe_key: string;
+}
+/**
+ * A user's interest in a guild event changed.
+ */
+export interface GuildScheduledEventUser {
+  guild_scheduled_event_id: Snowflake;
+  user_id: Snowflake;
+  guild_id: Snowflake;
 }
 /**
  * A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
@@ -2604,6 +2771,22 @@ export interface TemplateOverwrite {
   deny: PermissionBitset;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildWidgetPatch".
+ */
+export interface GuildWidgetPatch {
+  enabled?: boolean;
+  channel_id?: Snowflake | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "GuildWidgetSettings".
+ */
+export interface GuildWidgetSettings {
+  enabled: boolean;
+  channel_id: Snowflake | null;
+}
+/**
  * Op 10 HELLO.
  */
 export interface HelloPayload {
@@ -2648,6 +2831,10 @@ export interface IdentifyPayload {
   intents: number;
   properties: IdentifyProperties;
   presence?: PresenceUpdatePayload;
+  /**
+   * Opt into passive updates. Omitted means active. Requires certified versioned read states; otherwise identification closes with retryable 4000. A session that has used passive mode cannot resume and must identify again.
+   */
+  passive?: boolean;
 }
 /**
  * Client connection properties.
@@ -3169,6 +3356,154 @@ export interface MediaSinkWantsPayload {
   [k: string]: number | undefined;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "MemberVerification".
+ */
+export interface MemberVerification {
+  enabled: boolean;
+  /**
+   * @maxItems 20
+   */
+  rules:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
+  revision: number;
+  /**
+   * Whether the caller must accept the rules.
+   */
+  pending: boolean;
+}
+/**
  * MESSAGE_ACK dispatch (read-state sync across the user's devices).
  */
 export interface MessageAckEvent {
@@ -3447,6 +3782,1539 @@ export interface ModifyChannelRequest {
   invitable?: boolean;
   delivery_mode?: DeliveryMode;
   voice_region?: string | null;
+  /**
+   * @maxItems 20
+   */
+  available_tags?:
+    | []
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ]
+    | [
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        },
+        {
+          id?: Snowflake;
+          name: string;
+          moderated?: boolean;
+          emoji_id?: Snowflake | null;
+          emoji_name?: string | null;
+        }
+      ];
+  /**
+   * @maxItems 5
+   */
+  applied_tags?:
+    | []
+    | [Snowflake]
+    | [Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake];
+  default_sort_order?: 0 | 1 | null;
+  default_forum_layout?: 0 | 1 | 2;
+  default_reaction_emoji?: DefaultReaction | null;
+  require_tags?: boolean;
+  /**
+   * Forum post flags; bit 1 pins a post and requires MANAGE_THREADS.
+   */
+  flags?: number;
 }
 /**
  * PATCH /users/@me body. `username`, `email` and `new_password` require the current `password`; an email change takes effect once the new address is verified.
@@ -3582,6 +5450,17 @@ export interface ModifyGuildRequest {
    * Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD.
    */
   prune_admin_only?: boolean;
+}
+export interface ModifyGuildScheduledEventRequest1 {
+  name?: string;
+  description?: string | null;
+  entity_type?: 1 | 2 | 3;
+  channel_id?: Snowflake | null;
+  entity_metadata?: ScheduledEventMetadata | null;
+  scheduled_start_time?: string;
+  scheduled_end_time?: string | null;
+  image?: string | null;
+  status?: 1 | 2 | 3 | 4;
 }
 /**
  * PATCH /guilds/{guild_id}/templates/{code} body.
@@ -3773,6 +5652,12 @@ export interface UserPreferences {
    */
   skin_tone?: string;
   /**
+   * Favorite GIF media links, synced across devices.
+   *
+   * @maxItems 100
+   */
+  favorite_gifs?: string[];
+  /**
    * Recently used reaction emoji, most recent first.
    *
    * @maxItems 32
@@ -3870,6 +5755,100 @@ export interface OAuth2AuthorizeResponse {
   location: string;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingConfig".
+ */
+export interface OnboardingConfig {
+  enabled: boolean;
+  /**
+   * @maxItems 5
+   */
+  questions:
+    | []
+    | [OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion, OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion, OnboardingQuestion, OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion, OnboardingQuestion, OnboardingQuestion, OnboardingQuestion];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingQuestion".
+ */
+export interface OnboardingQuestion {
+  title: string;
+  /**
+   * @minItems 1
+   * @maxItems 10
+   */
+  options:
+    | [OnboardingOption]
+    | [OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingOption".
+ */
+export interface OnboardingOption {
+  label: string;
+  role_id: Snowflake | null;
+  channel_id: Snowflake | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingResponse".
+ */
+export interface OnboardingResponse {
+  config: OnboardingConfig;
+  revision: number;
+}
+/**
  * Op 22 P2P_SIGNAL. Relayed only, never persisted.
  */
 export interface P2pSignalPayload {
@@ -3887,6 +5866,27 @@ export interface P2pSignalPayload {
    * Signature over the DTLS fingerprint by the sender's device identity key.
    */
   identity_sig_b64: string;
+}
+/**
+ * At most one coalesced update every five seconds when values changed; absent fields are unchanged. Unread is the existing count of unread channels, derived by clients from channel latest-message and read markers, not a message count. Guild channels and voice updates are filtered by current view permissions.
+ */
+export interface PassiveUpdateV2Event {
+  channels?: {
+    guild_id: Snowflake;
+    channel_id: Snowflake;
+    last_message_id: Snowflake;
+  }[];
+  read_states?: ReadStateUpdateEvent[];
+  voice_states?: VoiceState[];
+}
+/**
+ * Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
+ */
+export interface ReadStateUpdateEvent {
+  channel_id: Snowflake;
+  last_message_id: Snowflake | null;
+  mention_count: number;
+  read_state_version: ReadStateVersion;
 }
 /**
  * Registered second factor metadata. Credential public keys and challenges are never included.
@@ -4174,15 +6174,6 @@ export interface ReadStateSyncEvent {
   })[];
 }
 /**
- * Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
- */
-export interface ReadStateUpdateEvent {
-  channel_id: Snowflake;
-  last_message_id: Snowflake | null;
-  mention_count: number;
-  read_state_version: ReadStateVersion;
-}
-/**
  * The bot's application.
  */
 export interface ReadyApplication {
@@ -4367,6 +6358,29 @@ export interface RoleRequest {
    */
   position?: number;
 }
+/**
+ * Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.
+ */
+export interface ScheduledEventPushTargets {
+  /**
+   * @maxItems 1
+   */
+  users:
+    | []
+    | [
+        {
+          user_id: Snowflake;
+          tokens: {
+            platform: "apns" | "fcm";
+            token: string;
+            environment: "production" | "sandbox";
+            previews: boolean;
+            only_mentions: boolean;
+          }[];
+        }
+      ];
+  next_after: null;
+}
 export interface ScheduledMessage1 {
   id: ScheduledMessageId;
   channel_id: Snowflake;
@@ -4478,6 +6492,12 @@ export interface VoiceE2ee {
   protocol_version: number;
 }
 /**
+ * Op 27 SESSION_MODE. Switching to passive requires certified read states. Switching active fetches read states and refreshes guild snapshots before that guild resumes full dispatch.
+ */
+export interface SessionModePayload {
+  passive: boolean;
+}
+/**
  * SESSION_REVOKE bus event (discordy.user.v1, routed to the user in target_user_ids). Login sessions were revoked (DELETE /users/@me/sessions/{id}, POST /users/@me/sessions/logout-all). The gateway closes every live connection whose authenticated session id is listed, with close code 4004, and never dispatches it to clients.
  */
 export interface SessionRevokeEvent {
@@ -4494,6 +6514,149 @@ export interface SetDeliveryModeRequest {
    * Null clears the per-chat override.
    */
   mode: DeliveryMode | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SetMemberVerificationRequest".
+ */
+export interface SetMemberVerificationRequest {
+  enabled: boolean;
+  /**
+   * @maxItems 20
+   */
+  rules:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
 }
 /**
  * SFU control command: close a media session.
@@ -4784,6 +6947,15 @@ export interface UsageTickEvent {
   region?: string;
 }
 /**
+ * Present a personal friend invite to send a request to its owner.
+ */
+export interface UseFriendInviteRequest {
+  /**
+   * Bearer token returned at creation.
+   */
+  token: string;
+}
+/**
  * A private note the current user wrote about another user. Visible only to its author.
  */
 export interface UserNote {
@@ -4884,6 +7056,18 @@ export interface VoiceStream {
   ssrc: number;
   rtx_ssrc: number;
   active?: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "VoiceActivityCheckpoint".
+ */
+export interface VoiceActivityCheckpoint {
+  guild_id: Snowflake;
+  user_id: Snowflake;
+  session_id: string;
+  generation_id: string;
+  observed_at: string;
+  connected: boolean;
 }
 /**
  * Every voice WebSocket frame (both directions).
@@ -5059,6 +7243,16 @@ export interface VoiceStateUpdatePayload {
   self_stream: boolean;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "VoiceStatusRequest".
+ */
+export interface VoiceStatusRequest {
+  /**
+   * Text to display, or null to clear.
+   */
+  status: string | null;
+}
+/**
  * Op 23 VOICE_TELEMETRY.
  */
 export interface VoiceTelemetryPayload {
@@ -5141,4 +7335,87 @@ export interface WebauthnLoginFinishRequest {
  */
 export interface WebauthnLoginStartRequest {
   ticket: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "WelcomeScreen".
+ */
+export interface WelcomeScreen {
+  enabled: boolean;
+  description: string;
+  /**
+   * @maxItems 5
+   */
+  channels:
+    | []
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ];
 }

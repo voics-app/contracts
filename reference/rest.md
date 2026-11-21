@@ -52,21 +52,23 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 
 ## Endpoints
 
-### Voice
-
-| Method | Path | Service | Request | Response | Summary |
-| --- | --- | --- | --- | --- | --- |
-| `POST` | `/stage-instances` | api | `CreateStageInstanceRequest` | `StageInstance` | Start a guild-only stage |
-| `GET` | `/stage-instances/{channel_id}` | api | — | `StageInstance` | Get a live stage |
-| `PATCH` | `/stage-instances/{channel_id}` | api | `ModifyStageInstanceRequest` | `StageInstance` | Change a live stage topic |
-| `DELETE` | `/stage-instances/{channel_id}` | api | — | 204 No Content | End a live stage |
-| `GET` | `/voice/regions` | api | — | `array of VoiceRegion` | List voice regions |
-
 ### Users
 
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
+| `POST` | `/gifs/previews` | api | `object` | `object` | Refresh signed previews for favorite GIFs |
+| `GET` | `/gifs/trending` | api | — | `object` | Browse trending GIFs |
+| `GET` | `/gifs/search` | api | — | `object` | Search GIFs |
+| `GET` | `/gifs/categories` | api | — | `object` | Browse GIF categories |
 | `POST` | `/reports` | api | `CreateReportRequest` | 204 No Content | Report a message, user or visible guild channel |
+| `GET` | `/users/@me/connections` | api | — | `array of object` | List the current user's linked accounts |
+| `PUT` | `/users/@me/connections` | api | `object` | 204 No Content | Set a linked account's profile visibility |
+| `DELETE` | `/users/@me/connections` | api | `object` | 204 No Content | Remove a linked account |
+| `POST` | `/users/@me/connections/github/authorize` | api | — | `object` | Begin GitHub authorization in the browser |
+| `PUT` | `/users/@me/connections/{provider}` | api | `object` | 204 No Content | Set profile visibility of a linked account |
+| `DELETE` | `/users/@me/connections/{provider}` | api | — | 204 No Content | Remove a linked account |
+| `GET` | `/users/{user_id}/connections` | api | — | `array of object` | List a user's visible linked accounts |
+| `GET` | `/connections/github/callback` | api | — | 200 No Content | Complete a GitHub authorization |
 | `GET` | `/users/@me` | api | — | `User` | Get the current user |
 | `PATCH` | `/users/@me` | api | `ModifyCurrentUserRequest` | `User` | Modify the current user |
 | `POST` | `/users/@me/disable` | api | `PasswordConfirmationRequest` | 204 No Content | Disable the account |
@@ -92,11 +94,27 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/users/@me/notes/{user_id}` | api | — | 204 No Content | Delete the current user's private note about a user |
 | `GET` | `/users/@me/channels` | api | — | `array of Channel` | List DMs and group DMs |
 | `POST` | `/users/@me/channels` | api | `CreateDmRequest` | `Channel` | Open a DM or create a group DM |
+| `GET` | `/users/@me/favourites` | api | — | `array of Snowflake` | List the caller's private favourite friend IDs |
+| `PUT` | `/users/@me/favourites/{user_id}` | api | — | 204 No Content | Mark an existing friend as a favourite |
+| `DELETE` | `/users/@me/favourites/{user_id}` | api | — | 204 No Content | Remove a favourite mark |
+| `POST` | `/users/@me/friend-invites` | api | — | `CreateFriendInviteResponse` | Create a personal friend invite |
+| `DELETE` | `/users/@me/friend-invites` | api | — | 204 No Content | Revoke the caller's current personal friend invite |
+| `POST` | `/friend-invites` | api | `UseFriendInviteRequest` | 204 No Content | Send a friend request to the invite owner |
 | `GET` | `/users/@me/relationships` | api | — | `array of Relationship` | List relationships |
 | `GET` | `/users/@me/relationships/{user_id}` | api | — | `Relationship` | Get the relationship with a user |
 | `PUT` | `/users/@me/relationships/{user_id}` | api | `PutRelationshipRequest` | 204 No Content | Send or accept a friend request, or block a user |
 | `DELETE` | `/users/@me/relationships/{user_id}` | api | — | 204 No Content | Remove a friend, cancel a request or unblock |
 | `PUT` | `/users/@me/channels/{channel_id}/delivery-mode` | api | `SetDeliveryModeRequest` | `DeliveryModeOverride` | Set the caller's per-chat delivery-mode override |
+
+### Voice
+
+| Method | Path | Service | Request | Response | Summary |
+| --- | --- | --- | --- | --- | --- |
+| `POST` | `/stage-instances` | api | `CreateStageInstanceRequest` | `StageInstance` | Start a guild-only stage |
+| `GET` | `/stage-instances/{channel_id}` | api | — | `StageInstance` | Get a live stage |
+| `PATCH` | `/stage-instances/{channel_id}` | api | `ModifyStageInstanceRequest` | `StageInstance` | Change a live stage topic |
+| `DELETE` | `/stage-instances/{channel_id}` | api | — | 204 No Content | End a live stage |
+| `GET` | `/voice/regions` | api | — | `array of VoiceRegion` | List voice regions |
 
 ### Auth
 
@@ -136,6 +154,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}` | api | — | `Guild` | Get a guild |
 | `PATCH` | `/guilds/{guild_id}` | api | `ModifyGuildRequest` | `Guild` | Modify a guild (including voice_region) |
 | `DELETE` | `/guilds/{guild_id}` | api | — | 204 No Content | Delete a guild (owner only) |
+| `GET` | `/guilds/{guild_id}/insights` | api | — | `GuildInsights` | Get daily server activity (MANAGE_GUILD) |
+| `GET` | `/guilds/{guild_id}/widget.json` | api | — | `object` | Get an enabled guild's public widget |
+| `GET` | `/guilds/{guild_id}/widget` | api | — | `GuildWidgetSettings` | Get widget settings (MANAGE_GUILD) |
+| `PATCH` | `/guilds/{guild_id}/widget` | api | `GuildWidgetPatch` | `GuildWidgetSettings` | Update widget settings (MANAGE_GUILD) |
 | `GET` | `/guilds/{guild_id}/channels` | api | — | `array of Channel` | List a guild's channels |
 | `POST` | `/guilds/{guild_id}/channels` | api | `CreateChannelRequest` | `Channel` | Create a guild channel |
 | `PATCH` | `/guilds/{guild_id}/channels` | api | `array of ChannelPosition` | 204 No Content | Reorder guild channels |
@@ -175,6 +197,14 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}/soundboard-sounds/{sound_id}/audio` | api | — | — | Fetch authorized sound audio |
 | `POST` | `/channels/{channel_id}/send-soundboard-sound` | api | `SendSoundboardSoundRequest` | 204 No Content | Authorize a sound in a voice channel |
 | `GET` | `/guilds/{guild_id}/invites` | api | — | `array of Invite` | List a guild's invites |
+| `GET` | `/guilds/{guild_id}/member-verification` | api | — | `MemberVerification` | Get current rules and the caller's pending status |
+| `PUT` | `/guilds/{guild_id}/member-verification` | api | `SetMemberVerificationRequest` | `MemberVerification` | Replace rules screening configuration (MANAGE_GUILD) |
+| `POST` | `/guilds/{guild_id}/member-verification/accept` | api | `object` | 204 No Content | Accept the current version of the server rules |
+| `GET` | `/guilds/{guild_id}/onboarding` | api | — | `OnboardingResponse` | Get onboarding questions and their revision |
+| `PUT` | `/guilds/{guild_id}/onboarding` | api | `OnboardingConfig` | `OnboardingResponse` | Replace onboarding questions (MANAGE_GUILD; roles also require MANAGE_ROLES) |
+| `POST` | `/guilds/{guild_id}/onboarding/complete` | api | `object` | `object` | Apply one choice per question once, after accepting the rules |
+| `GET` | `/guilds/{guild_id}/welcome-screen` | api | — | `WelcomeScreen` | Get the welcome screen, filtered to channels the caller can view |
+| `PUT` | `/guilds/{guild_id}/welcome-screen` | api | `WelcomeScreen` | `WelcomeScreen` | Replace the welcome screen (MANAGE_GUILD) |
 | `GET` | `/guilds/{guild_id}/vanity-url` | api | — | `VanityUrl` | Get a guild's permanent invitation (requires MANAGE_GUILD) |
 | `PATCH` | `/guilds/{guild_id}/vanity-url` | api | `ModifyVanityUrlRequest` | `VanityUrl` | Set or remove a guild's permanent invitation (requires MANAGE_GUILD) |
 | `GET` | `/discovery/guilds` | api | — | `DiscoveryPage` | Browse and search public servers that opted in to discovery |
@@ -186,6 +216,14 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/templates` | api | — | `array of GuildTemplate` | List the built-in server templates |
 | `GET` | `/guilds/templates/{code}` | api | — | `GuildTemplate` | Resolve a server template by code (built-in or shared) |
 | `POST` | `/guilds/templates/{code}` | api | `CreateGuildFromTemplateRequest` | `Guild` | Create a guild from a template |
+| `GET` | `/guilds/{guild_id}/scheduled-events` | api | — | `array of GuildScheduledEvent` | List events visible to the guild member |
+| `POST` | `/guilds/{guild_id}/scheduled-events` | api | `CreateGuildScheduledEventRequest` | `GuildScheduledEvent` | Create an event (requires CREATE_EVENTS or MANAGE_EVENTS) |
+| `GET` | `/guilds/{guild_id}/scheduled-events/{event_id}` | api | — | `GuildScheduledEvent` | Get a visible event |
+| `PATCH` | `/guilds/{guild_id}/scheduled-events/{event_id}` | api | `ModifyGuildScheduledEventRequest` | `GuildScheduledEvent` | Modify an event |
+| `DELETE` | `/guilds/{guild_id}/scheduled-events/{event_id}` | api | — | 204 No Content | Delete an event |
+| `GET` | `/guilds/{guild_id}/scheduled-events/{event_id}/users/@me` | api | — | `object` | Get the caller's interest in an event |
+| `PUT` | `/guilds/{guild_id}/scheduled-events/{event_id}/users/@me` | api | — | 204 No Content | Mark the caller interested (idempotent) |
+| `DELETE` | `/guilds/{guild_id}/scheduled-events/{event_id}/users/@me` | api | — | 204 No Content | Remove the caller's interest (idempotent) |
 | `GET` | `/guilds/{guild_id}/templates` | api | — | `array of GuildTemplate` | List a guild's templates (requires MANAGE_GUILD) |
 | `POST` | `/guilds/{guild_id}/templates` | api | `CreateGuildTemplateRequest` | `GuildTemplate` | Create a template from the guild (requires MANAGE_GUILD) |
 | `PUT` | `/guilds/{guild_id}/templates/{code}` | api | — | `GuildTemplate` | Re-snapshot a template from the guild (requires MANAGE_GUILD) |
@@ -199,6 +237,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/guilds/{guild_id}/webhooks` | api | — | `array of Webhook` | List a guild's webhooks |
+| `POST` | `/channels/{channel_id}/followers` | api | `object` | `object` | Follow an announcement channel into another server |
+| `GET` | `/guilds/{guild_id}/followed-channels` | api | — | `array of object` | List announcement channels followed by a server |
 | `POST` | `/channels/{channel_id}/webhooks` | api | `CreateWebhookRequest` | `Webhook` | Create a webhook |
 | `POST` | `/webhooks/{webhook_id}/{webhook_token}` | api | `ExecuteWebhookRequest` | `Message` | Execute a webhook or send an interaction follow-up |
 | `POST` | `/webhooks/{webhook_id}/reset-token` | api | — | `Webhook` | Regenerate an incoming webhook execution credential |
@@ -213,6 +253,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/channels/{channel_id}` | api | — | `Channel` | Get a channel |
 | `PATCH` | `/channels/{channel_id}` | api | `ModifyChannelRequest` | `Channel` | Modify a channel (including delivery_mode and voice_region) |
 | `DELETE` | `/channels/{channel_id}` | api | — | `Channel` | Delete a channel, leave a group DM or close a DM |
+| `PUT` | `/channels/{channel_id}/voice-status` | api | `VoiceStatusRequest` | 204 No Content | Set or clear a voice channel status |
 | `PUT` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | `EditOverwriteRequest` | 204 No Content | Create or edit a permission overwrite |
 | `DELETE` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | — | 204 No Content | Delete a permission overwrite |
 | `POST` | `/channels/{channel_id}/invites` | api | `CreateInviteRequest` | `Invite` | Create an invite |
@@ -221,21 +262,14 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PUT` | `/channels/{channel_id}/thread-members/{user_id}` | api | — | 204 No Content | Join a thread or invite a guild member |
 | `DELETE` | `/channels/{channel_id}/thread-members/{user_id}` | api | — | 204 No Content | Leave a thread or remove a member |
 | `POST` | `/channels/{channel_id}/typing` | api | — | 204 No Content | Trigger the typing indicator (publishes TYPING_START) |
-| `GET` | `/channels/{channel_id}/threads` | api | — | `array of Channel` | List visible active or archived threads under a channel |
+| `GET` | `/channels/{channel_id}/threads` | api | — | `array of Channel` | List visible active or archived threads under a channel; in a forum channel the active list is the published forum posts |
 | `POST` | `/channels/{channel_id}/threads` | api | `CreateThreadRequest` | `Channel` | Start a thread (or forum post) |
-
-### Invites
-
-| Method | Path | Service | Request | Response | Summary |
-| --- | --- | --- | --- | --- | --- |
-| `GET` | `/invites/{code}` | api | — | `Invite` | Resolve an invite |
-| `POST` | `/invites/{code}` | api | — | `Invite` | Accept an invite |
-| `DELETE` | `/invites/{code}` | api | — | `Invite` | Revoke an invite |
 
 ### Messages
 
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
+| `POST` | `/channels/{channel_id}/messages/{message_id}/crosspost` | api | — | `Message` | Publish an announcement to its followers |
 | `GET` | `/channels/{channel_id}/messages` | messages | — | `array of Message` | Get channel message history |
 | `POST` | `/channels/{channel_id}/messages` | messages | `CreateMessageRequest` | `Message` | Send a standard-mode message |
 | `GET` | `/channels/{channel_id}/polls/{message_id}` | messages | — | 200 No Content | Get an authoritative poll snapshot for the current viewer |
@@ -264,6 +298,14 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/channels/{channel_id}/pins/{message_id}` | messages | — | 204 No Content | Unpin a message |
 | `POST` | `/channels/{channel_id}/messages/{message_id}/ack` | messages | `AckRequest` | 204 No Content | Mark a channel read up to a message (publishes MESSAGE_ACK) |
 | `POST` | `/channels/{channel_id}/attachments` | messages | `CreateAttachmentsRequest` | `CreateAttachmentsResponse` | Request presigned attachment upload URLs |
+
+### Invites
+
+| Method | Path | Service | Request | Response | Summary |
+| --- | --- | --- | --- | --- | --- |
+| `GET` | `/invites/{code}` | api | — | `Invite` | Resolve an invite |
+| `POST` | `/invites/{code}` | api | — | `Invite` | Accept an invite |
+| `DELETE` | `/invites/{code}` | api | — | `Invite` | Revoke an invite |
 
 ### Applications
 
@@ -592,6 +634,7 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `permission_overwrites?` | `array of PermissionOverwrite` |  |
 | `name?` | `?string` |  |
 | `topic?` | `?string` |  |
+| `status?` | `?string` | Voice-channel status text, or null when unset. |
 | `nsfw?` | `boolean` |  |
 | `text_chat_enabled?` | `boolean` | Voice channels only: whether members can send messages to the channel chat. Defaults to true. |
 | `last_message_id?` | `?Snowflake` |  |
@@ -625,6 +668,9 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `newly_created?` | `boolean` | Only on THREAD_CREATE. |
 | `delivery_mode?` | `DeliveryMode` | Discordy: effective delivery mode. Always present on full channel objects. |
 | `voice_region?` | `?string` | Discordy: per-channel voice region override; null uses the guild's voice_region. |
+| `require_tags?` | `boolean` | Forum posts must have at least one available tag. |
+| `forum_post_status?` | `"pending" or "dispatching" or "publishing" or "published" or "failed"` | Forum post creation status. Non-published posts are returned only to the author on a matching retry. |
+| `forum_first_message?` | `object` | First stored message preview for a Standard forum post. |
 
 ### ChannelMention
 
@@ -1007,6 +1053,26 @@ The current user's notification settings for one guild, or for their DMs when gu
 | `hide_muted_channels` | `boolean` |  |
 | `channel_overrides` | `array of ChannelNotificationOverride` | Only channels with a non-default override. |
 
+### GuildScheduledEvent
+
+A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `guild_id` | `Snowflake` |  |
+| `channel_id` | `any` |  |
+| `creator_id` | `any` |  |
+| `name` | `string` |  |
+| `description` | `?string` |  |
+| `scheduled_start_time` | `string (date-time)` |  |
+| `scheduled_end_time` | `?string (date-time)` |  |
+| `status` | `1 or 2 or 3 or 4` |  |
+| `entity_type` | `1 or 2 or 3` |  |
+| `entity_metadata` | `any` |  |
+| `image` | `?string` |  |
+| `user_count` | `integer` |  |
+
 ### GuildTemplate
 
 A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.
@@ -1136,6 +1202,15 @@ The partial guild an invite points to.
 | `verification_level?` | `integer` |  |
 | `nsfw_level?` | `integer` |  |
 
+### MemberVerification
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `rules` | `array of string` |  |
+| `revision` | `integer` |  |
+| `pending` | `boolean` | Whether the caller must accept the rules. |
+
 ### Message
 
 A standard-mode message.
@@ -1255,6 +1330,35 @@ When a mute ends. end_time null means until turned off; an end_time in the past 
 | Field | Type | Description |
 | --- | --- | --- |
 | `end_time` | `?string (date-time)` |  |
+
+### OnboardingConfig
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `questions` | `array of OnboardingQuestion` |  |
+
+### OnboardingOption
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `label` | `string` |  |
+| `role_id` | `?Snowflake` |  |
+| `channel_id` | `?Snowflake` |  |
+
+### OnboardingQuestion
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `title` | `string` |  |
+| `options` | `array of OnboardingOption` |  |
+
+### OnboardingResponse
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `config` | `OnboardingConfig` |  |
+| `revision` | `integer` |  |
 
 ### PartialChannel
 
@@ -1488,6 +1592,14 @@ Tags of a managed role.
 | --- | --- | --- |
 | `bot_id?` | `Snowflake` |  |
 | `integration_id?` | `Snowflake` |  |
+
+### ScheduledEventMetadata
+
+The location of an external event.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `location` | `string` |  |
 
 ### ScheduledMessage
 
@@ -1752,6 +1864,7 @@ Client preferences that follow the account across devices (client#123). Sparse: 
 | `sound_toggles?` | `map of boolean` | Per-sound switches under notify_sounds; a missing entry means on. |
 | `ringtone?` | `string` |  |
 | `skin_tone?` | `string` | Skin tone modifier of the emoji picker; empty for the default. |
+| `favorite_gifs?` | `array of string` | Favorite GIF media links, synced across devices. |
 | `recent_reactions?` | `array of object` | Recently used reaction emoji, most recent first. |
 
 ### UserSettings
@@ -1819,7 +1932,7 @@ A user's voice connection state.
 
 ### Webhook
 
-An incoming or application webhook.
+An incoming, channel-follower or application webhook.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -1833,6 +1946,14 @@ An incoming or application webhook.
 | `token?` | `string` | Execution credential returned only by create and reset-token; never stored in list/get/edit responses. |
 | `application_id` | `?Snowflake` |  |
 | `url?` | `string` | Execution URL returned only by create and reset-token. Treat as a secret. |
+
+### WelcomeScreen
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `description` | `string` |  |
+| `channels` | `array of object` |  |
 
 ## Request and response bodies
 
@@ -2058,6 +2179,15 @@ POST /guilds/{id}/emojis body.
 | `image` | `string` | Data URI, 256 KiB max. |
 | `roles?` | `array of Snowflake` |  |
 
+### CreateFriendInviteResponse
+
+One-time response to creating a personal friend invite. The token is a bearer secret; creation replaces the caller's prior token.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `token` | `string` | Unpadded base64url secret generated from 32 random bytes. |
+| `expires_at` | `string (date-time)` | Expiry 24 hours after creation. |
+
 ### CreateGuildFromTemplateRequest
 
 POST /guilds/templates/{code} body.
@@ -2079,6 +2209,21 @@ POST /guilds body.
 | `verification_level?` | `integer` |  |
 | `default_message_notifications?` | `integer` |  |
 | `explicit_content_filter?` | `integer` |  |
+
+### CreateGuildScheduledEventRequest
+
+Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
+| `description?` | `?string` |  |
+| `entity_type` | `1 or 2 or 3` |  |
+| `channel_id?` | `any` |  |
+| `entity_metadata?` | `any` |  |
+| `scheduled_start_time` | `string (date-time)` |  |
+| `scheduled_end_time?` | `?string (date-time)` |  |
+| `image?` | `?string` | Image data URI, subject to the standard image upload limits. |
 
 ### CreateGuildTemplateRequest
 
@@ -2162,7 +2307,7 @@ Create a sound with a canonical 48 kHz mono 16-bit PCM WAV of at most five secon
 
 ### CreateThreadRequest
 
-POST /channels/{id}/threads body. Forum channels require `message`.
+POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -2172,7 +2317,8 @@ POST /channels/{id}/threads body. Forum channels require `message`.
 | `invitable?` | `boolean` |  |
 | `rate_limit_per_user?` | `?integer` |  |
 | `applied_tags?` | `array of Snowflake` |  |
-| `message?` | `CreateMessageRequest` |  |
+| `message?` | `object` |  |
+| `request_id?` | `string (uuid)` | Required for forum posts, scoped to the author and forum. |
 
 ### CreateWebhookRequest
 
@@ -2272,6 +2418,47 @@ POST /auth/forgot-password body.
 | --- | --- | --- |
 | `email` | `string (email)` |  |
 
+### Guild Insights Coverage State
+
+Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+
+Type: `"complete" or "partial" or "unavailable"`
+
+### Guild Insights Coverage Summary
+
+Period status and the number of days in each coverage state for this source.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | `Guild Insights Coverage State` |  |
+| `complete_days` | `integer` |  |
+| `partial_days` | `integer` |  |
+| `unavailable_days` | `integer` |  |
+
+### GuildInsights
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `period` | `7 or 30` |  |
+| `message_coverage` | `boolean` |  |
+| `voice_coverage` | `boolean` |  |
+| `coverage` | `object` |  |
+| `days` | `array of object` |  |
+
+### GuildWidgetPatch
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled?` | `boolean` |  |
+| `channel_id?` | `?Snowflake` |  |
+
+### GuildWidgetSettings
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `channel_id` | `?Snowflake` |  |
+
 ### InteractionCallbackData
 
 Message, autocomplete or modal data.
@@ -2369,6 +2556,13 @@ PATCH /channels/{id} body (partial). Changing delivery_mode requires MANAGE_CHAN
 | `invitable?` | `boolean` |  |
 | `delivery_mode?` | `DeliveryMode` |  |
 | `voice_region?` | `?string` |  |
+| `available_tags?` | `array of object` |  |
+| `applied_tags?` | `array of Snowflake` |  |
+| `default_sort_order?` | `0 or 1 or null` |  |
+| `default_forum_layout?` | `0 or 1 or 2` |  |
+| `default_reaction_emoji?` | `?DefaultReaction` |  |
+| `require_tags?` | `boolean` |  |
+| `flags?` | `integer` | Forum post flags; bit 1 pins a post and requires MANAGE_THREADS. |
 
 ### ModifyCurrentUserRequest
 
@@ -2438,6 +2632,22 @@ PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
 | `audit_log_enabled?` | `boolean` | Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves. |
 | `audit_log_retention_days?` | `30 or 90 or 365` | Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job. |
 | `prune_admin_only?` | `boolean` | Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD. |
+
+### ModifyGuildScheduledEventRequest
+
+Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name?` | `string` |  |
+| `description?` | `?string` |  |
+| `entity_type?` | `1 or 2 or 3` |  |
+| `channel_id?` | `any` |  |
+| `entity_metadata?` | `any` |  |
+| `scheduled_start_time?` | `string (date-time)` |  |
+| `scheduled_end_time?` | `?string (date-time)` |  |
+| `image?` | `?string` |  |
+| `status?` | `1 or 2 or 3 or 4` |  |
 
 ### ModifyGuildTemplateRequest
 
@@ -2788,6 +2998,13 @@ PUT /users/@me/channels/{id}/delivery-mode body.
 | --- | --- | --- |
 | `mode` | `?DeliveryMode` | Null clears the per-chat override. |
 
+### SetMemberVerificationRequest
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `rules` | `array of string` |  |
+
 ### ThreadMemberTarget
 
 A thread member's Snowflake or @me for the authenticated user.
@@ -2821,6 +3038,14 @@ POST /devices/{id}/key-packages body.
 | --- | --- | --- |
 | `packages` | `array of string` |  |
 
+### UseFriendInviteRequest
+
+Present a personal friend invite to send a request to its owner.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `token` | `string` | Bearer token returned at creation. |
+
 ### UserProfile
 
 GET /users/{id}/profile: a user plus what the caller and that user have in common (mutual servers and mutual friends).
@@ -2846,6 +3071,12 @@ POST /users/@me/mfa/totp/verify body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `code` | `string` |  |
+
+### VoiceStatusRequest
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | `?string` | Text to display, or null to clear. |
 
 ### WebauthnChallenge
 
