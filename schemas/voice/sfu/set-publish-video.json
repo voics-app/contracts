@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/sfu/set-publish-video.json",
+  "title": "SfuSetPublishVideo",
+  "type": "object",
+  "required": ["cmd", "session_id", "allowed"],
+  "properties": {
+    "cmd": { "const": "set_publish_video" },
+    "session_id": { "type": "string" },
+    "allowed": { "type": "boolean" }
+  }
+}

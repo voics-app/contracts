@@ -2594,6 +2594,67 @@ pub struct CreateScheduledMessageRequest {
     pub request_id: ScheduledMessageId,
     pub scheduled_at: ::chrono::DateTime<::chrono::offset::Utc>,
 }
+///`CreateStageInstanceRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateStageInstanceRequest {
+    pub channel_id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub privacy_level: ::std::option::Option<i64>,
+    pub topic: CreateStageInstanceRequestTopic,
+}
+///`CreateStageInstanceRequestTopic`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateStageInstanceRequestTopic(::std::string::String);
+impl ::std::ops::Deref for CreateStageInstanceRequestTopic {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateStageInstanceRequestTopic> for ::std::string::String {
+    fn from(value: CreateStageInstanceRequestTopic) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateStageInstanceRequestTopic {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateStageInstanceRequestTopic {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct CreateThreadRequest {
@@ -7125,6 +7186,9 @@ pub struct ModifyMemberRequest {
     pub nick: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub roles: ::std::vec::Vec<Snowflake>,
+    ///For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub suppress: ::std::option::Option<bool>,
 }
 ///Server-specific About me; trimmed, null or blank restores the global bio.
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -7165,6 +7229,66 @@ impl ::std::convert::TryFrom<::std::string::String> for ModifyMemberRequestBio {
     }
 }
 impl<'de> ::serde::Deserialize<'de> for ModifyMemberRequestBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`ModifyStageInstanceRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ModifyStageInstanceRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub privacy_level: ::std::option::Option<i64>,
+    pub topic: ModifyStageInstanceRequestTopic,
+}
+///`ModifyStageInstanceRequestTopic`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyStageInstanceRequestTopic(::std::string::String);
+impl ::std::ops::Deref for ModifyStageInstanceRequestTopic {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyStageInstanceRequestTopic> for ::std::string::String {
+    fn from(value: ModifyStageInstanceRequestTopic) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyStageInstanceRequestTopic {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyStageInstanceRequestTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyStageInstanceRequestTopic {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -10750,11 +10874,33 @@ pub struct SfuCloseSession {
 ///SFU control command (NDJSON line): create or rebuild a media session.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct SfuCreateSession {
+    ///Audio forwarding capability; absent preserves legacy permissive behavior.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub can_publish_audio: ::std::option::Option<bool>,
+    ///Camera and screen forwarding capability; absent preserves legacy permissive behavior.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub can_publish_video: ::std::option::Option<bool>,
     pub cmd: ::serde_json::Value,
     pub codecs: ::std::vec::Vec<VoiceCodec>,
     pub ice_pwd: ::std::string::String,
     pub ice_ufrag: ::std::string::String,
     pub remote_fingerprint: ::std::string::String,
+    pub session_id: ::std::string::String,
+}
+///`SfuPublishAudioApplied`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuPublishAudioApplied {
+    pub evt: ::serde_json::Value,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub req: ::std::option::Option<::std::string::String>,
+    pub session_id: ::std::string::String,
+}
+///`SfuPublishVideoApplied`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuPublishVideoApplied {
+    pub evt: ::serde_json::Value,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub req: ::std::option::Option<::std::string::String>,
     pub session_id: ::std::string::String,
 }
 ///SFU control event: reply to create_session.
@@ -10764,6 +10910,20 @@ pub struct SfuSessionCreated {
     pub fingerprint: ::std::string::String,
     pub local_pwd: ::std::string::String,
     pub local_ufrag: ::std::string::String,
+    pub session_id: ::std::string::String,
+}
+///`SfuSetPublishAudio`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuSetPublishAudio {
+    pub allowed: bool,
+    pub cmd: ::serde_json::Value,
+    pub session_id: ::std::string::String,
+}
+///`SfuSetPublishVideo`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuSetPublishVideo {
+    pub allowed: bool,
+    pub cmd: ::serde_json::Value,
     pub session_id: ::std::string::String,
 }
 ///SFU control command: update simulcast layer preferences.
@@ -10861,6 +11021,69 @@ pub struct SpeakingPayload {
     pub ssrc: u64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: ::std::option::Option<Snowflake>,
+}
+///A live guild-only stage instance.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct StageInstance {
+    pub channel_id: Snowflake,
+    pub discoverable_disabled: bool,
+    pub guild_id: Snowflake,
+    pub id: Snowflake,
+    pub privacy_level: i64,
+    pub topic: StageInstanceTopic,
+}
+///`StageInstanceTopic`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct StageInstanceTopic(::std::string::String);
+impl ::std::ops::Deref for StageInstanceTopic {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<StageInstanceTopic> for ::std::string::String {
+    fn from(value: StageInstanceTopic) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for StageInstanceTopic {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 120usize {
+            return Err("longer than 120 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for StageInstanceTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for StageInstanceTopic {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for StageInstanceTopic {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -12550,13 +12773,16 @@ pub struct VoiceIdentifyPayload {
     pub user_id: Snowflake,
     pub video: bool,
 }
-///VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.
+///VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved/disconnected a member or changed their stage speaker status. The gateway applies it to the live voice session and never dispatches it directly to clients.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceMemberMoveEvent {
     ///The voice channel to move the member to, or null to disconnect them.
-    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub channel_id: ::std::option::Option<Snowflake>,
     pub guild_id: Snowflake,
+    ///Stage audience status: false promotes to speaker; true moves to audience.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub suppress: ::std::option::Option<bool>,
     pub user_id: Snowflake,
 }
 ///Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
@@ -12973,6 +13199,11 @@ impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeHealthStatus {
 ///etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceNodeRegistration {
+    ///Optional private IPv4 address for node-affine internal control. It is never derived from ws_url and requires control_port and registration_lease.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub control_ip: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub control_port: ::std::option::Option<::std::num::NonZeroU64>,
     pub cpu_pct: f64,
     pub draining: bool,
     pub egress_bps: u64,
@@ -12982,10 +13213,65 @@ pub struct VoiceNodeRegistration {
     pub probe_required: bool,
     pub public_ip: ::std::string::String,
     pub region: ::std::string::String,
+    ///Decimal identity of this registration's current etcd lease; stale control commands must be rejected.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub registration_lease: ::std::option::Option<VoiceNodeRegistrationRegistrationLease>,
     pub udp_port: u64,
     pub users: u64,
     pub version: ::std::string::String,
     pub ws_url: ::std::string::String,
+}
+///Decimal identity of this registration's current etcd lease; stale control commands must be rejected.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceNodeRegistrationRegistrationLease(::std::string::String);
+impl ::std::ops::Deref for VoiceNodeRegistrationRegistrationLease {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceNodeRegistrationRegistrationLease> for ::std::string::String {
+    fn from(value: VoiceNodeRegistrationRegistrationLease) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceNodeRegistrationRegistrationLease {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[1-9][0-9]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[1-9][0-9]*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceNodeRegistrationRegistrationLease {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeRegistrationRegistrationLease {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceNodeRegistrationRegistrationLease {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///VOICE_QUALITY telemetry sample (discordy.telemetry.v1).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]

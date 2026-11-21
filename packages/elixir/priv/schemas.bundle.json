@@ -2587,6 +2587,28 @@
         }
       }
     },
+    "CreateStageInstanceRequest": {
+      "title": "CreateStageInstanceRequest",
+      "type": "object",
+      "required": [
+        "channel_id",
+        "topic"
+      ],
+      "properties": {
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "privacy_level": {
+          "type": "integer",
+          "const": 2
+        }
+      }
+    },
     "CreateThreadRequest": {
       "title": "CreateThreadRequest",
       "description": "POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.",
@@ -8143,6 +8165,10 @@
           ],
           "description": "Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice."
         },
+        "suppress": {
+          "type": "boolean",
+          "description": "For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage."
+        },
         "communication_disabled_until": {
           "type": [
             "string",
@@ -8174,6 +8200,24 @@
             "null"
           ],
           "description": "Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image."
+        }
+      }
+    },
+    "ModifyStageInstanceRequest": {
+      "title": "ModifyStageInstanceRequest",
+      "type": "object",
+      "required": [
+        "topic"
+      ],
+      "properties": {
+        "topic": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "privacy_level": {
+          "type": "integer",
+          "const": 2
         }
       }
     },
@@ -11049,11 +11093,63 @@
         "remote_fingerprint": {
           "type": "string"
         },
+        "can_publish_audio": {
+          "type": "boolean",
+          "description": "Audio forwarding capability; absent preserves legacy permissive behavior."
+        },
+        "can_publish_video": {
+          "type": "boolean",
+          "description": "Camera and screen forwarding capability; absent preserves legacy permissive behavior."
+        },
         "codecs": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/VoiceCodec"
           }
+        }
+      }
+    },
+    "SfuPublishAudioApplied": {
+      "title": "SfuPublishAudioApplied",
+      "type": "object",
+      "required": [
+        "evt",
+        "session_id"
+      ],
+      "properties": {
+        "evt": {
+          "const": "publish_audio_applied"
+        },
+        "req": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "session_id": {
+          "type": "string"
+        }
+      }
+    },
+    "SfuPublishVideoApplied": {
+      "title": "SfuPublishVideoApplied",
+      "type": "object",
+      "required": [
+        "evt",
+        "session_id"
+      ],
+      "properties": {
+        "evt": {
+          "const": "publish_video_applied"
+        },
+        "req": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "session_id": {
+          "type": "string"
         }
       }
     },
@@ -11083,6 +11179,46 @@
         },
         "fingerprint": {
           "type": "string"
+        }
+      }
+    },
+    "SfuSetPublishAudio": {
+      "title": "SfuSetPublishAudio",
+      "type": "object",
+      "required": [
+        "cmd",
+        "session_id",
+        "allowed"
+      ],
+      "properties": {
+        "cmd": {
+          "const": "set_publish_audio"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "allowed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "SfuSetPublishVideo": {
+      "title": "SfuSetPublishVideo",
+      "type": "object",
+      "required": [
+        "cmd",
+        "session_id",
+        "allowed"
+      ],
+      "properties": {
+        "cmd": {
+          "const": "set_publish_video"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "allowed": {
+          "type": "boolean"
         }
       }
     },
@@ -11231,6 +11367,42 @@
         },
         "user_id": {
           "$ref": "#/$defs/Snowflake"
+        }
+      }
+    },
+    "StageInstance": {
+      "title": "StageInstance",
+      "description": "A live guild-only stage instance.",
+      "type": "object",
+      "required": [
+        "id",
+        "guild_id",
+        "channel_id",
+        "topic",
+        "privacy_level",
+        "discoverable_disabled"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "channel_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "privacy_level": {
+          "type": "integer",
+          "const": 2
+        },
+        "discoverable_disabled": {
+          "type": "boolean"
         }
       }
     },
@@ -12577,12 +12749,11 @@
     },
     "VoiceMemberMoveEvent": {
       "title": "VoiceMemberMoveEvent",
-      "description": "VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.",
+      "description": "VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved/disconnected a member or changed their stage speaker status. The gateway applies it to the live voice session and never dispatches it directly to clients.",
       "type": "object",
       "required": [
         "guild_id",
-        "user_id",
-        "channel_id"
+        "user_id"
       ],
       "properties": {
         "guild_id": {
@@ -12601,6 +12772,10 @@
             }
           ],
           "description": "The voice channel to move the member to, or null to disconnect them."
+        },
+        "suppress": {
+          "type": "boolean",
+          "description": "Stage audience status: false promotes to speaker; true moves to audience."
         }
       }
     },
@@ -12728,6 +12903,20 @@
         },
         "ws_url": {
           "type": "string"
+        },
+        "control_ip": {
+          "type": "string",
+          "description": "Optional private IPv4 address for node-affine internal control. It is never derived from ws_url and requires control_port and registration_lease."
+        },
+        "control_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "registration_lease": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$",
+          "description": "Decimal identity of this registration's current etcd lease; stale control commands must be rejected."
         },
         "public_ip": {
           "type": "string"

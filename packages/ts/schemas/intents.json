@@ -22,7 +22,10 @@
         "CHANNEL_PINS_UPDATE",
         "THREAD_CREATE",
         "THREAD_UPDATE",
-        "THREAD_DELETE"
+        "THREAD_DELETE",
+        "STAGE_INSTANCE_CREATE",
+        "STAGE_INSTANCE_UPDATE",
+        "STAGE_INSTANCE_DELETE"
       ]
     },
     {

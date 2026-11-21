@@ -258,7 +258,11 @@ Signaling talks to the co-located SFU over TCP `127.0.0.1:4101` with newline-del
 | command (`cmd`) | `create_session` | `SfuCreateSession` | Creates (or, after an SFU restart, re-creates) a media session. |
 | command (`cmd`) | `close_session` | `SfuCloseSession` | Closes a media session. |
 | command (`cmd`) | `set_sink_wants` | `SfuSetSinkWants` | Updates simulcast layer preferences for a session. |
+| command (`cmd`) | `set_publish_audio` | `SfuSetPublishAudio` | Changes audio publishing permission for a session. |
+| command (`cmd`) | `set_publish_video` | `SfuSetPublishVideo` | Changes camera and screen publishing permission for a session. |
 | event (`evt`) | `session_created` | `SfuSessionCreated` | Reply to create_session with the SFU's ICE/DTLS parameters. |
+| event (`evt`) | `publish_audio_applied` | `SfuPublishAudioApplied` | Acknowledges an audio publishing permission change. |
+| event (`evt`) | `publish_video_applied` | `SfuPublishVideoApplied` | Acknowledges a video publishing permission change. |
 | event (`evt`) | `speaking` | `SfuSpeaking` | Voice activity detected on an SSRC. |
 | event (`evt`) | `stream_viewers` | `SfuStreamViewers` | The opted-in viewers of a screen share changed; carries the full list. |
 | event (`evt`) | `stats` | `SfuStats` | Periodic SFU load statistics. |
@@ -274,6 +278,8 @@ SFU control command (NDJSON line): create or rebuild a media session.
 | `ice_ufrag` | `string` |  |
 | `ice_pwd` | `string` |  |
 | `remote_fingerprint` | `string` |  |
+| `can_publish_audio?` | `boolean` | Audio forwarding capability; absent preserves legacy permissive behavior. |
+| `can_publish_video?` | `boolean` | Camera and screen forwarding capability; absent preserves legacy permissive behavior. |
 | `codecs` | `array of VoiceCodec` |  |
 
 ### SfuCloseSession
@@ -295,6 +301,22 @@ SFU control command: update simulcast layer preferences.
 | `session_id` | `string` |  |
 | `wants` | `map of integer` |  |
 
+### SfuSetPublishAudio
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `cmd` | `"set_publish_audio"` |  |
+| `session_id` | `string` |  |
+| `allowed` | `boolean` |  |
+
+### SfuSetPublishVideo
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `cmd` | `"set_publish_video"` |  |
+| `session_id` | `string` |  |
+| `allowed` | `boolean` |  |
+
 ### SfuSessionCreated
 
 SFU control event: reply to create_session.
@@ -306,6 +328,22 @@ SFU control event: reply to create_session.
 | `local_ufrag` | `string` |  |
 | `local_pwd` | `string` |  |
 | `fingerprint` | `string` |  |
+
+### SfuPublishAudioApplied
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `evt` | `"publish_audio_applied"` |  |
+| `req?` | `?string` |  |
+| `session_id` | `string` |  |
+
+### SfuPublishVideoApplied
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `evt` | `"publish_video_applied"` |  |
+| `req?` | `?string` |  |
+| `session_id` | `string` |  |
 
 ### SfuSpeaking
 
@@ -352,6 +390,9 @@ etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed 
 | `node_id` | `string` |  |
 | `region` | `string` |  |
 | `ws_url` | `string` |  |
+| `control_ip?` | `string` | Optional private IPv4 address for node-affine internal control. It is never derived from ws_url and requires control_port and registration_lease. |
+| `control_port?` | `integer` |  |
+| `registration_lease?` | `string` | Decimal identity of this registration's current etcd lease; stale control commands must be rejected. |
 | `public_ip` | `string` |  |
 | `udp_port` | `integer` |  |
 | `users` | `integer` |  |

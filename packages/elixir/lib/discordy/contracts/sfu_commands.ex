@@ -22,13 +22,27 @@ defmodule Discordy.Contracts.SfuCommands do
   @spec set_sink_wants() :: String.t()
   def set_sink_wants, do: "set_sink_wants"
 
+  @doc ~S"""
+  Changes audio publishing permission for a session.
+  """
+  @spec set_publish_audio() :: String.t()
+  def set_publish_audio, do: "set_publish_audio"
+
+  @doc ~S"""
+  Changes camera and screen publishing permission for a session.
+  """
+  @spec set_publish_video() :: String.t()
+  def set_publish_video, do: "set_publish_video"
+
   @doc "Every entry of this group, keyed by atom."
   @spec entries() :: %{atom() => String.t()}
   def entries do
     %{
       create_session: "create_session",
       close_session: "close_session",
-      set_sink_wants: "set_sink_wants"
+      set_sink_wants: "set_sink_wants",
+      set_publish_audio: "set_publish_audio",
+      set_publish_video: "set_publish_video"
     }
   end
 

@@ -106,6 +106,16 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/users/@me/relationships/{user_id}` | api | — | 204 No Content | Remove a friend, cancel a request or unblock |
 | `PUT` | `/users/@me/channels/{channel_id}/delivery-mode` | api | `SetDeliveryModeRequest` | `DeliveryModeOverride` | Set the caller's per-chat delivery-mode override |
 
+### Voice
+
+| Method | Path | Service | Request | Response | Summary |
+| --- | --- | --- | --- | --- | --- |
+| `POST` | `/stage-instances` | api | `CreateStageInstanceRequest` | `StageInstance` | Start a guild-only stage |
+| `GET` | `/stage-instances/{channel_id}` | api | — | `StageInstance` | Get a live stage |
+| `PATCH` | `/stage-instances/{channel_id}` | api | `ModifyStageInstanceRequest` | `StageInstance` | Change a live stage topic |
+| `DELETE` | `/stage-instances/{channel_id}` | api | — | 204 No Content | End a live stage |
+| `GET` | `/voice/regions` | api | — | `array of VoiceRegion` | List voice regions |
+
 ### Auth
 
 | Method | Path | Service | Request | Response | Summary |
@@ -332,12 +342,6 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/oauth2/tokens/{authorization_id}` | api | — | 204 No Content | Revoke the current user's recorded consent |
 | `GET` | `/oauth2/authorize` | api | — | `OAuth2AuthorizeInfo` | Get bot invite information |
 | `POST` | `/oauth2/authorize` | api | `OAuth2AuthorizeRequest` | `OAuth2AuthorizeResponse` | Install a bot and record explicit consent |
-
-### Voice
-
-| Method | Path | Service | Request | Response | Summary |
-| --- | --- | --- | --- | --- | --- |
-| `GET` | `/voice/regions` | api | — | `array of VoiceRegion` | List voice regions |
 
 ## Objects
 
@@ -1671,6 +1675,19 @@ A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 
 
 Type: `string`
 
+### StageInstance
+
+A live guild-only stage instance.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `guild_id` | `Snowflake` |  |
+| `channel_id` | `Snowflake` |  |
+| `topic` | `string` |  |
+| `privacy_level` | `2` |  |
+| `discoverable_disabled` | `boolean` |  |
+
 ### TemplateChannel
 
 A channel of a template. `id` and `parent_id` are template-local ids, numbered from 1.
@@ -2251,6 +2268,14 @@ POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New s
 | `scheduled_at` | `string (date-time)` |  |
 | `message` | `ScheduledMessageDraft` |  |
 
+### CreateStageInstanceRequest
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `channel_id` | `Snowflake` |  |
+| `topic` | `string` |  |
+| `privacy_level?` | `2` |  |
+
 ### CreateThreadRequest
 
 POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
@@ -2615,11 +2640,19 @@ PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed onl
 | `mute?` | `boolean` |  |
 | `deaf?` | `boolean` |  |
 | `channel_id?` | `?Snowflake` | Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice. |
+| `suppress?` | `boolean` | For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
 | `flags?` | `integer` |  |
 | `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |
 | `avatar?` | `?string` | Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
 | `banner?` | `?string` | Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
+
+### ModifyStageInstanceRequest
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `topic` | `string` |  |
+| `privacy_level?` | `2` |  |
 
 ### ModifyUserSettingsRequest
 

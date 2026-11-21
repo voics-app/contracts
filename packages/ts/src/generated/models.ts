@@ -1692,6 +1692,15 @@ export interface ScheduledMessageDraft {
   silent?: boolean;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "CreateStageInstanceRequest".
+ */
+export interface CreateStageInstanceRequest {
+  channel_id: Snowflake;
+  topic: string;
+  privacy_level?: 2;
+}
+/**
  * POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
  */
 export interface CreateThreadRequest {
@@ -5461,6 +5470,10 @@ export interface ModifyMemberRequest {
    * Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice.
    */
   channel_id?: Snowflake | null;
+  /**
+   * For a member currently in this guild's stage channel: true moves them to the audience; false promotes them to speaker. Needs MUTE_MEMBERS. Ignored when they are not in a stage.
+   */
+  suppress?: boolean;
   communication_disabled_until?: string | null;
   flags?: number;
   /**
@@ -5475,6 +5488,14 @@ export interface ModifyMemberRequest {
    * Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image.
    */
   banner?: string | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "ModifyStageInstanceRequest".
+ */
+export interface ModifyStageInstanceRequest {
+  topic: string;
+  privacy_level?: 2;
 }
 /**
  * PATCH /users/@me/settings body (partial).
@@ -6603,7 +6624,33 @@ export interface SfuCreateSession {
   ice_ufrag: string;
   ice_pwd: string;
   remote_fingerprint: string;
+  /**
+   * Audio forwarding capability; absent preserves legacy permissive behavior.
+   */
+  can_publish_audio?: boolean;
+  /**
+   * Camera and screen forwarding capability; absent preserves legacy permissive behavior.
+   */
+  can_publish_video?: boolean;
   codecs: VoiceCodec[];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuPublishAudioApplied".
+ */
+export interface SfuPublishAudioApplied {
+  evt: "publish_audio_applied";
+  req?: string | null;
+  session_id: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuPublishVideoApplied".
+ */
+export interface SfuPublishVideoApplied {
+  evt: "publish_video_applied";
+  req?: string | null;
+  session_id: string;
 }
 /**
  * SFU control event: reply to create_session.
@@ -6614,6 +6661,24 @@ export interface SfuSessionCreated {
   local_ufrag: string;
   local_pwd: string;
   fingerprint: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuSetPublishAudio".
+ */
+export interface SfuSetPublishAudio {
+  cmd: "set_publish_audio";
+  session_id: string;
+  allowed: boolean;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SfuSetPublishVideo".
+ */
+export interface SfuSetPublishVideo {
+  cmd: "set_publish_video";
+  session_id: string;
+  allowed: boolean;
 }
 /**
  * SFU control command: update simulcast layer preferences.
@@ -6669,6 +6734,17 @@ export interface SpeakingPayload {
   speaking: number;
   ssrc: number;
   user_id?: Snowflake;
+}
+/**
+ * A live guild-only stage instance.
+ */
+export interface StageInstance {
+  id: Snowflake;
+  guild_id: Snowflake;
+  channel_id: Snowflake;
+  topic: string;
+  privacy_level: 2;
+  discoverable_disabled: boolean;
 }
 /**
  * Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.
@@ -6942,7 +7018,7 @@ export interface VoiceIdentifyPayload {
   video: boolean;
 }
 /**
- * VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved a member to another voice channel or disconnected them (PATCH /guilds/{id}/members/{uid} with channel_id). The gateway applies it to the member's live voice session and never dispatches it to clients; it is ignored when the member is not in voice. Clients observe the result as VOICE_STATE_UPDATE plus, for a move, VOICE_SERVER_UPDATE with a token for the new channel.
+ * VOICE_MEMBER_MOVE bus event (discordy.guild.v1, routed by guild_id). A moderator moved/disconnected a member or changed their stage speaker status. The gateway applies it to the live voice session and never dispatches it directly to clients.
  */
 export interface VoiceMemberMoveEvent {
   guild_id: Snowflake;
@@ -6950,7 +7026,11 @@ export interface VoiceMemberMoveEvent {
   /**
    * The voice channel to move the member to, or null to disconnect them.
    */
-  channel_id: Snowflake | null;
+  channel_id?: Snowflake | null;
+  /**
+   * Stage audience status: false promotes to speaker; true moves to audience.
+   */
+  suppress?: boolean;
 }
 /**
  * Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
@@ -6988,6 +7068,15 @@ export interface VoiceNodeRegistration {
   node_id: string;
   region: string;
   ws_url: string;
+  /**
+   * Optional private IPv4 address for node-affine internal control. It is never derived from ws_url and requires control_port and registration_lease.
+   */
+  control_ip?: string;
+  control_port?: number;
+  /**
+   * Decimal identity of this registration's current etcd lease; stale control commands must be rejected.
+   */
+  registration_lease?: string;
   public_ip: string;
   udp_port: number;
   users: number;

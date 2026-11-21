@@ -181,7 +181,7 @@ pub mod permission_sets {
 
 /// Gateway intent bit flags (Discord values).
 pub mod intents {
-    /// Events: GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE, CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE, THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE.
+    /// Events: GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE, CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE, THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE, STAGE_INSTANCE_CREATE, STAGE_INSTANCE_UPDATE, STAGE_INSTANCE_DELETE.
     pub const GUILDS: u32 = 1 << 0;
     /// Privileged. Events: GUILD_MEMBER_ADD, GUILD_MEMBER_UPDATE, GUILD_MEMBER_REMOVE.
     pub const GUILD_MEMBERS: u32 = 1 << 1;
@@ -396,6 +396,9 @@ pub mod dispatch_events {
     pub const GUILD_MEMBER_REMOVE: &str = "GUILD_MEMBER_REMOVE";
     pub const GUILD_BAN_ADD: &str = "GUILD_BAN_ADD";
     pub const GUILD_BAN_REMOVE: &str = "GUILD_BAN_REMOVE";
+    pub const STAGE_INSTANCE_CREATE: &str = "STAGE_INSTANCE_CREATE";
+    pub const STAGE_INSTANCE_UPDATE: &str = "STAGE_INSTANCE_UPDATE";
+    pub const STAGE_INSTANCE_DELETE: &str = "STAGE_INSTANCE_DELETE";
     pub const GUILD_EMOJIS_UPDATE: &str = "GUILD_EMOJIS_UPDATE";
     pub const INVITE_CREATE: &str = "INVITE_CREATE";
     pub const INVITE_DELETE: &str = "INVITE_DELETE";
@@ -469,6 +472,9 @@ pub mod dispatch_events {
         ("GUILD_MEMBER_REMOVE", GUILD_MEMBER_REMOVE),
         ("GUILD_BAN_ADD", GUILD_BAN_ADD),
         ("GUILD_BAN_REMOVE", GUILD_BAN_REMOVE),
+        ("STAGE_INSTANCE_CREATE", STAGE_INSTANCE_CREATE),
+        ("STAGE_INSTANCE_UPDATE", STAGE_INSTANCE_UPDATE),
+        ("STAGE_INSTANCE_DELETE", STAGE_INSTANCE_DELETE),
         ("GUILD_EMOJIS_UPDATE", GUILD_EMOJIS_UPDATE),
         ("INVITE_CREATE", INVITE_CREATE),
         ("INVITE_DELETE", INVITE_DELETE),
@@ -610,12 +616,18 @@ pub mod sfu_commands {
     pub const CLOSE_SESSION: &str = "close_session";
     /// Updates simulcast layer preferences for a session.
     pub const SET_SINK_WANTS: &str = "set_sink_wants";
+    /// Changes audio publishing permission for a session.
+    pub const SET_PUBLISH_AUDIO: &str = "set_publish_audio";
+    /// Changes camera and screen publishing permission for a session.
+    pub const SET_PUBLISH_VIDEO: &str = "set_publish_video";
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, &str)] = &[
         ("CREATE_SESSION", CREATE_SESSION),
         ("CLOSE_SESSION", CLOSE_SESSION),
         ("SET_SINK_WANTS", SET_SINK_WANTS),
+        ("SET_PUBLISH_AUDIO", SET_PUBLISH_AUDIO),
+        ("SET_PUBLISH_VIDEO", SET_PUBLISH_VIDEO),
     ];
 }
 
@@ -623,6 +635,10 @@ pub mod sfu_commands {
 pub mod sfu_events {
     /// Reply to create_session with the SFU's ICE/DTLS parameters.
     pub const SESSION_CREATED: &str = "session_created";
+    /// Acknowledges an audio publishing permission change.
+    pub const PUBLISH_AUDIO_APPLIED: &str = "publish_audio_applied";
+    /// Acknowledges a video publishing permission change.
+    pub const PUBLISH_VIDEO_APPLIED: &str = "publish_video_applied";
     /// Voice activity detected on an SSRC.
     pub const SPEAKING: &str = "speaking";
     /// The opted-in viewers of a screen share changed; carries the full list.
@@ -633,6 +649,8 @@ pub mod sfu_events {
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, &str)] = &[
         ("SESSION_CREATED", SESSION_CREATED),
+        ("PUBLISH_AUDIO_APPLIED", PUBLISH_AUDIO_APPLIED),
+        ("PUBLISH_VIDEO_APPLIED", PUBLISH_VIDEO_APPLIED),
         ("SPEAKING", SPEAKING),
         ("STREAM_VIEWERS", STREAM_VIEWERS),
         ("STATS", STATS),
@@ -687,6 +705,9 @@ pub mod event_topics {
     pub const GUILD_MEMBER_REMOVE: &str = "discordy.guild.v1";
     pub const GUILD_BAN_ADD: &str = "discordy.guild.v1";
     pub const GUILD_BAN_REMOVE: &str = "discordy.guild.v1";
+    pub const STAGE_INSTANCE_CREATE: &str = "discordy.guild.v1";
+    pub const STAGE_INSTANCE_UPDATE: &str = "discordy.guild.v1";
+    pub const STAGE_INSTANCE_DELETE: &str = "discordy.guild.v1";
     pub const GUILD_EMOJIS_UPDATE: &str = "discordy.guild.v1";
     pub const INVITE_CREATE: &str = "discordy.guild.v1";
     pub const INVITE_DELETE: &str = "discordy.guild.v1";
@@ -753,6 +774,9 @@ pub mod event_topics {
         ("GUILD_MEMBER_REMOVE", GUILD_MEMBER_REMOVE),
         ("GUILD_BAN_ADD", GUILD_BAN_ADD),
         ("GUILD_BAN_REMOVE", GUILD_BAN_REMOVE),
+        ("STAGE_INSTANCE_CREATE", STAGE_INSTANCE_CREATE),
+        ("STAGE_INSTANCE_UPDATE", STAGE_INSTANCE_UPDATE),
+        ("STAGE_INSTANCE_DELETE", STAGE_INSTANCE_DELETE),
         ("GUILD_EMOJIS_UPDATE", GUILD_EMOJIS_UPDATE),
         ("INVITE_CREATE", INVITE_CREATE),
         ("INVITE_DELETE", INVITE_DELETE),

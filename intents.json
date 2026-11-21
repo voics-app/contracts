@@ -3,7 +3,7 @@
   "source": "https://discord.com/developers/docs/events/gateway#list-of-intents",
   "serialization": "Intents are sent in IDENTIFY as an integer bitfield. User sessions implicitly receive every intent.",
   "intents": [
-    { "name": "GUILDS", "bit": 0, "value": 1, "privileged": false, "scope": "guild", "events": ["GUILD_CREATE", "GUILD_UPDATE", "GUILD_DELETE", "GUILD_ROLE_CREATE", "GUILD_ROLE_UPDATE", "GUILD_ROLE_DELETE", "CHANNEL_CREATE", "CHANNEL_UPDATE", "CHANNEL_DELETE", "CHANNEL_PINS_UPDATE", "THREAD_CREATE", "THREAD_UPDATE", "THREAD_DELETE"] },
+    { "name": "GUILDS", "bit": 0, "value": 1, "privileged": false, "scope": "guild", "events": ["GUILD_CREATE", "GUILD_UPDATE", "GUILD_DELETE", "GUILD_ROLE_CREATE", "GUILD_ROLE_UPDATE", "GUILD_ROLE_DELETE", "CHANNEL_CREATE", "CHANNEL_UPDATE", "CHANNEL_DELETE", "CHANNEL_PINS_UPDATE", "THREAD_CREATE", "THREAD_UPDATE", "THREAD_DELETE", "STAGE_INSTANCE_CREATE", "STAGE_INSTANCE_UPDATE", "STAGE_INSTANCE_DELETE"] },
     { "name": "GUILD_MEMBERS", "bit": 1, "value": 2, "privileged": true, "scope": "guild", "events": ["GUILD_MEMBER_ADD", "GUILD_MEMBER_UPDATE", "GUILD_MEMBER_REMOVE"] },
     { "name": "GUILD_MODERATION", "bit": 2, "value": 4, "privileged": false, "scope": "guild", "events": ["AUDIT_LOG_ENTRY_CREATE", "GUILD_BAN_ADD", "GUILD_BAN_REMOVE"] },
     { "name": "GUILD_EMOJIS", "bit": 3, "value": 8, "privileged": false, "scope": "guild", "discord_name": "GUILD_EXPRESSIONS", "events": ["GUILD_EMOJIS_UPDATE"] },
