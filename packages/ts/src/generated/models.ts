@@ -3960,6 +3960,12 @@ export interface UserPreferences {
    */
   skin_tone?: string;
   /**
+   * Favorite GIF media links, synced across devices.
+   *
+   * @maxItems 100
+   */
+  favorite_gifs?: string[];
+  /**
    * Recently used reaction emoji, most recent first.
    *
    * @maxItems 32

@@ -1464,6 +1464,8 @@ export interface components {
             animate_stickers?: boolean;
             /** @description Default restriction on new guild-related DMs; missing means false. */
             default_guilds_restricted?: boolean;
+            /** @description Favorite GIF media links, synced across devices. */
+            favorite_gifs?: string[];
             /** @description Chat font scale. */
             font_scale?: number;
             /** @description Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior. */

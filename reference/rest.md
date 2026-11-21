@@ -56,6 +56,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
+| `POST` | `/gifs/previews` | api | `object` | `object` | Refresh signed previews for favorite GIFs |
+| `GET` | `/gifs/trending` | api | — | `object` | Browse trending GIFs |
+| `GET` | `/gifs/search` | api | — | `object` | Search GIFs |
+| `GET` | `/gifs/categories` | api | — | `object` | Browse GIF categories |
 | `POST` | `/reports` | api | `CreateReportRequest` | 204 No Content | Report a message, user or visible guild channel |
 | `GET` | `/users/@me/connections` | api | — | `array of object` | List the current user's linked accounts |
 | `PUT` | `/users/@me/connections` | api | `object` | 204 No Content | Set a linked account's profile visibility |
@@ -1809,6 +1813,7 @@ Client preferences that follow the account across devices (client#123). Sparse: 
 | `sound_toggles?` | `map of boolean` | Per-sound switches under notify_sounds; a missing entry means on. |
 | `ringtone?` | `string` |  |
 | `skin_tone?` | `string` | Skin tone modifier of the emoji picker; empty for the default. |
+| `favorite_gifs?` | `array of string` | Favorite GIF media links, synced across devices. |
 | `recent_reactions?` | `array of object` | Recently used reaction emoji, most recent first. |
 
 ### UserSettings

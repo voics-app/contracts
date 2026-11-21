@@ -11631,6 +11631,16 @@
           "maxLength": 16,
           "description": "Skin tone modifier of the emoji picker; empty for the default."
         },
+        "favorite_gifs": {
+          "type": "array",
+          "maxItems": 100,
+          "description": "Favorite GIF media links, synced across devices.",
+          "items": {
+            "type": "string",
+            "maxLength": 2048,
+            "pattern": "^https://"
+          }
+        },
         "recent_reactions": {
           "type": "array",
           "description": "Recently used reaction emoji, most recent first.",
