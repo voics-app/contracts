@@ -545,6 +545,14 @@
         "stage"
       ],
       "requires_mfa": false
+    },
+    {
+      "name": "MANAGE_BAN_APPEALS",
+      "bit": 53,
+      "value": "9007199254740992",
+      "description": "Allows configuring and reviewing ban appeals",
+      "channel_types": [],
+      "requires_mfa": false
     }
   ]
 }

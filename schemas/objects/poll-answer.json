@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/poll-answer.json",
+  "title": "PollAnswer",
+  "type": "object",
+  "required": [
+    "answer_id",
+    "poll_media"
+  ],
+  "properties": {
+    "answer_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "poll_media": {
+      "$ref": "./poll-media.json"
+    }
+  },
+  "additionalProperties": false
+}

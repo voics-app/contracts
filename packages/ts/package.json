@@ -1,12 +1,12 @@
 {
-  "name": "@discordy-voics/contracts",
+  "name": "@voics-app/contracts",
   "version": "0.1.0",
   "description": "Discordy wire contracts: TypeScript types for REST, gateway, event-bus and voice payloads, constants and JSON Schemas.",
   "license": "UNLICENSED",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/discordy-voics/contracts.git",
+    "url": "git+https://github.com/voics-app/contracts.git",
     "directory": "packages/ts"
   },
   "publishConfig": {

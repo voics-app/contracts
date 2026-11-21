@@ -2826,6 +2826,351 @@
         }
       }
     },
+    "/guilds/{guild_id}/ban-appeals/form": {
+      "get": {
+        "operationId": "getBanAppealForm",
+        "summary": "Get the appeal question for a banned user or appeal moderator",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The configured question.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "question"
+                  ],
+                  "properties": {
+                    "question": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "setBanAppealForm",
+        "summary": "Set the appeal question (MANAGE_BAN_APPEALS required)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "question"
+                ],
+                "properties": {
+                  "question": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Question saved."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/ban-appeals": {
+      "get": {
+        "operationId": "listBanAppeals",
+        "summary": "List appeals and decisions (MANAGE_BAN_APPEALS required)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Up to 100 appeals, open first and newest first within each group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "user_id",
+                      "question",
+                      "answer",
+                      "status",
+                      "created_at",
+                      "resolved_at",
+                      "resolved_by"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "user_id": {
+                        "type": "string"
+                      },
+                      "question": {
+                        "type": "string"
+                      },
+                      "answer": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "open",
+                          "accepted",
+                          "denied",
+                          "closed"
+                        ]
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "resolved_at": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date-time"
+                      },
+                      "resolved_by": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "operationId": "submitBanAppeal",
+        "summary": "Submit an appeal for the caller's current ban",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "answer",
+                  "question"
+                ],
+                "properties": {
+                  "answer": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "question": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "The question displayed to the user."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Appeal created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "user_id",
+                    "question",
+                    "answer",
+                    "status",
+                    "created_at",
+                    "resolved_at",
+                    "resolved_by"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "user_id": {
+                      "type": "string"
+                    },
+                    "question": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "open",
+                        "accepted",
+                        "denied",
+                        "closed"
+                      ]
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "resolved_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "resolved_by": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "description": "The question changed, an open appeal already exists, or the form is unavailable."
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}": {
+      "post": {
+        "operationId": "resolveBanAppeal",
+        "summary": "Accept or deny an open appeal (MANAGE_BAN_APPEALS required)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "name": "appeal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "decision",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "accept",
+                "deny"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Decision recorded."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "The appeal is closed or refers to a previous ban."
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/bans": {
       "get": {
         "operationId": "listGuildBans",
@@ -3877,6 +4222,92 @@
         }
       }
     },
+    "/channels/{channel_id}/thread-members/{user_id}": {
+      "put": {
+        "operationId": "addThreadMember",
+        "summary": "Join a thread or invite a guild member",
+        "description": "Use @me to join a visible public thread. A thread manager may add a guild member; members may invite others to an invitable private thread. The target must be able to view the parent channel. A locked thread requires MANAGE_THREADS.",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ThreadMemberTarget"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Joined or already a member."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeThreadMember",
+        "summary": "Leave a thread or remove a member",
+        "description": "Use @me to leave; removing another user requires MANAGE_THREADS.",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ThreadMemberTarget"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Left or already absent."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
     "/channels/{channel_id}/typing": {
       "post": {
         "operationId": "triggerTyping",
@@ -3913,6 +4344,59 @@
       }
     },
     "/channels/{channel_id}/threads": {
+      "get": {
+        "operationId": "listChannelThreads",
+        "summary": "List visible active or archived threads under a channel",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "archived",
+            "in": "query",
+            "required": false,
+            "description": "Select archived threads instead of active threads.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Threads visible to the caller.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Channel"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      },
       "post": {
         "operationId": "startThread",
         "summary": "Start a thread (or forum post)",
@@ -4963,6 +5447,223 @@
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/polls/{message_id}": {
+      "get": {
+        "operationId": "getPoll",
+        "summary": "Get an authoritative poll snapshot for the current viewer",
+        "description": "Fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in a Standard channel are required. Results include every answer count and the viewer's vote version. This side-effect-free query repairs missed events; refresh visible polls on foreground and reconnect. A missing/non-poll/deleted message is 404. This additive contract requires the polls implementation before use.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/message_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PollSnapshot"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/PollConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/PollUnavailable"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/polls/{message_id}/answers/{answer_id}/@me": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/channel_id"
+        },
+        {
+          "$ref": "#/components/parameters/message_id"
+        },
+        {
+          "name": "answer_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          }
+        }
+      ],
+      "put": {
+        "operationId": "selectPollAnswer",
+        "summary": "Select a poll answer with your current vote revision",
+        "description": "Authenticated human users only, with fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in a Standard channel. Single-choice selection replaces the previous answer atomically; multi-choice adds this answer. An already-satisfied retry is a no-op. A stale version that changes the selection conflicts. The global results version is not the voter precondition. Bots cannot vote. At most 100000 distinct participants, including retracted voters, are admitted.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PollVoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PollSnapshot"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/PollConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/PollUnavailable"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removePollAnswer",
+        "summary": "Retract a poll answer with your current vote revision",
+        "description": "Same fresh access and human-user restrictions as selecting an answer. Removing an already-absent answer is a no-op. Retain the original expected version when retrying a lost response; refresh after a conflicting later selection.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "expected_vote_version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PollVersion"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PollSnapshot"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/PollConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/PollUnavailable"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/polls/{message_id}/expire": {
+      "post": {
+        "operationId": "expirePoll",
+        "summary": "End your own poll early",
+        "description": "The original author alone may end a poll, with fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in the Standard channel. MANAGE_MESSAGES grants deletion, not author impersonation. Repeated expiry returns the already-finalized result. A competing vote either commits before the closing fence and is counted, or is rejected. Publishes MESSAGE_UPDATE with complete finalized results. Public bot authors may end their own poll but may not vote.",
+        "tags": [
+          "Messages"
+        ],
+        "x-discordy-service": "messages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/message_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message with finalized poll results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/PollConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/PollUnavailable"
           }
         }
       }
@@ -8302,6 +9003,36 @@
       }
     },
     "responses": {
+      "PollSnapshot": {
+        "description": "Complete results and the authenticated viewer's selection.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PollSnapshot"
+            }
+          }
+        }
+      },
+      "PollConflict": {
+        "description": "Private delivery (50160), or closed/overdue poll, stale changing voter revision or participant-cap exhaustion (50035 with poll, expected_vote_version or poll.participants field error). No requested vote mutation occurred.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "PollUnavailable": {
+        "description": "Temporary dependency failure or bounded CAS retry exhaustion. An uncertain transport response is reconciled by GET or an identical retry, never by incrementing a local count.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
       "ScheduledMessageResult": {
         "description": "Current author-private scheduled-message state.",
         "content": {
@@ -8987,6 +9718,18 @@
             "maxLength": 1024,
             "description": "Alt text shown to screen readers and as the image tooltip."
           },
+          "duration_secs": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 600,
+            "description": "Duration of a recorded voice message in seconds."
+          },
+          "waveform": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "description": "Base64-encoded amplitude samples for a recorded voice message."
+          },
           "flags": {
             "type": "integer",
             "description": "AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too."
@@ -9502,6 +10245,10 @@
           "member_count": {
             "type": "integer"
           },
+          "is_thread_member": {
+            "type": "boolean",
+            "description": "Voics: whether the requesting user has joined this thread; omitted from shared events."
+          },
           "thread_metadata": {
             "$ref": "#/components/schemas/ThreadMetadata"
           },
@@ -9996,7 +10743,7 @@
       },
       "CreateMessageRequest": {
         "title": "CreateMessageRequest",
-        "description": "POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).",
+        "description": "POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160). A poll requires fresh SEND_POLLS in addition to normal send permissions. Its definition cannot be edited or forwarded; public bots use the same permissions, and internal/webhook/interaction poll creation is rejected. Poll-only messages are valid. Private delivery never stores polls.",
         "type": "object",
         "properties": {
           "content": {
@@ -10039,7 +10786,10 @@
           },
           "flags": {
             "type": "integer",
-            "description": "MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped."
+            "description": "MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components."
+          },
+          "poll": {
+            "$ref": "#/components/schemas/PollCreate"
           }
         }
       },
@@ -10951,6 +11701,28 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "FriendSourceFlags": {
+        "title": "FriendSourceFlags",
+        "description": "Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "all",
+          "mutual_friends",
+          "mutual_guilds"
+        ],
+        "properties": {
+          "all": {
+            "type": "boolean"
+          },
+          "mutual_friends": {
+            "type": "boolean"
+          },
+          "mutual_guilds": {
+            "type": "boolean"
           }
         }
       },
@@ -11902,6 +12674,9 @@
             "items": {
               "$ref": "#/components/schemas/MessageSnapshot"
             }
+          },
+          "poll": {
+            "$ref": "#/components/schemas/Poll"
           }
         }
       },
@@ -12878,6 +13653,22 @@
           "preferences": {
             "$ref": "#/components/schemas/UserPreferences",
             "description": "Merged key by key into the stored preferences."
+          },
+          "friend_source_flags": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Partial friend-request source update; omitted flags retain their values.",
+            "properties": {
+              "all": {
+                "type": "boolean"
+              },
+              "mutual_friends": {
+                "type": "boolean"
+              },
+              "mutual_guilds": {
+                "type": "boolean"
+              }
+            }
           }
         }
       },
@@ -13333,6 +14124,349 @@
             "$ref": "#/components/schemas/PermissionBitset"
           }
         }
+      },
+      "Poll": {
+        "title": "Poll",
+        "type": "object",
+        "required": [
+          "question",
+          "answers",
+          "expiry",
+          "allow_multiselect",
+          "layout_type"
+        ],
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/PollQuestion"
+          },
+          "answers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollAnswer"
+            }
+          },
+          "expiry": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "allow_multiselect": {
+            "type": "boolean"
+          },
+          "layout_type": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "results": {
+            "$ref": "#/components/schemas/PollResults"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit."
+      },
+      "PollAnswer": {
+        "title": "PollAnswer",
+        "type": "object",
+        "required": [
+          "answer_id",
+          "poll_media"
+        ],
+        "properties": {
+          "answer_id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "poll_media": {
+            "$ref": "#/components/schemas/PollMedia"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PollAnswerCount": {
+        "title": "PollAnswerCount",
+        "type": "object",
+        "required": [
+          "id",
+          "count"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "me_voted": {
+            "type": "boolean",
+            "description": "Absent in public events: unknown, not false."
+          }
+        },
+        "additionalProperties": false
+      },
+      "PollCreate": {
+        "title": "PollCreate",
+        "type": "object",
+        "required": [
+          "question",
+          "answers"
+        ],
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/PollQuestion"
+          },
+          "answers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "type": "object",
+              "required": [
+                "poll_media"
+              ],
+              "properties": {
+                "poll_media": {
+                  "$ref": "#/components/schemas/PollMedia"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 768,
+            "default": 24,
+            "description": "Whole hours from server acceptance."
+          },
+          "allow_multiselect": {
+            "type": "boolean",
+            "default": false
+          },
+          "layout_type": {
+            "type": "integer",
+            "enum": [
+              1
+            ],
+            "default": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Immutable poll definition for a Standard public message. Answer IDs and expiry are server assigned. Unsupported internal/webhook/interaction, scheduled and forward creation is rejected."
+      },
+      "PollEmoji": {
+        "title": "PollEmoji",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "additionalProperties": false,
+        "description": "Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names."
+      },
+      "PollMedia": {
+        "title": "PollMedia",
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 55,
+            "pattern": "\\S"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/PollEmoji"
+          }
+        },
+        "additionalProperties": false,
+        "description": "An answer label, optionally decorated with a Unicode emoji."
+      },
+      "PollQuestion": {
+        "title": "PollQuestion",
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "pattern": "\\S"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Plain text. Does not produce mentions or embeds."
+      },
+      "PollResults": {
+        "title": "PollResults",
+        "type": "object",
+        "required": [
+          "version",
+          "is_finalized",
+          "answer_counts"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "#/components/schemas/PollVersion"
+          },
+          "is_finalized": {
+            "type": "boolean"
+          },
+          "answer_counts": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollAnswerCount"
+            },
+            "description": "Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer."
+          },
+          "vote_version": {
+            "$ref": "#/components/schemas/PollVersion",
+            "description": "Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Authoritative counts. Replace by results version; never add/subtract event deltas."
+      },
+      "PollSnapshot": {
+        "title": "PollSnapshot",
+        "type": "object",
+        "required": [
+          "question",
+          "answers",
+          "expiry",
+          "allow_multiselect",
+          "layout_type",
+          "results"
+        ],
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/PollQuestion"
+          },
+          "answers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollAnswer"
+            }
+          },
+          "expiry": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "allow_multiselect": {
+            "type": "boolean"
+          },
+          "layout_type": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "results": {
+            "$ref": "#/components/schemas/PollViewerResults"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Viewer-authorized poll snapshot. GET is side-effect-free. Refresh visible polls on foreground/reconnect to repair missed publication."
+      },
+      "PollVersion": {
+        "title": "PollVersion",
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]{0,18})$",
+        "description": "Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed."
+      },
+      "PollViewerAnswerCount": {
+        "title": "PollViewerAnswerCount",
+        "type": "object",
+        "required": [
+          "id",
+          "count",
+          "me_voted"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "me_voted": {
+            "type": "boolean",
+            "description": "Absent in public events: unknown, not false."
+          }
+        },
+        "additionalProperties": false
+      },
+      "PollViewerResults": {
+        "title": "PollViewerResults",
+        "type": "object",
+        "required": [
+          "version",
+          "is_finalized",
+          "answer_counts",
+          "vote_version"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "#/components/schemas/PollVersion"
+          },
+          "is_finalized": {
+            "type": "boolean"
+          },
+          "answer_counts": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollViewerAnswerCount"
+            },
+            "description": "Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer."
+          },
+          "vote_version": {
+            "$ref": "#/components/schemas/PollVersion",
+            "description": "Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Authenticated snapshot with explicit selection for every answer and the viewer revision, including zero for a first-time viewer."
+      },
+      "PollVoteRequest": {
+        "title": "PollVoteRequest",
+        "type": "object",
+        "required": [
+          "expected_vote_version"
+        ],
+        "properties": {
+          "expected_vote_version": {
+            "$ref": "#/components/schemas/PollVersion"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The revision of your own vote, not the global results. An already-satisfied retry is a no-op; any stale request that changes your selection conflicts."
       },
       "ProfileBadge": {
         "title": "ProfileBadge",
@@ -14343,6 +15477,12 @@
           }
         }
       },
+      "ThreadMemberTarget": {
+        "title": "ThreadMemberTarget",
+        "description": "A thread member's Snowflake or @me for the authenticated user.",
+        "type": "string",
+        "pattern": "^(@me|[0-9]{1,20})$"
+      },
       "ThreadMetadata": {
         "title": "ThreadMetadata",
         "description": "Thread-specific fields.",
@@ -14586,6 +15726,24 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "default_guilds_restricted": {
+            "type": "boolean",
+            "description": "Default restriction on new guild-related DMs; missing means false."
+          },
+          "guild_dm_restrictions": {
+            "type": "object",
+            "maxProperties": 200,
+            "propertyNames": {
+              "pattern": "^[0-9]{1,20}$"
+            },
+            "additionalProperties": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "description": "Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior."
+          },
           "hide_age_restricted_channels": {
             "type": "boolean",
             "description": "Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization."
@@ -14887,6 +16045,9 @@
           "preferences": {
             "$ref": "#/components/schemas/UserPreferences",
             "description": "Synced client preferences (appearance, chat, notification sounds, emoji). Sparse."
+          },
+          "friend_source_flags": {
+            "$ref": "#/components/schemas/FriendSourceFlags"
           }
         }
       },
