@@ -239,7 +239,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PUT` | `/channels/{channel_id}/thread-members/{user_id}` | api | — | 204 No Content | Join a thread or invite a guild member |
 | `DELETE` | `/channels/{channel_id}/thread-members/{user_id}` | api | — | 204 No Content | Leave a thread or remove a member |
 | `POST` | `/channels/{channel_id}/typing` | api | — | 204 No Content | Trigger the typing indicator (publishes TYPING_START) |
-| `GET` | `/channels/{channel_id}/threads` | api | — | `array of Channel` | List visible active or archived threads under a channel |
+| `GET` | `/channels/{channel_id}/threads` | api | — | `array of Channel` | List visible active or archived threads under a channel; in a forum channel the active list is the published forum posts |
 | `POST` | `/channels/{channel_id}/threads` | api | `CreateThreadRequest` | `Channel` | Start a thread (or forum post) |
 
 ### Messages
@@ -651,6 +651,9 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `newly_created?` | `boolean` | Only on THREAD_CREATE. |
 | `delivery_mode?` | `DeliveryMode` | Discordy: effective delivery mode. Always present on full channel objects. |
 | `voice_region?` | `?string` | Discordy: per-channel voice region override; null uses the guild's voice_region. |
+| `require_tags?` | `boolean` | Forum posts must have at least one available tag. |
+| `forum_post_status?` | `"pending" or "dispatching" or "publishing" or "published" or "failed"` | Forum post creation status. Non-published posts are returned only to the author on a matching retry. |
+| `forum_first_message?` | `object` | First stored message preview for a Standard forum post. |
 
 ### ChannelMention
 
@@ -2235,7 +2238,7 @@ POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New s
 
 ### CreateThreadRequest
 
-POST /channels/{id}/threads body. Forum channels require `message`.
+POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -2245,7 +2248,8 @@ POST /channels/{id}/threads body. Forum channels require `message`.
 | `invitable?` | `boolean` |  |
 | `rate_limit_per_user?` | `?integer` |  |
 | `applied_tags?` | `array of Snowflake` |  |
-| `message?` | `CreateMessageRequest` |  |
+| `message?` | `object` |  |
+| `request_id?` | `string (uuid)` | Required for forum posts, scoped to the author and forum. |
 
 ### CreateWebhookRequest
 
@@ -2483,6 +2487,13 @@ PATCH /channels/{id} body (partial). Changing delivery_mode requires MANAGE_CHAN
 | `invitable?` | `boolean` |  |
 | `delivery_mode?` | `DeliveryMode` |  |
 | `voice_region?` | `?string` |  |
+| `available_tags?` | `array of object` |  |
+| `applied_tags?` | `array of Snowflake` |  |
+| `default_sort_order?` | `0 or 1 or null` |  |
+| `default_forum_layout?` | `0 or 1 or 2` |  |
+| `default_reaction_emoji?` | `?DefaultReaction` |  |
+| `require_tags?` | `boolean` |  |
+| `flags?` | `integer` | Forum post flags; bit 1 pins a post and requires MANAGE_THREADS. |
 
 ### ModifyCurrentUserRequest
 

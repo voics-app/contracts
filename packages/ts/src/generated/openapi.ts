@@ -822,7 +822,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List visible active or archived threads under a channel */
+        /** List visible active or archived threads under a channel; in a forum channel the active list is the published forum posts */
         get: operations["listChannelThreads"];
         put?: never;
         /** Start a thread (or forum post) */
@@ -3050,6 +3050,17 @@ export interface components {
             /** @description Discordy: effective delivery mode. Always present on full channel objects. */
             delivery_mode?: components["schemas"]["DeliveryMode"];
             flags?: number;
+            /** @description First stored message preview for a Standard forum post. */
+            forum_first_message?: {
+                attachments: components["schemas"]["Attachment"][];
+                content: string;
+                id: components["schemas"]["Snowflake"];
+            };
+            /**
+             * @description Forum post creation status. Non-published posts are returned only to the author on a matching retry.
+             * @enum {string}
+             */
+            forum_post_status?: "pending" | "dispatching" | "publishing" | "published" | "failed";
             guild_id?: components["schemas"]["Snowflake"];
             icon?: string | null;
             id: components["schemas"]["Snowflake"];
@@ -3073,6 +3084,8 @@ export interface components {
             position?: number;
             rate_limit_per_user?: number;
             recipients?: components["schemas"]["User"][];
+            /** @description Forum posts must have at least one available tag. */
+            require_tags?: boolean;
             rtc_region?: string | null;
             /** @description Voice-channel status text, or null when unset. */
             status?: string | null;
@@ -3313,16 +3326,23 @@ export interface components {
         };
         /**
          * CreateThreadRequest
-         * @description POST /channels/{id}/threads body. Forum channels require `message`.
+         * @description POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.
          */
         CreateThreadRequest: {
             applied_tags?: components["schemas"]["Snowflake"][];
             /** @enum {integer} */
             auto_archive_duration?: 60 | 1440 | 4320 | 10080;
             invitable?: boolean;
-            message?: components["schemas"]["CreateMessageRequest"];
+            message?: {
+                content: string;
+            };
             name: string;
             rate_limit_per_user?: number | null;
+            /**
+             * Format: uuid
+             * @description Required for forum posts, scoped to the author and forum.
+             */
+            request_id?: string;
             type?: number;
         };
         /**
@@ -4095,10 +4115,25 @@ export interface components {
          * @description PATCH /channels/{id} body (partial). Changing delivery_mode requires MANAGE_CHANNELS.
          */
         ModifyChannelRequest: {
+            applied_tags?: components["schemas"]["Snowflake"][];
             archived?: boolean;
             auto_archive_duration?: number;
+            available_tags?: {
+                emoji_id?: components["schemas"]["Snowflake"] | null;
+                emoji_name?: string | null;
+                id?: components["schemas"]["Snowflake"];
+                moderated?: boolean;
+                name: string;
+            }[];
             bitrate?: number | null;
+            /** @enum {integer} */
+            default_forum_layout?: 0 | 1 | 2;
+            default_reaction_emoji?: components["schemas"]["DefaultReaction"] | null;
+            /** @enum {integer|null} */
+            default_sort_order?: 0 | 1 | null;
             delivery_mode?: components["schemas"]["DeliveryMode"];
+            /** @description Forum post flags; bit 1 pins a post and requires MANAGE_THREADS. */
+            flags?: number;
             /** @description Group DM icon. */
             icon?: string | null;
             invitable?: boolean;
@@ -4109,6 +4144,7 @@ export interface components {
             permission_overwrites?: components["schemas"]["PermissionOverwrite"][];
             position?: number | null;
             rate_limit_per_user?: number | null;
+            require_tags?: boolean;
             rtc_region?: string | null;
             /** @description Voice channels only. Managers with MANAGE_CHANNELS switch the channel chat on or off. */
             text_chat_enabled?: boolean;
@@ -7490,6 +7526,15 @@ export interface operations {
         responses: {
             /** @description Success. */
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Channel"];
+                };
+            };
+            /** @description Forum post is pending or delivery is being reconciled. Retry the same request ID and body. */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };

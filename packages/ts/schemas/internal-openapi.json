@@ -708,6 +708,176 @@
         }
       }
     },
+    "/channels/{channel_id}/forum-start": {
+      "post": {
+        "operationId": "createForumStart",
+        "summary": "Store the reserved opening message after a durable API claim",
+        "description": "The messages service atomically stores an idempotency marker and the reserved opening message in one partition; a replay cannot recreate a deleted opening.",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "author_id",
+                  "message_id",
+                  "content"
+                ],
+                "properties": {
+                  "author_id": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  "message_id": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  "content": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stored message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "410": {
+            "description": "The reserved opening message was deleted; the marker prevents recreation."
+          }
+        }
+      }
+    },
+    "/forum-summaries": {
+      "post": {
+        "operationId": "forumSummaries",
+        "summary": "Summarize already authorized Standard forum posts",
+        "tags": [
+          "messages"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "channel_ids"
+                ],
+                "properties": {
+                  "channel_ids": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "$ref": "#/components/schemas/Snowflake"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "First message, last message ID and exact stored count per channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "summaries"
+                  ],
+                  "properties": {
+                    "summaries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "channel_id",
+                          "message_count",
+                          "first_message",
+                          "last_message_id"
+                        ],
+                        "properties": {
+                          "channel_id": {
+                            "$ref": "#/components/schemas/Snowflake"
+                          },
+                          "message_count": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "first_message": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "required": [
+                                  "id",
+                                  "content",
+                                  "attachments"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "$ref": "#/components/schemas/Snowflake"
+                                  },
+                                  "content": {
+                                    "type": "string"
+                                  },
+                                  "attachments": {
+                                    "type": "array",
+                                    "items": {
+                                      "$ref": "#/components/schemas/Attachment"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "last_message_id": {
+                            "anyOf": [
+                              {
+                                "$ref": "#/components/schemas/Snowflake"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/channels/{channel_id}/messages": {
       "post": {
         "operationId": "createInternalMessage",
@@ -1787,6 +1957,44 @@
               "null"
             ],
             "description": "Discordy: per-channel voice region override; null uses the guild's voice_region."
+          },
+          "require_tags": {
+            "type": "boolean",
+            "description": "Forum posts must have at least one available tag."
+          },
+          "forum_post_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "dispatching",
+              "publishing",
+              "published",
+              "failed"
+            ],
+            "description": "Forum post creation status. Non-published posts are returned only to the author on a matching retry."
+          },
+          "forum_first_message": {
+            "type": "object",
+            "description": "First stored message preview for a Standard forum post.",
+            "required": [
+              "id",
+              "content",
+              "attachments"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              "content": {
+                "type": "string"
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Attachment"
+                }
+              }
+            }
           }
         }
       },

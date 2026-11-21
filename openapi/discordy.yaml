@@ -3088,7 +3088,7 @@ paths:
   /channels/{channel_id}/threads:
     get:
       operationId: listChannelThreads
-      summary: List visible active or archived threads under a channel
+      summary: List visible active or archived threads under a channel; in a forum channel the active list is the published forum posts
       tags:
         - Channels
       x-discordy-service: api
@@ -3137,6 +3137,12 @@ paths:
       responses:
         "201":
           description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/channel.json
+        "202":
+          description: Forum post is pending or delivery is being reconciled. Retry the same request ID and body.
           content:
             application/json:
               schema:
