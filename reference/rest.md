@@ -206,6 +206,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/guilds/{guild_id}/webhooks` | api | — | `array of Webhook` | List a guild's webhooks |
+| `POST` | `/channels/{channel_id}/followers` | api | `object` | `object` | Follow an announcement channel into another server |
+| `GET` | `/guilds/{guild_id}/followed-channels` | api | — | `array of object` | List announcement channels followed by a server |
 | `POST` | `/channels/{channel_id}/webhooks` | api | `CreateWebhookRequest` | `Webhook` | Create a webhook |
 | `POST` | `/webhooks/{webhook_id}/{webhook_token}` | api | `ExecuteWebhookRequest` | `Message` | Execute a webhook or send an interaction follow-up |
 | `POST` | `/webhooks/{webhook_id}/reset-token` | api | — | `Webhook` | Regenerate an incoming webhook execution credential |
@@ -231,18 +233,11 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/channels/{channel_id}/threads` | api | — | `array of Channel` | List visible active or archived threads under a channel |
 | `POST` | `/channels/{channel_id}/threads` | api | `CreateThreadRequest` | `Channel` | Start a thread (or forum post) |
 
-### Invites
-
-| Method | Path | Service | Request | Response | Summary |
-| --- | --- | --- | --- | --- | --- |
-| `GET` | `/invites/{code}` | api | — | `Invite` | Resolve an invite |
-| `POST` | `/invites/{code}` | api | — | `Invite` | Accept an invite |
-| `DELETE` | `/invites/{code}` | api | — | `Invite` | Revoke an invite |
-
 ### Messages
 
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
+| `POST` | `/channels/{channel_id}/messages/{message_id}/crosspost` | api | — | `Message` | Publish an announcement to its followers |
 | `GET` | `/channels/{channel_id}/messages` | messages | — | `array of Message` | Get channel message history |
 | `POST` | `/channels/{channel_id}/messages` | messages | `CreateMessageRequest` | `Message` | Send a standard-mode message |
 | `GET` | `/channels/{channel_id}/polls/{message_id}` | messages | — | 200 No Content | Get an authoritative poll snapshot for the current viewer |
@@ -271,6 +266,14 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `DELETE` | `/channels/{channel_id}/pins/{message_id}` | messages | — | 204 No Content | Unpin a message |
 | `POST` | `/channels/{channel_id}/messages/{message_id}/ack` | messages | `AckRequest` | 204 No Content | Mark a channel read up to a message (publishes MESSAGE_ACK) |
 | `POST` | `/channels/{channel_id}/attachments` | messages | `CreateAttachmentsRequest` | `CreateAttachmentsResponse` | Request presigned attachment upload URLs |
+
+### Invites
+
+| Method | Path | Service | Request | Response | Summary |
+| --- | --- | --- | --- | --- | --- |
+| `GET` | `/invites/{code}` | api | — | `Invite` | Resolve an invite |
+| `POST` | `/invites/{code}` | api | — | `Invite` | Accept an invite |
+| `DELETE` | `/invites/{code}` | api | — | `Invite` | Revoke an invite |
 
 ### Applications
 
@@ -1873,7 +1876,7 @@ A user's voice connection state.
 
 ### Webhook
 
-An incoming or application webhook.
+An incoming, channel-follower or application webhook.
 
 | Field | Type | Description |
 | --- | --- | --- |

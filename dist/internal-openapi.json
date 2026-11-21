@@ -753,6 +753,185 @@
         }
       }
     },
+    "/channels/{channel_id}/messages/{message_id}/crossposted": {
+      "post": {
+        "operationId": "markAnnouncementCrossposted",
+        "summary": "Mark a stored announcement as published (messages service)",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/message_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated source message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not a publishable announcement."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/crossposts": {
+      "post": {
+        "operationId": "deliverAnnouncementCrosspost",
+        "summary": "Deliver a claimed announcement to a follower channel (messages service)",
+        "description": "The caller supplies a reserved ID and must not blindly retry an ambiguous result after the destination has disappeared.",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "source_channel_id",
+                  "message_id",
+                  "webhook_id",
+                  "webhook_name",
+                  "snapshot"
+                ],
+                "properties": {
+                  "source_channel_id": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  "message_id": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  "webhook_id": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  "webhook_name": {
+                    "type": "string"
+                  },
+                  "snapshot": {
+                    "type": "object",
+                    "required": [
+                      "content"
+                    ],
+                    "properties": {
+                      "content": {
+                        "type": "string"
+                      },
+                      "embeds": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": true
+                        }
+                      },
+                      "attachments": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "filename",
+                            "size"
+                          ],
+                          "properties": {
+                            "id": {
+                              "$ref": "#/components/schemas/Snowflake"
+                            },
+                            "filename": {
+                              "type": "string"
+                            },
+                            "size": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "content_type": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "width": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0
+                            },
+                            "height": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0
+                            },
+                            "description": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "flags": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stored destination message, or an already present matching destination.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid snapshot or unavailable attachment."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "Destination does not support standard delivery."
+          }
+        }
+      }
+    },
     "/channels/{channel_id}/messages/{message_id}/call": {
       "patch": {
         "operationId": "updateMessageCall",

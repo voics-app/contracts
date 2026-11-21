@@ -12917,7 +12917,7 @@ impl<'de> ::serde::Deserialize<'de> for WebauthnLoginStartRequestTicket {
             })
     }
 }
-///An incoming or application webhook.
+///An incoming, channel-follower or application webhook.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Webhook {
     #[serde(deserialize_with = "::std::option::Option::deserialize")]

@@ -280,6 +280,8 @@
     "MessageFlags": {
       "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.",
       "values": [
+        { "name": "CROSSPOSTED", "value": 1 },
+        { "name": "IS_CROSSPOST", "value": 2 },
         { "name": "SUPPRESS_EMBEDS", "value": 4 },
         { "name": "SUPPRESS_NOTIFICATIONS", "value": 4096 },
         { "name": "EPHEMERAL", "value": 64 },

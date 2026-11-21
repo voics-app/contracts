@@ -12806,7 +12806,7 @@
     },
     "Webhook": {
       "title": "Webhook",
-      "description": "An incoming or application webhook.",
+      "description": "An incoming, channel-follower or application webhook.",
       "type": "object",
       "required": [
         "id",

@@ -714,7 +714,7 @@ export interface DefaultReaction {
   emoji_name: string | null;
 }
 /**
- * An incoming or application webhook.
+ * An incoming, channel-follower or application webhook.
  */
 export interface Webhook {
   id: Snowflake;
