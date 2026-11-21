@@ -23,7 +23,10 @@ jobs:
       - run: pnpm build
       - name: Publish to GitHub Packages
         working-directory: packages/ts
-        run: pnpm publish --no-git-checks
+        # The package version follows the release tag; package.json in git stays at its placeholder.
+        run: |
+          npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version
+          pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 # The Rust crate is consumed through a git dependency pinned to this tag
