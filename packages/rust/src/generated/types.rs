@@ -3143,6 +3143,14 @@ pub struct ForumTag {
     pub moderated: bool,
     pub name: ::std::string::String,
 }
+///Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct FriendSourceFlags {
+    pub all: bool,
+    pub mutual_friends: bool,
+    pub mutual_guilds: bool,
+}
 ///GET /internal/v1/admin/stats on gateway.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GatewayAdminStats {
@@ -5936,6 +5944,8 @@ pub struct ModifyUserSettingsRequest {
     ///When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub e2ee_calls_default: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub friend_source_flags: ::std::option::Option<ModifyUserSettingsRequestFriendSourceFlags>,
     ///The user's server rail in order, with folders. Synced across devices.
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub guild_folders: ::std::vec::Vec<GuildFolder>,
@@ -5963,6 +5973,17 @@ pub struct ModifyUserSettingsRequest {
     pub status: ::std::option::Option<ModifyUserSettingsRequestStatus>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub theme: ::std::option::Option<ModifyUserSettingsRequestTheme>,
+}
+///Partial friend-request source update; omitted flags retain their values.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ModifyUserSettingsRequestFriendSourceFlags {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub all: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub mutual_friends: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub mutual_guilds: ::std::option::Option<bool>,
 }
 ///`ModifyUserSettingsRequestStatus`
 #[derive(
@@ -9823,6 +9844,8 @@ pub struct UserSettings {
     pub developer_mode: bool,
     ///When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set.
     pub e2ee_calls_default: bool,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub friend_source_flags: ::std::option::Option<FriendSourceFlags>,
     ///The user's server rail in order, with folders. Synced across devices.
     pub guild_folders: ::std::vec::Vec<GuildFolder>,
     ///Flat server order (legacy mirror of guild_folders).

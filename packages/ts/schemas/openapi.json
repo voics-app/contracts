@@ -11282,6 +11282,28 @@
           }
         }
       },
+      "FriendSourceFlags": {
+        "title": "FriendSourceFlags",
+        "description": "Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "all",
+          "mutual_friends",
+          "mutual_guilds"
+        ],
+        "properties": {
+          "all": {
+            "type": "boolean"
+          },
+          "mutual_friends": {
+            "type": "boolean"
+          },
+          "mutual_guilds": {
+            "type": "boolean"
+          }
+        }
+      },
       "Guild": {
         "title": "Guild",
         "description": "A guild (server). `voice_region` is a Discordy extra.",
@@ -13206,6 +13228,22 @@
           "preferences": {
             "$ref": "#/components/schemas/UserPreferences",
             "description": "Merged key by key into the stored preferences."
+          },
+          "friend_source_flags": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Partial friend-request source update; omitted flags retain their values.",
+            "properties": {
+              "all": {
+                "type": "boolean"
+              },
+              "mutual_friends": {
+                "type": "boolean"
+              },
+              "mutual_guilds": {
+                "type": "boolean"
+              }
+            }
           }
         }
       },
@@ -15229,6 +15267,9 @@
           "preferences": {
             "$ref": "#/components/schemas/UserPreferences",
             "description": "Synced client preferences (appearance, chat, notification sounds, emoji). Sparse."
+          },
+          "friend_source_flags": {
+            "$ref": "#/components/schemas/FriendSourceFlags"
           }
         }
       },

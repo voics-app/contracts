@@ -198,3 +198,5 @@ Tests run locally, not in CI. Install [lefthook](https://github.com/evilmartians
 ## Passkey second factors
 
 The additive WebAuthn MFA routes retain password login, TOTP and hashed, single-use recovery codes. See the generated REST reference for registration and login ceremonies. Clients convert WebAuthn binary fields to/from unpadded base64url; the API stores ceremony state with a five-minute expiry and consumes it atomically. Passkey names and last-used timestamps are account-private.
+
+`friend_source_flags` selects who may initiate a friend request. Existing accounts default to everyone; selected mutual-friend and mutual-server sources use OR semantics. Existing friendships and pending requests continue, and blocks take precedence.
