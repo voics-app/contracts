@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/objects/activity.json",
   "title": "Activity",
-  "description": "A user activity.",
+  "description": "A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.",
   "type": "object",
   "required": [
     "name",
@@ -10,38 +10,48 @@
   ],
   "properties": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Required, non-empty, at most 128 characters."
     },
     "type": {
       "type": "integer",
-      "description": "ActivityType."
+      "description": "ActivityType, 0..5. At most one activity per presence may be type 4 (custom status).",
+      "minimum": 0,
+      "maximum": 5
     },
     "url": {
       "type": [
         "string",
         "null"
-      ]
+      ],
+      "description": "At most 512 characters.",
+      "maxLength": 512
     },
     "created_at": {
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0,
+      "description": "Unix milliseconds."
     },
     "timestamps": {
       "$ref": "#/$defs/ActivityTimestamps"
-    },
-    "application_id": {
-      "$ref": "./snowflake.json"
     },
     "details": {
       "type": [
         "string",
         "null"
-      ]
+      ],
+      "maxLength": 128,
+      "description": "At most 128 characters."
     },
     "state": {
       "type": [
         "string",
         "null"
-      ]
+      ],
+      "maxLength": 128,
+      "description": "At most 128 characters."
     },
     "emoji": {
       "anyOf": [
@@ -61,10 +71,12 @@
       "type": "object",
       "properties": {
         "start": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0
         },
         "end": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -77,10 +89,12 @@
       ],
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "maxLength": 128
         },
         "id": {
-          "$ref": "./snowflake.json"
+          "$ref": "./snowflake.json",
+          "description": "Custom emoji id."
         },
         "animated": {
           "type": "boolean"

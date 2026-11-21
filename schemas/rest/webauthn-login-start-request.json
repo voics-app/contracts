@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/webauthn-login-start-request.json",
+  "title": "WebauthnLoginStartRequest",
+  "description": "Begin passkey assertion after the password login returned MFA_REQUIRED.",
+  "type": "object",
+  "required": [
+    "ticket"
+  ],
+  "properties": {
+    "ticket": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

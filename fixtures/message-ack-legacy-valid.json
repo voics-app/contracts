@@ -1,0 +1,9 @@
+{
+  "schema": "gateway/dispatch/message-ack.json",
+  "data": {
+    "channel_id": "200",
+    "message_id": "500",
+    "mention_count": 1,
+    "version": 1
+  }
+}

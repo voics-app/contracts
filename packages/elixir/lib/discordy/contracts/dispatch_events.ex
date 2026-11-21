@@ -91,6 +91,9 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec thread_update() :: String.t()
   def thread_update, do: "THREAD_UPDATE"
 
+  @spec thread_members_update() :: String.t()
+  def thread_members_update, do: "THREAD_MEMBERS_UPDATE"
+
   @spec thread_delete() :: String.t()
   def thread_delete, do: "THREAD_DELETE"
 
@@ -109,6 +112,12 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec message_delete_bulk() :: String.t()
   def message_delete_bulk, do: "MESSAGE_DELETE_BULK"
 
+  @spec message_poll_vote_add() :: String.t()
+  def message_poll_vote_add, do: "MESSAGE_POLL_VOTE_ADD"
+
+  @spec message_poll_vote_remove() :: String.t()
+  def message_poll_vote_remove, do: "MESSAGE_POLL_VOTE_REMOVE"
+
   @spec message_reaction_add() :: String.t()
   def message_reaction_add, do: "MESSAGE_REACTION_ADD"
 
@@ -123,6 +132,12 @@ defmodule Discordy.Contracts.DispatchEvents do
 
   @spec message_ack() :: String.t()
   def message_ack, do: "MESSAGE_ACK"
+
+  @spec read_state_update() :: String.t()
+  def read_state_update, do: "READ_STATE_UPDATE"
+
+  @spec read_state_sync() :: String.t()
+  def read_state_sync, do: "READ_STATE_SYNC"
 
   @spec user_update() :: String.t()
   def user_update, do: "USER_UPDATE"
@@ -190,17 +205,22 @@ defmodule Discordy.Contracts.DispatchEvents do
       invite_delete: "INVITE_DELETE",
       thread_create: "THREAD_CREATE",
       thread_update: "THREAD_UPDATE",
+      thread_members_update: "THREAD_MEMBERS_UPDATE",
       thread_delete: "THREAD_DELETE",
       application_command_permissions_update: "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
       message_create: "MESSAGE_CREATE",
       message_update: "MESSAGE_UPDATE",
       message_delete: "MESSAGE_DELETE",
       message_delete_bulk: "MESSAGE_DELETE_BULK",
+      message_poll_vote_add: "MESSAGE_POLL_VOTE_ADD",
+      message_poll_vote_remove: "MESSAGE_POLL_VOTE_REMOVE",
       message_reaction_add: "MESSAGE_REACTION_ADD",
       message_reaction_remove: "MESSAGE_REACTION_REMOVE",
       message_reaction_remove_all: "MESSAGE_REACTION_REMOVE_ALL",
       channel_pins_update: "CHANNEL_PINS_UPDATE",
       message_ack: "MESSAGE_ACK",
+      read_state_update: "READ_STATE_UPDATE",
+      read_state_sync: "READ_STATE_SYNC",
       user_update: "USER_UPDATE",
       user_settings_update: "USER_SETTINGS_UPDATE",
       user_guild_settings_update: "USER_GUILD_SETTINGS_UPDATE",

@@ -70,6 +70,12 @@ defmodule Discordy.Contracts.GatewayCloseCodes do
   @spec disallowed_intents() :: non_neg_integer()
   def disallowed_intents, do: 4014
 
+  @doc ~S"""
+  The gateway is short of memory and refuses new connections. Reconnect with backoff. Reconnect: yes.
+  """
+  @spec server_overloaded() :: non_neg_integer()
+  def server_overloaded, do: 4015
+
   @doc "Every entry of this group, keyed by atom."
   @spec entries() :: %{atom() => non_neg_integer()}
   def entries do
@@ -84,7 +90,8 @@ defmodule Discordy.Contracts.GatewayCloseCodes do
       rate_limited: 4008,
       session_timed_out: 4009,
       invalid_intents: 4013,
-      disallowed_intents: 4014
+      disallowed_intents: 4014,
+      server_overloaded: 4015
     }
   end
 

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/create-scheduled-message-request.json",
+  "title": "CreateScheduledMessageRequest",
+  "description": "POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "scheduled_at",
+    "message"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "../objects/scheduled-message-id.json"
+    },
+    "scheduled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "message": {
+      "$ref": "../objects/scheduled-message-draft.json"
+    }
+  }
+}

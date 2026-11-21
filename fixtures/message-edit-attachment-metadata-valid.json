@@ -1,0 +1,4 @@
+{
+  "schema": "rest/edit-message-request.json",
+  "data": {"attachments": [{"id": "77", "description": null, "flags": 0}, {"id": "78", "description": "A sleeping cat"}]}
+}

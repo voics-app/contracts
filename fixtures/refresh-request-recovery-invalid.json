@@ -1,0 +1,5 @@
+{
+  "schema": "rest/refresh-request.json",
+  "data": { "refresh_token": "opaque-fixture", "request_id": "not-a-uuid" },
+  "valid": false
+}

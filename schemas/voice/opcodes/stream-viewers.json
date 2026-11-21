@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/voice/opcodes/stream-viewers.json",
+  "title": "StreamViewersPayload",
+  "description": "Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.",
+  "type": "object",
+  "required": [
+    "ssrc",
+    "user_ids"
+  ],
+  "properties": {
+    "ssrc": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The streamer's screen SSRC."
+    },
+    "user_ids": {
+      "type": "array",
+      "description": "Every current viewer.",
+      "items": {
+        "$ref": "../../objects/snowflake.json"
+      }
+    }
+  }
+}

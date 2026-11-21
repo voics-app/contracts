@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/passkey-register-start-request.json",
+  "title": "PasskeyRegisterStartRequest",
+  "description": "Reauthenticate with the password before creating a passkey registration challenge.",
+  "type": "object",
+  "required": [
+    "password",
+    "name"
+  ],
+  "properties": {
+    "password": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    }
+  }
+}

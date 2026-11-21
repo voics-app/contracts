@@ -166,6 +166,13 @@
         "direction": "send",
         "payload": "gateway/opcodes/call-decline.json",
         "description": "Declines the DM call ringing in a channel. The caller's call stops ringing for this user."
+      },
+      {
+        "op": 26,
+        "name": "CALL_RING",
+        "direction": "send",
+        "payload": "gateway/opcodes/call-ring.json",
+        "description": "Rings 1 to 10 members of a DM channel for a call the sender is in."
       }
     ],
     "close_codes": [
@@ -234,6 +241,12 @@
         "name": "DISALLOWED_INTENTS",
         "description": "A privileged intent was requested that the application is not approved for.",
         "reconnect": false
+      },
+      {
+        "code": 4015,
+        "name": "SERVER_OVERLOADED",
+        "description": "The gateway is short of memory and refuses new connections. Reconnect with backoff.",
+        "reconnect": true
       }
     ],
     "dispatch_events": [
@@ -441,6 +454,13 @@
         "description": "A thread was updated."
       },
       {
+        "name": "THREAD_MEMBERS_UPDATE",
+        "payload": "events/thread-members-update.json",
+        "source": "api",
+        "topic": "discordy.guild.v1",
+        "description": "Thread membership changed; underscore-prefixed bus state is private to the gateway."
+      },
+      {
         "name": "THREAD_DELETE",
         "payload": "objects/channel.json",
         "source": "api",
@@ -483,6 +503,20 @@
         "description": "Several messages were deleted at once."
       },
       {
+        "name": "MESSAGE_POLL_VOTE_ADD",
+        "payload": "gateway/dispatch/message-poll-vote-add.json",
+        "source": "messages",
+        "topic": "discordy.message.v1",
+        "description": "Authoritative poll counts and complete actor selection after a vote add."
+      },
+      {
+        "name": "MESSAGE_POLL_VOTE_REMOVE",
+        "payload": "gateway/dispatch/message-poll-vote-remove.json",
+        "source": "messages",
+        "topic": "discordy.message.v1",
+        "description": "Authoritative poll counts and complete actor selection after a vote remove."
+      },
+      {
         "name": "MESSAGE_REACTION_ADD",
         "payload": "gateway/dispatch/message-reaction-add.json",
         "source": "messages",
@@ -516,6 +550,20 @@
         "source": "messages",
         "topic": "discordy.message.v1",
         "description": "The user's read state advanced on another device."
+      },
+      {
+        "name": "READ_STATE_UPDATE",
+        "payload": "gateway/dispatch/read-state-update.json",
+        "source": "messages",
+        "topic": "discordy.message.v1",
+        "description": "Complete versioned read-state snapshot targeted to the owning user's sessions; compare channel versions, never increment from this event."
+      },
+      {
+        "name": "READ_STATE_SYNC",
+        "payload": "gateway/dispatch/read-state-sync.json",
+        "source": "gateway",
+        "topic": null,
+        "description": "Fresh certified read-state snapshots after resume replay and before RESUMED; merge by version to recover lost publication."
       },
       {
         "name": "USER_UPDATE",
@@ -661,6 +709,12 @@
         "description": "A user was banned with delete_message_seconds; the messages service purges their recent messages in the listed channels. The gateway ignores it and never dispatches it."
       },
       {
+        "name": "SESSION_REVOKE",
+        "payload": "events/session-revoke.json",
+        "topic": "discordy.user.v1",
+        "description": "Login sessions were revoked; the gateway closes the live connections of those sessions and never dispatches it."
+      },
+      {
         "name": "VOICE_QUALITY",
         "payload": "events/voice-quality.json",
         "topic": "discordy.telemetry.v1",
@@ -774,7 +828,7 @@
         "name": "MEDIA_SINK_WANTS",
         "direction": "send",
         "payload": "voice/opcodes/media-sink-wants.json",
-        "description": "Requested quality (0-100) per SSRC; selects the simulcast layer."
+        "description": "Requested quality (0-100) per SSRC; selects the simulcast layer. Screen shares are delivered only after opting in with the screen SSRC at quality > 0."
       },
       {
         "op": 21,
@@ -852,6 +906,13 @@
         "direction": "send",
         "payload": "voice/opcodes/dave-transition.json",
         "description": "The received commit or welcome was invalid; the client asks to be re-added."
+      },
+      {
+        "op": 40,
+        "name": "STREAM_VIEWERS",
+        "direction": "receive",
+        "payload": "voice/opcodes/stream-viewers.json",
+        "description": "Sent to the streamer only: the full list of users watching their screen share, re-sent on every change."
       }
     ],
     "sfu_commands": [
@@ -881,6 +942,11 @@
         "name": "speaking",
         "payload": "voice/sfu/speaking.json",
         "description": "Voice activity detected on an SSRC."
+      },
+      {
+        "name": "stream_viewers",
+        "payload": "voice/sfu/stream-viewers.json",
+        "description": "The opted-in viewers of a screen share changed; carries the full list."
       },
       {
         "name": "stats",
@@ -1173,7 +1239,7 @@
       ]
     },
     "MessageFlags": {
-      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications.",
+      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.",
       "values": [
         {
           "name": "SUPPRESS_EMBEDS",
@@ -1186,6 +1252,10 @@
         {
           "name": "EPHEMERAL",
           "value": 64
+        },
+        {
+          "name": "IS_VOICE_MESSAGE",
+          "value": 8192
         }
       ]
     },
@@ -1482,7 +1552,7 @@
       ]
     },
     "AuditLogEvent": {
-      "description": "Audit log action types (Discord values) used by Discordy.",
+      "description": "Audit log action types used by Discordy, including Voics extensions.",
       "values": [
         {
           "name": "GUILD_UPDATE",
@@ -1627,6 +1697,14 @@
         {
           "name": "APPLICATION_COMMAND_PERMISSION_UPDATE",
           "value": 121
+        },
+        {
+          "name": "BAN_APPEAL_ACCEPT",
+          "value": 200
+        },
+        {
+          "name": "BAN_APPEAL_DENY",
+          "value": 201
         }
       ]
     }

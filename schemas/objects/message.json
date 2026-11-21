@@ -50,6 +50,10 @@
     "mention_everyone": {
       "type": "boolean"
     },
+    "mention_here": {
+      "type": "boolean",
+      "description": "Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise."
+    },
     "mentions": {
       "type": "array",
       "items": {
@@ -103,7 +107,7 @@
     },
     "type": {
       "type": "integer",
-      "description": "MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics)."
+      "description": "MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics)."
     },
     "application_id": {
       "$ref": "./snowflake.json"
@@ -113,6 +117,9 @@
     },
     "message_reference": {
       "$ref": "./message-reference.json"
+    },
+    "call": {
+      "$ref": "#/$defs/MessageCall"
     },
     "referenced_message": {
       "anyOf": [
@@ -145,9 +152,36 @@
       "items": {
         "$ref": "./message-snapshot.json"
       }
+    },
+    "poll": {
+      "$ref": "./poll.json"
     }
   },
   "$defs": {
+    "MessageCall": {
+      "title": "MessageCall",
+      "description": "Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.",
+      "type": "object",
+      "required": [
+        "participants"
+      ],
+      "properties": {
+        "participants": {
+          "type": "array",
+          "description": "IDs of the users who took part in the call.",
+          "items": {
+            "$ref": "./snowflake.json"
+          }
+        },
+        "ended_timestamp": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
     "ChannelMention": {
       "title": "ChannelMention",
       "description": "A channel mentioned in a message.",

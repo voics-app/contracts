@@ -204,6 +204,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/mfa/webauthn/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Exchange a verified passkey assertion for login tokens */
+        post: operations["finishWebauthnLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/mfa/webauthn/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start passkey assertion after the password step */
+        post: operations["startWebauthnLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/refresh": {
         parameters: {
             query?: never;
@@ -215,7 +249,7 @@ export interface paths {
         put?: never;
         /**
          * Rotate a refresh token
-         * @description Reusing an already-rotated refresh token revokes the whole session family.
+         * @description Reusing an already-rotated refresh token revokes the whole session family, except a bounded retry of the same durably saved request_id and token. For five minutes after rotation, that exact pair may recover only its immediate unused, unexpired successor while the original token and session remain live. Retries do not extend expiry. Missing or mismatched request IDs, elapsed windows and used or expired successors retain reuse detection. Revoked sessions cannot be recovered. Never log tokens or request IDs.
          */
         post: operations["refreshToken"];
         delete?: never;
@@ -504,6 +538,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/messages/scheduled": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List your scheduled messages in a channel
+         * @description Author-private UUID-ordered page of active/unknown schedules and terminal jobs from the last seven days. Remains available after send permission or membership loss, without granting channel history access. Follow every non-null next_after, including after an empty filtered page. This additive proposal requires scheduler implementation before use.
+         */
+        get: operations["listScheduledMessages"];
+        put?: never;
+        /**
+         * Schedule a Standard text message
+         * @description Fresh VIEW_CHANNEL and send permission are required now and after the dispatch claim, including SEND_TTS_MESSAGES when requested. Private delivery returns 409/50160. A new instant must be 1 minute to 30 days ahead of the server clock. At most 100 active intents per author and 25 per channel are allowed, including preparing/dispatching reservations. Persist the exact request and random request_id before sending; identical author/key requests return the current job even after edits or dispatch, without rechecking original time/current access. Another original body or channel conflicts. One durable dispatch claim permits one send attempt; ambiguous outcomes become delivery_unknown without automatic redispatch. Bots, webhooks and application tokens are excluded.
+         */
+        post: operations["createScheduledMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/messages/scheduled/{schedule_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read one of your scheduled messages
+         * @description Only the author can read it. Another author or channel returns 404. Remains available after membership/send access loss. Terminal records retain no draft text, even after their seven-day list visibility expires.
+         */
+        get: operations["getScheduledMessage"];
+        put?: never;
+        post?: never;
+        /**
+         * Cancel your pending scheduled message
+         * @description Author-only; works after membership/send access loss. CAS with expected_revision competes with dispatch, so a successful cancellation guarantees no first dispatch claim. An already-cancelled job returns its current state regardless of the supplied revision. Other non-pending or stale states conflict. This does not delete a sent message.
+         */
+        delete: operations["cancelScheduledMessage"];
+        options?: never;
+        head?: never;
+        /**
+         * Edit your pending scheduled message
+         * @description Requires current Standard send access and a matching expected_revision. At least one field replacement is required; message replaces the complete draft. A new time must be 1 minute to 30 days ahead. Already-dispatching and terminal schedules conflict. Refetch a stale revision instead of overwriting another device's edit.
+         */
+        patch: operations["editScheduledMessage"];
+        trace?: never;
+    };
     "/channels/{channel_id}/messages/search": {
         parameters: {
             query?: never;
@@ -577,6 +663,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/polls/{message_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an authoritative poll snapshot for the current viewer
+         * @description Fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in a Standard channel are required. Results include every answer count and the viewer's vote version. This side-effect-free query repairs missed events; refresh visible polls on foreground and reconnect. A missing/non-poll/deleted message is 404. This additive contract requires the polls implementation before use.
+         */
+        get: operations["getPoll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/polls/{message_id}/answers/{answer_id}/@me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                answer_id: number;
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Select a poll answer with your current vote revision
+         * @description Authenticated human users only, with fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in a Standard channel. Single-choice selection replaces the previous answer atomically; multi-choice adds this answer. An already-satisfied retry is a no-op. A stale version that changes the selection conflicts. The global results version is not the voter precondition. Bots cannot vote. At most 100000 distinct participants, including retracted voters, are admitted.
+         */
+        put: operations["selectPollAnswer"];
+        post?: never;
+        /**
+         * Retract a poll answer with your current vote revision
+         * @description Same fresh access and human-user restrictions as selecting an answer. Removing an already-absent answer is a no-op. Retain the original expected version when retrying a lost response; refresh after a conflicting later selection.
+         */
+        delete: operations["removePollAnswer"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/polls/{message_id}/expire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * End your own poll early
+         * @description The original author alone may end a poll, with fresh VIEW_CHANNEL and READ_MESSAGE_HISTORY in the Standard channel. MANAGE_MESSAGES grants deletion, not author impersonation. Repeated expiry returns the already-finalized result. A competing vote either commits before the closing fence and is counted, or is rejected. Publishes MESSAGE_UPDATE with complete finalized results. Public bot authors may end their own poll but may not vote.
+         */
+        post: operations["expirePoll"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{channel_id}/recipients/{user_id}": {
         parameters: {
             query?: never;
@@ -601,7 +757,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/channels/{channel_id}/threads": {
+    "/channels/{channel_id}/thread-members/{user_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -609,6 +765,31 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /**
+         * Join a thread or invite a guild member
+         * @description Use @me to join a visible public thread. A thread manager may add a guild member; members may invite others to an invitable private thread. The target must be able to view the parent channel. A locked thread requires MANAGE_THREADS.
+         */
+        put: operations["addThreadMember"];
+        post?: never;
+        /**
+         * Leave a thread or remove a member
+         * @description Use @me to leave; removing another user requires MANAGE_THREADS.
+         */
+        delete: operations["removeThreadMember"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/threads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List visible active or archived threads under a channel */
+        get: operations["listChannelThreads"];
         put?: never;
         /** Start a thread (or forum post) */
         post: operations["startThread"];
@@ -737,6 +918,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/discovery/guilds/{guild_id}/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Report a currently discoverable listing for moderation */
+        post: operations["reportDiscoveryGuild"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds": {
         parameters: {
             query?: never;
@@ -783,6 +981,59 @@ export interface paths {
         /** Get the guild audit log */
         get: operations["getGuildAuditLog"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/ban-appeals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List appeals and decisions (MANAGE_BAN_APPEALS required) */
+        get: operations["listBanAppeals"];
+        put?: never;
+        /** Submit an appeal for the caller's current ban */
+        post: operations["submitBanAppeal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept or deny an open appeal (MANAGE_BAN_APPEALS required) */
+        post: operations["resolveBanAppeal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/ban-appeals/form": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the appeal question for a banned user or appeal moderator */
+        get: operations["getBanAppealForm"];
+        /** Set the appeal question (MANAGE_BAN_APPEALS required) */
+        put: operations["setBanAppealForm"];
         post?: never;
         delete?: never;
         options?: never;
@@ -900,6 +1151,46 @@ export interface paths {
         patch: operations["modifyGuildEmoji"];
         trace?: never;
     };
+    "/guilds/{guild_id}/integrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List installed application bots
+         * @description Requires MANAGE_GUILD; returns actual current server installations, not owned applications or arbitrary bot accounts.
+         */
+        get: operations["listGuildIntegrations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guilds/{guild_id}/integrations/{application_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove an installed application bot
+         * @description Requires MANAGE_GUILD, KICK_MEMBERS and role hierarchy. Removes membership, managed bot roles and all consents for this installation. Leaves other servers and bot credentials unchanged.
+         */
+        delete: operations["removeGuildIntegration"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/invites": {
         parameters: {
             query?: never;
@@ -991,6 +1282,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guilds/{guild_id}/prune": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Count members a prune would remove
+         * @description Discordy extra (dry run). Counts the members who joined more than `days` ago, have no login session used within that window and hold no role besides `include_roles`. The owner, bots and members the caller does not outrank are never counted. Needs KICK_MEMBERS, or ADMINISTRATOR when the guild's `prune_admin_only` is true.
+         */
+        get: operations["getGuildPruneCount"];
+        put?: never;
+        /**
+         * Prune inactive members
+         * @description Discordy extra. Removes the members a `GET` of the same parameters counts and writes one MEMBER_PRUNE audit log entry with `delete_member_days` and `members_removed`. Same permission rule as the dry run.
+         */
+        post: operations["pruneGuildMembers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/roles": {
         parameters: {
             query?: never;
@@ -1025,6 +1340,26 @@ export interface paths {
         head?: never;
         /** Modify a role */
         patch: operations["modifyGuildRole"];
+        trace?: never;
+    };
+    "/guilds/{guild_id}/roles/{role_id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Duplicate a role
+         * @description Discordy extra. Creates a copy named "<name> (copy)" with the same permissions, colour, hoist, mentionable flag and icon, positioned directly below the source. Needs MANAGE_ROLES, a source role below the caller's highest role (the owner is exempt) and permissions the caller holds. The @everyone role cannot be duplicated. Writes a ROLE_CREATE audit log entry.
+         */
+        post: operations["duplicateGuildRole"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/guilds/{guild_id}/templates": {
@@ -1062,6 +1397,30 @@ export interface paths {
         head?: never;
         /** Modify a template's name or description (requires MANAGE_GUILD) */
         patch: operations["modifyGuildTemplate"];
+        trace?: never;
+    };
+    "/guilds/{guild_id}/vanity-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        /** Get a guild's permanent invitation (requires MANAGE_GUILD) */
+        get: operations["getGuildVanityUrl"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set or remove a guild's permanent invitation (requires MANAGE_GUILD)
+         * @description Codes are case-insensitive and returned lowercase. Renaming resets uses. An @everyone-visible text channel is required. Changes create a GUILD_UPDATE audit entry. An occupied code returns 400 with a code field error.
+         */
+        patch: operations["modifyGuildVanityUrl"];
         trace?: never;
     };
     "/guilds/{guild_id}/webhooks": {
@@ -1105,7 +1464,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Resolve a server template by code (built-in or shared) */
+        /**
+         * Resolve a server template by code (built-in or shared)
+         * @description Public preview of the saved snapshot. Possession of the code grants read access; creating a guild still requires authentication.
+         */
         get: operations["getGuildTemplate"];
         put?: never;
         /** Create a guild from a template */
@@ -1162,8 +1524,71 @@ export interface paths {
         /** Get bot invite information */
         get: operations["getAuthorizeInfo"];
         put?: never;
-        /** Add a bot to a guild */
+        /**
+         * Install a bot and record explicit consent
+         * @description Supported scopes are bot and optionally applications.commands. Existing installations retain their current permissions; consent records those effective permissions. The required non-null installation_revision must echo the selected guild from the displayed GET preview. A changed installation or removal history returns 409 without writes and requires a fresh preview and consent.
+         */
         post: operations["authorizeBot"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/oauth2/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the current user's recorded bot consents
+         * @description Records explicit consent only; contains no access credentials. Application ownership is separate.
+         */
+        get: operations["listApplicationAuthorizations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/oauth2/tokens/{authorization_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke the current user's recorded consent
+         * @description Does not uninstall the shared server bot, delete an application or rotate bot credentials. Other users' records are not exposed.
+         */
+        delete: operations["revokeApplicationAuthorization"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Report a message, user or visible guild channel
+         * @description Channel reports capture only the channel ID, server ID, parent ID, name, type and age-restricted flag from server data. No messages or member list are fetched. Current channel visibility is required. Guild listing reports use the dedicated discovery route.
+         */
+        post: operations["createReport"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1179,6 +1604,23 @@ export interface paths {
         };
         /** Get a user */
         get: operations["getUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/badges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List publicly visible badges on a profile */
+        get: operations["listUserBadges"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1254,6 +1696,40 @@ export interface paths {
         head?: never;
         /** Modify the current user */
         patch: operations["modifyCurrentUser"];
+        trace?: never;
+    };
+    "/users/@me/badges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the owner's badge grants and visibility */
+        get: operations["listOwnBadges"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/badges/{badge_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Change visibility of an existing owned badge */
+        put: operations["setBadgeVisibility"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/users/@me/channels": {
@@ -1375,6 +1851,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/@me/mfa/passkeys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List registered passkey second factors */
+        get: operations["listPasskeys"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/mfa/passkeys/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a passkey after password and second-factor confirmation */
+        delete: operations["deletePasskey"];
+        options?: never;
+        head?: never;
+        /**
+         * Rename a passkey owned by the current account
+         * @description Trims the label and rejects empty, overlong or control-character names. This changes only the label, never credential material, counters, recovery codes or MFA state.
+         */
+        patch: operations["renamePasskey"];
+        trace?: never;
+    };
+    "/users/@me/mfa/passkeys/register/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify and save a passkey second factor */
+        post: operations["finishPasskeyRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/mfa/passkeys/register/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start passkey registration */
+        post: operations["startPasskeyRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/@me/mfa/totp/disable": {
         parameters: {
             query?: never;
@@ -1490,6 +2038,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/@me/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the current user's login sessions
+         * @description Active (not revoked, not expired) sessions with the client, OS, approximate location and last activity. The session making the request has `current` set.
+         */
+        get: operations["listSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/sessions/{session_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Log out one session
+         * @description Revokes another session of the current user right away. The current session cannot be revoked here (400 `CANNOT_REVOKE_CURRENT_SESSION`; use `POST /auth/logout`).
+         */
+        delete: operations["revokeSession"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/sessions/logout-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Log out every other session
+         * @description Revokes every session except the current one right away; their access tokens stop working and their live gateway connections are closed.
+         */
+        post: operations["logoutOtherSessions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/@me/settings": {
         parameters: {
             query?: never;
@@ -1579,6 +2187,26 @@ export interface paths {
         patch: operations["editOriginalInteractionResponse"];
         trace?: never;
     };
+    "/webhooks/{webhook_id}/reset-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Regenerate an incoming webhook execution credential
+         * @description Requires MANAGE_WEBHOOKS. Invalidates the previous credential atomically and returns the new token and URL only in this response. Audit entries never contain credentials.
+         */
+        post: operations["resetWebhookToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1625,6 +2253,22 @@ export interface components {
             redirect_uris?: string[];
             tags?: string[];
             verify_key: string;
+        };
+        /**
+         * ApplicationAuthorization
+         * @description One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.
+         */
+        ApplicationAuthorization: {
+            application: components["schemas"]["Application"];
+            /** Format: date-time */
+            authorized_at: string;
+            /** Format: date-time */
+            created_at: string;
+            guild: components["schemas"]["AuthorizationGuild"];
+            id: components["schemas"]["Snowflake"];
+            /** @description Effective server permissions acknowledged at the last authorization, not a live permission grant. */
+            permissions: components["schemas"]["PermissionBitset"];
+            scopes: ("bot" | "applications.commands")[];
         };
         /**
          * ApplicationCommand
@@ -1719,7 +2363,7 @@ export interface components {
             duration_secs?: number;
             ephemeral?: boolean;
             filename: string;
-            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. */
+            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent. */
             flags?: number;
             height?: number | null;
             id: components["schemas"]["Snowflake"];
@@ -1731,18 +2375,33 @@ export interface components {
             width?: number | null;
         };
         /**
+         * AttachmentMetadataEdit
+         * @description Updates metadata of one attachment already owned by this message. Omitted properties are unchanged; description null or blank clears alt text. Files, filenames, IDs and URLs are immutable. Only the author may edit attachment metadata.
+         */
+        AttachmentMetadataEdit: {
+            /** @description Trimmed alt text; null or blank clears it. */
+            description?: string | null;
+            /** @description Only IS_SPOILER (8) is applied; other stored bits are preserved. Explicit 0 clears the spoiler even for a SPOILER_ filename. */
+            flags?: number;
+            id: components["schemas"]["Snowflake"];
+        };
+        /**
          * AttachmentReference
          * @description An uploaded attachment referenced when creating or editing a message.
          */
         AttachmentReference: {
             /** @description Alt text shown to screen readers and as the image tooltip. */
             description?: string;
+            /** @description Duration of a recorded voice message in seconds. */
+            duration_secs?: number;
             filename?: string;
             /** @description AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. */
             flags?: number;
             /** @description Attachment ID from POST /channels/{id}/attachments, or an index for existing ones. */
             id: string;
             uploaded_filename?: string;
+            /** @description Base64-encoded amplitude samples for a recorded voice message. */
+            waveform?: string;
         };
         /**
          * AttachmentUpload
@@ -1813,6 +2472,15 @@ export interface components {
             user_id: components["schemas"]["Snowflake"] | null;
         };
         /**
+         * AuthorizationGuild
+         * @description The server of a recorded bot authorization.
+         */
+        AuthorizationGuild: {
+            icon: string | null;
+            id: components["schemas"]["Snowflake"];
+            name: string;
+        };
+        /**
          * AuthResponse
          * @description Tokens returned by register, login and refresh.
          */
@@ -1822,6 +2490,34 @@ export interface components {
             /** @description Rotated on every use. */
             refresh_token: string;
             user: components["schemas"]["User"];
+        };
+        /**
+         * AuthSession
+         * @description A login session of the current user (one refresh-token family), as listed by GET /users/@me/sessions. Not to be confused with the gateway Session of SESSIONS_REPLACE.
+         */
+        AuthSession: {
+            /** @description The client that opened the session, derived from its User-Agent (for example `Desktop app` (the desktop client; clients show it with the brand name), `Firefox`). */
+            client: string;
+            /** Format: date-time */
+            created_at: string;
+            /** @description Whether this is the session making the request. */
+            current: boolean;
+            /** @description Name of the registered end-to-end encrypted device bound to the session, if any. */
+            device_name: string | null;
+            /**
+             * Format: uuid
+             * @description Session ID; the `sid` claim of its access tokens.
+             */
+            id: string;
+            /**
+             * Format: date-time
+             * @description When the session last logged in or refreshed its tokens.
+             */
+            last_used_at: string;
+            /** @description Approximate location (an ISO 3166-1 country code from the edge), or null when the edge does not provide one. */
+            location: string | null;
+            /** @description Operating system derived from the User-Agent (for example `Windows`), or `Unknown`. */
+            os: string;
         };
         /**
          * BackupCodesResponse
@@ -1847,6 +2543,13 @@ export interface components {
             regenerate: boolean;
         };
         /**
+         * BadgeVisibilityRequest
+         * @description Change visibility of an existing badge grant owned by the caller.
+         */
+        BadgeVisibilityRequest: {
+            visible: boolean;
+        };
+        /**
          * Ban
          * @description A guild ban.
          */
@@ -1854,6 +2557,11 @@ export interface components {
             reason: string | null;
             user: components["schemas"]["User"];
         };
+        /**
+         * BotInstallationRevision
+         * @description Opaque installation precondition from the selected guild in GET /oauth2/authorize. Echo it unchanged in POST. It distinguishes an active installation, initial absence and absence after removal. Missing or null is invalid; a changed revision returns 409 without writes and requires a fresh preview and consent.
+         */
+        BotInstallationRevision: string;
         /**
          * BulkDeleteRequest
          * @description POST /channels/{id}/messages/bulk-delete body.
@@ -1881,6 +2589,8 @@ export interface components {
             guild_id?: components["schemas"]["Snowflake"];
             icon?: string | null;
             id: components["schemas"]["Snowflake"];
+            /** @description Voics: whether the requesting user has joined this thread; omitted from shared events. */
+            is_thread_member?: boolean;
             last_message_id?: components["schemas"]["Snowflake"] | null;
             /** Format: date-time */
             last_pin_timestamp?: string | null;
@@ -2072,7 +2782,7 @@ export interface components {
         };
         /**
          * CreateMessageRequest
-         * @description POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
+         * @description POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160). A poll requires fresh SEND_POLLS in addition to normal send permissions. Its definition cannot be edited or forwarded; public bots use the same permissions, and internal/webhook/interaction poll creation is rejected. Poll-only messages are valid. Private delivery never stores polls.
          */
         CreateMessageRequest: {
             allowed_mentions?: components["schemas"]["AllowedMentions"];
@@ -2080,11 +2790,42 @@ export interface components {
             components?: components["schemas"]["MessageComponent"][];
             content?: string;
             embeds?: components["schemas"]["Embed"][];
-            /** @description MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. */
+            /** @description MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components. */
             flags?: number;
             message_reference?: components["schemas"]["MessageReference"];
             nonce?: string;
-            tts?: boolean;
+            poll?: components["schemas"]["PollCreate"];
+            /**
+             * @description Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events.
+             * @default false
+             */
+            tts: boolean;
+        };
+        /**
+         * CreateReportRequest
+         * @description File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
+         */
+        CreateReportRequest: {
+            author_id?: components["schemas"]["Snowflake"];
+            /** @enum {string} */
+            category: "spam" | "harassment" | "hate_speech" | "violence" | "sexual_content" | "self_harm" | "illegal" | "impersonation" | "other";
+            channel_id?: components["schemas"]["Snowflake"];
+            content?: string | null;
+            message_id?: components["schemas"]["Snowflake"];
+            note?: string | null;
+            /** @enum {string} */
+            target: "message" | "user" | "channel";
+            user_id?: components["schemas"]["Snowflake"];
+        } & (unknown & unknown & unknown);
+        /**
+         * CreateScheduledMessageRequest
+         * @description POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.
+         */
+        CreateScheduledMessageRequest: {
+            message: components["schemas"]["ScheduledMessageDraft"];
+            request_id: components["schemas"]["ScheduledMessageId"];
+            /** Format: date-time */
+            scheduled_at: string;
         };
         /**
          * CreateThreadRequest
@@ -2191,7 +2932,8 @@ export interface components {
          */
         EditMessageRequest: {
             allowed_mentions?: components["schemas"]["AllowedMentions"] | null;
-            attachments?: components["schemas"]["AttachmentReference"][];
+            /** @description Partial metadata edits of existing attachments. Unlisted files remain unchanged and an empty array does nothing. Unknown or duplicate attachment IDs reject the complete edit. This field cannot add or remove files. */
+            attachments?: components["schemas"]["AttachmentMetadataEdit"][];
             components?: components["schemas"]["MessageComponent"][] | null;
             content?: string | null;
             embeds?: components["schemas"]["Embed"][] | null;
@@ -2206,6 +2948,16 @@ export interface components {
             deny?: components["schemas"]["PermissionBitset"] | null;
             /** @description OverwriteType. */
             type: number;
+        };
+        /**
+         * EditScheduledMessageRequest
+         * @description PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.
+         */
+        EditScheduledMessageRequest: {
+            expected_revision: components["schemas"]["ScheduledMessageRevision"];
+            message?: components["schemas"]["ScheduledMessageDraft"];
+            /** Format: date-time */
+            scheduled_at?: string;
         };
         /**
          * EditWebhookMessageRequest
@@ -2345,6 +3097,15 @@ export interface components {
             name: string;
         };
         /**
+         * FriendSourceFlags
+         * @description Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.
+         */
+        FriendSourceFlags: {
+            all: boolean;
+            mutual_friends: boolean;
+            mutual_guilds: boolean;
+        };
+        /**
          * Guild
          * @description A guild (server). `voice_region` is a Discordy extra.
          */
@@ -2354,6 +3115,18 @@ export interface components {
             application_id?: components["schemas"]["Snowflake"] | null;
             approximate_member_count?: number;
             approximate_presence_count?: number;
+            /**
+             * @description Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+             * @default true
+             */
+            audit_log_enabled: boolean;
+            /**
+             * @description Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+             * @default 90
+             * @enum {integer}
+             */
+            audit_log_retention_days: 30 | 90 | 365;
+            /** @description Banner image hash (CDN path banners/{guild_id}/{hash}), or null. */
             banner?: string | null;
             default_message_notifications: number;
             description?: string | null;
@@ -2372,10 +3145,14 @@ export interface components {
             owner_id: components["schemas"]["Snowflake"];
             permissions?: components["schemas"]["PermissionBitset"];
             preferred_locale: string;
+            /** @description Discordy: when true, only administrators may prune inactive members. */
+            prune_admin_only?: boolean;
             public_updates_channel_id?: components["schemas"]["Snowflake"] | null;
             roles: components["schemas"]["Role"][];
             rules_channel_id?: components["schemas"]["Snowflake"] | null;
+            /** @description Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null. */
             splash?: string | null;
+            /** @description Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. */
             system_channel_flags: number;
             system_channel_id: components["schemas"]["Snowflake"] | null;
             vanity_url_code?: string | null;
@@ -2385,10 +3162,10 @@ export interface components {
         };
         /**
          * GuildDiscoverySettings
-         * @description A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+         * @description A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
          */
         GuildDiscoverySettings: {
-            blockers: ("DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
+            blockers: ("COMMUNITY_REQUIRED" | "DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
             category: string | null;
             enabled: boolean;
             /** Format: date-time */
@@ -2409,12 +3186,27 @@ export interface components {
             name: string | null;
         };
         /**
+         * GuildIntegration
+         * @description An application whose bot is currently installed in this server.
+         */
+        GuildIntegration: {
+            application: components["schemas"]["Application"];
+            /** Format: date-time */
+            installed_at: string;
+            /** @description Current effective server permissions, including the everyone role. */
+            permissions: components["schemas"]["PermissionBitset"];
+        };
+        /**
          * GuildMember
          * @description A member of a guild.
          */
         GuildMember: {
+            /** @description Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif). */
             avatar?: string | null;
+            /** @description Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif). */
             banner?: string | null;
+            /** @description Server-specific About me; trimmed, null or blank restores the global bio. */
+            bio?: string | null;
             /** Format: date-time */
             communication_disabled_until?: string | null;
             deaf: boolean;
@@ -2465,7 +3257,7 @@ export interface components {
             creator: components["schemas"]["User"] | null;
             creator_id: components["schemas"]["Snowflake"] | null;
             description: string | null;
-            /** @description Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`). */
+            /** @description Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`). */
             is_dirty: boolean;
             name: string;
             serialized_source_guild: components["schemas"]["TemplateSourceGuild"];
@@ -2564,6 +3356,7 @@ export interface components {
             application_id?: components["schemas"]["Snowflake"];
             attachments: components["schemas"]["Attachment"][];
             author: components["schemas"]["User"];
+            call?: components["schemas"]["MessageCall"];
             channel_id: components["schemas"]["Snowflake"];
             components?: components["schemas"]["MessageComponent"][];
             content: string;
@@ -2577,6 +3370,8 @@ export interface components {
             interaction_metadata?: components["schemas"]["MessageInteractionMetadata"];
             mention_channels?: components["schemas"]["ChannelMention"][];
             mention_everyone: boolean;
+            /** @description Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise. */
+            mention_here?: boolean;
             mention_roles: components["schemas"]["Snowflake"][];
             mentions: components["schemas"]["User"][];
             message_reference?: components["schemas"]["MessageReference"];
@@ -2585,6 +3380,7 @@ export interface components {
             /** @description Client nonce used to resolve optimistic sends. */
             nonce?: string;
             pinned: boolean;
+            poll?: components["schemas"]["Poll"];
             position?: number;
             reactions?: components["schemas"]["Reaction"][];
             referenced_message?: components["schemas"]["Message"] | null;
@@ -2592,9 +3388,19 @@ export interface components {
             /** Format: date-time */
             timestamp: string;
             tts: boolean;
-            /** @description MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). */
+            /** @description MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). */
             type: number;
             webhook_id?: components["schemas"]["Snowflake"];
+        };
+        /**
+         * MessageCall
+         * @description Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.
+         */
+        MessageCall: {
+            /** Format: date-time */
+            ended_timestamp?: string | null;
+            /** @description IDs of the users who took part in the call. */
+            participants: components["schemas"]["Snowflake"][];
         };
         /**
          * MessageComponent
@@ -2632,7 +3438,7 @@ export interface components {
         };
         /**
          * MessageReference
-         * @description Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
+         * @description Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.
          */
         MessageReference: {
             channel_id?: components["schemas"]["Snowflake"];
@@ -2691,7 +3497,9 @@ export interface components {
             /** @constant */
             code: 60008;
             message: string;
-            /** @description Present to POST /auth/mfa/totp together with a code. */
+            /** @description Registered factors available for this ticket; older servers may omit it. */
+            methods?: ("totp" | "webauthn" | "backup_code")[];
+            /** @description Present to /auth/mfa/totp with a TOTP/recovery code or to /auth/mfa/webauthn/start. */
             ticket: string;
         };
         /**
@@ -2744,13 +3552,20 @@ export interface components {
             accent_color?: number | null;
             /** @description Data URI image. */
             avatar?: string | null;
+            /** @description PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it. */
             banner?: string | null;
+            /** @description About me text; null or blank clears it. Trimmed, at most 300 characters. */
+            bio?: string | null;
             /** Format: email */
             email?: string;
             global_name?: string | null;
             new_password?: string;
             /** @description Current password; required with username, email or new_password. */
             password?: string;
+            /** @description Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. */
+            pronouns?: string | null;
+            /** @description Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. */
+            theme_colors?: number[] | null;
             username?: string;
         };
         /**
@@ -2804,17 +3619,33 @@ export interface components {
         ModifyGuildRequest: {
             afk_channel_id?: components["schemas"]["Snowflake"] | null;
             afk_timeout?: number;
+            /** @description Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves. */
+            audit_log_enabled?: boolean;
+            /**
+             * @description Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job.
+             * @enum {integer}
+             */
+            audit_log_retention_days?: 30 | 90 | 365;
+            /** @description Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it. */
             banner?: string | null;
             default_message_notifications?: number;
             description?: string | null;
             explicit_content_filter?: number;
+            /** @description MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting. */
+            features?: "COMMUNITY"[];
             icon?: string | null;
             name?: string;
             owner_id?: components["schemas"]["Snowflake"];
             preferred_locale?: string;
+            /** @description Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD. */
+            prune_admin_only?: boolean;
+            /** @description Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id. */
             public_updates_channel_id?: components["schemas"]["Snowflake"] | null;
+            /** @description Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id. */
             rules_channel_id?: components["schemas"]["Snowflake"] | null;
+            /** @description Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it. */
             splash?: string | null;
+            /** @description Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. */
             system_channel_flags?: number;
             system_channel_id?: components["schemas"]["Snowflake"] | null;
             verification_level?: number;
@@ -2830,9 +3661,15 @@ export interface components {
         };
         /**
          * ModifyMemberRequest
-         * @description PATCH /guilds/{id}/members/{uid} body.
+         * @description PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.
          */
         ModifyMemberRequest: {
+            /** @description Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. */
+            avatar?: string | null;
+            /** @description Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. */
+            banner?: string | null;
+            /** @description Server-specific About me; trimmed, null or blank restores the global bio. */
+            bio?: string | null;
             /** @description Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice. */
             channel_id?: components["schemas"]["Snowflake"] | null;
             /** Format: date-time */
@@ -2854,18 +3691,37 @@ export interface components {
             developer_mode?: boolean;
             /** @description When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set. */
             e2ee_calls_default?: boolean;
+            /** @description Partial friend-request source update; omitted flags retain their values. */
+            friend_source_flags?: {
+                all?: boolean;
+                mutual_friends?: boolean;
+                mutual_guilds?: boolean;
+            };
             /** @description The user's server rail in order, with folders. Synced across devices. */
             guild_folders?: components["schemas"]["GuildFolder"][];
             /** @description Flat server order (legacy mirror of guild_folders). */
             guild_positions?: components["schemas"]["Snowflake"][];
             locale?: string;
             message_display_compact?: boolean;
+            /** @description Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices. */
+            pinned_channel_ids?: {
+                [key: string]: components["schemas"]["Snowflake"][];
+            };
+            /** @description DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices. */
+            pinned_dm_channel_ids?: components["schemas"]["Snowflake"][];
             /** @description Merged key by key into the stored preferences. */
             preferences?: components["schemas"]["UserPreferences"];
             /** @enum {string} */
             status?: "online" | "idle" | "dnd" | "invisible";
             /** @enum {string} */
             theme?: "dark" | "light" | "oled";
+        };
+        /**
+         * ModifyVanityUrlRequest
+         * @description Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.
+         */
+        ModifyVanityUrlRequest: {
+            code: string | null;
         };
         /**
          * ModifyWebhookRequest
@@ -2886,7 +3742,7 @@ export interface components {
         };
         /**
          * OAuth2AuthorizeInfo
-         * @description GET /oauth2/authorize response: what the bot invite screen shows.
+         * @description Bot-install consent information. Only bot and applications.commands are supported.
          */
         OAuth2AuthorizeInfo: {
             application: components["schemas"]["Application"];
@@ -2894,18 +3750,20 @@ export interface components {
             guilds: components["schemas"]["OAuth2Guild"][];
             /** @description Permissions requested by the invite URL. */
             permissions: components["schemas"]["PermissionBitset"];
-            scopes: string[];
+            scopes: ("bot" | "applications.commands")[];
             user: components["schemas"]["User"];
         };
         /**
          * OAuth2AuthorizeRequest
-         * @description POST /oauth2/authorize body: add a bot to a guild.
+         * @description Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.
          */
         OAuth2AuthorizeRequest: {
             client_id: components["schemas"]["Snowflake"];
             guild_id: components["schemas"]["Snowflake"];
+            installation_revision: components["schemas"]["BotInstallationRevision"];
+            /** @description For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review. */
             permissions: components["schemas"]["PermissionBitset"];
-            /** @description Space-separated scopes, e.g. "bot applications.commands". */
+            /** @description Space-separated bot and optionally applications.commands. bot is required. */
             scope: string;
         };
         /**
@@ -2913,7 +3771,7 @@ export interface components {
          * @description POST /oauth2/authorize response.
          */
         OAuth2AuthorizeResponse: {
-            /** @description Where the client should navigate next. */
+            /** @description Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI. */
             location: string;
         };
         /**
@@ -2921,8 +3779,11 @@ export interface components {
          * @description A guild the user can add the bot to.
          */
         OAuth2Guild: {
+            /** @description Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation. */
+            bot_permissions: components["schemas"]["PermissionBitset"] | null;
             icon: string | null;
             id: components["schemas"]["Snowflake"];
+            installation_revision: components["schemas"]["BotInstallationRevision"];
             name: string;
             permissions: components["schemas"]["PermissionBitset"];
         };
@@ -2947,6 +3808,71 @@ export interface components {
             username?: string;
         };
         /**
+         * Passkey
+         * @description Registered second factor metadata. Credential public keys and challenges are never included.
+         */
+        Passkey: {
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            last_used_at: string | null;
+            name: string;
+        };
+        /**
+         * PasskeyDeleteRequest
+         * @description Removing a passkey needs the password and a valid TOTP or one-time recovery code. Removing the last factor turns MFA off.
+         */
+        PasskeyDeleteRequest: {
+            code: string;
+            password: string;
+        };
+        /**
+         * PasskeyRegisterFinishRequest
+         * @description Finish the registration using navigator.credentials.create, serializing binary fields as unpadded base64url.
+         */
+        PasskeyRegisterFinishRequest: {
+            /** Format: uuid */
+            challenge_id: string;
+            credential: {
+                id: string;
+                rawId: string;
+                response: Record<string, never>;
+                /** @constant */
+                type: "public-key";
+            } & {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * PasskeyRegisterResponse
+         * @description The enrolled passkey. First-factor enrollment generates recovery codes; existing codes are retained when another factor is added.
+         */
+        PasskeyRegisterResponse: {
+            backup_codes?: {
+                /** @description Plaintext code; omitted when only the consumed state is listed. */
+                code?: string;
+                consumed: boolean;
+            }[];
+            passkey: components["schemas"]["Passkey"];
+        };
+        /**
+         * PasskeyRegisterStartRequest
+         * @description Reauthenticate with the password before creating a passkey registration challenge.
+         */
+        PasskeyRegisterStartRequest: {
+            name: string;
+            password: string;
+        };
+        /**
+         * PasskeyRenameRequest
+         * @description Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.
+         */
+        PasskeyRenameRequest: {
+            name: string;
+        };
+        /**
          * PasswordConfirmationRequest
          * @description Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
          */
@@ -2969,6 +3895,157 @@ export interface components {
             id: components["schemas"]["Snowflake"];
             /** @description OverwriteType: 0 role, 1 member. */
             type: number;
+        };
+        /**
+         * Poll
+         * @description A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit.
+         */
+        Poll: {
+            allow_multiselect: boolean;
+            answers: components["schemas"]["PollAnswer"][];
+            /** Format: date-time */
+            expiry: string;
+            /** @enum {integer} */
+            layout_type: 1;
+            question: components["schemas"]["PollQuestion"];
+            results?: components["schemas"]["PollResults"];
+        };
+        /** PollAnswer */
+        PollAnswer: {
+            answer_id: number;
+            poll_media: components["schemas"]["PollMedia"];
+        };
+        /** PollAnswerCount */
+        PollAnswerCount: {
+            count: number;
+            id: number;
+            /** @description Absent in public events: unknown, not false. */
+            me_voted?: boolean;
+        };
+        /**
+         * PollCreate
+         * @description Immutable poll definition for a Standard public message. Answer IDs and expiry are server assigned. Unsupported internal/webhook/interaction, scheduled and forward creation is rejected.
+         */
+        PollCreate: {
+            /** @default false */
+            allow_multiselect: boolean;
+            answers: {
+                poll_media: components["schemas"]["PollMedia"];
+            }[];
+            /**
+             * @description Whole hours from server acceptance.
+             * @default 24
+             */
+            duration: number;
+            /**
+             * @default 1
+             * @enum {integer}
+             */
+            layout_type: 1;
+            question: components["schemas"]["PollQuestion"];
+        };
+        /**
+         * PollEmoji
+         * @description Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names.
+         */
+        PollEmoji: {
+            name: string;
+        };
+        /**
+         * PollMedia
+         * @description An answer label, optionally decorated with a Unicode emoji.
+         */
+        PollMedia: {
+            emoji?: components["schemas"]["PollEmoji"];
+            text: string;
+        };
+        /**
+         * PollQuestion
+         * @description Plain text. Does not produce mentions or embeds.
+         */
+        PollQuestion: {
+            text: string;
+        };
+        /**
+         * PollResults
+         * @description Authoritative counts. Replace by results version; never add/subtract event deltas.
+         */
+        PollResults: {
+            /** @description Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer. */
+            answer_counts: components["schemas"]["PollAnswerCount"][];
+            is_finalized: boolean;
+            version: components["schemas"]["PollVersion"];
+            /** @description Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts. */
+            vote_version?: components["schemas"]["PollVersion"];
+        };
+        /**
+         * PollSnapshot
+         * @description Viewer-authorized poll snapshot. GET is side-effect-free. Refresh visible polls on foreground/reconnect to repair missed publication.
+         */
+        PollSnapshot: {
+            allow_multiselect: boolean;
+            answers: components["schemas"]["PollAnswer"][];
+            /** Format: date-time */
+            expiry: string;
+            /** @enum {integer} */
+            layout_type: 1;
+            question: components["schemas"]["PollQuestion"];
+            results: components["schemas"]["PollViewerResults"];
+        };
+        /**
+         * PollVersion
+         * @description Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed.
+         */
+        PollVersion: string;
+        /** PollViewerAnswerCount */
+        PollViewerAnswerCount: {
+            count: number;
+            id: number;
+            /** @description Absent in public events: unknown, not false. */
+            me_voted: boolean;
+        };
+        /**
+         * PollViewerResults
+         * @description Authenticated snapshot with explicit selection for every answer and the viewer revision, including zero for a first-time viewer.
+         */
+        PollViewerResults: {
+            /** @description Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer. */
+            answer_counts: components["schemas"]["PollViewerAnswerCount"][];
+            is_finalized: boolean;
+            version: components["schemas"]["PollVersion"];
+            /** @description Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts. */
+            vote_version: components["schemas"]["PollVersion"];
+        };
+        /**
+         * PollVoteRequest
+         * @description The revision of your own vote, not the global results. An already-satisfied retry is a no-op; any stale request that changes your selection conflicts.
+         */
+        PollVoteRequest: {
+            expected_vote_version: components["schemas"]["PollVersion"];
+        };
+        /**
+         * ProfileBadge
+         * @description An earned badge and the owner-selected visibility.
+         */
+        ProfileBadge: {
+            id: string;
+            visible: boolean;
+        };
+        /**
+         * PruneRequest
+         * @description POST /guilds/{id}/prune body.
+         */
+        PruneRequest: {
+            /** @default 7 */
+            days: number;
+            include_roles?: components["schemas"]["Snowflake"][];
+        };
+        /**
+         * PruneResult
+         * @description GET /guilds/{id}/prune (members that would be removed) and POST /guilds/{id}/prune (members removed).
+         */
+        PruneResult: {
+            pruned: number;
         };
         /**
          * PublicDevice
@@ -3020,6 +4097,11 @@ export interface components {
         RefreshRequest: {
             /** @description Opaque 256-bit token, base64url. */
             refresh_token: string;
+            /**
+             * Format: uuid
+             * @description Optional random UUID saved durably with the current refresh token before sending. Retrying this exact pair for up to five minutes recovers its immediate unused, unexpired successor in a live session without extending expiry. Keep the UUID until successor credentials are saved, then generate a new UUID for the next rotation. Omission retains strict single-use rotation.
+             */
+            request_id?: string;
         };
         /**
          * RegisterRequest
@@ -3043,6 +4125,15 @@ export interface components {
             /** @description RelationshipType. */
             type: number;
             user: components["schemas"]["User"];
+        };
+        /**
+         * ReportListingRequest
+         * @description Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.
+         */
+        ReportListingRequest: {
+            /** @enum {string} */
+            category: "spam" | "harassment" | "hate_speech" | "violence" | "sexual_content" | "self_harm" | "illegal" | "impersonation" | "other";
+            note?: string | null;
         };
         /**
          * ResetBotTokenResponse
@@ -3101,6 +4192,71 @@ export interface components {
             bot_id?: components["schemas"]["Snowflake"];
             integration_id?: components["schemas"]["Snowflake"];
         };
+        /**
+         * ScheduledMessage
+         * @description Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
+         */
+        ScheduledMessage: {
+            author_id: components["schemas"]["Snowflake"];
+            channel_id: components["schemas"]["Snowflake"];
+            /** Format: date-time */
+            created_at: string;
+            /** @enum {string|null} */
+            failure: "access_denied" | "channel_missing" | "delivery_mode_changed" | "invalid_message" | "dependency_unavailable" | "delivery_unknown" | null;
+            id: components["schemas"]["ScheduledMessageId"];
+            message: components["schemas"]["ScheduledMessageDraft"] | null;
+            message_id: components["schemas"]["Snowflake"] | null;
+            revision: components["schemas"]["ScheduledMessageRevision"];
+            /** Format: date-time */
+            scheduled_at: string;
+            /** @enum {string} */
+            status: "pending" | "dispatching" | "sent" | "failed" | "cancelled" | "delivery_unknown";
+            /** Format: date-time */
+            updated_at: string;
+        } & (unknown & unknown & unknown & unknown & unknown & unknown);
+        /**
+         * ScheduledMessageDraft
+         * @description Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.
+         */
+        ScheduledMessageDraft: {
+            content: string;
+            /**
+             * @description Whether a reply mentions its target author; ignored when reply_to is absent.
+             * @default true
+             */
+            replied_user: boolean;
+            /** @description Same-channel reply target, revalidated at dispatch. */
+            reply_to?: components["schemas"]["Snowflake"] | null;
+            /**
+             * @description Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics.
+             * @default false
+             */
+            silent: boolean;
+            /**
+             * @description Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch.
+             * @default false
+             */
+            tts: boolean;
+        };
+        /**
+         * ScheduledMessageId
+         * Format: uuid
+         * @description Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.
+         */
+        ScheduledMessageId: string;
+        /**
+         * ScheduledMessageList
+         * @description Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.
+         */
+        ScheduledMessageList: {
+            items: components["schemas"]["ScheduledMessage"][];
+            next_after: components["schemas"]["ScheduledMessageId"] | null;
+        };
+        /**
+         * ScheduledMessageRevision
+         * @description Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.
+         */
+        ScheduledMessageRevision: number;
         /**
          * SelectOption
          * @description An option of a string select menu.
@@ -3199,6 +4355,11 @@ export interface components {
             user_id?: components["schemas"]["Snowflake"];
         };
         /**
+         * ThreadMemberTarget
+         * @description A thread member's Snowflake or @me for the authenticated user.
+         */
+        ThreadMemberTarget: string;
+        /**
          * ThreadMetadata
          * @description Thread-specific fields.
          */
@@ -3246,7 +4407,10 @@ export interface components {
             accent_color?: number | null;
             /** @description Avatar hash. */
             avatar: string | null;
+            /** @description Profile banner hash. */
             banner?: string | null;
+            /** @description Profile About me text, at most 300 characters. */
+            bio?: string | null;
             bot?: boolean;
             /** @description Always "0" (unique usernames). */
             discriminator: string;
@@ -3257,8 +4421,12 @@ export interface components {
             id: components["schemas"]["Snowflake"];
             locale?: string;
             mfa_enabled?: boolean;
+            /** @description Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. */
+            pronouns?: string | null;
             public_flags?: number;
             system?: boolean;
+            /** @description Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. */
+            theme_colors?: number[] | null;
             username: string;
             verified?: boolean;
         };
@@ -3289,8 +4457,16 @@ export interface components {
             animate_gifs?: boolean;
             /** @description Animate stickers automatically. */
             animate_stickers?: boolean;
+            /** @description Default restriction on new guild-related DMs; missing means false. */
+            default_guilds_restricted?: boolean;
             /** @description Chat font scale. */
             font_scale?: number;
+            /** @description Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior. */
+            guild_dm_restrictions?: {
+                [key: string]: boolean | null;
+            };
+            /** @description Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization. */
+            hide_age_restricted_channels?: boolean;
             /** @description Increase contrast of text and borders. */
             high_contrast?: boolean;
             /** @description Show previews (embeds) of links in messages. */
@@ -3355,18 +4531,34 @@ export interface components {
             developer_mode: boolean;
             /** @description When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set. */
             e2ee_calls_default: boolean;
+            friend_source_flags?: components["schemas"]["FriendSourceFlags"];
             /** @description The user's server rail in order, with folders. Synced across devices. */
             guild_folders: components["schemas"]["GuildFolder"][];
             /** @description Flat server order (legacy mirror of guild_folders). */
             guild_positions: components["schemas"]["Snowflake"][];
             locale: string;
             message_display_compact: boolean;
+            /** @description Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices. */
+            pinned_channel_ids: {
+                [key: string]: components["schemas"]["Snowflake"][];
+            };
+            /** @description DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices. */
+            pinned_dm_channel_ids: components["schemas"]["Snowflake"][];
             /** @description Synced client preferences (appearance, chat, notification sounds, emoji). Sparse. */
             preferences: components["schemas"]["UserPreferences"];
             /** @enum {string} */
             status: "online" | "idle" | "dnd" | "invisible";
             /** @enum {string} */
             theme: "dark" | "light" | "oled";
+        };
+        /**
+         * VanityUrl
+         * @description A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.
+         */
+        VanityUrl: {
+            code: string | null;
+            /** @description Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count. */
+            uses: number;
         };
         /**
          * VerifyEmailRequest
@@ -3395,6 +4587,41 @@ export interface components {
             optimal: boolean;
         };
         /**
+         * WebauthnChallenge
+         * @description A five-minute, single-use server-side ceremony. Finish requires the same account/session or password-authenticated login ticket.
+         */
+        WebauthnChallenge: {
+            /** Format: uuid */
+            challenge_id: string;
+            /** @description WebAuthn PublicKeyCredentialCreationOptionsJSON or PublicKeyCredentialRequestOptionsJSON. Binary members use unpadded base64url. */
+            publicKey: Record<string, never>;
+        };
+        /**
+         * WebauthnLoginFinishRequest
+         * @description Complete a passkey assertion. The assertion challenge and login ticket are single use, and the credential signature counter is checked.
+         */
+        WebauthnLoginFinishRequest: {
+            /** Format: uuid */
+            challenge_id: string;
+            credential: {
+                id: string;
+                rawId: string;
+                response: Record<string, never>;
+                /** @constant */
+                type: "public-key";
+            } & {
+                [key: string]: unknown;
+            };
+            ticket: string;
+        };
+        /**
+         * WebauthnLoginStartRequest
+         * @description Begin passkey assertion after the password login returned MFA_REQUIRED.
+         */
+        WebauthnLoginStartRequest: {
+            ticket: string;
+        };
+        /**
          * Webhook
          * @description An incoming or application webhook.
          */
@@ -3405,9 +4632,11 @@ export interface components {
             guild_id?: components["schemas"]["Snowflake"] | null;
             id: components["schemas"]["Snowflake"];
             name: string | null;
+            /** @description Execution credential returned only by create and reset-token; never stored in list/get/edit responses. */
             token?: string;
             /** @description WebhookType. */
             type: number;
+            /** @description Execution URL returned only by create and reset-token. Treat as a secret. */
             url?: string;
             user?: components["schemas"]["User"];
         };
@@ -3449,6 +4678,33 @@ export interface components {
                 "application/json": components["schemas"]["Error"];
             };
         };
+        /** @description Private delivery (50160), or closed/overdue poll, stale changing voter revision or participant-cap exhaustion (50035 with poll, expected_vote_version or poll.participants field error). No requested vote mutation occurred. */
+        PollConflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Complete results and the authenticated viewer's selection. */
+        PollSnapshot: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["PollSnapshot"];
+            };
+        };
+        /** @description Temporary dependency failure or bounded CAS retry exhaustion. An uncertain transport response is reconciled by GET or an identical retry, never by incrementing a local count. */
+        PollUnavailable: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
         /** @description Rate limited (code 429). */
         RateLimited: {
             headers: {
@@ -3459,6 +4715,33 @@ export interface components {
                 "X-RateLimit-Remaining": components["headers"]["X-RateLimit-Remaining"];
                 "X-RateLimit-Reset": components["headers"]["X-RateLimit-Reset"];
                 "X-RateLimit-Reset-After": components["headers"]["X-RateLimit-Reset-After"];
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Private delivery mode (50160), or active-intent quota exhaustion/stale revision/non-pending mutation/conflicting request key (50035 with a field error). No mutation occurred. */
+        ScheduledMessageConflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Current author-private scheduled-message state. */
+        ScheduledMessageResult: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ScheduledMessage"];
+            };
+        };
+        /** @description Temporary dependency failure. Retry the exact request/key after a lost or failed creation response; never substitute a new request_id automatically. */
+        ScheduledMessageUnavailable: {
+            headers: {
                 [name: string]: unknown;
             };
             content: {
@@ -3502,6 +4785,10 @@ export interface components {
         overwrite_id: components["schemas"]["Snowflake"];
         /** @description Role ID. */
         role_id: components["schemas"]["Snowflake"];
+        /** @description Author-private schedule UUID, equal to its original request_id. */
+        schedule_id: components["schemas"]["ScheduledMessageId"];
+        /** @description Login session ID (UUID). */
+        session_id: string;
         /** @description User ID. */
         user_id: components["schemas"]["Snowflake"];
         /** @description Webhook ID, or the application ID for interaction webhooks. */
@@ -4120,6 +5407,60 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    finishWebauthnLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WebauthnLoginFinishRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    startWebauthnLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WebauthnLoginStartRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebauthnChallenge"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -4808,6 +6149,143 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listScheduledMessages: {
+        parameters: {
+            query?: {
+                /** @description Exclusive last examined schedule UUID from next_after. */
+                after?: components["schemas"]["ScheduledMessageId"];
+                /** @description Maximum rows examined in this page. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Your schedules only. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduledMessageList"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["ScheduledMessageUnavailable"];
+        };
+    };
+    createScheduledMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateScheduledMessageRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["ScheduledMessageResult"];
+            201: components["responses"]["ScheduledMessageResult"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["ScheduledMessageConflict"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["ScheduledMessageUnavailable"];
+        };
+    };
+    getScheduledMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Author-private schedule UUID, equal to its original request_id. */
+                schedule_id: components["parameters"]["schedule_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["ScheduledMessageResult"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["ScheduledMessageUnavailable"];
+        };
+    };
+    cancelScheduledMessage: {
+        parameters: {
+            query: {
+                /** @description Revision observed before cancellation. */
+                expected_revision: components["schemas"]["ScheduledMessageRevision"];
+            };
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Author-private schedule UUID, equal to its original request_id. */
+                schedule_id: components["parameters"]["schedule_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["ScheduledMessageResult"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["ScheduledMessageConflict"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["ScheduledMessageUnavailable"];
+        };
+    };
+    editScheduledMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Author-private schedule UUID, equal to its original request_id. */
+                schedule_id: components["parameters"]["schedule_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditScheduledMessageRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["ScheduledMessageResult"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["ScheduledMessageConflict"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["ScheduledMessageUnavailable"];
+        };
+    };
     searchChannelMessages: {
         parameters: {
             query?: {
@@ -5005,6 +6483,118 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    getPoll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["PollSnapshot"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["PollConflict"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["PollUnavailable"];
+        };
+    };
+    selectPollAnswer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                answer_id: number;
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PollVoteRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["PollSnapshot"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["PollConflict"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["PollUnavailable"];
+        };
+    };
+    removePollAnswer: {
+        parameters: {
+            query: {
+                expected_vote_version: components["schemas"]["PollVersion"];
+            };
+            header?: never;
+            path: {
+                answer_id: number;
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["PollSnapshot"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["PollConflict"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["PollUnavailable"];
+        };
+    };
+    expirePoll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Message with finalized poll results. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["PollConflict"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["PollUnavailable"];
+        };
+    };
     addGroupDmRecipient: {
         parameters: {
             query?: never;
@@ -5053,6 +6643,91 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    addThreadMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                user_id: components["schemas"]["ThreadMemberTarget"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Joined or already a member. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    removeThreadMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                user_id: components["schemas"]["ThreadMemberTarget"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Left or already absent. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listChannelThreads: {
+        parameters: {
+            query?: {
+                /** @description Select archived threads instead of active threads. */
+                archived?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Threads visible to the caller. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Channel"][];
+                };
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
@@ -5295,6 +6970,36 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    reportDiscoveryGuild: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportListingRequest"];
+            };
+        };
+        responses: {
+            /** @description Report accepted or already open. Listing visibility is unchanged. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     createGuild: {
         parameters: {
             query?: never;
@@ -5422,6 +7127,8 @@ export interface operations {
                 before?: components["schemas"]["Snowflake"];
                 /** @description Max number of results (1-100). */
                 limit?: number;
+                /** @description Discordy extra. Only entries about this target, including webhooks, roles and former members. The response `users` includes matching users when they exist. */
+                target_id?: components["schemas"]["Snowflake"];
                 /** @description Filter by acting user. */
                 user_id?: components["schemas"]["Snowflake"];
             };
@@ -5448,6 +7155,187 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    listBanAppeals: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Up to 100 appeals, open first and newest first within each group. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        answer: string;
+                        /** Format: date-time */
+                        created_at: string;
+                        id: string;
+                        question: string;
+                        /** Format: date-time */
+                        resolved_at: string | null;
+                        resolved_by: string | null;
+                        /** @enum {string} */
+                        status: "open" | "accepted" | "denied" | "closed";
+                        user_id: string;
+                    }[];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    submitBanAppeal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    answer: string;
+                    /** @description The question displayed to the user. */
+                    question: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Appeal created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        answer: string;
+                        /** Format: date-time */
+                        created_at: string;
+                        id: string;
+                        question: string;
+                        /** Format: date-time */
+                        resolved_at: string | null;
+                        resolved_by: string | null;
+                        /** @enum {string} */
+                        status: "open" | "accepted" | "denied" | "closed";
+                        user_id: string;
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description The question changed, an open appeal already exists, or the form is unavailable. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    resolveBanAppeal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                appeal_id: string;
+                decision: "accept" | "deny";
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Decision recorded. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description The appeal is closed or refers to a previous ban. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getBanAppealForm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The configured question. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        question: string;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    setBanAppealForm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    question: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Question saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     listGuildBans: {
@@ -5877,6 +7765,71 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listGuildIntegrations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Installed applications. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuildIntegration"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    removeGuildIntegration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Application ID. */
+                application_id: components["parameters"]["application_id"];
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Installation removed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description Installation changed while processing the request. Refresh consent information and retry. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: components["responses"]["RateLimited"];
+        };
+    };
     listGuildInvites: {
         parameters: {
             query?: never;
@@ -6145,6 +8098,71 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    getGuildPruneCount: {
+        parameters: {
+            query?: {
+                /** @description Days of inactivity (1-30). */
+                days?: number;
+                /** @description Comma separated role IDs that do not protect their members. */
+                include_roles?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PruneResult"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    pruneGuildMembers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PruneRequest"];
+            };
+        };
+        responses: {
+            /** @description Members removed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PruneResult"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     listGuildRoles: {
         parameters: {
             query?: never;
@@ -6253,6 +8271,36 @@ export interface operations {
         responses: {
             /** @description Success. */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Role"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    duplicateGuildRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+                /** @description Role ID. */
+                role_id: components["parameters"]["role_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The new role. */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6410,6 +8458,65 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GuildTemplate"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGuildVanityUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current code and join count, or null and zero when unset. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VanityUrl"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    modifyGuildVanityUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Guild ID. */
+                guild_id: components["parameters"]["guild_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModifyVanityUrlRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved code and join count. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VanityUrl"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -6706,6 +8813,102 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            /** @description Installation or effective permissions changed since the displayed preview or while processing the request. No consent or installation writes occur. Refresh consent information and review again. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listApplicationAuthorizations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Personal authorizations. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationAuthorization"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    revokeApplicationAuthorization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Personal authorization ID. */
+                authorization_id: components["schemas"]["Snowflake"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Consent revoked. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description Installation changed while processing the request. Refresh consent information and retry. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    createReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateReportRequest"];
+            };
+        };
+        responses: {
+            /** @description Report accepted or already open. No moderation action is automatic. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -6728,6 +8931,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["User"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listUserBadges: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Visible badge IDs only. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
                 };
             };
             401: components["responses"]["Unauthorized"];
@@ -6861,6 +9090,56 @@ export interface operations {
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listOwnBadges: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All grants owned by the caller. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileBadge"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    setBadgeVisibility: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                badge_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BadgeVisibilityRequest"];
+            };
+        };
+        responses: {
+            /** @description Visibility updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -7075,6 +9354,139 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BackupCodesResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listPasskeys: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Passkey"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    deletePasskey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyDeleteRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    renamePasskey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyRenameRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated passkey metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Passkey"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    finishPasskeyRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyRegisterFinishRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasskeyRegisterResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    startPasskeyRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyRegisterStartRequest"];
+            };
+        };
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebauthnChallenge"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -7341,6 +9753,73 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthSession"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    revokeSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Login session ID (UUID). */
+                session_id: components["parameters"]["session_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    logoutOtherSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     getUserSettings: {
         parameters: {
             query?: never;
@@ -7586,6 +10065,36 @@ export interface operations {
                 };
             };
             400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    resetWebhookToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Webhook ID, or the application ID for interaction webhooks. */
+                webhook_id: components["parameters"]["webhook_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description New execution credential; discard after copying. */
+            200: {
+                headers: {
+                    /** @description Prevents caching the execution credential. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Webhook"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
         };

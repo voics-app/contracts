@@ -1,0 +1,7 @@
+{
+  "schema": "rest/scheduled-message-list.json",
+  "data": {
+    "items": [],
+    "next_after": null
+  }
+}

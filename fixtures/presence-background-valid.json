@@ -1,0 +1,1 @@
+{ "schema": "gateway/opcodes/presence-update.json", "data": { "status": "idle", "activities": [], "afk": true, "background": true } }

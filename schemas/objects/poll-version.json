@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/poll-version.json",
+  "title": "PollVersion",
+  "type": "string",
+  "pattern": "^(0|[1-9][0-9]{0,18})$",
+  "description": "Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed."
+}

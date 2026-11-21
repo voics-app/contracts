@@ -8,13 +8,13 @@ defmodule Discordy.Contracts.PermissionSets do
   Every known permission.
   """
   @spec all() :: non_neg_integer()
-  def all, do: 8_866_461_766_385_663
+  def all, do: 17_873_661_021_126_655
 
   @doc "Every entry of this group, keyed by atom."
   @spec entries() :: %{atom() => non_neg_integer()}
   def entries do
     %{
-      all: 8_866_461_766_385_663
+      all: 17_873_661_021_126_655
     }
   end
 

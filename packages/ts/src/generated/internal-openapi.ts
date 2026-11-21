@@ -94,7 +94,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Permissions and effective delivery mode of a user in a channel */
+        /**
+         * Permissions and effective delivery mode of a user in a channel
+         * @description Resolves current account eligibility as well as membership and channel permissions. Missing, disabled, pending-deletion or currently suspended users receive 403. Expired suspensions and eligible bots retain ordinary channel access. No user session/token is required by this internal lookup; an offline scheduled author can remain eligible. Consumers needing fresh dispatch authorization must bypass cached and already in-flight lookups. This check and a later message write are not one cross-service transaction.
+         */
         get: operations["getChannelAccess"];
         put?: never;
         post?: never;
@@ -121,6 +124,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/channels/{channel_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post a bot, webhook, interaction or system message (messages service) */
+        post: operations["createInternalMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/messages/{message_id}/call": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Record the end of a call on its system message (messages service) */
+        patch: operations["updateMessageCall"];
+        trace?: never;
+    };
+    "/channels/{channel_id}/notification-recipients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Page permitted recipients and resolved preferences independently of push tokens
+         * @description For messages mention accounting. Includes users without a mobile push token, excludes the author and users without VIEW_CHANNEL, and returns an empty terminal page for private delivery modes. limit bounds candidates examined, so a page filtered by permissions can be empty while next_after is non-null. Follow next_after until null; it strictly advances by candidate user ID. Policy is current per request, not a historical or cross-page snapshot. The consumer still applies message kind, mentions, silent/reply flags and idempotent read-state accounting.
+         */
+        get: operations["listNotificationRecipients"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guilds/{guild_id}/state": {
         parameters: {
             query?: never;
@@ -130,6 +187,40 @@ export interface paths {
         };
         /** Full guild state for the gateway guild process */
         get: operations["getGuildState"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/id-reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Acquire or renew a committed Snowflake interval for one messages process */
+        post: operations["reserveMessageIds"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/read-states": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read-state snapshots for gateway identification and resume */
+        get: operations["getUserReadStates"];
         put?: never;
         post?: never;
         delete?: never;
@@ -195,18 +286,22 @@ export interface components {
     schemas: {
         /**
          * Activity
-         * @description A user activity.
+         * @description A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.
          */
         Activity: {
-            application_id?: components["schemas"]["Snowflake"];
+            /** @description Unix milliseconds. */
             created_at?: number;
+            /** @description At most 128 characters. */
             details?: string | null;
             emoji?: components["schemas"]["ActivityEmoji"] | null;
+            /** @description Required, non-empty, at most 128 characters. */
             name: string;
+            /** @description At most 128 characters. */
             state?: string | null;
             timestamps?: components["schemas"]["ActivityTimestamps"];
-            /** @description ActivityType. */
+            /** @description ActivityType, 0..5. At most one activity per presence may be type 4 (custom status). */
             type: number;
+            /** @description At most 512 characters. */
             url?: string | null;
         };
         /**
@@ -215,6 +310,7 @@ export interface components {
          */
         ActivityEmoji: {
             animated?: boolean;
+            /** @description Custom emoji id. */
             id?: components["schemas"]["Snowflake"];
             name: string;
         };
@@ -275,6 +371,27 @@ export interface components {
             users_total: number;
         };
         /**
+         * Attachment
+         * @description A file attached to a message.
+         */
+        Attachment: {
+            content_type?: string;
+            description?: string;
+            duration_secs?: number;
+            ephemeral?: boolean;
+            filename: string;
+            /** @description AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent. */
+            flags?: number;
+            height?: number | null;
+            id: components["schemas"]["Snowflake"];
+            proxy_url: string;
+            size: number;
+            title?: string;
+            url: string;
+            waveform?: string;
+            width?: number | null;
+        };
+        /**
          * Channel
          * @description A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.
          */
@@ -294,6 +411,8 @@ export interface components {
             guild_id?: components["schemas"]["Snowflake"];
             icon?: string | null;
             id: components["schemas"]["Snowflake"];
+            /** @description Voics: whether the requesting user has joined this thread; omitted from shared events. */
+            is_thread_member?: boolean;
             last_message_id?: components["schemas"]["Snowflake"] | null;
             /** Format: date-time */
             last_pin_timestamp?: string | null;
@@ -327,7 +446,7 @@ export interface components {
         };
         /**
          * ChannelAccess
-         * @description GET /internal/v1/channels/{channel_id}/access/{user_id}.
+         * @description GET /internal/v1/channels/{channel_id}/access/{user_id}. Current account eligibility is required: missing, disabled, pending-deletion or currently suspended users receive 403. Eligible bots and expired suspensions keep existing membership/permission behavior. No user session is required; fresh scheduled dispatch checks bypass caches and older in-flight requests. The response shape is unchanged, and the check/write race remains cross-service.
          */
         ChannelAccess: {
             channel_type: number;
@@ -335,6 +454,16 @@ export interface components {
             guild_id: components["schemas"]["Snowflake"] | null;
             permissions: components["schemas"]["PermissionBitset"];
             recipient_ids: components["schemas"]["Snowflake"][];
+        };
+        /**
+         * ChannelMention
+         * @description A channel mentioned in a message.
+         */
+        ChannelMention: {
+            guild_id: components["schemas"]["Snowflake"];
+            id: components["schemas"]["Snowflake"];
+            name: string;
+            type: number;
         };
         /** ChannelNotificationOverride */
         ChannelNotificationOverride: {
@@ -382,6 +511,73 @@ export interface components {
          */
         DeliveryMode: "standard" | "ephemeral" | "p2p";
         /**
+         * Embed
+         * @description Rich embed content.
+         */
+        Embed: {
+            author?: components["schemas"]["EmbedAuthor"];
+            color?: number;
+            description?: string;
+            fields?: components["schemas"]["EmbedField"][];
+            footer?: components["schemas"]["EmbedFooter"];
+            image?: components["schemas"]["EmbedMedia"];
+            provider?: components["schemas"]["EmbedProvider"];
+            thumbnail?: components["schemas"]["EmbedMedia"];
+            /** Format: date-time */
+            timestamp?: string;
+            title?: string;
+            /** @description EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich. */
+            type?: string;
+            url?: string;
+            video?: components["schemas"]["EmbedMedia"];
+        };
+        /**
+         * EmbedAuthor
+         * @description Embed author.
+         */
+        EmbedAuthor: {
+            icon_url?: string;
+            name: string;
+            proxy_icon_url?: string;
+            url?: string;
+        };
+        /**
+         * EmbedField
+         * @description Embed field.
+         */
+        EmbedField: {
+            inline?: boolean;
+            name: string;
+            value: string;
+        };
+        /**
+         * EmbedFooter
+         * @description Embed footer.
+         */
+        EmbedFooter: {
+            icon_url?: string;
+            proxy_icon_url?: string;
+            text: string;
+        };
+        /**
+         * EmbedMedia
+         * @description Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.
+         */
+        EmbedMedia: {
+            height?: number;
+            proxy_url?: string;
+            url?: string;
+            width?: number;
+        };
+        /**
+         * EmbedProvider
+         * @description Embed provider.
+         */
+        EmbedProvider: {
+            name?: string;
+            url?: string;
+        };
+        /**
          * Emoji
          * @description A custom or unicode emoji. Unicode emojis have a null id.
          */
@@ -417,6 +613,15 @@ export interface components {
             name: string;
         };
         /**
+         * FriendSourceFlags
+         * @description Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.
+         */
+        FriendSourceFlags: {
+            all: boolean;
+            mutual_friends: boolean;
+            mutual_guilds: boolean;
+        };
+        /**
          * GatewayAdminStats
          * @description GET /internal/v1/admin/stats on gateway.
          */
@@ -429,27 +634,27 @@ export interface components {
             voice_allocations: number;
         };
         /**
-         * GuildFolder
-         * @description One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.
+         * GatewayGuildState
+         * @description Internal gateway seed. Thread membership state must not be sent to clients.
          */
-        GuildFolder: {
-            /** @description RGB colour as 0xRRGGBB. */
-            color: number | null;
-            guild_ids: components["schemas"]["Snowflake"][];
-            /** @description Folder id chosen by the client (stable per user); null for a single un-foldered server. */
-            id: number | null;
-            name: string | null;
-        };
-        /**
-         * GuildFull
-         * @description A guild with its full state (GUILD_CREATE payload and the internal guild state endpoint).
-         */
-        GuildFull: {
+        GatewayGuildState: {
             afk_channel_id: components["schemas"]["Snowflake"] | null;
             afk_timeout: number;
             application_id?: components["schemas"]["Snowflake"] | null;
             approximate_member_count?: number;
             approximate_presence_count?: number;
+            /**
+             * @description Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+             * @default true
+             */
+            audit_log_enabled: boolean;
+            /**
+             * @description Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+             * @default 90
+             * @enum {integer}
+             */
+            audit_log_retention_days: 30 | 90 | 365;
+            /** @description Banner image hash (CDN path banners/{guild_id}/{hash}), or null. */
             banner?: string | null;
             channels: components["schemas"]["Channel"][];
             default_message_notifications: number;
@@ -475,12 +680,22 @@ export interface components {
             permissions?: components["schemas"]["PermissionBitset"];
             preferred_locale: string;
             presences?: components["schemas"]["PresenceUpdateEvent"][];
+            /** @description Discordy: when true, only administrators may prune inactive members. */
+            prune_admin_only?: boolean;
             public_updates_channel_id?: components["schemas"]["Snowflake"] | null;
             roles: components["schemas"]["Role"][];
             rules_channel_id?: components["schemas"]["Snowflake"] | null;
+            /** @description Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null. */
             splash?: string | null;
+            /** @description Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. */
             system_channel_flags: number;
             system_channel_id: components["schemas"]["Snowflake"] | null;
+            thread_members: {
+                [key: string]: {
+                    user_ids: components["schemas"]["Snowflake"][];
+                    version: number;
+                };
+            };
             threads: components["schemas"]["Channel"][];
             unavailable?: boolean;
             vanity_url_code?: string | null;
@@ -490,12 +705,28 @@ export interface components {
             voice_states: components["schemas"]["VoiceState"][];
         };
         /**
+         * GuildFolder
+         * @description One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.
+         */
+        GuildFolder: {
+            /** @description RGB colour as 0xRRGGBB. */
+            color: number | null;
+            guild_ids: components["schemas"]["Snowflake"][];
+            /** @description Folder id chosen by the client (stable per user); null for a single un-foldered server. */
+            id: number | null;
+            name: string | null;
+        };
+        /**
          * GuildMember
          * @description A member of a guild.
          */
         GuildMember: {
+            /** @description Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif). */
             avatar?: string | null;
+            /** @description Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif). */
             banner?: string | null;
+            /** @description Server-specific About me; trimmed, null or blank restores the global bio. */
+            bio?: string | null;
             /** Format: date-time */
             communication_disabled_until?: string | null;
             deaf: boolean;
@@ -536,6 +767,72 @@ export interface components {
             suppress_roles: boolean;
         };
         /**
+         * IdReservation
+         * @description Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.
+         */
+        IdReservation: {
+            end_ms: number;
+            issued_at_ms: number;
+            /** Format: uuid */
+            owner_id: string;
+            start_ms: number;
+            worker_id: number;
+        };
+        /**
+         * IdReservationRequest
+         * @description One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.
+         */
+        IdReservationRequest: {
+            /** @constant */
+            action: "acquire";
+            /** Format: uuid */
+            owner_id: string;
+            preferred_worker: number;
+            /** @constant */
+            service: "messages";
+        } | {
+            /** @constant */
+            action: "renew";
+            /** Format: uuid */
+            owner_id: string;
+            /** @constant */
+            service: "messages";
+            worker_id: number;
+        };
+        /**
+         * InternalCreateMessageRequest
+         * @description POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.
+         */
+        InternalCreateMessageRequest: {
+            application_id?: components["schemas"]["Snowflake"];
+            /** @description The bot user, the webhook id for webhook posts, or the author of a system message. */
+            author_id: components["schemas"]["Snowflake"];
+            avatar_url?: string;
+            call?: components["schemas"]["MessageCall"];
+            components?: components["schemas"]["MessageComponent"][];
+            content?: string;
+            embeds?: components["schemas"]["Embed"][];
+            /** @description 64 (ephemeral) sends only to target_user_ids and stores nothing. */
+            flags?: number;
+            interaction_id?: components["schemas"]["Snowflake"];
+            message_reference?: components["schemas"]["MessageReference"];
+            /** @description The user a type 1 or 2 message is about. */
+            target_user_id?: components["schemas"]["Snowflake"];
+            /** @description Recipients of an ephemeral message. */
+            target_user_ids?: components["schemas"]["Snowflake"][];
+            /** @description The thread a type 18 message announces (required for type 18). */
+            thread_id?: components["schemas"]["Snowflake"];
+            /**
+             * @description The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false.
+             * @default false
+             */
+            tts: boolean;
+            /** @description System message type (see description); omit or 0 for a normal message. */
+            type?: number;
+            username?: string;
+            webhook_id?: components["schemas"]["Snowflake"];
+        };
+        /**
          * IntrospectRequest
          * @description POST /internal/v1/auth/introspect body.
          */
@@ -562,6 +859,106 @@ export interface components {
             last_message_id: components["schemas"]["Snowflake"] | null;
         };
         /**
+         * Message
+         * @description A standard-mode message.
+         */
+        Message: {
+            application_id?: components["schemas"]["Snowflake"];
+            attachments: components["schemas"]["Attachment"][];
+            author: components["schemas"]["User"];
+            call?: components["schemas"]["MessageCall"];
+            channel_id: components["schemas"]["Snowflake"];
+            components?: components["schemas"]["MessageComponent"][];
+            content: string;
+            /** Format: date-time */
+            edited_timestamp: string | null;
+            embeds: components["schemas"]["Embed"][];
+            flags?: number;
+            /** @description Only in message search results: true for the matching message, absent for its context messages. */
+            hit?: boolean;
+            id: components["schemas"]["Snowflake"];
+            interaction_metadata?: components["schemas"]["MessageInteractionMetadata"];
+            mention_channels?: components["schemas"]["ChannelMention"][];
+            mention_everyone: boolean;
+            /** @description Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise. */
+            mention_here?: boolean;
+            mention_roles: components["schemas"]["Snowflake"][];
+            mentions: components["schemas"]["User"][];
+            message_reference?: components["schemas"]["MessageReference"];
+            /** @description Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. */
+            message_snapshots?: components["schemas"]["MessageSnapshot"][];
+            /** @description Client nonce used to resolve optimistic sends. */
+            nonce?: string;
+            pinned: boolean;
+            poll?: components["schemas"]["Poll"];
+            position?: number;
+            reactions?: components["schemas"]["Reaction"][];
+            referenced_message?: components["schemas"]["Message"] | null;
+            thread?: components["schemas"]["Channel"];
+            /** Format: date-time */
+            timestamp: string;
+            tts: boolean;
+            /** @description MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). */
+            type: number;
+            webhook_id?: components["schemas"]["Snowflake"];
+        };
+        /**
+         * MessageCall
+         * @description Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.
+         */
+        MessageCall: {
+            /** Format: date-time */
+            ended_timestamp?: string | null;
+            /** @description IDs of the users who took part in the call. */
+            participants: components["schemas"]["Snowflake"][];
+        };
+        /**
+         * MessageComponent
+         * @description A message component (action row, button, select menu, text input). Action rows nest components.
+         */
+        MessageComponent: {
+            channel_types?: number[];
+            components?: components["schemas"]["MessageComponent"][];
+            custom_id?: string;
+            disabled?: boolean;
+            emoji?: components["schemas"]["Emoji"];
+            label?: string;
+            max_length?: number;
+            max_values?: number;
+            min_length?: number;
+            min_values?: number;
+            options?: components["schemas"]["SelectOption"][];
+            placeholder?: string;
+            required?: boolean;
+            style?: number;
+            /** @description ComponentType. */
+            type: number;
+            url?: string;
+            value?: string;
+        };
+        /**
+         * MessageInteractionMetadata
+         * @description The interaction a message responds to.
+         */
+        MessageInteractionMetadata: {
+            id: components["schemas"]["Snowflake"];
+            name?: string;
+            type: number;
+            user: components["schemas"]["User"];
+        };
+        /**
+         * MessageReference
+         * @description Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.
+         */
+        MessageReference: {
+            channel_id?: components["schemas"]["Snowflake"];
+            fail_if_not_exists?: boolean;
+            guild_id?: components["schemas"]["Snowflake"];
+            message_id?: components["schemas"]["Snowflake"];
+            /** @description MessageReferenceType: 0 DEFAULT (reply), 1 FORWARD. */
+            type?: number;
+        };
+        /**
          * MessagesAdminStats
          * @description GET /internal/v1/admin/stats on messages. Counts only, never content.
          */
@@ -579,12 +976,74 @@ export interface components {
             standard: number;
         };
         /**
+         * MessageSnapshot
+         * @description A frozen copy of a forwarded message. Attachments are re-referenced (same stored object, freshly signed URLs); the snapshot never changes when the source is edited or deleted.
+         */
+        MessageSnapshot: {
+            message: {
+                attachments: components["schemas"]["Attachment"][];
+                content: string;
+                /** Format: date-time */
+                edited_timestamp: string | null;
+                embeds: components["schemas"]["Embed"][];
+                flags?: number;
+                mention_roles: components["schemas"]["Snowflake"][];
+                mentions: components["schemas"]["User"][];
+                /** Format: date-time */
+                timestamp: string;
+                type: number;
+            };
+        };
+        /**
          * MuteConfig
          * @description When a mute ends. end_time null means until turned off; an end_time in the past means the mute has expired and is ignored.
          */
         MuteConfig: {
             /** Format: date-time */
             end_time: string | null;
+        };
+        /**
+         * NotificationRecipient
+         * @description A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.
+         */
+        NotificationRecipient: {
+            /**
+             * @description Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing.
+             * @enum {integer}
+             */
+            level: 0 | 1 | 2;
+            /** @description A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired. */
+            muted: boolean;
+            /** @description Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground. */
+            online: boolean;
+            role_ids: components["schemas"]["Snowflake"][];
+            suppress_everyone: boolean;
+            suppress_roles: boolean;
+            user_id: components["schemas"]["Snowflake"];
+        };
+        /**
+         * NotificationRecipientPage
+         * @description A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
+         */
+        NotificationRecipientPage: {
+            channel_id: components["schemas"]["Snowflake"];
+            /** @constant */
+            delivery_mode: "standard";
+            /** Format: date-time */
+            evaluated_at: string;
+            guild_id: components["schemas"]["Snowflake"] | null;
+            /** @description Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue. */
+            next_after: components["schemas"]["Snowflake"] | null;
+            recipients: components["schemas"]["NotificationRecipient"][];
+        } | {
+            channel_id: components["schemas"]["Snowflake"];
+            /** @enum {string} */
+            delivery_mode: "ephemeral" | "p2p";
+            /** Format: date-time */
+            evaluated_at: string;
+            guild_id: components["schemas"]["Snowflake"] | null;
+            next_after: null;
+            recipients: components["schemas"]["NotificationRecipient"][];
         };
         /**
          * PartialUser
@@ -615,6 +1074,71 @@ export interface components {
             type: number;
         };
         /**
+         * Poll
+         * @description A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit.
+         */
+        Poll: {
+            allow_multiselect: boolean;
+            answers: components["schemas"]["PollAnswer"][];
+            /** Format: date-time */
+            expiry: string;
+            /** @enum {integer} */
+            layout_type: 1;
+            question: components["schemas"]["PollQuestion"];
+            results?: components["schemas"]["PollResults"];
+        };
+        /** PollAnswer */
+        PollAnswer: {
+            answer_id: number;
+            poll_media: components["schemas"]["PollMedia"];
+        };
+        /** PollAnswerCount */
+        PollAnswerCount: {
+            count: number;
+            id: number;
+            /** @description Absent in public events: unknown, not false. */
+            me_voted?: boolean;
+        };
+        /**
+         * PollEmoji
+         * @description Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names.
+         */
+        PollEmoji: {
+            name: string;
+        };
+        /**
+         * PollMedia
+         * @description An answer label, optionally decorated with a Unicode emoji.
+         */
+        PollMedia: {
+            emoji?: components["schemas"]["PollEmoji"];
+            text: string;
+        };
+        /**
+         * PollQuestion
+         * @description Plain text. Does not produce mentions or embeds.
+         */
+        PollQuestion: {
+            text: string;
+        };
+        /**
+         * PollResults
+         * @description Authoritative counts. Replace by results version; never add/subtract event deltas.
+         */
+        PollResults: {
+            /** @description Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer. */
+            answer_counts: components["schemas"]["PollAnswerCount"][];
+            is_finalized: boolean;
+            version: components["schemas"]["PollVersion"];
+            /** @description Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts. */
+            vote_version?: components["schemas"]["PollVersion"];
+        };
+        /**
+         * PollVersion
+         * @description Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed.
+         */
+        PollVersion: string;
+        /**
          * PresenceUpdateEvent
          * @description PRESENCE_UPDATE dispatch.
          */
@@ -626,6 +1150,41 @@ export interface components {
             status: "online" | "idle" | "dnd" | "offline";
             user: components["schemas"]["PartialUser"];
         };
+        /**
+         * Reaction
+         * @description Reactions of one emoji on a message.
+         */
+        Reaction: {
+            burst_colors: string[];
+            count: number;
+            count_details: components["schemas"]["ReactionCountDetails"];
+            emoji: components["schemas"]["Emoji"];
+            me: boolean;
+            me_burst: boolean;
+        };
+        /**
+         * ReactionCountDetails
+         * @description Normal and burst reaction counts.
+         */
+        ReactionCountDetails: {
+            burst: number;
+            normal: number;
+        };
+        /**
+         * ReadState
+         * @description One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.
+         */
+        ReadState: {
+            id: components["schemas"]["Snowflake"];
+            last_message_id: components["schemas"]["Snowflake"] | null;
+            mention_count: number;
+            read_state_version?: components["schemas"]["ReadStateVersion"];
+        };
+        /**
+         * ReadStateVersion
+         * @description Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
+         */
+        ReadStateVersion: string;
         /**
          * Relationship
          * @description A relationship with another user.
@@ -664,6 +1223,17 @@ export interface components {
         RoleTags: {
             bot_id?: components["schemas"]["Snowflake"];
             integration_id?: components["schemas"]["Snowflake"];
+        };
+        /**
+         * SelectOption
+         * @description An option of a string select menu.
+         */
+        SelectOption: {
+            default?: boolean;
+            description?: string;
+            emoji?: components["schemas"]["Emoji"];
+            label: string;
+            value: string;
         };
         /**
          * Snowflake
@@ -710,6 +1280,15 @@ export interface components {
             locked: boolean;
         };
         /**
+         * UpdateCallRequest
+         * @description PATCH /internal/v1/channels/{id}/messages/{id}/call on messages. Records the end of a call on its type 3 message; omitted fields stay unchanged. Answers the updated Message and publishes MESSAGE_UPDATE. 400 when the message is not a call.
+         */
+        UpdateCallRequest: {
+            /** Format: date-time */
+            ended_timestamp?: string;
+            participants?: components["schemas"]["Snowflake"][];
+        };
+        /**
          * User
          * @description A Discordy user (Discord v10 User object).
          */
@@ -717,7 +1296,10 @@ export interface components {
             accent_color?: number | null;
             /** @description Avatar hash. */
             avatar: string | null;
+            /** @description Profile banner hash. */
             banner?: string | null;
+            /** @description Profile About me text, at most 300 characters. */
+            bio?: string | null;
             bot?: boolean;
             /** @description Always "0" (unique usernames). */
             discriminator: string;
@@ -728,8 +1310,12 @@ export interface components {
             id: components["schemas"]["Snowflake"];
             locale?: string;
             mfa_enabled?: boolean;
+            /** @description Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. */
+            pronouns?: string | null;
             public_flags?: number;
             system?: boolean;
+            /** @description Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. */
+            theme_colors?: number[] | null;
             username: string;
             verified?: boolean;
         };
@@ -749,8 +1335,16 @@ export interface components {
             animate_gifs?: boolean;
             /** @description Animate stickers automatically. */
             animate_stickers?: boolean;
+            /** @description Default restriction on new guild-related DMs; missing means false. */
+            default_guilds_restricted?: boolean;
             /** @description Chat font scale. */
             font_scale?: number;
+            /** @description Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior. */
+            guild_dm_restrictions?: {
+                [key: string]: boolean | null;
+            };
+            /** @description Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization. */
+            hide_age_restricted_channels?: boolean;
             /** @description Increase contrast of text and borders. */
             high_contrast?: boolean;
             /** @description Show previews (embeds) of links in messages. */
@@ -790,11 +1384,16 @@ export interface components {
             tts_read_aloud?: boolean;
         };
         /**
+         * UserReadStates
+         * @description Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.
+         */
+        UserReadStates: components["schemas"]["ReadState"][];
+        /**
          * UserReadyState
          * @description GET /internal/v1/users/{user_id}/ready: the state used to build READY.
          */
         UserReadyState: {
-            guilds: components["schemas"]["GuildFull"][];
+            guilds: components["schemas"]["GatewayGuildState"][];
             /** @description The user's private notes keyed by the noted user's id. */
             notes: {
                 [key: string]: string;
@@ -818,12 +1417,19 @@ export interface components {
             developer_mode: boolean;
             /** @description When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set. */
             e2ee_calls_default: boolean;
+            friend_source_flags?: components["schemas"]["FriendSourceFlags"];
             /** @description The user's server rail in order, with folders. Synced across devices. */
             guild_folders: components["schemas"]["GuildFolder"][];
             /** @description Flat server order (legacy mirror of guild_folders). */
             guild_positions: components["schemas"]["Snowflake"][];
             locale: string;
             message_display_compact: boolean;
+            /** @description Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices. */
+            pinned_channel_ids: {
+                [key: string]: components["schemas"]["Snowflake"][];
+            };
+            /** @description DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices. */
+            pinned_dm_channel_ids: components["schemas"]["Snowflake"][];
             /** @description Synced client preferences (appearance, chat, notification sounds, emoji). Sparse. */
             preferences: components["schemas"]["UserPreferences"];
             /** @enum {string} */
@@ -888,6 +1494,8 @@ export interface components {
         guild_id: components["schemas"]["Snowflake"];
         /** @description User ID. */
         id: components["schemas"]["Snowflake"];
+        /** @description Message ID. */
+        message_id: components["schemas"]["Snowflake"];
         /** @description Voice node ID. */
         node_id: string;
         /** @description User ID. */
@@ -1077,6 +1685,131 @@ export interface operations {
             404: components["responses"]["NotFound"];
         };
     };
+    createInternalMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InternalCreateMessageRequest"];
+            };
+        };
+        responses: {
+            /** @description The created message. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description Invalid body, for example type 18 without thread_id. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description The channel is not in standard delivery mode (code 50160). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateMessageCall: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+                /** @description Message ID. */
+                message_id: components["parameters"]["message_id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCallRequest"];
+            };
+        };
+        responses: {
+            /** @description The updated message. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description Not a call message or invalid timestamp. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listNotificationRecipients: {
+        parameters: {
+            query: {
+                /** @description Continue strictly after this candidate user ID. Decimal ID in 0..9223372036854775807; values outside the database range are rejected rather than wrapped. */
+                after?: components["schemas"]["Snowflake"];
+                /** @description Message author to exclude, including a webhook author ID. Decimal ID in 0..9223372036854775807. */
+                author_id: components["schemas"]["Snowflake"];
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Channel ID. */
+                channel_id: components["parameters"]["channel_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current permitted recipients; empty pages can still have a continuation. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationRecipientPage"];
+                };
+            };
+            /** @description Invalid author, continuation or page size. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            /** @description Recipient or preference lookup failed; no fallback to unfiltered users. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getGuildState: {
         parameters: {
             query?: never;
@@ -1095,11 +1828,83 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GuildFull"];
+                    "application/json": components["schemas"]["GatewayGuildState"];
                 };
             };
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
+        };
+    };
+    reserveMessageIds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IdReservationRequest"];
+            };
+        };
+        responses: {
+            /** @description Committed interval. Timestamp and monotonic deadline checks are mandatory. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdReservation"];
+                };
+            };
+            /** @description Invalid service, owner, worker or request shape. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Capacity exhausted, expired ownership, clock rollback, restore barrier or unavailable database. No new interval was granted. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getUserReadStates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description User ID. */
+                user_id: components["parameters"]["user_id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array retained for legacy compatibility. Certified responses require a version on every entry. Snapshot reads are per channel, not one cross-channel transaction. */
+            200: {
+                headers: {
+                    /** @description Value 1 certifies authoritative versioned accounting even for an empty array. Absent means legacy; malformed certification must not become an empty successful snapshot. */
+                    "X-Read-State-Versioned"?: "1";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserReadStates"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Read-state dependency unavailable; gateway must not certify an empty state. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     getUserReadyState: {

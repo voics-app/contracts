@@ -43,6 +43,46 @@
     }
   ],
   "paths": {
+    "/id-reservations": {
+      "post": {
+        "operationId": "reserveMessageIds",
+        "summary": "Acquire or renew a committed Snowflake interval for one messages process",
+        "tags": [
+          "api"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdReservationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Committed interval. Timestamp and monotonic deadline checks are mandatory.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdReservation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid service, owner, worker or request shape."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "description": "Capacity exhausted, expired ownership, clock rollback, restore barrier or unavailable database. No new interval was granted."
+          }
+        }
+      }
+    },
     "/auth/introspect": {
       "post": {
         "operationId": "introspectToken",
@@ -109,6 +149,47 @@
         }
       }
     },
+    "/users/{user_id}/read-states": {
+      "get": {
+        "operationId": "getUserReadStates",
+        "summary": "Read-state snapshots for gateway identification and resume",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array retained for legacy compatibility. Certified responses require a version on every entry. Snapshot reads are per channel, not one cross-channel transaction.",
+            "headers": {
+              "X-Read-State-Versioned": {
+                "description": "Value 1 certifies authoritative versioned accounting even for an empty array. Absent means legacy; malformed certification must not become an empty successful snapshot.",
+                "schema": {
+                  "type": "string",
+                  "const": "1"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserReadStates"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "description": "Read-state dependency unavailable; gateway must not certify an empty state."
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/state": {
       "get": {
         "operationId": "getGuildState",
@@ -127,7 +208,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GuildFull"
+                  "$ref": "#/components/schemas/GatewayGuildState"
                 }
               }
             }
@@ -145,6 +226,7 @@
       "get": {
         "operationId": "getChannelAccess",
         "summary": "Permissions and effective delivery mode of a user in a channel",
+        "description": "Resolves current account eligibility as well as membership and channel permissions. Missing, disabled, pending-deletion or currently suspended users receive 403. Expired suspensions and eligible bots retain ordinary channel access. No user session/token is required by this internal lookup; an offline scheduled author can remain eligible. Consumers needing fresh dispatch authorization must bypass cached and already in-flight lookups. This check and a later message write are not one cross-service transaction.",
         "tags": [
           "api"
         ],
@@ -175,6 +257,74 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/notification-recipients": {
+      "get": {
+        "operationId": "listNotificationRecipients",
+        "summary": "Page permitted recipients and resolved preferences independently of push tokens",
+        "description": "For messages mention accounting. Includes users without a mobile push token, excludes the author and users without VIEW_CHANNEL, and returns an empty terminal page for private delivery modes. limit bounds candidates examined, so a page filtered by permissions can be empty while next_after is non-null. Follow next_after until null; it strictly advances by candidate user ID. Policy is current per request, not a historical or cross-page snapshot. The consumer still applies message kind, mentions, silent/reply flags and idempotent read-state accounting.",
+        "tags": [
+          "api"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "name": "author_id",
+            "in": "query",
+            "required": true,
+            "description": "Message author to exclude, including a webhook author ID. Decimal ID in 0..9223372036854775807.",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Continue strictly after this candidate user ID. Decimal ID in 0..9223372036854775807; values outside the database range are rejected rather than wrapped.",
+            "schema": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current permitted recipients; empty pages can still have a continuation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationRecipientPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid author, continuation or page size."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "description": "Recipient or preference lookup failed; no fallback to unfiltered users."
           }
         }
       }
@@ -342,6 +492,99 @@
         }
       }
     },
+    "/channels/{channel_id}/messages": {
+      "post": {
+        "operationId": "createInternalMessage",
+        "summary": "Post a bot, webhook, interaction or system message (messages service)",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InternalCreateMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, for example type 18 without thread_id."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "The channel is not in standard delivery mode (code 50160)."
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/messages/{message_id}/call": {
+      "patch": {
+        "operationId": "updateMessageCall",
+        "summary": "Record the end of a call on its system message (messages service)",
+        "tags": [
+          "messages"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          },
+          {
+            "$ref": "#/components/parameters/message_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCallRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not a call message or invalid timestamp."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/channels/{channel_id}/last-message-id": {
       "get": {
         "operationId": "getLastMessageId",
@@ -470,6 +713,15 @@
           "$ref": "#/components/schemas/Snowflake"
         }
       },
+      "message_id": {
+        "name": "message_id",
+        "in": "path",
+        "required": true,
+        "description": "Message ID.",
+        "schema": {
+          "$ref": "#/components/schemas/Snowflake"
+        }
+      },
       "node_id": {
         "name": "node_id",
         "in": "path",
@@ -515,7 +767,7 @@
     "schemas": {
       "Activity": {
         "title": "Activity",
-        "description": "A user activity.",
+        "description": "A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.",
         "type": "object",
         "required": [
           "name",
@@ -523,38 +775,48 @@
         ],
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Required, non-empty, at most 128 characters."
           },
           "type": {
             "type": "integer",
-            "description": "ActivityType."
+            "description": "ActivityType, 0..5. At most one activity per presence may be type 4 (custom status).",
+            "minimum": 0,
+            "maximum": 5
           },
           "url": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "At most 512 characters.",
+            "maxLength": 512
           },
           "created_at": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "description": "Unix milliseconds."
           },
           "timestamps": {
             "$ref": "#/components/schemas/ActivityTimestamps"
-          },
-          "application_id": {
-            "$ref": "#/components/schemas/Snowflake"
           },
           "details": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "maxLength": 128,
+            "description": "At most 128 characters."
           },
           "state": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "maxLength": 128,
+            "description": "At most 128 characters."
           },
           "emoji": {
             "anyOf": [
@@ -577,10 +839,12 @@
         ],
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 128
           },
           "id": {
-            "$ref": "#/components/schemas/Snowflake"
+            "$ref": "#/components/schemas/Snowflake",
+            "description": "Custom emoji id."
           },
           "animated": {
             "type": "boolean"
@@ -593,10 +857,12 @@
         "type": "object",
         "properties": {
           "start": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "end": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           }
         }
       },
@@ -744,6 +1010,70 @@
           }
         }
       },
+      "Attachment": {
+        "title": "Attachment",
+        "description": "A file attached to a message.",
+        "type": "object",
+        "required": [
+          "id",
+          "filename",
+          "size",
+          "url",
+          "proxy_url"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "url": {
+            "type": "string"
+          },
+          "proxy_url": {
+            "type": "string"
+          },
+          "height": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "width": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "ephemeral": {
+            "type": "boolean"
+          },
+          "duration_secs": {
+            "type": "number"
+          },
+          "waveform": {
+            "type": "string"
+          },
+          "flags": {
+            "type": "integer",
+            "description": "AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent."
+          }
+        }
+      },
       "Channel": {
         "title": "Channel",
         "description": "A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.",
@@ -863,6 +1193,10 @@
           "member_count": {
             "type": "integer"
           },
+          "is_thread_member": {
+            "type": "boolean",
+            "description": "Voics: whether the requesting user has joined this thread; omitted from shared events."
+          },
           "thread_metadata": {
             "$ref": "#/components/schemas/ThreadMetadata"
           },
@@ -934,7 +1268,7 @@
       },
       "ChannelAccess": {
         "title": "ChannelAccess",
-        "description": "GET /internal/v1/channels/{channel_id}/access/{user_id}.",
+        "description": "GET /internal/v1/channels/{channel_id}/access/{user_id}. Current account eligibility is required: missing, disabled, pending-deletion or currently suspended users receive 403. Eligible bots and expired suspensions keep existing membership/permission behavior. No user session is required; fresh scheduled dispatch checks bypass caches and older in-flight requests. The response shape is unchanged, and the check/write race remains cross-service.",
         "type": "object",
         "required": [
           "permissions",
@@ -968,6 +1302,31 @@
             "items": {
               "$ref": "#/components/schemas/Snowflake"
             }
+          }
+        }
+      },
+      "ChannelMention": {
+        "title": "ChannelMention",
+        "description": "A channel mentioned in a message.",
+        "type": "object",
+        "required": [
+          "id",
+          "guild_id",
+          "type",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
           }
         }
       },
@@ -1107,6 +1466,150 @@
           "p2p"
         ]
       },
+      "Embed": {
+        "title": "Embed",
+        "description": "Rich embed content.",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "description": "EmbedType: rich, link, image, video, gifv or article. Server-generated unfurls use every type but rich."
+          },
+          "description": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "color": {
+            "type": "integer"
+          },
+          "footer": {
+            "$ref": "#/components/schemas/EmbedFooter"
+          },
+          "image": {
+            "$ref": "#/components/schemas/EmbedMedia"
+          },
+          "thumbnail": {
+            "$ref": "#/components/schemas/EmbedMedia"
+          },
+          "video": {
+            "$ref": "#/components/schemas/EmbedMedia"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/EmbedProvider"
+          },
+          "author": {
+            "$ref": "#/components/schemas/EmbedAuthor"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmbedField"
+            }
+          }
+        }
+      },
+      "EmbedAuthor": {
+        "title": "EmbedAuthor",
+        "description": "Embed author.",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "proxy_icon_url": {
+            "type": "string"
+          }
+        }
+      },
+      "EmbedField": {
+        "title": "EmbedField",
+        "description": "Embed field.",
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "inline": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EmbedFooter": {
+        "title": "EmbedFooter",
+        "description": "Embed footer.",
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "proxy_icon_url": {
+            "type": "string"
+          }
+        }
+      },
+      "EmbedMedia": {
+        "title": "EmbedMedia",
+        "description": "Embed image, thumbnail or video. For unfurled links `url` is the original remote address, `proxy_url` a signed media-proxy URL on the CDN host that clients load instead; a video of type text/html is an allow-listed player iframe.",
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "proxy_url": {
+            "type": "string"
+          },
+          "height": {
+            "type": "integer"
+          },
+          "width": {
+            "type": "integer"
+          }
+        }
+      },
+      "EmbedProvider": {
+        "title": "EmbedProvider",
+        "description": "Embed provider.",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
       "Emoji": {
         "title": "Emoji",
         "description": "A custom or unicode emoji. Unicode emojis have a null id.",
@@ -1215,6 +1718,28 @@
           }
         }
       },
+      "FriendSourceFlags": {
+        "title": "FriendSourceFlags",
+        "description": "Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "all",
+          "mutual_friends",
+          "mutual_guilds"
+        ],
+        "properties": {
+          "all": {
+            "type": "boolean"
+          },
+          "mutual_friends": {
+            "type": "boolean"
+          },
+          "mutual_guilds": {
+            "type": "boolean"
+          }
+        }
+      },
       "GatewayAdminStats": {
         "title": "GatewayAdminStats",
         "description": "GET /internal/v1/admin/stats on gateway.",
@@ -1247,50 +1772,9 @@
           }
         }
       },
-      "GuildFolder": {
-        "title": "GuildFolder",
-        "description": "One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.",
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "color",
-          "guild_ids"
-        ],
-        "properties": {
-          "id": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "description": "Folder id chosen by the client (stable per user); null for a single un-foldered server."
-          },
-          "name": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "maxLength": 32
-          },
-          "color": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "description": "RGB colour as 0xRRGGBB."
-          },
-          "guild_ids": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Snowflake"
-            },
-            "maxItems": 200
-          }
-        }
-      },
-      "GuildFull": {
-        "title": "GuildFull",
-        "description": "A guild with its full state (GUILD_CREATE payload and the internal guild state endpoint).",
+      "GatewayGuildState": {
+        "title": "GatewayGuildState",
+        "description": "Internal gateway seed. Thread membership state must not be sent to clients.",
         "type": "object",
         "required": [
           "id",
@@ -1314,7 +1798,8 @@
           "members",
           "channels",
           "threads",
-          "voice_states"
+          "voice_states",
+          "thread_members"
         ],
         "properties": {
           "id": {
@@ -1333,7 +1818,8 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null."
           },
           "discovery_splash": {
             "type": [
@@ -1415,7 +1901,10 @@
             ]
           },
           "system_channel_flags": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 63,
+            "description": "Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear."
           },
           "rules_channel_id": {
             "anyOf": [
@@ -1446,7 +1935,8 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Banner image hash (CDN path banners/{guild_id}/{hash}), or null."
           },
           "preferred_locale": {
             "type": "string"
@@ -1473,6 +1963,25 @@
           "voice_region": {
             "type": "string",
             "description": "Discordy: voice region ID used to allocate voice nodes."
+          },
+          "audit_log_enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention."
+          },
+          "audit_log_retention_days": {
+            "type": "integer",
+            "enum": [
+              30,
+              90,
+              365
+            ],
+            "default": 90,
+            "description": "Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job."
+          },
+          "prune_admin_only": {
+            "type": "boolean",
+            "description": "Discordy: when true, only administrators may prune inactive members."
           },
           "joined_at": {
             "type": "string",
@@ -1516,6 +2025,70 @@
             "items": {
               "$ref": "#/components/schemas/VoiceState"
             }
+          },
+          "thread_members": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "version",
+                "user_ids"
+              ],
+              "properties": {
+                "version": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "user_ids": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Snowflake"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "GuildFolder": {
+        "title": "GuildFolder",
+        "description": "One entry of the user's server rail (`user_settings.guild_folders`). The array order is the rail order. An entry with a `null` id is a plain, un-foldered server (exactly one guild id); an entry with an id is a folder.",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "color",
+          "guild_ids"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Folder id chosen by the client (stable per user); null for a single un-foldered server."
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 32
+          },
+          "color": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "RGB colour as 0xRRGGBB."
+          },
+          "guild_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            },
+            "maxItems": 200
           }
         }
       },
@@ -1544,13 +2117,15 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif)."
           },
           "banner": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif)."
           },
           "roles": {
             "type": "array",
@@ -1591,6 +2166,14 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "bio": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 300,
+            "description": "Server-specific About me; trimmed, null or blank restores the global bio."
           }
         }
       },
@@ -1667,6 +2250,181 @@
           }
         }
       },
+      "IdReservation": {
+        "title": "IdReservation",
+        "description": "Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "worker_id",
+          "owner_id",
+          "start_ms",
+          "end_ms",
+          "issued_at_ms"
+        ],
+        "properties": {
+          "worker_id": {
+            "type": "integer",
+            "minimum": 65,
+            "maximum": 127
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "start_ms": {
+            "type": "integer",
+            "minimum": 1767225600000
+          },
+          "end_ms": {
+            "type": "integer",
+            "minimum": 1767225600001,
+            "maximum": 3966248855551
+          },
+          "issued_at_ms": {
+            "type": "integer",
+            "minimum": 1767225600000
+          }
+        }
+      },
+      "IdReservationRequest": {
+        "title": "IdReservationRequest",
+        "description": "One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.",
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "action",
+              "service",
+              "owner_id",
+              "preferred_worker"
+            ],
+            "properties": {
+              "action": {
+                "const": "acquire"
+              },
+              "service": {
+                "const": "messages"
+              },
+              "owner_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "preferred_worker": {
+                "type": "integer",
+                "minimum": 64,
+                "maximum": 127
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "action",
+              "service",
+              "owner_id",
+              "worker_id"
+            ],
+            "properties": {
+              "action": {
+                "const": "renew"
+              },
+              "service": {
+                "const": "messages"
+              },
+              "owner_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "worker_id": {
+                "type": "integer",
+                "minimum": 65,
+                "maximum": 127
+              }
+            }
+          }
+        ]
+      },
+      "InternalCreateMessageRequest": {
+        "title": "InternalCreateMessageRequest",
+        "description": "POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.",
+        "type": "object",
+        "required": [
+          "author_id"
+        ],
+        "properties": {
+          "author_id": {
+            "description": "The bot user, the webhook id for webhook posts, or the author of a system message.",
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "webhook_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "username": {
+            "type": "string"
+          },
+          "avatar_url": {
+            "type": "string"
+          },
+          "interaction_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "application_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "content": {
+            "type": "string"
+          },
+          "tts": {
+            "type": "boolean",
+            "default": false,
+            "description": "The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false."
+          },
+          "embeds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Embed"
+            }
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageComponent"
+            }
+          },
+          "flags": {
+            "type": "integer",
+            "description": "64 (ephemeral) sends only to target_user_ids and stores nothing."
+          },
+          "message_reference": {
+            "$ref": "#/components/schemas/MessageReference"
+          },
+          "target_user_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            },
+            "description": "Recipients of an ephemeral message."
+          },
+          "type": {
+            "type": "integer",
+            "description": "System message type (see description); omit or 0 for a normal message."
+          },
+          "target_user_id": {
+            "description": "The user a type 1 or 2 message is about.",
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "call": {
+            "$ref": "#/components/schemas/MessageCall"
+          },
+          "thread_id": {
+            "description": "The thread a type 18 message announces (required for type 18).",
+            "$ref": "#/components/schemas/Snowflake"
+          }
+        }
+      },
       "IntrospectRequest": {
         "title": "IntrospectRequest",
         "description": "POST /internal/v1/auth/introspect body.",
@@ -1740,6 +2498,375 @@
           }
         }
       },
+      "Message": {
+        "title": "Message",
+        "description": "A standard-mode message.",
+        "type": "object",
+        "required": [
+          "id",
+          "channel_id",
+          "author",
+          "content",
+          "timestamp",
+          "edited_timestamp",
+          "tts",
+          "mention_everyone",
+          "mentions",
+          "mention_roles",
+          "attachments",
+          "embeds",
+          "pinned",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "author": {
+            "$ref": "#/components/schemas/User"
+          },
+          "content": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "edited_timestamp": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "tts": {
+            "type": "boolean"
+          },
+          "mention_everyone": {
+            "type": "boolean"
+          },
+          "mention_here": {
+            "type": "boolean",
+            "description": "Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise."
+          },
+          "mentions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "mention_roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "mention_channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelMention"
+            }
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            }
+          },
+          "embeds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Embed"
+            }
+          },
+          "reactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reaction"
+            }
+          },
+          "nonce": {
+            "type": "string",
+            "maxLength": 25,
+            "description": "Client nonce used to resolve optimistic sends."
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "hit": {
+            "type": "boolean",
+            "description": "Only in message search results: true for the matching message, absent for its context messages."
+          },
+          "webhook_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "type": {
+            "type": "integer",
+            "description": "MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics)."
+          },
+          "application_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "flags": {
+            "type": "integer"
+          },
+          "message_reference": {
+            "$ref": "#/components/schemas/MessageReference"
+          },
+          "call": {
+            "$ref": "#/components/schemas/MessageCall"
+          },
+          "referenced_message": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Message"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "interaction_metadata": {
+            "$ref": "#/components/schemas/MessageInteractionMetadata"
+          },
+          "thread": {
+            "$ref": "#/components/schemas/Channel"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageComponent"
+            }
+          },
+          "position": {
+            "type": "integer"
+          },
+          "message_snapshots": {
+            "type": "array",
+            "description": "Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.",
+            "items": {
+              "$ref": "#/components/schemas/MessageSnapshot"
+            }
+          },
+          "poll": {
+            "$ref": "#/components/schemas/Poll"
+          }
+        }
+      },
+      "MessageCall": {
+        "title": "MessageCall",
+        "description": "Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.",
+        "type": "object",
+        "required": [
+          "participants"
+        ],
+        "properties": {
+          "participants": {
+            "type": "array",
+            "description": "IDs of the users who took part in the call.",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "ended_timestamp": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "MessageComponent": {
+        "title": "MessageComponent",
+        "description": "A message component (action row, button, select menu, text input). Action rows nest components.",
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "integer",
+            "description": "ComponentType."
+          },
+          "custom_id": {
+            "type": "string"
+          },
+          "style": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/Emoji"
+          },
+          "url": {
+            "type": "string"
+          },
+          "disabled": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectOption"
+            }
+          },
+          "placeholder": {
+            "type": "string"
+          },
+          "min_values": {
+            "type": "integer"
+          },
+          "max_values": {
+            "type": "integer"
+          },
+          "min_length": {
+            "type": "integer"
+          },
+          "max_length": {
+            "type": "integer"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "value": {
+            "type": "string"
+          },
+          "channel_types": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageComponent"
+            }
+          }
+        }
+      },
+      "MessageInteractionMetadata": {
+        "title": "MessageInteractionMetadata",
+        "description": "The interaction a message responds to.",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "user"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "type": {
+            "type": "integer"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "MessageReference": {
+        "title": "MessageReference",
+        "description": "Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.",
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "integer",
+            "description": "MessageReferenceType: 0 DEFAULT (reply), 1 FORWARD."
+          },
+          "message_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "channel_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "guild_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "fail_if_not_exists": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MessageSnapshot": {
+        "title": "MessageSnapshot",
+        "description": "A frozen copy of a forwarded message. Attachments are re-referenced (same stored object, freshly signed URLs); the snapshot never changes when the source is edited or deleted.",
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "object",
+            "required": [
+              "content",
+              "timestamp",
+              "edited_timestamp",
+              "mentions",
+              "mention_roles",
+              "attachments",
+              "embeds",
+              "type"
+            ],
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "edited_timestamp": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "mentions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "mention_roles": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Snowflake"
+                }
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Attachment"
+                }
+              },
+              "embeds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Embed"
+                }
+              },
+              "type": {
+                "type": "integer"
+              },
+              "flags": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
       "MessagesAdminStats": {
         "title": "MessagesAdminStats",
         "description": "GET /internal/v1/admin/stats on messages. Counts only, never content.",
@@ -1798,6 +2925,163 @@
             "format": "date-time"
           }
         }
+      },
+      "NotificationRecipient": {
+        "title": "NotificationRecipient",
+        "description": "A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "user_id",
+          "role_ids",
+          "online",
+          "level",
+          "muted",
+          "suppress_everyone",
+          "suppress_roles"
+        ],
+        "properties": {
+          "user_id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "role_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "online": {
+            "type": "boolean",
+            "description": "Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground."
+          },
+          "level": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ],
+            "description": "Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing."
+          },
+          "muted": {
+            "type": "boolean",
+            "description": "A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired."
+          },
+          "suppress_everyone": {
+            "type": "boolean"
+          },
+          "suppress_roles": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NotificationRecipientPage": {
+        "title": "NotificationRecipientPage",
+        "description": "A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.",
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "channel_id",
+              "guild_id",
+              "delivery_mode",
+              "evaluated_at",
+              "recipients",
+              "next_after"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              "guild_id": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "delivery_mode": {
+                "type": "string",
+                "const": "standard"
+              },
+              "evaluated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "recipients": {
+                "type": "array",
+                "maxItems": 200,
+                "items": {
+                  "$ref": "#/components/schemas/NotificationRecipient"
+                }
+              },
+              "next_after": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "channel_id",
+              "guild_id",
+              "delivery_mode",
+              "evaluated_at",
+              "recipients",
+              "next_after"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              "guild_id": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Snowflake"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "delivery_mode": {
+                "type": "string",
+                "enum": [
+                  "ephemeral",
+                  "p2p"
+                ]
+              },
+              "evaluated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "recipients": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "$ref": "#/components/schemas/NotificationRecipient"
+                }
+              },
+              "next_after": {
+                "type": "null"
+              }
+            }
+          }
+        ]
       },
       "PartialUser": {
         "title": "PartialUser",
@@ -1865,6 +3149,183 @@
           }
         }
       },
+      "Poll": {
+        "title": "Poll",
+        "type": "object",
+        "required": [
+          "question",
+          "answers",
+          "expiry",
+          "allow_multiselect",
+          "layout_type"
+        ],
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/PollQuestion"
+          },
+          "answers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollAnswer"
+            }
+          },
+          "expiry": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "allow_multiselect": {
+            "type": "boolean"
+          },
+          "layout_type": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "results": {
+            "$ref": "#/components/schemas/PollResults"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit."
+      },
+      "PollAnswer": {
+        "title": "PollAnswer",
+        "type": "object",
+        "required": [
+          "answer_id",
+          "poll_media"
+        ],
+        "properties": {
+          "answer_id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "poll_media": {
+            "$ref": "#/components/schemas/PollMedia"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PollAnswerCount": {
+        "title": "PollAnswerCount",
+        "type": "object",
+        "required": [
+          "id",
+          "count"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "me_voted": {
+            "type": "boolean",
+            "description": "Absent in public events: unknown, not false."
+          }
+        },
+        "additionalProperties": false
+      },
+      "PollEmoji": {
+        "title": "PollEmoji",
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "additionalProperties": false,
+        "description": "Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names."
+      },
+      "PollMedia": {
+        "title": "PollMedia",
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 55,
+            "pattern": "\\S"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/PollEmoji"
+          }
+        },
+        "additionalProperties": false,
+        "description": "An answer label, optionally decorated with a Unicode emoji."
+      },
+      "PollQuestion": {
+        "title": "PollQuestion",
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "pattern": "\\S"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Plain text. Does not produce mentions or embeds."
+      },
+      "PollResults": {
+        "title": "PollResults",
+        "type": "object",
+        "required": [
+          "version",
+          "is_finalized",
+          "answer_counts"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "#/components/schemas/PollVersion"
+          },
+          "is_finalized": {
+            "type": "boolean"
+          },
+          "answer_counts": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/PollAnswerCount"
+            },
+            "description": "Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer."
+          },
+          "vote_version": {
+            "$ref": "#/components/schemas/PollVersion",
+            "description": "Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Authoritative counts. Replace by results version; never add/subtract event deltas."
+      },
+      "PollVersion": {
+        "title": "PollVersion",
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]{0,18})$",
+        "description": "Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed."
+      },
       "PresenceUpdateEvent": {
         "title": "PresenceUpdateEvent",
         "description": "PRESENCE_UPDATE dispatch.",
@@ -1901,6 +3362,99 @@
             "$ref": "#/components/schemas/ClientStatus"
           }
         }
+      },
+      "Reaction": {
+        "title": "Reaction",
+        "description": "Reactions of one emoji on a message.",
+        "type": "object",
+        "required": [
+          "count",
+          "count_details",
+          "me",
+          "me_burst",
+          "emoji",
+          "burst_colors"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "count_details": {
+            "$ref": "#/components/schemas/ReactionCountDetails"
+          },
+          "me": {
+            "type": "boolean"
+          },
+          "me_burst": {
+            "type": "boolean"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/Emoji"
+          },
+          "burst_colors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ReactionCountDetails": {
+        "title": "ReactionCountDetails",
+        "description": "Normal and burst reaction counts.",
+        "type": "object",
+        "required": [
+          "burst",
+          "normal"
+        ],
+        "properties": {
+          "burst": {
+            "type": "integer"
+          },
+          "normal": {
+            "type": "integer"
+          }
+        }
+      },
+      "ReadState": {
+        "title": "ReadState",
+        "description": "One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.",
+        "type": "object",
+        "required": [
+          "id",
+          "last_message_id",
+          "mention_count"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Snowflake"
+          },
+          "last_message_id": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mention_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "read_state_version": {
+            "$ref": "#/components/schemas/ReadStateVersion"
+          }
+        }
+      },
+      "ReadStateVersion": {
+        "title": "ReadStateVersion",
+        "description": "Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.",
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6]|9223372036854775807)$",
+        "maxLength": 19
       },
       "Relationship": {
         "title": "Relationship",
@@ -2007,6 +3561,32 @@
           }
         }
       },
+      "SelectOption": {
+        "title": "SelectOption",
+        "description": "An option of a string select menu.",
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "emoji": {
+            "$ref": "#/components/schemas/Emoji"
+          },
+          "default": {
+            "type": "boolean"
+          }
+        }
+      },
       "Snowflake": {
         "title": "Snowflake",
         "description": "A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 2026-01-01T00:00:00Z, 10 bits worker, 12 bits sequence).",
@@ -2101,6 +3681,23 @@
           }
         }
       },
+      "UpdateCallRequest": {
+        "title": "UpdateCallRequest",
+        "description": "PATCH /internal/v1/channels/{id}/messages/{id}/call on messages. Records the end of a call on its type 3 message; omitted fields stay unchanged. Answers the updated Message and publishes MESSAGE_UPDATE. 400 when the message is not a call.",
+        "type": "object",
+        "properties": {
+          "participants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "ended_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "User": {
         "title": "User",
         "description": "A Discordy user (Discord v10 User object).",
@@ -2136,6 +3733,14 @@
             ],
             "description": "Avatar hash."
           },
+          "bio": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 300,
+            "description": "Profile About me text, at most 300 characters."
+          },
           "bot": {
             "type": "boolean"
           },
@@ -2149,13 +3754,16 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Profile banner hash."
           },
           "accent_color": {
             "type": [
               "integer",
               "null"
-            ]
+            ],
+            "minimum": 0,
+            "maximum": 16777215
           },
           "locale": {
             "type": "string"
@@ -2175,6 +3783,28 @@
           },
           "public_flags": {
             "type": "integer"
+          },
+          "pronouns": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 40,
+            "description": "Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters."
+          },
+          "theme_colors": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 16777215
+            },
+            "description": "Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme."
           }
         }
       },
@@ -2184,6 +3814,28 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "default_guilds_restricted": {
+            "type": "boolean",
+            "description": "Default restriction on new guild-related DMs; missing means false."
+          },
+          "guild_dm_restrictions": {
+            "type": "object",
+            "maxProperties": 200,
+            "propertyNames": {
+              "pattern": "^[0-9]{1,20}$"
+            },
+            "additionalProperties": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "description": "Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior."
+          },
+          "hide_age_restricted_channels": {
+            "type": "boolean",
+            "description": "Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization."
+          },
           "accent": {
             "type": "string",
             "enum": [
@@ -2321,6 +3973,14 @@
           }
         }
       },
+      "UserReadStates": {
+        "title": "UserReadStates",
+        "description": "Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ReadState"
+        }
+      },
       "UserReadyState": {
         "title": "UserReadyState",
         "description": "GET /internal/v1/users/{user_id}/ready: the state used to build READY.",
@@ -2341,7 +4001,7 @@
           "guilds": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/GuildFull"
+              "$ref": "#/components/schemas/GatewayGuildState"
             }
           },
           "private_channels": {
@@ -2391,6 +4051,8 @@
           "message_display_compact",
           "guild_folders",
           "guild_positions",
+          "pinned_dm_channel_ids",
+          "pinned_channel_ids",
           "preferences"
         ],
         "properties": {
@@ -2452,6 +4114,24 @@
             },
             "maxItems": 200
           },
+          "pinned_dm_channel_ids": {
+            "type": "array",
+            "description": "DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.",
+            "items": {
+              "$ref": "#/components/schemas/Snowflake"
+            }
+          },
+          "pinned_channel_ids": {
+            "type": "object",
+            "description": "Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Snowflake"
+              }
+            },
+            "maxProperties": 200
+          },
           "guild_positions": {
             "type": "array",
             "description": "Flat server order (legacy mirror of guild_folders).",
@@ -2463,6 +4143,9 @@
           "preferences": {
             "$ref": "#/components/schemas/UserPreferences",
             "description": "Synced client preferences (appearance, chat, notification sounds, emoji). Sparse."
+          },
+          "friend_source_flags": {
+            "$ref": "#/components/schemas/FriendSourceFlags"
           }
         }
       },

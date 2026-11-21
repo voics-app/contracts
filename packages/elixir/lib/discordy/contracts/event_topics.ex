@@ -64,6 +64,9 @@ defmodule Discordy.Contracts.EventTopics do
   @spec thread_update() :: String.t()
   def thread_update, do: "discordy.guild.v1"
 
+  @spec thread_members_update() :: String.t()
+  def thread_members_update, do: "discordy.guild.v1"
+
   @spec thread_delete() :: String.t()
   def thread_delete, do: "discordy.guild.v1"
 
@@ -82,6 +85,12 @@ defmodule Discordy.Contracts.EventTopics do
   @spec message_delete_bulk() :: String.t()
   def message_delete_bulk, do: "discordy.message.v1"
 
+  @spec message_poll_vote_add() :: String.t()
+  def message_poll_vote_add, do: "discordy.message.v1"
+
+  @spec message_poll_vote_remove() :: String.t()
+  def message_poll_vote_remove, do: "discordy.message.v1"
+
   @spec message_reaction_add() :: String.t()
   def message_reaction_add, do: "discordy.message.v1"
 
@@ -96,6 +105,9 @@ defmodule Discordy.Contracts.EventTopics do
 
   @spec message_ack() :: String.t()
   def message_ack, do: "discordy.message.v1"
+
+  @spec read_state_update() :: String.t()
+  def read_state_update, do: "discordy.message.v1"
 
   @spec user_update() :: String.t()
   def user_update, do: "discordy.user.v1"
@@ -136,6 +148,9 @@ defmodule Discordy.Contracts.EventTopics do
   @spec ban_message_purge() :: String.t()
   def ban_message_purge, do: "discordy.guild.v1"
 
+  @spec session_revoke() :: String.t()
+  def session_revoke, do: "discordy.user.v1"
+
   @spec voice_quality() :: String.t()
   def voice_quality, do: "discordy.telemetry.v1"
 
@@ -166,17 +181,21 @@ defmodule Discordy.Contracts.EventTopics do
       invite_delete: "discordy.guild.v1",
       thread_create: "discordy.guild.v1",
       thread_update: "discordy.guild.v1",
+      thread_members_update: "discordy.guild.v1",
       thread_delete: "discordy.guild.v1",
       application_command_permissions_update: "discordy.guild.v1",
       message_create: "discordy.message.v1",
       message_update: "discordy.message.v1",
       message_delete: "discordy.message.v1",
       message_delete_bulk: "discordy.message.v1",
+      message_poll_vote_add: "discordy.message.v1",
+      message_poll_vote_remove: "discordy.message.v1",
       message_reaction_add: "discordy.message.v1",
       message_reaction_remove: "discordy.message.v1",
       message_reaction_remove_all: "discordy.message.v1",
       channel_pins_update: "discordy.message.v1",
       message_ack: "discordy.message.v1",
+      read_state_update: "discordy.message.v1",
       user_update: "discordy.user.v1",
       user_settings_update: "discordy.user.v1",
       user_guild_settings_update: "discordy.user.v1",
@@ -190,6 +209,7 @@ defmodule Discordy.Contracts.EventTopics do
       audit_log_entry_create: "discordy.audit.v1",
       voice_member_move: "discordy.guild.v1",
       ban_message_purge: "discordy.guild.v1",
+      session_revoke: "discordy.user.v1",
       voice_quality: "discordy.telemetry.v1",
       usage_tick: "discordy.telemetry.v1"
     }

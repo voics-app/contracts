@@ -23,6 +23,30 @@ tags:
   - name: gateway
     description: Served by gateway (port 4000).
 paths:
+  /id-reservations:
+    post:
+      operationId: reserveMessageIds
+      summary: Acquire or renew a committed Snowflake interval for one messages process
+      tags: [api]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/internal/id-reservation-request.json
+      responses:
+        "200":
+          description: Committed interval. Timestamp and monotonic deadline checks are mandatory.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/internal/id-reservation.json
+        "400":
+          description: Invalid service, owner, worker or request shape.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          description: Capacity exhausted, expired ownership, clock rollback, restore barrier or unavailable database. No new interval was granted.
   /auth/introspect:
     post:
       operationId: introspectToken
@@ -63,6 +87,30 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+  /users/{user_id}/read-states:
+    get:
+      operationId: getUserReadStates
+      summary: Read-state snapshots for gateway identification and resume
+      tags: [messages]
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: Array retained for legacy compatibility. Certified responses require a version on every entry. Snapshot reads are per channel, not one cross-channel transaction.
+          headers:
+            X-Read-State-Versioned:
+              description: Value 1 certifies authoritative versioned accounting even for an empty array. Absent means legacy; malformed certification must not become an empty successful snapshot.
+              schema:
+                type: string
+                const: "1"
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/internal/user-read-states.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          description: Read-state dependency unavailable; gateway must not certify an empty state.
   /guilds/{guild_id}/state:
     get:
       operationId: getGuildState
@@ -77,7 +125,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ../schemas/objects/guild-full.json
+                $ref: ../schemas/internal/gateway-guild-state.json
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -86,6 +134,7 @@ paths:
     get:
       operationId: getChannelAccess
       summary: Permissions and effective delivery mode of a user in a channel
+      description: "Resolves current account eligibility as well as membership and channel permissions. Missing, disabled, pending-deletion or currently suspended users receive 403. Expired suspensions and eligible bots retain ordinary channel access. No user session/token is required by this internal lookup; an offline scheduled author can remain eligible. Consumers needing fresh dispatch authorization must bypass cached and already in-flight lookups. This check and a later message write are not one cross-service transaction."
       tags:
         - api
       parameters:
@@ -104,6 +153,49 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /channels/{channel_id}/notification-recipients:
+    get:
+      operationId: listNotificationRecipients
+      summary: Page permitted recipients and resolved preferences independently of push tokens
+      description: "For messages mention accounting. Includes users without a mobile push token, excludes the author and users without VIEW_CHANNEL, and returns an empty terminal page for private delivery modes. limit bounds candidates examined, so a page filtered by permissions can be empty while next_after is non-null. Follow next_after until null; it strictly advances by candidate user ID. Policy is current per request, not a historical or cross-page snapshot. The consumer still applies message kind, mentions, silent/reply flags and idempotent read-state accounting."
+      tags: [api]
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - name: author_id
+          in: query
+          required: true
+          description: Message author to exclude, including a webhook author ID. Decimal ID in 0..9223372036854775807.
+          schema:
+            $ref: ../schemas/objects/snowflake.json
+        - name: after
+          in: query
+          required: false
+          description: Continue strictly after this candidate user ID. Decimal ID in 0..9223372036854775807; values outside the database range are rejected rather than wrapped.
+          schema:
+            $ref: ../schemas/objects/snowflake.json
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 100
+      responses:
+        "200":
+          description: Current permitted recipients; empty pages can still have a continuation.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/internal/notification-recipient-page.json
+        "400":
+          description: Invalid author, continuation or page size.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          description: Recipient or preference lookup failed; no fallback to unfiltered users.
   /admin/stats:
     get:
       operationId: getApiAdminStats
@@ -204,6 +296,61 @@ paths:
                   $ref: ../schemas/internal/admin-guild.json
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /channels/{channel_id}/messages:
+    post:
+      operationId: createInternalMessage
+      summary: Post a bot, webhook, interaction or system message (messages service)
+      tags:
+        - messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/internal/messages-create-request.json
+      responses:
+        "200":
+          description: The created message.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "400":
+          description: Invalid body, for example type 18 without thread_id.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: The channel is not in standard delivery mode (code 50160).
+  /channels/{channel_id}/messages/{message_id}/call:
+    patch:
+      operationId: updateMessageCall
+      summary: Record the end of a call on its system message (messages service)
+      tags:
+        - messages
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+        - $ref: "#/components/parameters/message_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/internal/messages-update-call-request.json
+      responses:
+        "200":
+          description: The updated message.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/message.json
+        "400":
+          description: Not a call message or invalid timestamp.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /channels/{channel_id}/last-message-id:
     get:
       operationId: getLastMessageId
@@ -283,6 +430,12 @@ components:
       in: path
       required: true
       description: User ID.
+      schema: *a1
+    message_id:
+      name: message_id
+      in: path
+      required: true
+      description: Message ID.
       schema: *a1
     node_id:
       name: node_id

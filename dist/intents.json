@@ -178,6 +178,28 @@
       ]
     },
     {
+      "name": "GUILD_MESSAGE_POLLS",
+      "bit": 24,
+      "scope": "guild",
+      "value": 16777216,
+      "privileged": false,
+      "events": [
+        "MESSAGE_POLL_VOTE_ADD",
+        "MESSAGE_POLL_VOTE_REMOVE"
+      ]
+    },
+    {
+      "name": "DIRECT_MESSAGE_POLLS",
+      "bit": 25,
+      "scope": "direct",
+      "value": 33554432,
+      "privileged": false,
+      "events": [
+        "MESSAGE_POLL_VOTE_ADD",
+        "MESSAGE_POLL_VOTE_REMOVE"
+      ]
+    },
+    {
       "name": "MESSAGE_CONTENT",
       "bit": 15,
       "value": 32768,

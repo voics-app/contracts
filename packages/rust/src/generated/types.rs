@@ -24,44 +24,301 @@ pub struct AckRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub mention_count: ::std::option::Option<u64>,
 }
-///A user activity.
+///A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Activity {
+    ///Unix milliseconds.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub application_id: ::std::option::Option<Snowflake>,
+    pub created_at: ::std::option::Option<u64>,
+    ///At most 128 characters.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub created_at: ::std::option::Option<i64>,
-    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub details: ::std::option::Option<::std::string::String>,
+    pub details: ::std::option::Option<ActivityDetails>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub emoji: ::std::option::Option<ActivityEmoji>,
-    pub name: ::std::string::String,
+    ///Required, non-empty, at most 128 characters.
+    pub name: ActivityName,
+    ///At most 128 characters.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub state: ::std::option::Option<::std::string::String>,
+    pub state: ::std::option::Option<ActivityState>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub timestamps: ::std::option::Option<ActivityTimestamps>,
-    ///ActivityType.
+    ///ActivityType, 0..5. At most one activity per presence may be type 4 (custom status).
     #[serde(rename = "type")]
     pub type_: i64,
+    ///At most 512 characters.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub url: ::std::option::Option<::std::string::String>,
+    pub url: ::std::option::Option<ActivityUrl>,
+}
+///At most 128 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ActivityDetails(::std::string::String);
+impl ::std::ops::Deref for ActivityDetails {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ActivityDetails> for ::std::string::String {
+    fn from(value: ActivityDetails) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ActivityDetails {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActivityDetails {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActivityDetails {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ActivityDetails {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Emoji of a custom status.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct ActivityEmoji {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub animated: ::std::option::Option<bool>,
+    ///Custom emoji id.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub id: ::std::option::Option<Snowflake>,
-    pub name: ::std::string::String,
+    pub name: ActivityEmojiName,
+}
+///`ActivityEmojiName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ActivityEmojiName(::std::string::String);
+impl ::std::ops::Deref for ActivityEmojiName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ActivityEmojiName> for ::std::string::String {
+    fn from(value: ActivityEmojiName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ActivityEmojiName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActivityEmojiName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActivityEmojiName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ActivityEmojiName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Required, non-empty, at most 128 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ActivityName(::std::string::String);
+impl ::std::ops::Deref for ActivityName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ActivityName> for ::std::string::String {
+    fn from(value: ActivityName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ActivityName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActivityName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActivityName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ActivityName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///At most 128 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ActivityState(::std::string::String);
+impl ::std::ops::Deref for ActivityState {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ActivityState> for ::std::string::String {
+    fn from(value: ActivityState) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ActivityState {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActivityState {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActivityState {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ActivityState {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Unix millisecond start/end times.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ActivityTimestamps {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub end: ::std::option::Option<i64>,
+    pub end: ::std::option::Option<u64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub start: ::std::option::Option<i64>,
+    pub start: ::std::option::Option<u64>,
+}
+///At most 512 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ActivityUrl(::std::string::String);
+impl ::std::ops::Deref for ActivityUrl {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ActivityUrl> for ::std::string::String {
+    fn from(value: ActivityUrl) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ActivityUrl {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 512usize {
+            return Err("longer than 512 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActivityUrl {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActivityUrl {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ActivityUrl {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///A guild as listed in the admin portal.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -200,6 +457,69 @@ pub struct Application {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub tags: ::std::vec::Vec<::std::string::String>,
     pub verify_key: ::std::string::String,
+}
+///One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ApplicationAuthorization {
+    pub application: Application,
+    pub authorized_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub guild: AuthorizationGuild,
+    pub id: Snowflake,
+    ///Effective server permissions acknowledged at the last authorization, not a live permission grant.
+    pub permissions: PermissionBitset,
+    pub scopes: ::std::vec::Vec<ApplicationAuthorizationScopesItem>,
+}
+///`ApplicationAuthorizationScopesItem`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ApplicationAuthorizationScopesItem {
+    #[serde(rename = "bot")]
+    Bot,
+    #[serde(rename = "applications.commands")]
+    ApplicationsCommands,
+}
+impl ::std::fmt::Display for ApplicationAuthorizationScopesItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Bot => f.write_str("bot"),
+            Self::ApplicationsCommands => f.write_str("applications.commands"),
+        }
+    }
+}
+impl ::std::str::FromStr for ApplicationAuthorizationScopesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "bot" => Ok(Self::Bot),
+            "applications.commands" => Ok(Self::ApplicationsCommands),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ApplicationAuthorizationScopesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ApplicationAuthorizationScopesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
 }
 ///A slash, user or message command.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -459,7 +779,7 @@ pub struct Attachment {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub ephemeral: ::std::option::Option<bool>,
     pub filename: ::std::string::String,
-    ///AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler.
+    ///AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -475,12 +795,77 @@ pub struct Attachment {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub width: ::std::option::Option<i64>,
 }
+///Updates metadata of one attachment already owned by this message. Omitted properties are unchanged; description null or blank clears alt text. Files, filenames, IDs and URLs are immutable. Only the author may edit attachment metadata.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct AttachmentMetadataEdit {
+    ///Trimmed alt text; null or blank clears it.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub description: ::std::option::Option<AttachmentMetadataEditDescription>,
+    ///Only IS_SPOILER (8) is applied; other stored bits are preserved. Explicit 0 clears the spoiler even for a SPOILER_ filename.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub flags: ::std::option::Option<u32>,
+    pub id: Snowflake,
+}
+///Trimmed alt text; null or blank clears it.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct AttachmentMetadataEditDescription(::std::string::String);
+impl ::std::ops::Deref for AttachmentMetadataEditDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<AttachmentMetadataEditDescription> for ::std::string::String {
+    fn from(value: AttachmentMetadataEditDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for AttachmentMetadataEditDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 1024usize {
+            return Err("longer than 1024 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for AttachmentMetadataEditDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for AttachmentMetadataEditDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for AttachmentMetadataEditDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///An uploaded attachment referenced when creating or editing a message.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct AttachmentReference {
     ///Alt text shown to screen readers and as the image tooltip.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub description: ::std::option::Option<AttachmentReferenceDescription>,
+    ///Duration of a recorded voice message in seconds.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub duration_secs: ::std::option::Option<f64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub filename: ::std::option::Option<::std::string::String>,
     ///AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
@@ -490,6 +875,9 @@ pub struct AttachmentReference {
     pub id: ::std::string::String,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub uploaded_filename: ::std::option::Option<::std::string::String>,
+    ///Base64-encoded amplitude samples for a recorded voice message.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub waveform: ::std::option::Option<AttachmentReferenceWaveform>,
 }
 ///Alt text shown to screen readers and as the image tooltip.
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -530,6 +918,59 @@ impl ::std::convert::TryFrom<::std::string::String> for AttachmentReferenceDescr
     }
 }
 impl<'de> ::serde::Deserialize<'de> for AttachmentReferenceDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Base64-encoded amplitude samples for a recorded voice message.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct AttachmentReferenceWaveform(::std::string::String);
+impl ::std::ops::Deref for AttachmentReferenceWaveform {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<AttachmentReferenceWaveform> for ::std::string::String {
+    fn from(value: AttachmentReferenceWaveform) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for AttachmentReferenceWaveform {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 1024usize {
+            return Err("longer than 1024 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for AttachmentReferenceWaveform {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for AttachmentReferenceWaveform {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for AttachmentReferenceWaveform {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -644,6 +1085,35 @@ pub struct AuthResponse {
     pub refresh_token: ::std::string::String,
     pub user: User,
 }
+///A login session of the current user (one refresh-token family), as listed by GET /users/@me/sessions. Not to be confused with the gateway Session of SESSIONS_REPLACE.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct AuthSession {
+    ///The client that opened the session, derived from its User-Agent (for example `Desktop app` (the desktop client; clients show it with the brand name), `Firefox`).
+    pub client: ::std::string::String,
+    pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    ///Whether this is the session making the request.
+    pub current: bool,
+    ///Name of the registered end-to-end encrypted device bound to the session, if any.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub device_name: ::std::option::Option<::std::string::String>,
+    ///Session ID; the `sid` claim of its access tokens.
+    pub id: ::uuid::Uuid,
+    ///When the session last logged in or refreshed its tokens.
+    pub last_used_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    ///Approximate location (an ISO 3166-1 country code from the edge), or null when the edge does not provide one.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub location: ::std::option::Option<::std::string::String>,
+    ///Operating system derived from the User-Agent (for example `Windows`), or `Unknown`.
+    pub os: ::std::string::String,
+}
+///The server of a recorded bot authorization.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct AuthorizationGuild {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub icon: ::std::option::Option<::std::string::String>,
+    pub id: Snowflake,
+    pub name: ::std::string::String,
+}
 ///Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct BackupCodesResponse {
@@ -665,6 +1135,12 @@ pub struct BackupCodesVerificationRequest {
     #[serde(default)]
     pub regenerate: bool,
 }
+///Change visibility of an existing badge grant owned by the caller.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct BadgeVisibilityRequest {
+    pub visible: bool,
+}
 ///A guild ban.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Ban {
@@ -683,6 +1159,67 @@ pub struct BanMessagePurgeEvent {
     pub since_ms: u64,
     ///The banned user whose messages are purged.
     pub user_id: Snowflake,
+}
+///Opaque installation precondition from the selected guild in GET /oauth2/authorize. Echo it unchanged in POST. It distinguishes an active installation, initial absence and absence after removal. Missing or null is invalid; a changed revision returns 409 without writes and requires a fresh preview and consent.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct BotInstallationRevision(::std::string::String);
+impl ::std::ops::Deref for BotInstallationRevision {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<BotInstallationRevision> for ::std::string::String {
+    fn from(value: BotInstallationRevision) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for BotInstallationRevision {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 29usize {
+            return Err("longer than 29 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| {
+                ::regress::Regex::new("^(absent:(0|[1-9][0-9]{0,18})|installed:[1-9][0-9]{0,18})$")
+                    .unwrap()
+            });
+        if PATTERN.find(value).is_none() {
+            return Err(
+                "doesn't match pattern \"^(absent:(0|[1-9][0-9]{0,18})|installed:[1-9][0-9]{0,18})$\""
+                    .into(),
+            );
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for BotInstallationRevision {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for BotInstallationRevision {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for BotInstallationRevision {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///POST /channels/{id}/messages/bulk-delete body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -713,6 +1250,13 @@ pub struct CallDeleteEvent {
     pub channel_id: Snowflake,
     ///Always null.
     pub message_id: (),
+}
+///Op 26 CALL_RING. Rings the listed members of a DM channel for a call the sender is in.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CallRingPayload {
+    pub channel_id: Snowflake,
+    ///Users to ring, 1 to 10.
+    pub user_ids: ::std::vec::Vec<Snowflake>,
 }
 ///A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are Discordy extras.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -745,6 +1289,9 @@ pub struct Channel {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub icon: ::std::option::Option<::std::string::String>,
     pub id: Snowflake,
+    ///Voics: whether the requesting user has joined this thread; omitted from shared events.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub is_thread_member: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub last_message_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -800,7 +1347,7 @@ pub struct Channel {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub voice_region: ::std::option::Option<::std::string::String>,
 }
-///GET /internal/v1/channels/{channel_id}/access/{user_id}.
+///GET /internal/v1/channels/{channel_id}/access/{user_id}. Current account eligibility is required: missing, disabled, pending-deletion or currently suspended users receive 403. Eligible bots and expired suspensions keep existing membership/permission behavior. No user session is required; fresh scheduled dispatch checks bypass caches and older in-flight requests. The response shape is unchanged, and the check/write race remains cross-service.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct ChannelAccess {
     pub channel_type: i64,
@@ -1355,7 +1902,7 @@ pub struct CreateInviteRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub unique: ::std::option::Option<bool>,
 }
-///POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
+///POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160). A poll requires fresh SEND_POLLS in addition to normal send permissions. Its definition cannot be edited or forwarded; public bots use the same permissions, and internal/webhook/interaction poll creation is rejected. Poll-only messages are valid. Private delivery never stores polls.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct CreateMessageRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -1368,7 +1915,7 @@ pub struct CreateMessageRequest {
     pub content: ::std::option::Option<CreateMessageRequestContent>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub embeds: ::std::vec::Vec<Embed>,
-    ///MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped.
+    ///MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -1376,7 +1923,10 @@ pub struct CreateMessageRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub nonce: ::std::option::Option<CreateMessageRequestNonce>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    pub tts: ::std::option::Option<bool>,
+    pub poll: ::std::option::Option<PollCreate>,
+    ///Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events.
+    #[serde(default)]
+    pub tts: bool,
 }
 ///`CreateMessageRequestContent`
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -1477,6 +2027,266 @@ impl<'de> ::serde::Deserialize<'de> for CreateMessageRequestNonce {
                 <D::Error as ::serde::de::Error>::custom(e.to_string())
             })
     }
+}
+///File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct CreateReportRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub author_id: ::std::option::Option<Snowflake>,
+    pub category: CreateReportRequestCategory,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub content: ::std::option::Option<CreateReportRequestContent>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub message_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub note: ::std::option::Option<CreateReportRequestNote>,
+    pub target: CreateReportRequestTarget,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub user_id: ::std::option::Option<Snowflake>,
+}
+///`CreateReportRequestCategory`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum CreateReportRequestCategory {
+    #[serde(rename = "spam")]
+    Spam,
+    #[serde(rename = "harassment")]
+    Harassment,
+    #[serde(rename = "hate_speech")]
+    HateSpeech,
+    #[serde(rename = "violence")]
+    Violence,
+    #[serde(rename = "sexual_content")]
+    SexualContent,
+    #[serde(rename = "self_harm")]
+    SelfHarm,
+    #[serde(rename = "illegal")]
+    Illegal,
+    #[serde(rename = "impersonation")]
+    Impersonation,
+    #[serde(rename = "other")]
+    Other,
+}
+impl ::std::fmt::Display for CreateReportRequestCategory {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Spam => f.write_str("spam"),
+            Self::Harassment => f.write_str("harassment"),
+            Self::HateSpeech => f.write_str("hate_speech"),
+            Self::Violence => f.write_str("violence"),
+            Self::SexualContent => f.write_str("sexual_content"),
+            Self::SelfHarm => f.write_str("self_harm"),
+            Self::Illegal => f.write_str("illegal"),
+            Self::Impersonation => f.write_str("impersonation"),
+            Self::Other => f.write_str("other"),
+        }
+    }
+}
+impl ::std::str::FromStr for CreateReportRequestCategory {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "spam" => Ok(Self::Spam),
+            "harassment" => Ok(Self::Harassment),
+            "hate_speech" => Ok(Self::HateSpeech),
+            "violence" => Ok(Self::Violence),
+            "sexual_content" => Ok(Self::SexualContent),
+            "self_harm" => Ok(Self::SelfHarm),
+            "illegal" => Ok(Self::Illegal),
+            "impersonation" => Ok(Self::Impersonation),
+            "other" => Ok(Self::Other),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateReportRequestCategory {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateReportRequestCategory {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`CreateReportRequestContent`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateReportRequestContent(::std::string::String);
+impl ::std::ops::Deref for CreateReportRequestContent {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateReportRequestContent> for ::std::string::String {
+    fn from(value: CreateReportRequestContent) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateReportRequestContent {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 4000usize {
+            return Err("longer than 4000 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateReportRequestContent {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateReportRequestContent {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateReportRequestContent {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`CreateReportRequestNote`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CreateReportRequestNote(::std::string::String);
+impl ::std::ops::Deref for CreateReportRequestNote {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CreateReportRequestNote> for ::std::string::String {
+    fn from(value: CreateReportRequestNote) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for CreateReportRequestNote {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 500usize {
+            return Err("longer than 500 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateReportRequestNote {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateReportRequestNote {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CreateReportRequestNote {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`CreateReportRequestTarget`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum CreateReportRequestTarget {
+    #[serde(rename = "message")]
+    Message,
+    #[serde(rename = "user")]
+    User,
+    #[serde(rename = "channel")]
+    Channel,
+}
+impl ::std::fmt::Display for CreateReportRequestTarget {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Message => f.write_str("message"),
+            Self::User => f.write_str("user"),
+            Self::Channel => f.write_str("channel"),
+        }
+    }
+}
+impl ::std::str::FromStr for CreateReportRequestTarget {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "message" => Ok(Self::Message),
+            "user" => Ok(Self::User),
+            "channel" => Ok(Self::Channel),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for CreateReportRequestTarget {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CreateReportRequestTarget {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct CreateScheduledMessageRequest {
+    pub message: ScheduledMessageDraft,
+    pub request_id: ScheduledMessageId,
+    pub scheduled_at: ::chrono::DateTime<::chrono::offset::Utc>,
 }
 ///POST /channels/{id}/threads body. Forum channels require `message`.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -1966,8 +2776,9 @@ pub struct E2eeRecipient {
 pub struct EditMessageRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub allowed_mentions: ::std::option::Option<AllowedMentions>,
+    ///Partial metadata edits of existing attachments. Unlisted files remain unchanged and an empty array does nothing. Unknown or duplicate attachment IDs reject the complete edit. This field cannot add or remove files.
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub attachments: ::std::vec::Vec<AttachmentReference>,
+    pub attachments: ::std::vec::Vec<AttachmentMetadataEdit>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub components: ::std::option::Option<::std::vec::Vec<MessageComponent>>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -2037,6 +2848,16 @@ pub struct EditOverwriteRequest {
     ///OverwriteType.
     #[serde(rename = "type")]
     pub type_: i64,
+}
+///PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct EditScheduledMessageRequest {
+    pub expected_revision: ScheduledMessageRevision,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub message: ::std::option::Option<ScheduledMessageDraft>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub scheduled_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
 }
 ///PATCH /webhooks/{app_id}/{token}/messages/@original body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
@@ -2324,6 +3145,14 @@ pub struct ForumTag {
     pub moderated: bool,
     pub name: ::std::string::String,
 }
+///Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct FriendSourceFlags {
+    pub all: bool,
+    pub mutual_friends: bool,
+    pub mutual_guilds: bool,
+}
 ///GET /internal/v1/admin/stats on gateway.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GatewayAdminStats {
@@ -2346,6 +3175,133 @@ pub struct GatewayFrame {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub t: ::std::option::Option<::std::string::String>,
 }
+///Internal gateway seed. Thread membership state must not be sent to clients.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GatewayGuildState {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub afk_channel_id: ::std::option::Option<Snowflake>,
+    pub afk_timeout: i64,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub application_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub approximate_member_count: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub approximate_presence_count: ::std::option::Option<i64>,
+    ///Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub audit_log_enabled: bool,
+    ///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+    #[serde(default = "defaults::gateway_guild_state_audit_log_retention_days")]
+    pub audit_log_retention_days: GatewayGuildStateAuditLogRetentionDays,
+    ///Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub banner: ::std::option::Option<::std::string::String>,
+    pub channels: ::std::vec::Vec<Channel>,
+    pub default_message_notifications: i64,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub description: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub discovery_splash: ::std::option::Option<::std::string::String>,
+    pub emojis: ::std::vec::Vec<Emoji>,
+    pub explicit_content_filter: i64,
+    pub features: ::std::vec::Vec<::std::string::String>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub icon: ::std::option::Option<::std::string::String>,
+    pub id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub joined_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub large: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub max_members: ::std::option::Option<i64>,
+    pub member_count: i64,
+    pub members: ::std::vec::Vec<GuildMember>,
+    pub mfa_level: i64,
+    pub name: ::std::string::String,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub nsfw_level: ::std::option::Option<i64>,
+    ///True if the current user owns the guild.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub owner: ::std::option::Option<bool>,
+    pub owner_id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub permissions: ::std::option::Option<PermissionBitset>,
+    pub preferred_locale: ::std::string::String,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub presences: ::std::vec::Vec<PresenceUpdateEvent>,
+    ///Discordy: when true, only administrators may prune inactive members.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub prune_admin_only: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub public_updates_channel_id: ::std::option::Option<Snowflake>,
+    pub roles: ::std::vec::Vec<Role>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub rules_channel_id: ::std::option::Option<Snowflake>,
+    ///Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub splash: ::std::option::Option<::std::string::String>,
+    ///Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+    pub system_channel_flags: i64,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub system_channel_id: ::std::option::Option<Snowflake>,
+    pub thread_members:
+        ::std::collections::HashMap<::std::string::String, GatewayGuildStateThreadMembersValue>,
+    pub threads: ::std::vec::Vec<Channel>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub unavailable: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub vanity_url_code: ::std::option::Option<::std::string::String>,
+    pub verification_level: i64,
+    ///Discordy: voice region ID used to allocate voice nodes.
+    pub voice_region: ::std::string::String,
+    pub voice_states: ::std::vec::Vec<VoiceState>,
+}
+///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct GatewayGuildStateAuditLogRetentionDays(i64);
+impl ::std::ops::Deref for GatewayGuildStateAuditLogRetentionDays {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<GatewayGuildStateAuditLogRetentionDays> for i64 {
+    fn from(value: GatewayGuildStateAuditLogRetentionDays) -> Self {
+        value.0
+    }
+}
+impl ::std::default::Default for GatewayGuildStateAuditLogRetentionDays {
+    fn default() -> Self {
+        GatewayGuildStateAuditLogRetentionDays(90_i64)
+    }
+}
+impl ::std::convert::TryFrom<i64> for GatewayGuildStateAuditLogRetentionDays {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![30_i64, 90_i64, 365_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GatewayGuildStateAuditLogRetentionDays {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`GatewayGuildStateThreadMembersValue`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct GatewayGuildStateThreadMembersValue {
+    pub user_ids: ::std::vec::Vec<Snowflake>,
+    pub version: u64,
+}
 ///A guild (server). `voice_region` is a Discordy extra.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Guild {
@@ -2358,6 +3314,13 @@ pub struct Guild {
     pub approximate_member_count: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub approximate_presence_count: ::std::option::Option<i64>,
+    ///Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub audit_log_enabled: bool,
+    ///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+    #[serde(default = "defaults::guild_audit_log_retention_days")]
+    pub audit_log_retention_days: GuildAuditLogRetentionDays,
+    ///Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
     pub default_message_notifications: i64,
@@ -2384,13 +3347,18 @@ pub struct Guild {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub permissions: ::std::option::Option<PermissionBitset>,
     pub preferred_locale: ::std::string::String,
+    ///Discordy: when true, only administrators may prune inactive members.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub prune_admin_only: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub public_updates_channel_id: ::std::option::Option<Snowflake>,
     pub roles: ::std::vec::Vec<Role>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rules_channel_id: ::std::option::Option<Snowflake>,
+    ///Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub splash: ::std::option::Option<::std::string::String>,
+    ///Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
     pub system_channel_flags: i64,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub system_channel_id: ::std::option::Option<Snowflake>,
@@ -2409,13 +3377,52 @@ pub struct GuildApplicationCommandPermissions {
     pub id: Snowflake,
     pub permissions: ::std::vec::Vec<ApplicationCommandPermission>,
 }
+///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct GuildAuditLogRetentionDays(i64);
+impl ::std::ops::Deref for GuildAuditLogRetentionDays {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildAuditLogRetentionDays> for i64 {
+    fn from(value: GuildAuditLogRetentionDays) -> Self {
+        value.0
+    }
+}
+impl ::std::default::Default for GuildAuditLogRetentionDays {
+    fn default() -> Self {
+        GuildAuditLogRetentionDays(90_i64)
+    }
+}
+impl ::std::convert::TryFrom<i64> for GuildAuditLogRetentionDays {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![30_i64, 90_i64, 365_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildAuditLogRetentionDays {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
 ///GUILD_BAN_ADD / GUILD_BAN_REMOVE dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildBanEvent {
     pub guild_id: Snowflake,
     pub user: User,
 }
-///A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+///A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildDiscoverySettings {
     pub blockers: ::std::vec::Vec<GuildDiscoverySettingsBlockersItem>,
@@ -2441,6 +3448,8 @@ pub struct GuildDiscoverySettings {
     PartialOrd,
 )]
 pub enum GuildDiscoverySettingsBlockersItem {
+    #[serde(rename = "COMMUNITY_REQUIRED")]
+    CommunityRequired,
     #[serde(rename = "DESCRIPTION_REQUIRED")]
     DescriptionRequired,
     #[serde(rename = "MEMBER_COUNT_TOO_LOW")]
@@ -2453,6 +3462,7 @@ pub enum GuildDiscoverySettingsBlockersItem {
 impl ::std::fmt::Display for GuildDiscoverySettingsBlockersItem {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
+            Self::CommunityRequired => f.write_str("COMMUNITY_REQUIRED"),
             Self::DescriptionRequired => f.write_str("DESCRIPTION_REQUIRED"),
             Self::MemberCountTooLow => f.write_str("MEMBER_COUNT_TOO_LOW"),
             Self::GuildTooNew => f.write_str("GUILD_TOO_NEW"),
@@ -2464,6 +3474,7 @@ impl ::std::str::FromStr for GuildDiscoverySettingsBlockersItem {
     type Err = self::error::ConversionError;
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         match value {
+            "COMMUNITY_REQUIRED" => Ok(Self::CommunityRequired),
             "DESCRIPTION_REQUIRED" => Ok(Self::DescriptionRequired),
             "MEMBER_COUNT_TOO_LOW" => Ok(Self::MemberCountTooLow),
             "GUILD_TOO_NEW" => Ok(Self::GuildTooNew),
@@ -2567,6 +3578,13 @@ pub struct GuildFull {
     pub approximate_member_count: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub approximate_presence_count: ::std::option::Option<i64>,
+    ///Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub audit_log_enabled: bool,
+    ///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+    #[serde(default = "defaults::guild_full_audit_log_retention_days")]
+    pub audit_log_retention_days: GuildFullAuditLogRetentionDays,
+    ///Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
     pub channels: ::std::vec::Vec<Channel>,
@@ -2602,13 +3620,18 @@ pub struct GuildFull {
     pub preferred_locale: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub presences: ::std::vec::Vec<PresenceUpdateEvent>,
+    ///Discordy: when true, only administrators may prune inactive members.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub prune_admin_only: ::std::option::Option<bool>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub public_updates_channel_id: ::std::option::Option<Snowflake>,
     pub roles: ::std::vec::Vec<Role>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rules_channel_id: ::std::option::Option<Snowflake>,
+    ///Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub splash: ::std::option::Option<::std::string::String>,
+    ///Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
     pub system_channel_flags: i64,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub system_channel_id: ::std::option::Option<Snowflake>,
@@ -2622,13 +3645,65 @@ pub struct GuildFull {
     pub voice_region: ::std::string::String,
     pub voice_states: ::std::vec::Vec<VoiceState>,
 }
+///Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct GuildFullAuditLogRetentionDays(i64);
+impl ::std::ops::Deref for GuildFullAuditLogRetentionDays {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildFullAuditLogRetentionDays> for i64 {
+    fn from(value: GuildFullAuditLogRetentionDays) -> Self {
+        value.0
+    }
+}
+impl ::std::default::Default for GuildFullAuditLogRetentionDays {
+    fn default() -> Self {
+        GuildFullAuditLogRetentionDays(90_i64)
+    }
+}
+impl ::std::convert::TryFrom<i64> for GuildFullAuditLogRetentionDays {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![30_i64, 90_i64, 365_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildFullAuditLogRetentionDays {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///An application whose bot is currently installed in this server.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct GuildIntegration {
+    pub application: Application,
+    pub installed_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    ///Current effective server permissions, including the everyone role.
+    pub permissions: PermissionBitset,
+}
 ///A member of a guild.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildMember {
+    ///Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar: ::std::option::Option<::std::string::String>,
+    ///Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
+    ///Server-specific About me; trimmed, null or blank restores the global bio.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bio: ::std::option::Option<GuildMemberBio>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub communication_disabled_until:
         ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
@@ -2649,13 +3724,68 @@ pub struct GuildMember {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user: ::std::option::Option<User>,
 }
+///Server-specific About me; trimmed, null or blank restores the global bio.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildMemberBio(::std::string::String);
+impl ::std::ops::Deref for GuildMemberBio {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildMemberBio> for ::std::string::String {
+    fn from(value: GuildMemberBio) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildMemberBio {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildMemberBio {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildMemberBio {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildMemberBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///GUILD_MEMBER_ADD / GUILD_MEMBER_UPDATE dispatch: a guild member plus guild_id.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct GuildMemberEvent {
+    ///Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar: ::std::option::Option<::std::string::String>,
+    ///Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif).
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
+    ///Server-specific About me; trimmed, null or blank restores the global bio.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bio: ::std::option::Option<GuildMemberEventBio>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub communication_disabled_until:
         ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
@@ -2676,6 +3806,56 @@ pub struct GuildMemberEvent {
     pub roles: ::std::vec::Vec<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user: ::std::option::Option<User>,
+}
+///Server-specific About me; trimmed, null or blank restores the global bio.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct GuildMemberEventBio(::std::string::String);
+impl ::std::ops::Deref for GuildMemberEventBio {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<GuildMemberEventBio> for ::std::string::String {
+    fn from(value: GuildMemberEventBio) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for GuildMemberEventBio {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for GuildMemberEventBio {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for GuildMemberEventBio {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for GuildMemberEventBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///GUILD_MEMBER_REMOVE dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -2775,7 +3955,7 @@ pub struct GuildTemplate {
     pub creator_id: ::std::option::Option<Snowflake>,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub description: ::std::option::Option<GuildTemplateDescription>,
-    ///Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
+    ///Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
     pub is_dirty: bool,
     pub name: GuildTemplateName,
     pub serialized_source_guild: TemplateSourceGuild,
@@ -2916,6 +4096,33 @@ pub struct IceCandidate {
     pub ip: ::std::string::String,
     pub port: u64,
     pub protocol: ::serde_json::Value,
+}
+///Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct IdReservation {
+    pub end_ms: i64,
+    pub issued_at_ms: i64,
+    pub owner_id: ::uuid::Uuid,
+    pub start_ms: i64,
+    pub worker_id: i64,
+}
+///One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(tag = "action", deny_unknown_fields)]
+pub enum IdReservationRequest {
+    #[serde(rename = "acquire")]
+    Acquire {
+        owner_id: ::uuid::Uuid,
+        preferred_worker: i64,
+        service: ::serde_json::Value,
+    },
+    #[serde(rename = "renew")]
+    Renew {
+        owner_id: ::uuid::Uuid,
+        service: ::serde_json::Value,
+        worker_id: i64,
+    },
 }
 ///Op 2 IDENTIFY.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -3089,6 +4296,53 @@ pub struct InteractionResponse {
     ///InteractionCallbackType.
     #[serde(rename = "type")]
     pub type_: i64,
+}
+///POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct InternalCreateMessageRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub application_id: ::std::option::Option<Snowflake>,
+    ///The bot user, the webhook id for webhook posts, or the author of a system message.
+    pub author_id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub avatar_url: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub call: ::std::option::Option<MessageCall>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub components: ::std::vec::Vec<MessageComponent>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub content: ::std::option::Option<::std::string::String>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub embeds: ::std::vec::Vec<Embed>,
+    ///64 (ephemeral) sends only to target_user_ids and stores nothing.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub flags: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub interaction_id: ::std::option::Option<Snowflake>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub message_reference: ::std::option::Option<MessageReference>,
+    ///The user a type 1 or 2 message is about.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub target_user_id: ::std::option::Option<Snowflake>,
+    ///Recipients of an ephemeral message.
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub target_user_ids: ::std::vec::Vec<Snowflake>,
+    ///The thread a type 18 message announces (required for type 18).
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub thread_id: ::std::option::Option<Snowflake>,
+    ///The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false.
+    #[serde(default)]
+    pub tts: bool,
+    ///System message type (see description); omit or 0 for a normal message.
+    #[serde(
+        rename = "type",
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub type_: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub username: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub webhook_id: ::std::option::Option<Snowflake>,
 }
 ///POST /internal/v1/auth/introspect body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -3294,7 +4548,7 @@ pub struct LoginRequest {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub totp: ::std::option::Option<::std::string::String>,
 }
-///Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100.
+///Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100. Selects the simulcast layer. Screen-share packets are opt-in: a subscriber receives a publisher's screen (the SSRC announced with `type: screen` in VIDEO) only after listing that SSRC with quality > 0; otherwise the SFU skips the packets. Opting in also makes the streamer's op 40 STREAM_VIEWERS list include the subscriber.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 #[serde(transparent)]
 pub struct MediaSinkWantsPayload(pub ::std::collections::HashMap<::std::string::String, i64>);
@@ -3325,6 +4579,8 @@ pub struct Message {
     pub application_id: ::std::option::Option<Snowflake>,
     pub attachments: ::std::vec::Vec<Attachment>,
     pub author: User,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub call: ::std::option::Option<MessageCall>,
     pub channel_id: Snowflake,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub components: ::std::vec::Vec<MessageComponent>,
@@ -3343,6 +4599,9 @@ pub struct Message {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub mention_channels: ::std::vec::Vec<ChannelMention>,
     pub mention_everyone: bool,
+    ///Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub mention_here: ::std::option::Option<bool>,
     pub mention_roles: ::std::vec::Vec<Snowflake>,
     pub mentions: ::std::vec::Vec<User>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3355,6 +4614,8 @@ pub struct Message {
     pub nonce: ::std::option::Option<MessageNonce>,
     pub pinned: bool,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub poll: ::std::option::Option<Poll>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub position: ::std::option::Option<i64>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub reactions: ::std::vec::Vec<Reaction>,
@@ -3364,7 +4625,7 @@ pub struct Message {
     pub thread: ::std::option::Option<Channel>,
     pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
     pub tts: bool,
-    ///MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
+    ///MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
     #[serde(rename = "type")]
     pub type_: i64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3376,8 +4637,19 @@ pub struct MessageAckEvent {
     pub channel_id: Snowflake,
     pub mention_count: u64,
     pub message_id: Snowflake,
+    ///Optional for legacy compatibility. Certified clients accept only a newer per-channel version, even for a backwards manual marker; this is independent of the legacy version field.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub read_state_version: ::std::option::Option<ReadStateVersion>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub version: ::std::option::Option<i64>,
+}
+///Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MessageCall {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub ended_timestamp: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    ///IDs of the users who took part in the call.
+    pub participants: ::std::vec::Vec<Snowflake>,
 }
 ///A message component (action row, button, select menu, text input). Action rows nest components.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -3441,6 +4713,8 @@ pub struct MessageEvent {
     pub application_id: ::std::option::Option<Snowflake>,
     pub attachments: ::std::vec::Vec<Attachment>,
     pub author: User,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub call: ::std::option::Option<MessageCall>,
     pub channel_id: Snowflake,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub components: ::std::vec::Vec<MessageComponent>,
@@ -3463,6 +4737,9 @@ pub struct MessageEvent {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub mention_channels: ::std::vec::Vec<ChannelMention>,
     pub mention_everyone: bool,
+    ///Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub mention_here: ::std::option::Option<bool>,
     pub mention_roles: ::std::vec::Vec<Snowflake>,
     pub mentions: ::std::vec::Vec<User>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3475,6 +4752,8 @@ pub struct MessageEvent {
     pub nonce: ::std::option::Option<MessageEventNonce>,
     pub pinned: bool,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub poll: ::std::option::Option<Poll>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub position: ::std::option::Option<i64>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub reactions: ::std::vec::Vec<Reaction>,
@@ -3484,7 +4763,7 @@ pub struct MessageEvent {
     pub thread: ::std::option::Option<Channel>,
     pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
     pub tts: bool,
-    ///MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
+    ///MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
     #[serde(rename = "type")]
     pub type_: i64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3600,6 +4879,36 @@ impl<'de> ::serde::Deserialize<'de> for MessageNonce {
             })
     }
 }
+///Complete authoritative post-mutation counts and actor selection. Single-choice replacement can emit REMOVE and ADD with identical versions/results. Apply snapshots, never deltas.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct MessagePollVoteAddEvent {
+    pub answer_id: ::std::num::NonZeroU64,
+    ///Complete post-mutation selection of user_id, including empty after the last removal.
+    pub answer_ids: ::std::vec::Vec<::std::num::NonZeroU64>,
+    pub channel_id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub guild_id: ::std::option::Option<Snowflake>,
+    pub message_id: Snowflake,
+    pub results: PollResults,
+    pub user_id: Snowflake,
+    pub vote_version: PollVersion,
+}
+///Complete authoritative post-mutation counts and actor selection. Single-choice replacement can emit REMOVE and ADD with identical versions/results. Apply snapshots, never deltas.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct MessagePollVoteRemoveEvent {
+    pub answer_id: ::std::num::NonZeroU64,
+    ///Complete post-mutation selection of user_id, including empty after the last removal.
+    pub answer_ids: ::std::vec::Vec<::std::num::NonZeroU64>,
+    pub channel_id: Snowflake,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub guild_id: ::std::option::Option<Snowflake>,
+    pub message_id: Snowflake,
+    pub results: PollResults,
+    pub user_id: Snowflake,
+    pub vote_version: PollVersion,
+}
 ///MESSAGE_REACTION_ADD dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct MessageReactionAddEvent {
@@ -3639,7 +4948,7 @@ pub struct MessageReactionRemoveEvent {
     pub type_: i64,
     pub user_id: Snowflake,
 }
-///Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
+///Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct MessageReference {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3715,8 +5024,66 @@ pub struct MfaLoginRequest {
 pub struct MfaRequiredResponse {
     pub code: i64,
     pub message: ::std::string::String,
-    ///Present to POST /auth/mfa/totp together with a code.
+    ///Registered factors available for this ticket; older servers may omit it.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub methods: ::std::option::Option<::std::vec::Vec<MfaRequiredResponseMethodsItem>>,
+    ///Present to /auth/mfa/totp with a TOTP/recovery code or to /auth/mfa/webauthn/start.
     pub ticket: ::std::string::String,
+}
+///`MfaRequiredResponseMethodsItem`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum MfaRequiredResponseMethodsItem {
+    #[serde(rename = "totp")]
+    Totp,
+    #[serde(rename = "webauthn")]
+    Webauthn,
+    #[serde(rename = "backup_code")]
+    BackupCode,
+}
+impl ::std::fmt::Display for MfaRequiredResponseMethodsItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Totp => f.write_str("totp"),
+            Self::Webauthn => f.write_str("webauthn"),
+            Self::BackupCode => f.write_str("backup_code"),
+        }
+    }
+}
+impl ::std::str::FromStr for MfaRequiredResponseMethodsItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "totp" => Ok(Self::Totp),
+            "webauthn" => Ok(Self::Webauthn),
+            "backup_code" => Ok(Self::BackupCode),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for MfaRequiredResponseMethodsItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for MfaRequiredResponseMethodsItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
 }
 ///PATCH /applications/{id} body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
@@ -3848,8 +5215,12 @@ pub struct ModifyCurrentUserRequest {
     ///Data URI image.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub avatar: ::std::option::Option<::std::string::String>,
+    ///PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
+    ///About me text; null or blank clears it. Trimmed, at most 300 characters.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bio: ::std::option::Option<ModifyCurrentUserRequestBio>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub email: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -3859,8 +5230,64 @@ pub struct ModifyCurrentUserRequest {
     ///Current password; required with username, email or new_password.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub password: ::std::option::Option<::std::string::String>,
+    ///Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub pronouns: ::std::option::Option<ModifyCurrentUserRequestPronouns>,
+    ///Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub theme_colors: ::std::option::Option<[i64; 2usize]>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub username: ::std::option::Option<ModifyCurrentUserRequestUsername>,
+}
+///About me text; null or blank clears it. Trimmed, at most 300 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyCurrentUserRequestBio(::std::string::String);
+impl ::std::ops::Deref for ModifyCurrentUserRequestBio {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyCurrentUserRequestBio> for ::std::string::String {
+    fn from(value: ModifyCurrentUserRequestBio) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyCurrentUserRequestBio {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyCurrentUserRequestBio {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyCurrentUserRequestBio {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyCurrentUserRequestBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///`ModifyCurrentUserRequestNewPassword`
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -3904,6 +5331,56 @@ impl ::std::convert::TryFrom<::std::string::String> for ModifyCurrentUserRequest
     }
 }
 impl<'de> ::serde::Deserialize<'de> for ModifyCurrentUserRequestNewPassword {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyCurrentUserRequestPronouns(::std::string::String);
+impl ::std::ops::Deref for ModifyCurrentUserRequestPronouns {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyCurrentUserRequestPronouns> for ::std::string::String {
+    fn from(value: ModifyCurrentUserRequestPronouns) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyCurrentUserRequestPronouns {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 40usize {
+            return Err("longer than 40 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyCurrentUserRequestPronouns {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyCurrentUserRequestPronouns {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyCurrentUserRequestPronouns {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -4117,6 +5594,13 @@ pub struct ModifyGuildRequest {
     pub afk_channel_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub afk_timeout: ::std::option::Option<i64>,
+    ///Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub audit_log_enabled: ::std::option::Option<bool>,
+    ///Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub audit_log_retention_days: ::std::option::Option<ModifyGuildRequestAuditLogRetentionDays>,
+    ///Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -4125,6 +5609,9 @@ pub struct ModifyGuildRequest {
     pub description: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub explicit_content_filter: ::std::option::Option<i64>,
+    ///MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub features: ::std::option::Option<::std::vec::Vec<ModifyGuildRequestFeaturesItem>>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub icon: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -4133,12 +5620,19 @@ pub struct ModifyGuildRequest {
     pub owner_id: ::std::option::Option<Snowflake>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub preferred_locale: ::std::option::Option<::std::string::String>,
+    ///Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub prune_admin_only: ::std::option::Option<bool>,
+    ///Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub public_updates_channel_id: ::std::option::Option<Snowflake>,
+    ///Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub rules_channel_id: ::std::option::Option<Snowflake>,
+    ///Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub splash: ::std::option::Option<::std::string::String>,
+    ///Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub system_channel_flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
@@ -4147,6 +5641,87 @@ pub struct ModifyGuildRequest {
     pub verification_level: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub voice_region: ::std::option::Option<::std::string::String>,
+}
+///Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ModifyGuildRequestAuditLogRetentionDays(i64);
+impl ::std::ops::Deref for ModifyGuildRequestAuditLogRetentionDays {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyGuildRequestAuditLogRetentionDays> for i64 {
+    fn from(value: ModifyGuildRequestAuditLogRetentionDays) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for ModifyGuildRequestAuditLogRetentionDays {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![30_i64, 90_i64, 365_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyGuildRequestAuditLogRetentionDays {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///`ModifyGuildRequestFeaturesItem`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ModifyGuildRequestFeaturesItem {
+    #[serde(rename = "COMMUNITY")]
+    Community,
+}
+impl ::std::fmt::Display for ModifyGuildRequestFeaturesItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Community => f.write_str("COMMUNITY"),
+        }
+    }
+}
+impl ::std::str::FromStr for ModifyGuildRequestFeaturesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "COMMUNITY" => Ok(Self::Community),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyGuildRequestFeaturesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyGuildRequestFeaturesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
 }
 ///`ModifyGuildRequestName`
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -4312,9 +5887,18 @@ impl<'de> ::serde::Deserialize<'de> for ModifyGuildTemplateRequestName {
             })
     }
 }
-///PATCH /guilds/{id}/members/{uid} body.
+///PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyMemberRequest {
+    ///Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub avatar: ::std::option::Option<::std::string::String>,
+    ///Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub banner: ::std::option::Option<::std::string::String>,
+    ///Server-specific About me; trimmed, null or blank restores the global bio.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bio: ::std::option::Option<ModifyMemberRequestBio>,
     ///Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub channel_id: ::std::option::Option<Snowflake>,
@@ -4332,6 +5916,56 @@ pub struct ModifyMemberRequest {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub roles: ::std::vec::Vec<Snowflake>,
 }
+///Server-specific About me; trimmed, null or blank restores the global bio.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyMemberRequestBio(::std::string::String);
+impl ::std::ops::Deref for ModifyMemberRequestBio {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyMemberRequestBio> for ::std::string::String {
+    fn from(value: ModifyMemberRequestBio) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyMemberRequestBio {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyMemberRequestBio {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyMemberRequestBio {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyMemberRequestBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///PATCH /users/@me/settings body (partial).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyUserSettingsRequest {
@@ -4346,6 +5980,8 @@ pub struct ModifyUserSettingsRequest {
     ///When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub e2ee_calls_default: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub friend_source_flags: ::std::option::Option<ModifyUserSettingsRequestFriendSourceFlags>,
     ///The user's server rail in order, with folders. Synced across devices.
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub guild_folders: ::std::vec::Vec<GuildFolder>,
@@ -4356,6 +5992,16 @@ pub struct ModifyUserSettingsRequest {
     pub locale: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub message_display_compact: ::std::option::Option<bool>,
+    ///Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.
+    #[serde(
+        default,
+        skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+    )]
+    pub pinned_channel_ids:
+        ::std::collections::HashMap<::std::string::String, ::std::vec::Vec<Snowflake>>,
+    ///DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub pinned_dm_channel_ids: ::std::vec::Vec<Snowflake>,
     ///Merged key by key into the stored preferences.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub preferences: ::std::option::Option<UserPreferences>,
@@ -4363,6 +6009,17 @@ pub struct ModifyUserSettingsRequest {
     pub status: ::std::option::Option<ModifyUserSettingsRequestStatus>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub theme: ::std::option::Option<ModifyUserSettingsRequestTheme>,
+}
+///Partial friend-request source update; omitted flags retain their values.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ModifyUserSettingsRequestFriendSourceFlags {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub all: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub mutual_friends: ::std::option::Option<bool>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub mutual_guilds: ::std::option::Option<bool>,
 }
 ///`ModifyUserSettingsRequestStatus`
 #[derive(
@@ -4478,6 +6135,65 @@ impl ::std::convert::TryFrom<::std::string::String> for ModifyUserSettingsReques
         value.parse()
     }
 }
+///Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ModifyVanityUrlRequest {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub code: ::std::option::Option<ModifyVanityUrlRequestCode>,
+}
+///`ModifyVanityUrlRequestCode`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ModifyVanityUrlRequestCode(::std::string::String);
+impl ::std::ops::Deref for ModifyVanityUrlRequestCode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ModifyVanityUrlRequestCode> for ::std::string::String {
+    fn from(value: ModifyVanityUrlRequestCode) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ModifyVanityUrlRequestCode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[A-Za-z0-9-]{2,32}$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[A-Za-z0-9-]{2,32}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ModifyVanityUrlRequestCode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ModifyVanityUrlRequestCode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ModifyVanityUrlRequestCode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///PATCH /webhooks/{id} body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
 pub struct ModifyWebhookRequest {
@@ -4494,7 +6210,134 @@ pub struct MuteConfig {
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub end_time: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
 }
-///GET /oauth2/authorize response: what the bot invite screen shows.
+///A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct NotificationRecipient {
+    ///Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing.
+    pub level: NotificationRecipientLevel,
+    ///A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired.
+    pub muted: bool,
+    ///Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground.
+    pub online: bool,
+    pub role_ids: ::std::vec::Vec<Snowflake>,
+    pub suppress_everyone: bool,
+    pub suppress_roles: bool,
+    pub user_id: Snowflake,
+}
+///Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing.
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct NotificationRecipientLevel(i64);
+impl ::std::ops::Deref for NotificationRecipientLevel {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<NotificationRecipientLevel> for i64 {
+    fn from(value: NotificationRecipientLevel) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for NotificationRecipientLevel {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![0_i64, 1_i64, 2_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for NotificationRecipientLevel {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(untagged, deny_unknown_fields)]
+pub enum NotificationRecipientPage {
+    Variant0 {
+        channel_id: Snowflake,
+        delivery_mode: ::std::string::String,
+        evaluated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        #[serde(deserialize_with = "::std::option::Option::deserialize")]
+        guild_id: ::std::option::Option<Snowflake>,
+        ///Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue.
+        #[serde(deserialize_with = "::std::option::Option::deserialize")]
+        next_after: ::std::option::Option<Snowflake>,
+        recipients: ::std::vec::Vec<NotificationRecipient>,
+    },
+    Variant1 {
+        channel_id: Snowflake,
+        delivery_mode: NotificationRecipientPageVariant1DeliveryMode,
+        evaluated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        #[serde(deserialize_with = "::std::option::Option::deserialize")]
+        guild_id: ::std::option::Option<Snowflake>,
+        next_after: (),
+        recipients: ::std::vec::Vec<NotificationRecipient>,
+    },
+}
+///`NotificationRecipientPageVariant1DeliveryMode`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum NotificationRecipientPageVariant1DeliveryMode {
+    #[serde(rename = "ephemeral")]
+    Ephemeral,
+    #[serde(rename = "p2p")]
+    P2p,
+}
+impl ::std::fmt::Display for NotificationRecipientPageVariant1DeliveryMode {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Ephemeral => f.write_str("ephemeral"),
+            Self::P2p => f.write_str("p2p"),
+        }
+    }
+}
+impl ::std::str::FromStr for NotificationRecipientPageVariant1DeliveryMode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "ephemeral" => Ok(Self::Ephemeral),
+            "p2p" => Ok(Self::P2p),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for NotificationRecipientPageVariant1DeliveryMode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for NotificationRecipientPageVariant1DeliveryMode
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///Bot-install consent information. Only bot and applications.commands are supported.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct OAuth2AuthorizeInfo {
     pub application: Application,
@@ -4503,30 +6346,88 @@ pub struct OAuth2AuthorizeInfo {
     pub guilds: ::std::vec::Vec<OAuth2Guild>,
     ///Permissions requested by the invite URL.
     pub permissions: PermissionBitset,
-    pub scopes: ::std::vec::Vec<::std::string::String>,
+    pub scopes: ::std::vec::Vec<OAuth2AuthorizeInfoScopesItem>,
     pub user: User,
 }
-///POST /oauth2/authorize body: add a bot to a guild.
+///`OAuth2AuthorizeInfoScopesItem`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum OAuth2AuthorizeInfoScopesItem {
+    #[serde(rename = "bot")]
+    Bot,
+    #[serde(rename = "applications.commands")]
+    ApplicationsCommands,
+}
+impl ::std::fmt::Display for OAuth2AuthorizeInfoScopesItem {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Bot => f.write_str("bot"),
+            Self::ApplicationsCommands => f.write_str("applications.commands"),
+        }
+    }
+}
+impl ::std::str::FromStr for OAuth2AuthorizeInfoScopesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "bot" => Ok(Self::Bot),
+            "applications.commands" => Ok(Self::ApplicationsCommands),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for OAuth2AuthorizeInfoScopesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for OAuth2AuthorizeInfoScopesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct OAuth2AuthorizeRequest {
     pub client_id: Snowflake,
     pub guild_id: Snowflake,
+    pub installation_revision: BotInstallationRevision,
+    ///For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review.
     pub permissions: PermissionBitset,
-    ///Space-separated scopes, e.g. "bot applications.commands".
+    ///Space-separated bot and optionally applications.commands. bot is required.
     pub scope: ::std::string::String,
 }
 ///POST /oauth2/authorize response.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct OAuth2AuthorizeResponse {
-    ///Where the client should navigate next.
+    ///Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI.
     pub location: ::std::string::String,
 }
 ///A guild the user can add the bot to.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct OAuth2Guild {
+    ///Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub bot_permissions: ::std::option::Option<PermissionBitset>,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub icon: ::std::option::Option<::std::string::String>,
     pub id: Snowflake,
+    pub installation_revision: BotInstallationRevision,
     pub name: ::std::string::String,
     pub permissions: PermissionBitset,
 }
@@ -4625,6 +6526,475 @@ pub struct PartialUser {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub username: ::std::option::Option<::std::string::String>,
 }
+///Registered second factor metadata. Credential public keys and challenges are never included.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct Passkey {
+    pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub id: ::uuid::Uuid,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub last_used_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    pub name: PasskeyName,
+}
+///Removing a passkey needs the password and a valid TOTP or one-time recovery code. Removing the last factor turns MFA off.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyDeleteRequest {
+    pub code: PasskeyDeleteRequestCode,
+    pub password: PasskeyDeleteRequestPassword,
+}
+///`PasskeyDeleteRequestCode`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyDeleteRequestCode(::std::string::String);
+impl ::std::ops::Deref for PasskeyDeleteRequestCode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyDeleteRequestCode> for ::std::string::String {
+    fn from(value: PasskeyDeleteRequestCode) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyDeleteRequestCode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyDeleteRequestCode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyDeleteRequestCode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyDeleteRequestCode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`PasskeyDeleteRequestPassword`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyDeleteRequestPassword(::std::string::String);
+impl ::std::ops::Deref for PasskeyDeleteRequestPassword {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyDeleteRequestPassword> for ::std::string::String {
+    fn from(value: PasskeyDeleteRequestPassword) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyDeleteRequestPassword {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyDeleteRequestPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyDeleteRequestPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyDeleteRequestPassword {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`PasskeyName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyName(::std::string::String);
+impl ::std::ops::Deref for PasskeyName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyName> for ::std::string::String {
+    fn from(value: PasskeyName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 64usize {
+            return Err("longer than 64 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Finish the registration using navigator.credentials.create, serializing binary fields as unpadded base64url.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyRegisterFinishRequest {
+    pub challenge_id: ::uuid::Uuid,
+    pub credential: PasskeyRegisterFinishRequestCredential,
+}
+///`PasskeyRegisterFinishRequestCredential`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyRegisterFinishRequestCredential {
+    pub id: PasskeyRegisterFinishRequestCredentialId,
+    #[serde(rename = "rawId")]
+    pub raw_id: PasskeyRegisterFinishRequestCredentialRawId,
+    pub response: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+///`PasskeyRegisterFinishRequestCredentialId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyRegisterFinishRequestCredentialId(::std::string::String);
+impl ::std::ops::Deref for PasskeyRegisterFinishRequestCredentialId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyRegisterFinishRequestCredentialId> for ::std::string::String {
+    fn from(value: PasskeyRegisterFinishRequestCredentialId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyRegisterFinishRequestCredentialId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyRegisterFinishRequestCredentialId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyRegisterFinishRequestCredentialId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyRegisterFinishRequestCredentialId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`PasskeyRegisterFinishRequestCredentialRawId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyRegisterFinishRequestCredentialRawId(::std::string::String);
+impl ::std::ops::Deref for PasskeyRegisterFinishRequestCredentialRawId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyRegisterFinishRequestCredentialRawId> for ::std::string::String {
+    fn from(value: PasskeyRegisterFinishRequestCredentialRawId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyRegisterFinishRequestCredentialRawId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyRegisterFinishRequestCredentialRawId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+    for PasskeyRegisterFinishRequestCredentialRawId
+{
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyRegisterFinishRequestCredentialRawId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///The enrolled passkey. First-factor enrollment generates recovery codes; existing codes are retained when another factor is added.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyRegisterResponse {
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub backup_codes: ::std::vec::Vec<PasskeyRegisterResponseBackupCodesItem>,
+    pub passkey: Passkey,
+}
+///`PasskeyRegisterResponseBackupCodesItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyRegisterResponseBackupCodesItem {
+    ///Plaintext code; omitted when only the consumed state is listed.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub code: ::std::option::Option<::std::string::String>,
+    pub consumed: bool,
+}
+///Reauthenticate with the password before creating a passkey registration challenge.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PasskeyRegisterStartRequest {
+    pub name: PasskeyRegisterStartRequestName,
+    pub password: PasskeyRegisterStartRequestPassword,
+}
+///`PasskeyRegisterStartRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyRegisterStartRequestName(::std::string::String);
+impl ::std::ops::Deref for PasskeyRegisterStartRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyRegisterStartRequestName> for ::std::string::String {
+    fn from(value: PasskeyRegisterStartRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyRegisterStartRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 64usize {
+            return Err("longer than 64 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyRegisterStartRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyRegisterStartRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyRegisterStartRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`PasskeyRegisterStartRequestPassword`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyRegisterStartRequestPassword(::std::string::String);
+impl ::std::ops::Deref for PasskeyRegisterStartRequestPassword {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyRegisterStartRequestPassword> for ::std::string::String {
+    fn from(value: PasskeyRegisterStartRequestPassword) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyRegisterStartRequestPassword {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyRegisterStartRequestPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyRegisterStartRequestPassword {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyRegisterStartRequestPassword {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PasskeyRenameRequest {
+    pub name: PasskeyRenameRequestName,
+}
+///`PasskeyRenameRequestName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PasskeyRenameRequestName(::std::string::String);
+impl ::std::ops::Deref for PasskeyRenameRequestName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PasskeyRenameRequestName> for ::std::string::String {
+    fn from(value: PasskeyRenameRequestName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PasskeyRenameRequestName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 64usize {
+            return Err("longer than 64 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PasskeyRenameRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PasskeyRenameRequestName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PasskeyRenameRequestName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct PasswordConfirmationRequest {
@@ -4691,6 +7061,452 @@ pub struct PermissionOverwrite {
     ///OverwriteType: 0 role, 1 member.
     #[serde(rename = "type")]
     pub type_: i64,
+}
+///A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct Poll {
+    pub allow_multiselect: bool,
+    pub answers: ::std::vec::Vec<PollAnswer>,
+    pub expiry: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub layout_type: PollLayoutType,
+    pub question: PollQuestion,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub results: ::std::option::Option<PollResults>,
+}
+///`PollAnswer`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollAnswer {
+    pub answer_id: ::std::num::NonZeroU64,
+    pub poll_media: PollMedia,
+}
+///`PollAnswerCount`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollAnswerCount {
+    pub count: i64,
+    pub id: ::std::num::NonZeroU64,
+    ///Absent in public events: unknown, not false.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub me_voted: ::std::option::Option<bool>,
+}
+///Immutable poll definition for a Standard public message. Answer IDs and expiry are server assigned. Unsupported internal/webhook/interaction, scheduled and forward creation is rejected.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollCreate {
+    #[serde(default)]
+    pub allow_multiselect: bool,
+    pub answers: ::std::vec::Vec<PollCreateAnswersItem>,
+    ///Whole hours from server acceptance.
+    #[serde(default = "defaults::default_nzu64::<::std::num::NonZeroU64, 24>")]
+    pub duration: ::std::num::NonZeroU64,
+    #[serde(default = "defaults::poll_create_layout_type")]
+    pub layout_type: PollCreateLayoutType,
+    pub question: PollQuestion,
+}
+///`PollCreateAnswersItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollCreateAnswersItem {
+    pub poll_media: PollMedia,
+}
+///`PollCreateLayoutType`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct PollCreateLayoutType(i64);
+impl ::std::ops::Deref for PollCreateLayoutType {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<PollCreateLayoutType> for i64 {
+    fn from(value: PollCreateLayoutType) -> Self {
+        value.0
+    }
+}
+impl ::std::default::Default for PollCreateLayoutType {
+    fn default() -> Self {
+        PollCreateLayoutType(1_i64)
+    }
+}
+impl ::std::convert::TryFrom<i64> for PollCreateLayoutType {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![1_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PollCreateLayoutType {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollEmoji {
+    pub name: PollEmojiName,
+}
+///`PollEmojiName`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PollEmojiName(::std::string::String);
+impl ::std::ops::Deref for PollEmojiName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PollEmojiName> for ::std::string::String {
+    fn from(value: PollEmojiName) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PollEmojiName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 64usize {
+            return Err("longer than 64 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PollEmojiName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PollEmojiName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PollEmojiName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`PollLayoutType`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct PollLayoutType(i64);
+impl ::std::ops::Deref for PollLayoutType {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<PollLayoutType> for i64 {
+    fn from(value: PollLayoutType) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for PollLayoutType {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![1_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PollLayoutType {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///An answer label, optionally decorated with a Unicode emoji.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollMedia {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub emoji: ::std::option::Option<PollEmoji>,
+    pub text: PollMediaText,
+}
+///`PollMediaText`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PollMediaText(::std::string::String);
+impl ::std::ops::Deref for PollMediaText {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PollMediaText> for ::std::string::String {
+    fn from(value: PollMediaText) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PollMediaText {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 55usize {
+            return Err("longer than 55 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("\\S").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"\\S\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PollMediaText {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PollMediaText {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PollMediaText {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Plain text. Does not produce mentions or embeds.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollQuestion {
+    pub text: PollQuestionText,
+}
+///`PollQuestionText`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PollQuestionText(::std::string::String);
+impl ::std::ops::Deref for PollQuestionText {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PollQuestionText> for ::std::string::String {
+    fn from(value: PollQuestionText) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PollQuestionText {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("\\S").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"\\S\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PollQuestionText {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PollQuestionText {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PollQuestionText {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Authoritative counts. Replace by results version; never add/subtract event deltas.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollResults {
+    ///Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer.
+    pub answer_counts: ::std::vec::Vec<PollAnswerCount>,
+    pub is_finalized: bool,
+    pub version: PollVersion,
+    ///Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub vote_version: ::std::option::Option<PollVersion>,
+}
+///Viewer-authorized poll snapshot. GET is side-effect-free. Refresh visible polls on foreground/reconnect to repair missed publication.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollSnapshot {
+    pub allow_multiselect: bool,
+    pub answers: ::std::vec::Vec<PollAnswer>,
+    pub expiry: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub layout_type: PollSnapshotLayoutType,
+    pub question: PollQuestion,
+    pub results: PollViewerResults,
+}
+///`PollSnapshotLayoutType`
+#[derive(::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct PollSnapshotLayoutType(i64);
+impl ::std::ops::Deref for PollSnapshotLayoutType {
+    type Target = i64;
+    fn deref(&self) -> &i64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<PollSnapshotLayoutType> for i64 {
+    fn from(value: PollSnapshotLayoutType) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::TryFrom<i64> for PollSnapshotLayoutType {
+    type Error = self::error::ConversionError;
+    fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if ![1_i64].contains(&value) {
+            Err("invalid value".into())
+        } else {
+            Ok(Self(value))
+        }
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PollSnapshotLayoutType {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        Self::try_from(<i64>::deserialize(deserializer)?)
+            .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+    }
+}
+///Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct PollVersion(::std::string::String);
+impl ::std::ops::Deref for PollVersion {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<PollVersion> for ::std::string::String {
+    fn from(value: PollVersion) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for PollVersion {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^(0|[1-9][0-9]{0,18})$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^(0|[1-9][0-9]{0,18})$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for PollVersion {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for PollVersion {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for PollVersion {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`PollViewerAnswerCount`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollViewerAnswerCount {
+    pub count: i64,
+    pub id: ::std::num::NonZeroU64,
+    ///Absent in public events: unknown, not false.
+    pub me_voted: bool,
+}
+///Authenticated snapshot with explicit selection for every answer and the viewer revision, including zero for a first-time viewer.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollViewerResults {
+    ///Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer.
+    pub answer_counts: ::std::vec::Vec<PollViewerAnswerCount>,
+    pub is_finalized: bool,
+    pub version: PollVersion,
+    ///Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts.
+    pub vote_version: PollVersion,
+}
+///The revision of your own vote, not the global results. An already-satisfied retry is a no-op; any stale request that changes your selection conflicts.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct PollVoteRequest {
+    pub expected_vote_version: PollVersion,
 }
 ///PRESENCE_UPDATE dispatch.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -4761,11 +7577,15 @@ impl ::std::convert::TryFrom<::std::string::String> for PresenceUpdateEventStatu
         value.parse()
     }
 }
-///Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY).
+///Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY). `activities` are sanitised by the gateway: at most 5 entries and at most one of type 4 (custom status); text fields at most 128 characters, `url` at most 512; unknown fields are dropped. Any violation closes the socket with 4002 DECODE_ERROR.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct PresenceUpdatePayload {
+    ///At most 5 activities, at most one with type 4. Violations close the socket with 4002.
     pub activities: ::std::vec::Vec<Activity>,
     pub afk: bool,
+    ///Mobile lifecycle hint. True means this app entered the background; false (also the default when omitted) means foreground. Only authenticated mobile user sessions may retain their effective presence after transport suspension, for a bounded server-configured lease (24 hours by default). This does not prove the app is still running. Logout or session revocation removes it immediately, and foreground/resume cancels the lease. Clients send their chosen effective status: automatic background idle must not replace explicitly selected Online, Idle, DND or Invisible. Desktop and bot sessions do not gain a background lease.
+    #[serde(default)]
+    pub background: bool,
     ///Unix ms since the client went idle.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub since: ::std::option::Option<i64>,
@@ -4829,6 +7649,207 @@ impl ::std::convert::TryFrom<::std::string::String> for PresenceUpdatePayloadSta
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
     }
+}
+///Mandatory additional validation for a voice token signed with VOICE_PROBE_TOKEN_SECRET and purpose=probe. The call-signing key must not authorize probe tokens, nor the probe key call tokens. The live node lease must match, video must be disabled, and the server derives an isolated room from node_lease plus probe_id. Never authorize an ordinary user room from a probe token's srv/chn values.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ProbeVoiceTokenClaims {
+    ///Voice channel ID.
+    pub chn: Snowflake,
+    pub e2ee: bool,
+    pub exp: i64,
+    pub iat: i64,
+    ///Allocated voice node ID.
+    pub node: ::std::string::String,
+    pub node_lease: ProbeVoiceTokenClaimsNodeLease,
+    pub probe_id: ::uuid::Uuid,
+    pub purpose: ProbeVoiceTokenClaimsPurpose,
+    ///Gateway session ID.
+    pub sid: ::std::string::String,
+    ///guild_id, or the DM channel_id for DM calls.
+    pub srv: Snowflake,
+    ///User ID.
+    pub sub: Snowflake,
+}
+///`ProbeVoiceTokenClaimsNodeLease`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ProbeVoiceTokenClaimsNodeLease(::std::string::String);
+impl ::std::ops::Deref for ProbeVoiceTokenClaimsNodeLease {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ProbeVoiceTokenClaimsNodeLease> for ::std::string::String {
+    fn from(value: ProbeVoiceTokenClaimsNodeLease) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ProbeVoiceTokenClaimsNodeLease {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[1-9][0-9]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[1-9][0-9]*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ProbeVoiceTokenClaimsNodeLease {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ProbeVoiceTokenClaimsNodeLease {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ProbeVoiceTokenClaimsNodeLease {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`ProbeVoiceTokenClaimsPurpose`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ProbeVoiceTokenClaimsPurpose {
+    #[serde(rename = "probe")]
+    Probe,
+}
+impl ::std::fmt::Display for ProbeVoiceTokenClaimsPurpose {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Probe => f.write_str("probe"),
+        }
+    }
+}
+impl ::std::str::FromStr for ProbeVoiceTokenClaimsPurpose {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "probe" => Ok(Self::Probe),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ProbeVoiceTokenClaimsPurpose {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ProbeVoiceTokenClaimsPurpose {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///An earned badge and the owner-selected visibility.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ProfileBadge {
+    pub id: ProfileBadgeId,
+    pub visible: bool,
+}
+///`ProfileBadgeId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ProfileBadgeId(::std::string::String);
+impl ::std::ops::Deref for ProfileBadgeId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ProfileBadgeId> for ::std::string::String {
+    fn from(value: ProfileBadgeId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ProfileBadgeId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| {
+                ::regress::Regex::new("^[a-z0-9][a-z0-9_-]{0,63}$").unwrap()
+            });
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[a-z0-9][a-z0-9_-]{0,63}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ProfileBadgeId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ProfileBadgeId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ProfileBadgeId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///POST /guilds/{id}/prune body.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PruneRequest {
+    #[serde(default = "defaults::default_nzu64::<::std::num::NonZeroU64, 7>")]
+    pub days: ::std::num::NonZeroU64,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub include_roles: ::std::vec::Vec<Snowflake>,
+}
+impl ::std::default::Default for PruneRequest {
+    fn default() -> Self {
+        Self {
+            days: defaults::default_nzu64::<::std::num::NonZeroU64, 7>(),
+            include_roles: Default::default(),
+        }
+    }
+}
+///GET /guilds/{id}/prune (members that would be removed) and POST /guilds/{id}/prune (members removed).
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct PruneResult {
+    pub pruned: u64,
 }
 ///A device's public identity, as listed by GET /users/{id}/devices.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -4918,6 +7939,104 @@ pub struct ReactionCountDetails {
     pub burst: i64,
     pub normal: i64,
 }
+///One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ReadState {
+    pub id: Snowflake,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub last_message_id: ::std::option::Option<Snowflake>,
+    pub mention_count: u32,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub read_state_version: ::std::option::Option<ReadStateVersion>,
+}
+///Certified snapshot fetched during resume, after subscription and before RESUMED. Merge each channel by version with replayed updates; an absent channel is not a deletion. An equal version may restore the known authoritative snapshot over local optimistic state, but conflicting equal-version data and older versions are ignored. A fresh READY, not this event, starts a new version history.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ReadStateSyncEvent {
+    pub read_state: ::std::vec::Vec<ReadStateSyncEventReadStateItem>,
+    pub read_state_versioned: ::serde_json::Value,
+}
+///`ReadStateSyncEventReadStateItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ReadStateSyncEventReadStateItem {
+    pub id: Snowflake,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub last_message_id: ::std::option::Option<Snowflake>,
+    pub mention_count: u32,
+    pub read_state_version: ReadStateVersion,
+}
+///Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct ReadStateUpdateEvent {
+    pub channel_id: Snowflake,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub last_message_id: ::std::option::Option<Snowflake>,
+    pub mention_count: u32,
+    pub read_state_version: ReadStateVersion,
+}
+///Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ReadStateVersion(::std::string::String);
+impl ::std::ops::Deref for ReadStateVersion {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ReadStateVersion> for ::std::string::String {
+    fn from(value: ReadStateVersion) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ReadStateVersion {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 19usize {
+            return Err("longer than 19 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> = ::std::sync::LazyLock::new(
+            || {
+                ::regress::Regex::new(
+                    "^(0|[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6]|9223372036854775807)$",
+                )
+                .unwrap()
+            },
+        );
+        if PATTERN.find(value).is_none() {
+            return Err(
+                "doesn't match pattern \"^(0|[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6]|9223372036854775807)$\""
+                    .into(),
+            );
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ReadStateVersion {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ReadStateVersion {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ReadStateVersion {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///The bot's application.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct ReadyApplication {
@@ -4929,10 +8048,15 @@ pub struct ReadyApplication {
 pub struct ReadyEvent {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub application: ::std::option::Option<ReadyApplication>,
-    pub guilds: ::std::vec::Vec<GuildFull>,
+    pub guilds: ::std::vec::Vec<GatewayGuildState>,
     ///The user's private notes keyed by the noted user's id.
     pub notes: ::std::collections::HashMap<::std::string::String, ReadyEventNotesValue>,
     pub private_channels: ::std::vec::Vec<Channel>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub read_state: ::std::vec::Vec<ReadState>,
+    ///Present only after successful certified messages hydration. Standard counts use authoritative snapshots rather than CREATE increments; private decrypted traffic stays local. Absent means legacy behavior.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub read_state_versioned: ::std::option::Option<::serde_json::Value>,
     pub relationships: ::std::vec::Vec<Relationship>,
     pub resume_gateway_url: ::std::string::String,
     pub session_id: ::std::string::String,
@@ -4998,6 +8122,9 @@ impl<'de> ::serde::Deserialize<'de> for ReadyEventNotesValue {
 pub struct RefreshRequest {
     ///Opaque 256-bit token, base64url.
     pub refresh_token: ::std::string::String,
+    ///Optional random UUID saved durably with the current refresh token before sending. Retrying this exact pair for up to five minutes recovers its immediate unused, unexpired successor in a live session without extending expiry. Keep the UUID until successor credentials are saved, then generate a new UUID for the next rotation. Omission retains strict single-use rotation.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub request_id: ::std::option::Option<::uuid::Uuid>,
 }
 ///POST /auth/register body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -5131,6 +8258,143 @@ pub struct RelationshipRemoveEvent {
     pub id: Snowflake,
     #[serde(rename = "type")]
     pub type_: i64,
+}
+///Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ReportListingRequest {
+    pub category: ReportListingRequestCategory,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub note: ::std::option::Option<ReportListingRequestNote>,
+}
+///`ReportListingRequestCategory`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ReportListingRequestCategory {
+    #[serde(rename = "spam")]
+    Spam,
+    #[serde(rename = "harassment")]
+    Harassment,
+    #[serde(rename = "hate_speech")]
+    HateSpeech,
+    #[serde(rename = "violence")]
+    Violence,
+    #[serde(rename = "sexual_content")]
+    SexualContent,
+    #[serde(rename = "self_harm")]
+    SelfHarm,
+    #[serde(rename = "illegal")]
+    Illegal,
+    #[serde(rename = "impersonation")]
+    Impersonation,
+    #[serde(rename = "other")]
+    Other,
+}
+impl ::std::fmt::Display for ReportListingRequestCategory {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Spam => f.write_str("spam"),
+            Self::Harassment => f.write_str("harassment"),
+            Self::HateSpeech => f.write_str("hate_speech"),
+            Self::Violence => f.write_str("violence"),
+            Self::SexualContent => f.write_str("sexual_content"),
+            Self::SelfHarm => f.write_str("self_harm"),
+            Self::Illegal => f.write_str("illegal"),
+            Self::Impersonation => f.write_str("impersonation"),
+            Self::Other => f.write_str("other"),
+        }
+    }
+}
+impl ::std::str::FromStr for ReportListingRequestCategory {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "spam" => Ok(Self::Spam),
+            "harassment" => Ok(Self::Harassment),
+            "hate_speech" => Ok(Self::HateSpeech),
+            "violence" => Ok(Self::Violence),
+            "sexual_content" => Ok(Self::SexualContent),
+            "self_harm" => Ok(Self::SelfHarm),
+            "illegal" => Ok(Self::Illegal),
+            "impersonation" => Ok(Self::Impersonation),
+            "other" => Ok(Self::Other),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ReportListingRequestCategory {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ReportListingRequestCategory {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`ReportListingRequestNote`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ReportListingRequestNote(::std::string::String);
+impl ::std::ops::Deref for ReportListingRequestNote {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ReportListingRequestNote> for ::std::string::String {
+    fn from(value: ReportListingRequestNote) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ReportListingRequestNote {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 500usize {
+            return Err("longer than 500 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ReportListingRequestNote {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ReportListingRequestNote {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ReportListingRequestNote {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///Op 8 REQUEST_GUILD_MEMBERS.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -5399,6 +8663,329 @@ pub struct RoleTags {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub integration_id: ::std::option::Option<Snowflake>,
 }
+///Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ScheduledMessage {
+    pub author_id: Snowflake,
+    pub channel_id: Snowflake,
+    pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub failure: ::std::option::Option<ScheduledMessageFailure>,
+    pub id: ScheduledMessageId,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub message: ::std::option::Option<ScheduledMessageDraft>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub message_id: ::std::option::Option<Snowflake>,
+    pub revision: ScheduledMessageRevision,
+    pub scheduled_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    pub status: ScheduledMessageStatus,
+    pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+}
+///Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ScheduledMessageDraft {
+    pub content: ScheduledMessageDraftContent,
+    ///Whether a reply mentions its target author; ignored when reply_to is absent.
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub replied_user: bool,
+    ///Same-channel reply target, revalidated at dispatch.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub reply_to: ::std::option::Option<Snowflake>,
+    ///Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics.
+    #[serde(default)]
+    pub silent: bool,
+    ///Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch.
+    #[serde(default)]
+    pub tts: bool,
+}
+///`ScheduledMessageDraftContent`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ScheduledMessageDraftContent(::std::string::String);
+impl ::std::ops::Deref for ScheduledMessageDraftContent {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ScheduledMessageDraftContent> for ::std::string::String {
+    fn from(value: ScheduledMessageDraftContent) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ScheduledMessageDraftContent {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 2000usize {
+            return Err("longer than 2000 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("\\S").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"\\S\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledMessageDraftContent {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ScheduledMessageDraftContent {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ScheduledMessageDraftContent {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`ScheduledMessageFailure`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ScheduledMessageFailure {
+    #[serde(rename = "access_denied")]
+    AccessDenied,
+    #[serde(rename = "channel_missing")]
+    ChannelMissing,
+    #[serde(rename = "delivery_mode_changed")]
+    DeliveryModeChanged,
+    #[serde(rename = "invalid_message")]
+    InvalidMessage,
+    #[serde(rename = "dependency_unavailable")]
+    DependencyUnavailable,
+    #[serde(rename = "delivery_unknown")]
+    DeliveryUnknown,
+}
+impl ::std::fmt::Display for ScheduledMessageFailure {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::AccessDenied => f.write_str("access_denied"),
+            Self::ChannelMissing => f.write_str("channel_missing"),
+            Self::DeliveryModeChanged => f.write_str("delivery_mode_changed"),
+            Self::InvalidMessage => f.write_str("invalid_message"),
+            Self::DependencyUnavailable => f.write_str("dependency_unavailable"),
+            Self::DeliveryUnknown => f.write_str("delivery_unknown"),
+        }
+    }
+}
+impl ::std::str::FromStr for ScheduledMessageFailure {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "access_denied" => Ok(Self::AccessDenied),
+            "channel_missing" => Ok(Self::ChannelMissing),
+            "delivery_mode_changed" => Ok(Self::DeliveryModeChanged),
+            "invalid_message" => Ok(Self::InvalidMessage),
+            "dependency_unavailable" => Ok(Self::DependencyUnavailable),
+            "delivery_unknown" => Ok(Self::DeliveryUnknown),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledMessageFailure {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ScheduledMessageFailure {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ScheduledMessageId(pub ::uuid::Uuid);
+impl ::std::ops::Deref for ScheduledMessageId {
+    type Target = ::uuid::Uuid;
+    fn deref(&self) -> &::uuid::Uuid {
+        &self.0
+    }
+}
+impl ::std::convert::From<ScheduledMessageId> for ::uuid::Uuid {
+    fn from(value: ScheduledMessageId) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<::uuid::Uuid> for ScheduledMessageId {
+    fn from(value: ::uuid::Uuid) -> Self {
+        Self(value)
+    }
+}
+impl ::std::fmt::Display for ScheduledMessageId {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+impl ::std::str::FromStr for ScheduledMessageId {
+    type Err = <::uuid::Uuid as ::std::str::FromStr>::Err;
+    fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+        Ok(Self(value.parse()?))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledMessageId {
+    type Error = <::uuid::Uuid as ::std::str::FromStr>::Err;
+    fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<String> for ScheduledMessageId {
+    type Error = <::uuid::Uuid as ::std::str::FromStr>::Err;
+    fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+///Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ScheduledMessageList {
+    pub items: ::std::vec::Vec<ScheduledMessage>,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub next_after: ::std::option::Option<ScheduledMessageId>,
+}
+///Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct ScheduledMessageRevision(pub ::std::num::NonZeroU64);
+impl ::std::ops::Deref for ScheduledMessageRevision {
+    type Target = ::std::num::NonZeroU64;
+    fn deref(&self) -> &::std::num::NonZeroU64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<ScheduledMessageRevision> for ::std::num::NonZeroU64 {
+    fn from(value: ScheduledMessageRevision) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<::std::num::NonZeroU64> for ScheduledMessageRevision {
+    fn from(value: ::std::num::NonZeroU64) -> Self {
+        Self(value)
+    }
+}
+impl ::std::fmt::Display for ScheduledMessageRevision {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+impl ::std::str::FromStr for ScheduledMessageRevision {
+    type Err = <::std::num::NonZeroU64 as ::std::str::FromStr>::Err;
+    fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+        Ok(Self(value.parse()?))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledMessageRevision {
+    type Error = <::std::num::NonZeroU64 as ::std::str::FromStr>::Err;
+    fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<String> for ScheduledMessageRevision {
+    type Error = <::std::num::NonZeroU64 as ::std::str::FromStr>::Err;
+    fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+///`ScheduledMessageStatus`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ScheduledMessageStatus {
+    #[serde(rename = "pending")]
+    Pending,
+    #[serde(rename = "dispatching")]
+    Dispatching,
+    #[serde(rename = "sent")]
+    Sent,
+    #[serde(rename = "failed")]
+    Failed,
+    #[serde(rename = "cancelled")]
+    Cancelled,
+    #[serde(rename = "delivery_unknown")]
+    DeliveryUnknown,
+}
+impl ::std::fmt::Display for ScheduledMessageStatus {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Pending => f.write_str("pending"),
+            Self::Dispatching => f.write_str("dispatching"),
+            Self::Sent => f.write_str("sent"),
+            Self::Failed => f.write_str("failed"),
+            Self::Cancelled => f.write_str("cancelled"),
+            Self::DeliveryUnknown => f.write_str("delivery_unknown"),
+        }
+    }
+}
+impl ::std::str::FromStr for ScheduledMessageStatus {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "pending" => Ok(Self::Pending),
+            "dispatching" => Ok(Self::Dispatching),
+            "sent" => Ok(Self::Sent),
+            "failed" => Ok(Self::Failed),
+            "cancelled" => Ok(Self::Cancelled),
+            "delivery_unknown" => Ok(Self::DeliveryUnknown),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ScheduledMessageStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ScheduledMessageStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
 ///An option of a string select menu.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct SelectOption {
@@ -5452,6 +9039,12 @@ pub struct SessionDescriptionPayload {
     pub ice_pwd: ::std::string::String,
     pub ice_ufrag: ::std::string::String,
     pub video_codec: ::std::string::String,
+}
+///SESSION_REVOKE bus event (discordy.user.v1, routed to the user in target_user_ids). Login sessions were revoked (DELETE /users/@me/sessions/{id}, POST /users/@me/sessions/logout-all). The gateway closes every live connection whose authenticated session id is listed, with close code 4004, and never dispatches it to clients.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SessionRevokeEvent {
+    ///The revoked session ids.
+    pub session_ids: ::std::vec::Vec<::uuid::Uuid>,
 }
 ///SESSIONS_REPLACE dispatch: every active session of the user.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -5530,6 +9123,16 @@ pub struct SfuStats {
     pub packets_lost: ::std::option::Option<u64>,
     pub sessions: u64,
 }
+///SFU control event: the set of subscribers opted in to a screen share changed. Carries the full viewer list; signalling forwards it to the streamer as voice op 40.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SfuStreamViewers {
+    pub evt: ::serde_json::Value,
+    pub session_id: ::std::string::String,
+    ///The streamer's screen SSRC.
+    pub ssrc: u64,
+    ///User ids of every opted-in viewer.
+    pub viewers: ::std::vec::Vec<::std::string::String>,
+}
 ///A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 2026-01-01T00:00:00Z, 10 bits worker, 12 bits sequence).
 #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[serde(transparent)]
@@ -5590,6 +9193,14 @@ pub struct SpeakingPayload {
     pub ssrc: u64,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: ::std::option::Option<Snowflake>,
+}
+///Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct StreamViewersPayload {
+    ///The streamer's screen SSRC.
+    pub ssrc: u64,
+    ///Every current viewer.
+    pub user_ids: ::std::vec::Vec<Snowflake>,
 }
 ///POST /internal/v1/admin/users/{id}/suspend body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -5673,6 +9284,79 @@ pub struct ThreadMember {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user_id: ::std::option::Option<Snowflake>,
 }
+///A thread member's Snowflake or @me for the authenticated user.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ThreadMemberTarget(::std::string::String);
+impl ::std::ops::Deref for ThreadMemberTarget {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<ThreadMemberTarget> for ::std::string::String {
+    fn from(value: ThreadMemberTarget) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for ThreadMemberTarget {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^(@me|[0-9]{1,20})$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^(@me|[0-9]{1,20})$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ThreadMemberTarget {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ThreadMemberTarget {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ThreadMemberTarget {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ThreadMembersUpdate {
+    pub added_members: ::std::vec::Vec<ThreadMember>,
+    pub guild_id: Snowflake,
+    pub id: Snowflake,
+    pub member_count: u64,
+    #[serde(
+        rename = "_member_ids",
+        default,
+        skip_serializing_if = "::std::vec::Vec::is_empty"
+    )]
+    pub member_ids: ::std::vec::Vec<Snowflake>,
+    #[serde(
+        rename = "_membership_version",
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub membership_version: ::std::option::Option<u64>,
+    pub removed_member_ids: ::std::vec::Vec<Snowflake>,
+}
 ///Thread-specific fields.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct ThreadMetadata {
@@ -5711,6 +9395,14 @@ pub struct UnavailableGuild {
     pub id: Snowflake,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub unavailable: ::std::option::Option<bool>,
+}
+///PATCH /internal/v1/channels/{id}/messages/{id}/call on messages. Records the end of a call on its type 3 message; omitted fields stay unchanged. Answers the updated Message and publishes MESSAGE_UPDATE. 400 when the message is not a call.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default, PartialEq)]
+pub struct UpdateCallRequest {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub ended_timestamp: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub participants: ::std::vec::Vec<Snowflake>,
 }
 ///PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -5852,8 +9544,12 @@ pub struct User {
     ///Avatar hash.
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub avatar: ::std::option::Option<::std::string::String>,
+    ///Profile banner hash.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub banner: ::std::option::Option<::std::string::String>,
+    ///Profile About me text, at most 300 characters.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub bio: ::std::option::Option<UserBio>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub bot: ::std::option::Option<bool>,
     ///Always "0" (unique usernames).
@@ -5870,13 +9566,69 @@ pub struct User {
     pub locale: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub mfa_enabled: ::std::option::Option<bool>,
+    ///Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub pronouns: ::std::option::Option<UserPronouns>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub public_flags: ::std::option::Option<i64>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub system: ::std::option::Option<bool>,
+    ///Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub theme_colors: ::std::option::Option<[i64; 2usize]>,
     pub username: ::std::string::String,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub verified: ::std::option::Option<bool>,
+}
+///Profile About me text, at most 300 characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserBio(::std::string::String);
+impl ::std::ops::Deref for UserBio {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserBio> for ::std::string::String {
+    fn from(value: UserBio) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserBio {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserBio {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserBio {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserBio {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 ///A private note the current user wrote about another user. Visible only to its author.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -6013,9 +9765,24 @@ pub struct UserPreferences {
     ///Animate stickers automatically.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub animate_stickers: ::std::option::Option<bool>,
+    ///Default restriction on new guild-related DMs; missing means false.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub default_guilds_restricted: ::std::option::Option<bool>,
     ///Chat font scale.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub font_scale: ::std::option::Option<f64>,
+    ///Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior.
+    #[serde(
+        default,
+        skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+    )]
+    pub guild_dm_restrictions: ::std::collections::HashMap<
+        UserPreferencesGuildDmRestrictionsKey,
+        ::std::option::Option<bool>,
+    >,
+    ///Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub hide_age_restricted_channels: ::std::option::Option<bool>,
     ///Increase contrast of text and borders.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub high_contrast: ::std::option::Option<bool>,
@@ -6129,6 +9896,58 @@ impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesAccent {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///`UserPreferencesGuildDmRestrictionsKey`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserPreferencesGuildDmRestrictionsKey(::std::string::String);
+impl ::std::ops::Deref for UserPreferencesGuildDmRestrictionsKey {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserPreferencesGuildDmRestrictionsKey> for ::std::string::String {
+    fn from(value: UserPreferencesGuildDmRestrictionsKey) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserPreferencesGuildDmRestrictionsKey {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]{1,20}$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[0-9]{1,20}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPreferencesGuildDmRestrictionsKey {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPreferencesGuildDmRestrictionsKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserPreferencesGuildDmRestrictionsKey {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 ///`UserPreferencesRecentReactionsItem`
@@ -6362,10 +10181,80 @@ pub struct UserProfileMutualGuildsItem {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub nick: ::std::option::Option<::std::string::String>,
 }
+///Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserPronouns(::std::string::String);
+impl ::std::ops::Deref for UserPronouns {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserPronouns> for ::std::string::String {
+    fn from(value: UserPronouns) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for UserPronouns {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 40usize {
+            return Err("longer than 40 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserPronouns {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserPronouns {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserPronouns {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(transparent)]
+pub struct UserReadStates(pub ::std::vec::Vec<ReadState>);
+impl ::std::ops::Deref for UserReadStates {
+    type Target = ::std::vec::Vec<ReadState>;
+    fn deref(&self) -> &::std::vec::Vec<ReadState> {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserReadStates> for ::std::vec::Vec<ReadState> {
+    fn from(value: UserReadStates) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<::std::vec::Vec<ReadState>> for UserReadStates {
+    fn from(value: ::std::vec::Vec<ReadState>) -> Self {
+        Self(value)
+    }
+}
 ///GET /internal/v1/users/{user_id}/ready: the state used to build READY.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct UserReadyState {
-    pub guilds: ::std::vec::Vec<GuildFull>,
+    pub guilds: ::std::vec::Vec<GatewayGuildState>,
     ///The user's private notes keyed by the noted user's id.
     pub notes: ::std::collections::HashMap<::std::string::String, UserReadyStateNotesValue>,
     pub private_channels: ::std::vec::Vec<Channel>,
@@ -6437,12 +10326,19 @@ pub struct UserSettings {
     pub developer_mode: bool,
     ///When true, every call the user starts or joins is end-to-end encrypted (DMs, group DMs, voice channels, Go Live). A call is E2EE for everyone when any participant has this set.
     pub e2ee_calls_default: bool,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub friend_source_flags: ::std::option::Option<FriendSourceFlags>,
     ///The user's server rail in order, with folders. Synced across devices.
     pub guild_folders: ::std::vec::Vec<GuildFolder>,
     ///Flat server order (legacy mirror of guild_folders).
     pub guild_positions: ::std::vec::Vec<Snowflake>,
     pub locale: ::std::string::String,
     pub message_display_compact: bool,
+    ///Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.
+    pub pinned_channel_ids:
+        ::std::collections::HashMap<::std::string::String, ::std::vec::Vec<Snowflake>>,
+    ///DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.
+    pub pinned_dm_channel_ids: ::std::vec::Vec<Snowflake>,
     ///Synced client preferences (appearance, chat, notification sounds, emoji). Sparse.
     pub preferences: UserPreferences,
     pub status: UserSettingsStatus,
@@ -6562,6 +10458,66 @@ impl ::std::convert::TryFrom<::std::string::String> for UserSettingsTheme {
         value.parse()
     }
 }
+///A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct VanityUrl {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub code: ::std::option::Option<VanityUrlCode>,
+    ///Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count.
+    pub uses: u64,
+}
+///`VanityUrlCode`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VanityUrlCode(::std::string::String);
+impl ::std::ops::Deref for VanityUrlCode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VanityUrlCode> for ::std::string::String {
+    fn from(value: VanityUrlCode) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VanityUrlCode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[a-z0-9-]{2,32}$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[a-z0-9-]{2,32}$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VanityUrlCode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VanityUrlCode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VanityUrlCode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///POST /auth/verify-email body.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VerifyEmailRequest {
@@ -6636,7 +10592,7 @@ pub struct VideoPayload {
     pub user_id: ::std::option::Option<Snowflake>,
     pub video_ssrc: u64,
 }
-///A codec offered by the client.
+///A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceCodec {
     pub name: VoiceCodecName,
@@ -6663,6 +10619,8 @@ pub struct VoiceCodec {
 pub enum VoiceCodecName {
     #[serde(rename = "opus")]
     Opus,
+    #[serde(rename = "VP8")]
+    Vp8,
     #[serde(rename = "VP9")]
     Vp9,
     #[serde(rename = "AV1")]
@@ -6673,6 +10631,7 @@ impl ::std::fmt::Display for VoiceCodecName {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
             Self::Opus => f.write_str("opus"),
+            Self::Vp8 => f.write_str("VP8"),
             Self::Vp9 => f.write_str("VP9"),
             Self::Av1 => f.write_str("AV1"),
             Self::H264 => f.write_str("H264"),
@@ -6684,6 +10643,7 @@ impl ::std::str::FromStr for VoiceCodecName {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         match value {
             "opus" => Ok(Self::Opus),
+            "VP8" => Ok(Self::Vp8),
             "VP9" => Ok(Self::Vp9),
             "AV1" => Ok(Self::Av1),
             "H264" => Ok(Self::H264),
@@ -6798,6 +10758,417 @@ pub struct VoiceMemberMoveEvent {
     pub guild_id: Snowflake,
     pub user_id: Snowflake,
 }
+///Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct VoiceNodeBlacklist {
+    pub created_at_ms: u64,
+    pub operator: VoiceNodeBlacklistOperator,
+    pub reason: VoiceNodeBlacklistReason,
+}
+///`VoiceNodeBlacklistOperator`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceNodeBlacklistOperator(::std::string::String);
+impl ::std::ops::Deref for VoiceNodeBlacklistOperator {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceNodeBlacklistOperator> for ::std::string::String {
+    fn from(value: VoiceNodeBlacklistOperator) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceNodeBlacklistOperator {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceNodeBlacklistOperator {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeBlacklistOperator {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceNodeBlacklistOperator {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`VoiceNodeBlacklistReason`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceNodeBlacklistReason(::std::string::String);
+impl ::std::ops::Deref for VoiceNodeBlacklistReason {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceNodeBlacklistReason> for ::std::string::String {
+    fn from(value: VoiceNodeBlacklistReason) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceNodeBlacklistReason {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 512usize {
+            return Err("longer than 512 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceNodeBlacklistReason {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeBlacklistReason {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceNodeBlacklistReason {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Leased etcd value at /discordy/voice/health/<node_id>. A writer must atomically compare both the node registration lease and its exclusive /discordy/voice/probers/<node_id> claim before writing. The health value shares the prober claim's lease, expiring within two probe intervals if not renewed. Readers match registration_lease; a previous incarnation's result must never authorize or exclude its successor.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct VoiceNodeHealth {
+    ///Unix time for diagnostics only; freshness follows the etcd lease, not synchronized wall clocks.
+    pub checked_at_ms: u64,
+    pub consecutive_failures: u64,
+    pub consecutive_passes: u64,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub failure: ::std::option::Option<VoiceNodeHealthFailure>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub loss_pct: ::std::option::Option<f64>,
+    pub node_id: VoiceNodeHealthNodeId,
+    pub prober_id: VoiceNodeHealthProberId,
+    pub registration_lease: VoiceNodeHealthRegistrationLease,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub rtt_ms: ::std::option::Option<f64>,
+    ///Unknown until M consecutive passes or N consecutive failures. Defaults N=2, M=2. A healthy node survives fewer than N failures; an unhealthy node remains excluded until M passes.
+    pub status: VoiceNodeHealthStatus,
+}
+///`VoiceNodeHealthFailure`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum VoiceNodeHealthFailure {
+    #[serde(rename = "signaling")]
+    Signaling,
+    #[serde(rename = "transport")]
+    Transport,
+    #[serde(rename = "rtp_loss")]
+    RtpLoss,
+    #[serde(rename = "rtt")]
+    Rtt,
+    #[serde(rename = "timeout")]
+    Timeout,
+    #[serde(rename = "registration_changed")]
+    RegistrationChanged,
+}
+impl ::std::fmt::Display for VoiceNodeHealthFailure {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Signaling => f.write_str("signaling"),
+            Self::Transport => f.write_str("transport"),
+            Self::RtpLoss => f.write_str("rtp_loss"),
+            Self::Rtt => f.write_str("rtt"),
+            Self::Timeout => f.write_str("timeout"),
+            Self::RegistrationChanged => f.write_str("registration_changed"),
+        }
+    }
+}
+impl ::std::str::FromStr for VoiceNodeHealthFailure {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "signaling" => Ok(Self::Signaling),
+            "transport" => Ok(Self::Transport),
+            "rtp_loss" => Ok(Self::RtpLoss),
+            "rtt" => Ok(Self::Rtt),
+            "timeout" => Ok(Self::Timeout),
+            "registration_changed" => Ok(Self::RegistrationChanged),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceNodeHealthFailure {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeHealthFailure {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`VoiceNodeHealthNodeId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceNodeHealthNodeId(::std::string::String);
+impl ::std::ops::Deref for VoiceNodeHealthNodeId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceNodeHealthNodeId> for ::std::string::String {
+    fn from(value: VoiceNodeHealthNodeId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceNodeHealthNodeId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceNodeHealthNodeId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeHealthNodeId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceNodeHealthNodeId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`VoiceNodeHealthProberId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceNodeHealthProberId(::std::string::String);
+impl ::std::ops::Deref for VoiceNodeHealthProberId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceNodeHealthProberId> for ::std::string::String {
+    fn from(value: VoiceNodeHealthProberId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceNodeHealthProberId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 128usize {
+            return Err("longer than 128 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceNodeHealthProberId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeHealthProberId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceNodeHealthProberId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`VoiceNodeHealthRegistrationLease`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceNodeHealthRegistrationLease(::std::string::String);
+impl ::std::ops::Deref for VoiceNodeHealthRegistrationLease {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceNodeHealthRegistrationLease> for ::std::string::String {
+    fn from(value: VoiceNodeHealthRegistrationLease) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceNodeHealthRegistrationLease {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[1-9][0-9]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[1-9][0-9]*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceNodeHealthRegistrationLease {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeHealthRegistrationLease {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceNodeHealthRegistrationLease {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Unknown until M consecutive passes or N consecutive failures. Defaults N=2, M=2. A healthy node survives fewer than N failures; an unhealthy node remains excluded until M passes.
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum VoiceNodeHealthStatus {
+    #[serde(rename = "unknown")]
+    Unknown,
+    #[serde(rename = "healthy")]
+    Healthy,
+    #[serde(rename = "unhealthy")]
+    Unhealthy,
+}
+impl ::std::fmt::Display for VoiceNodeHealthStatus {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Unknown => f.write_str("unknown"),
+            Self::Healthy => f.write_str("healthy"),
+            Self::Unhealthy => f.write_str("unhealthy"),
+        }
+    }
+}
+impl ::std::str::FromStr for VoiceNodeHealthStatus {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "unknown" => Ok(Self::Unknown),
+            "healthy" => Ok(Self::Healthy),
+            "unhealthy" => Ok(Self::Unhealthy),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceNodeHealthStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceNodeHealthStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
 ///etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceNodeRegistration {
@@ -6805,6 +11176,9 @@ pub struct VoiceNodeRegistration {
     pub draining: bool,
     pub egress_bps: u64,
     pub node_id: ::std::string::String,
+    ///When true, new allocation requires a fresh healthy probe record for this registration's etcd lease. Omitted/false preserves legacy rollout behavior; an explicit matching unhealthy result or manual blacklist still excludes the node.
+    #[serde(default)]
+    pub probe_required: bool,
     pub public_ip: ::std::string::String,
     pub region: ::std::string::String,
     pub udp_port: u64,
@@ -6969,7 +11343,7 @@ pub struct VoiceTelemetryPayload {
     pub loss_pct: f64,
     pub rtt_ms: f64,
 }
-///Claims of a voice JWT (HS256 with VOICE_TOKEN_SECRET, 60 seconds).
+///Shared claims of a voice JWT (HS256, 60 seconds). Call tokens use VOICE_TOKEN_SECRET. A verifier that sees purpose=probe MUST verify with the separate VOICE_PROBE_TOKEN_SECRET, additionally validate ProbeVoiceTokenClaims and compare the receiving node's live registration lease before admitting it. No configured probe key means probe admission is disabled.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct VoiceTokenClaims {
     ///Voice channel ID.
@@ -6979,12 +11353,124 @@ pub struct VoiceTokenClaims {
     pub iat: i64,
     ///Allocated voice node ID.
     pub node: ::std::string::String,
+    ///Required for probes: exact current etcd registration lease ID as a decimal string. The receiving node must compare it to its live registration before admitting the probe.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub node_lease: ::std::option::Option<VoiceTokenClaimsNodeLease>,
+    ///Required for probes: random UUID shared by the two synthetic peers of one run. The server derives the isolated room from node_lease and probe_id, not from the caller's channel ID.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub probe_id: ::std::option::Option<::uuid::Uuid>,
+    ///Absent means call. A probe token is restricted to an isolated synthetic room, never an ordinary user channel. It may bypass draining, but never node identity or registration ownership checks.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub purpose: ::std::option::Option<VoiceTokenClaimsPurpose>,
     ///Gateway session ID.
     pub sid: ::std::string::String,
     ///guild_id, or the DM channel_id for DM calls.
     pub srv: Snowflake,
     ///User ID.
     pub sub: Snowflake,
+}
+///Required for probes: exact current etcd registration lease ID as a decimal string. The receiving node must compare it to its live registration before admitting the probe.
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct VoiceTokenClaimsNodeLease(::std::string::String);
+impl ::std::ops::Deref for VoiceTokenClaimsNodeLease {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VoiceTokenClaimsNodeLease> for ::std::string::String {
+    fn from(value: VoiceTokenClaimsNodeLease) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for VoiceTokenClaimsNodeLease {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[1-9][0-9]*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[1-9][0-9]*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceTokenClaimsNodeLease {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceTokenClaimsNodeLease {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for VoiceTokenClaimsNodeLease {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Absent means call. A probe token is restricted to an isolated synthetic room, never an ordinary user channel. It may bypass draining, but never node identity or registration ownership checks.
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum VoiceTokenClaimsPurpose {
+    #[serde(rename = "call")]
+    Call,
+    #[serde(rename = "probe")]
+    Probe,
+}
+impl ::std::fmt::Display for VoiceTokenClaimsPurpose {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Call => f.write_str("call"),
+            Self::Probe => f.write_str("probe"),
+        }
+    }
+}
+impl ::std::str::FromStr for VoiceTokenClaimsPurpose {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "call" => Ok(Self::Call),
+            "probe" => Ok(Self::Probe),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for VoiceTokenClaimsPurpose {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for VoiceTokenClaimsPurpose {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
 }
 ///Op 24 WATCH_TOGETHER.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -7056,6 +11542,236 @@ impl ::std::convert::TryFrom<::std::string::String> for WatchTogetherPayloadActi
         value.parse()
     }
 }
+///A five-minute, single-use server-side ceremony. Finish requires the same account/session or password-authenticated login ticket.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WebauthnChallenge {
+    pub challenge_id: ::uuid::Uuid,
+    ///WebAuthn PublicKeyCredentialCreationOptionsJSON or PublicKeyCredentialRequestOptionsJSON. Binary members use unpadded base64url.
+    #[serde(rename = "publicKey")]
+    pub public_key: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+}
+///Complete a passkey assertion. The assertion challenge and login ticket are single use, and the credential signature counter is checked.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WebauthnLoginFinishRequest {
+    pub challenge_id: ::uuid::Uuid,
+    pub credential: WebauthnLoginFinishRequestCredential,
+    pub ticket: WebauthnLoginFinishRequestTicket,
+}
+///`WebauthnLoginFinishRequestCredential`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WebauthnLoginFinishRequestCredential {
+    pub id: WebauthnLoginFinishRequestCredentialId,
+    #[serde(rename = "rawId")]
+    pub raw_id: WebauthnLoginFinishRequestCredentialRawId,
+    pub response: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+///`WebauthnLoginFinishRequestCredentialId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WebauthnLoginFinishRequestCredentialId(::std::string::String);
+impl ::std::ops::Deref for WebauthnLoginFinishRequestCredentialId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WebauthnLoginFinishRequestCredentialId> for ::std::string::String {
+    fn from(value: WebauthnLoginFinishRequestCredentialId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WebauthnLoginFinishRequestCredentialId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WebauthnLoginFinishRequestCredentialId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WebauthnLoginFinishRequestCredentialId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WebauthnLoginFinishRequestCredentialId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`WebauthnLoginFinishRequestCredentialRawId`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WebauthnLoginFinishRequestCredentialRawId(::std::string::String);
+impl ::std::ops::Deref for WebauthnLoginFinishRequestCredentialRawId {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WebauthnLoginFinishRequestCredentialRawId> for ::std::string::String {
+    fn from(value: WebauthnLoginFinishRequestCredentialRawId) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WebauthnLoginFinishRequestCredentialRawId {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WebauthnLoginFinishRequestCredentialRawId {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WebauthnLoginFinishRequestCredentialRawId {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WebauthnLoginFinishRequestCredentialRawId {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`WebauthnLoginFinishRequestTicket`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WebauthnLoginFinishRequestTicket(::std::string::String);
+impl ::std::ops::Deref for WebauthnLoginFinishRequestTicket {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WebauthnLoginFinishRequestTicket> for ::std::string::String {
+    fn from(value: WebauthnLoginFinishRequestTicket) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WebauthnLoginFinishRequestTicket {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WebauthnLoginFinishRequestTicket {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WebauthnLoginFinishRequestTicket {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WebauthnLoginFinishRequestTicket {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///Begin passkey assertion after the password login returned MFA_REQUIRED.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WebauthnLoginStartRequest {
+    pub ticket: WebauthnLoginStartRequestTicket,
+}
+///`WebauthnLoginStartRequestTicket`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WebauthnLoginStartRequestTicket(::std::string::String);
+impl ::std::ops::Deref for WebauthnLoginStartRequestTicket {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WebauthnLoginStartRequestTicket> for ::std::string::String {
+    fn from(value: WebauthnLoginStartRequestTicket) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WebauthnLoginStartRequestTicket {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WebauthnLoginStartRequestTicket {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WebauthnLoginStartRequestTicket {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WebauthnLoginStartRequestTicket {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///An incoming or application webhook.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Webhook {
@@ -7070,15 +11786,43 @@ pub struct Webhook {
     pub id: Snowflake,
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub name: ::std::option::Option<::std::string::String>,
+    ///Execution credential returned only by create and reset-token; never stored in list/get/edit responses.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub token: ::std::option::Option<::std::string::String>,
     ///WebhookType.
     #[serde(rename = "type")]
     pub type_: i64,
+    ///Execution URL returned only by create and reset-token. Treat as a secret.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub url: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user: ::std::option::Option<User>,
+}
+/// Generation of default values for serde.
+pub mod defaults {
+    pub(super) fn default_bool<const V: bool>() -> bool {
+        V
+    }
+    pub(super) fn default_nzu64<T, const V: u64>() -> T
+    where
+        T: ::std::convert::TryFrom<::std::num::NonZeroU64>,
+        <T as ::std::convert::TryFrom<::std::num::NonZeroU64>>::Error: ::std::fmt::Debug,
+    {
+        T::try_from(::std::num::NonZeroU64::try_from(V).unwrap()).unwrap()
+    }
+    pub(super) fn gateway_guild_state_audit_log_retention_days(
+    ) -> super::GatewayGuildStateAuditLogRetentionDays {
+        super::GatewayGuildStateAuditLogRetentionDays(90_i64)
+    }
+    pub(super) fn guild_audit_log_retention_days() -> super::GuildAuditLogRetentionDays {
+        super::GuildAuditLogRetentionDays(90_i64)
+    }
+    pub(super) fn guild_full_audit_log_retention_days() -> super::GuildFullAuditLogRetentionDays {
+        super::GuildFullAuditLogRetentionDays(90_i64)
+    }
+    pub(super) fn poll_create_layout_type() -> super::PollCreateLayoutType {
+        super::PollCreateLayoutType(1_i64)
+    }
 }
 /// Error types.
 pub mod error {

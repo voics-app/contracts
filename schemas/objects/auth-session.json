@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/auth-session.json",
+  "title": "AuthSession",
+  "description": "A login session of the current user (one refresh-token family), as listed by GET /users/@me/sessions. Not to be confused with the gateway Session of SESSIONS_REPLACE.",
+  "type": "object",
+  "required": [
+    "id",
+    "client",
+    "os",
+    "device_name",
+    "location",
+    "created_at",
+    "last_used_at",
+    "current"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Session ID; the `sid` claim of its access tokens."
+    },
+    "client": {
+      "type": "string",
+      "description": "The client that opened the session, derived from its User-Agent (for example `Desktop app` (the desktop client; clients show it with the brand name), `Firefox`)."
+    },
+    "os": {
+      "type": "string",
+      "description": "Operating system derived from the User-Agent (for example `Windows`), or `Unknown`."
+    },
+    "device_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Name of the registered end-to-end encrypted device bound to the session, if any."
+    },
+    "location": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Approximate location (an ISO 3166-1 country code from the edge), or null when the edge does not provide one."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_used_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the session last logged in or refreshed its tokens."
+    },
+    "current": {
+      "type": "boolean",
+      "description": "Whether this is the session making the request."
+    }
+  }
+}

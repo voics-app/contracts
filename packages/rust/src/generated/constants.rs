@@ -106,6 +106,8 @@ pub mod permissions {
     pub const PIN_MESSAGES: u64 = 1 << 51;
     /// Allows bypassing slowmode restrictions
     pub const BYPASS_SLOWMODE: u64 = 1 << 52;
+    /// Allows configuring and reviewing ban appeals
+    pub const MANAGE_BAN_APPEALS: u64 = 1 << 53;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u64)] = &[
@@ -164,13 +166,14 @@ pub mod permissions {
         ("USE_EXTERNAL_APPS", USE_EXTERNAL_APPS),
         ("PIN_MESSAGES", PIN_MESSAGES),
         ("BYPASS_SLOWMODE", BYPASS_SLOWMODE),
+        ("MANAGE_BAN_APPEALS", MANAGE_BAN_APPEALS),
     ];
 }
 
 /// Derived permission sets.
 pub mod permission_sets {
     /// Every known permission.
-    pub const ALL: u64 = 8866461766385663;
+    pub const ALL: u64 = 17873661021126655;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u64)] = &[("ALL", ALL)];
@@ -208,6 +211,10 @@ pub mod intents {
     pub const DIRECT_MESSAGE_REACTIONS: u32 = 1 << 13;
     /// Events: TYPING_START.
     pub const DIRECT_MESSAGE_TYPING: u32 = 1 << 14;
+    /// Events: MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE.
+    pub const GUILD_MESSAGE_POLLS: u32 = 1 << 24;
+    /// Events: MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE.
+    pub const DIRECT_MESSAGE_POLLS: u32 = 1 << 25;
     /// Privileged. Events: none (gates data, not events).
     pub const MESSAGE_CONTENT: u32 = 1 << 15;
 
@@ -228,6 +235,8 @@ pub mod intents {
         ("DIRECT_MESSAGES", DIRECT_MESSAGES),
         ("DIRECT_MESSAGE_REACTIONS", DIRECT_MESSAGE_REACTIONS),
         ("DIRECT_MESSAGE_TYPING", DIRECT_MESSAGE_TYPING),
+        ("GUILD_MESSAGE_POLLS", GUILD_MESSAGE_POLLS),
+        ("DIRECT_MESSAGE_POLLS", DIRECT_MESSAGE_POLLS),
         ("MESSAGE_CONTENT", MESSAGE_CONTENT),
     ];
 }
@@ -237,7 +246,7 @@ pub mod intent_sets {
     /// Intents that require approval for bots.
     pub const PRIVILEGED: u32 = 33026;
     /// Every known intent (implicit for user sessions).
-    pub const ALL: u32 = 65535;
+    pub const ALL: u32 = 50397183;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u32)] = &[("PRIVILEGED", PRIVILEGED), ("ALL", ALL)];
@@ -279,6 +288,8 @@ pub mod gateway_opcodes {
     pub const WATCH_TOGETHER: u8 = 24;
     /// Declines the DM call ringing in a channel. The caller's call stops ringing for this user.
     pub const CALL_DECLINE: u8 = 25;
+    /// Rings 1 to 10 members of a DM channel for a call the sender is in.
+    pub const CALL_RING: u8 = 26;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -299,6 +310,7 @@ pub mod gateway_opcodes {
         ("VOICE_TELEMETRY", VOICE_TELEMETRY),
         ("WATCH_TOGETHER", WATCH_TOGETHER),
         ("CALL_DECLINE", CALL_DECLINE),
+        ("CALL_RING", CALL_RING),
     ];
 }
 
@@ -326,6 +338,8 @@ pub mod gateway_close_codes {
     pub const INVALID_INTENTS: u16 = 4013;
     /// A privileged intent was requested that the application is not approved for. Reconnect: no.
     pub const DISALLOWED_INTENTS: u16 = 4014;
+    /// The gateway is short of memory and refuses new connections. Reconnect with backoff. Reconnect: yes.
+    pub const SERVER_OVERLOADED: u16 = 4015;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u16)] = &[
@@ -340,6 +354,7 @@ pub mod gateway_close_codes {
         ("SESSION_TIMED_OUT", SESSION_TIMED_OUT),
         ("INVALID_INTENTS", INVALID_INTENTS),
         ("DISALLOWED_INTENTS", DISALLOWED_INTENTS),
+        ("SERVER_OVERLOADED", SERVER_OVERLOADED),
     ];
 }
 
@@ -374,6 +389,7 @@ pub mod dispatch_events {
     pub const INVITE_DELETE: &str = "INVITE_DELETE";
     pub const THREAD_CREATE: &str = "THREAD_CREATE";
     pub const THREAD_UPDATE: &str = "THREAD_UPDATE";
+    pub const THREAD_MEMBERS_UPDATE: &str = "THREAD_MEMBERS_UPDATE";
     pub const THREAD_DELETE: &str = "THREAD_DELETE";
     pub const APPLICATION_COMMAND_PERMISSIONS_UPDATE: &str =
         "APPLICATION_COMMAND_PERMISSIONS_UPDATE";
@@ -381,11 +397,15 @@ pub mod dispatch_events {
     pub const MESSAGE_UPDATE: &str = "MESSAGE_UPDATE";
     pub const MESSAGE_DELETE: &str = "MESSAGE_DELETE";
     pub const MESSAGE_DELETE_BULK: &str = "MESSAGE_DELETE_BULK";
+    pub const MESSAGE_POLL_VOTE_ADD: &str = "MESSAGE_POLL_VOTE_ADD";
+    pub const MESSAGE_POLL_VOTE_REMOVE: &str = "MESSAGE_POLL_VOTE_REMOVE";
     pub const MESSAGE_REACTION_ADD: &str = "MESSAGE_REACTION_ADD";
     pub const MESSAGE_REACTION_REMOVE: &str = "MESSAGE_REACTION_REMOVE";
     pub const MESSAGE_REACTION_REMOVE_ALL: &str = "MESSAGE_REACTION_REMOVE_ALL";
     pub const CHANNEL_PINS_UPDATE: &str = "CHANNEL_PINS_UPDATE";
     pub const MESSAGE_ACK: &str = "MESSAGE_ACK";
+    pub const READ_STATE_UPDATE: &str = "READ_STATE_UPDATE";
+    pub const READ_STATE_SYNC: &str = "READ_STATE_SYNC";
     pub const USER_UPDATE: &str = "USER_UPDATE";
     pub const USER_SETTINGS_UPDATE: &str = "USER_SETTINGS_UPDATE";
     pub const USER_GUILD_SETTINGS_UPDATE: &str = "USER_GUILD_SETTINGS_UPDATE";
@@ -429,6 +449,7 @@ pub mod dispatch_events {
         ("INVITE_DELETE", INVITE_DELETE),
         ("THREAD_CREATE", THREAD_CREATE),
         ("THREAD_UPDATE", THREAD_UPDATE),
+        ("THREAD_MEMBERS_UPDATE", THREAD_MEMBERS_UPDATE),
         ("THREAD_DELETE", THREAD_DELETE),
         (
             "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
@@ -438,11 +459,15 @@ pub mod dispatch_events {
         ("MESSAGE_UPDATE", MESSAGE_UPDATE),
         ("MESSAGE_DELETE", MESSAGE_DELETE),
         ("MESSAGE_DELETE_BULK", MESSAGE_DELETE_BULK),
+        ("MESSAGE_POLL_VOTE_ADD", MESSAGE_POLL_VOTE_ADD),
+        ("MESSAGE_POLL_VOTE_REMOVE", MESSAGE_POLL_VOTE_REMOVE),
         ("MESSAGE_REACTION_ADD", MESSAGE_REACTION_ADD),
         ("MESSAGE_REACTION_REMOVE", MESSAGE_REACTION_REMOVE),
         ("MESSAGE_REACTION_REMOVE_ALL", MESSAGE_REACTION_REMOVE_ALL),
         ("CHANNEL_PINS_UPDATE", CHANNEL_PINS_UPDATE),
         ("MESSAGE_ACK", MESSAGE_ACK),
+        ("READ_STATE_UPDATE", READ_STATE_UPDATE),
+        ("READ_STATE_SYNC", READ_STATE_SYNC),
         ("USER_UPDATE", USER_UPDATE),
         ("USER_SETTINGS_UPDATE", USER_SETTINGS_UPDATE),
         ("USER_GUILD_SETTINGS_UPDATE", USER_GUILD_SETTINGS_UPDATE),
@@ -481,7 +506,7 @@ pub mod voice_opcodes {
     pub const VIDEO: u8 = 12;
     /// A user left the call.
     pub const CLIENT_DISCONNECT: u8 = 13;
-    /// Requested quality (0-100) per SSRC; selects the simulcast layer.
+    /// Requested quality (0-100) per SSRC; selects the simulcast layer. Screen shares are delivered only after opting in with the screen SSRC at quality > 0.
     pub const MEDIA_SINK_WANTS: u8 = 15;
     /// A DAVE protocol transition is about to happen.
     pub const DAVE_PREPARE_TRANSITION: u8 = 21;
@@ -505,6 +530,8 @@ pub mod voice_opcodes {
     pub const DAVE_MLS_WELCOME: u8 = 30;
     /// The received commit or welcome was invalid; the client asks to be re-added.
     pub const DAVE_MLS_INVALID_COMMIT: u8 = 31;
+    /// Sent to the streamer only: the full list of users watching their screen share, re-sent on every change.
+    pub const STREAM_VIEWERS: u8 = 40;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -531,6 +558,7 @@ pub mod voice_opcodes {
         ("DAVE_MLS_ANNOUNCE_COMMIT", DAVE_MLS_ANNOUNCE_COMMIT),
         ("DAVE_MLS_WELCOME", DAVE_MLS_WELCOME),
         ("DAVE_MLS_INVALID_COMMIT", DAVE_MLS_INVALID_COMMIT),
+        ("STREAM_VIEWERS", STREAM_VIEWERS),
     ];
 }
 
@@ -571,6 +599,8 @@ pub mod sfu_events {
     pub const SESSION_CREATED: &str = "session_created";
     /// Voice activity detected on an SSRC.
     pub const SPEAKING: &str = "speaking";
+    /// The opted-in viewers of a screen share changed; carries the full list.
+    pub const STREAM_VIEWERS: &str = "stream_viewers";
     /// Periodic SFU load statistics.
     pub const STATS: &str = "stats";
 
@@ -578,6 +608,7 @@ pub mod sfu_events {
     pub const ALL_ENTRIES: &[(&str, &str)] = &[
         ("SESSION_CREATED", SESSION_CREATED),
         ("SPEAKING", SPEAKING),
+        ("STREAM_VIEWERS", STREAM_VIEWERS),
         ("STATS", STATS),
     ];
 }
@@ -630,17 +661,21 @@ pub mod event_topics {
     pub const INVITE_DELETE: &str = "discordy.guild.v1";
     pub const THREAD_CREATE: &str = "discordy.guild.v1";
     pub const THREAD_UPDATE: &str = "discordy.guild.v1";
+    pub const THREAD_MEMBERS_UPDATE: &str = "discordy.guild.v1";
     pub const THREAD_DELETE: &str = "discordy.guild.v1";
     pub const APPLICATION_COMMAND_PERMISSIONS_UPDATE: &str = "discordy.guild.v1";
     pub const MESSAGE_CREATE: &str = "discordy.message.v1";
     pub const MESSAGE_UPDATE: &str = "discordy.message.v1";
     pub const MESSAGE_DELETE: &str = "discordy.message.v1";
     pub const MESSAGE_DELETE_BULK: &str = "discordy.message.v1";
+    pub const MESSAGE_POLL_VOTE_ADD: &str = "discordy.message.v1";
+    pub const MESSAGE_POLL_VOTE_REMOVE: &str = "discordy.message.v1";
     pub const MESSAGE_REACTION_ADD: &str = "discordy.message.v1";
     pub const MESSAGE_REACTION_REMOVE: &str = "discordy.message.v1";
     pub const MESSAGE_REACTION_REMOVE_ALL: &str = "discordy.message.v1";
     pub const CHANNEL_PINS_UPDATE: &str = "discordy.message.v1";
     pub const MESSAGE_ACK: &str = "discordy.message.v1";
+    pub const READ_STATE_UPDATE: &str = "discordy.message.v1";
     pub const USER_UPDATE: &str = "discordy.user.v1";
     pub const USER_SETTINGS_UPDATE: &str = "discordy.user.v1";
     pub const USER_GUILD_SETTINGS_UPDATE: &str = "discordy.user.v1";
@@ -654,6 +689,7 @@ pub mod event_topics {
     pub const AUDIT_LOG_ENTRY_CREATE: &str = "discordy.audit.v1";
     pub const VOICE_MEMBER_MOVE: &str = "discordy.guild.v1";
     pub const BAN_MESSAGE_PURGE: &str = "discordy.guild.v1";
+    pub const SESSION_REVOKE: &str = "discordy.user.v1";
     pub const VOICE_QUALITY: &str = "discordy.telemetry.v1";
     pub const USAGE_TICK: &str = "discordy.telemetry.v1";
 
@@ -679,6 +715,7 @@ pub mod event_topics {
         ("INVITE_DELETE", INVITE_DELETE),
         ("THREAD_CREATE", THREAD_CREATE),
         ("THREAD_UPDATE", THREAD_UPDATE),
+        ("THREAD_MEMBERS_UPDATE", THREAD_MEMBERS_UPDATE),
         ("THREAD_DELETE", THREAD_DELETE),
         (
             "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
@@ -688,11 +725,14 @@ pub mod event_topics {
         ("MESSAGE_UPDATE", MESSAGE_UPDATE),
         ("MESSAGE_DELETE", MESSAGE_DELETE),
         ("MESSAGE_DELETE_BULK", MESSAGE_DELETE_BULK),
+        ("MESSAGE_POLL_VOTE_ADD", MESSAGE_POLL_VOTE_ADD),
+        ("MESSAGE_POLL_VOTE_REMOVE", MESSAGE_POLL_VOTE_REMOVE),
         ("MESSAGE_REACTION_ADD", MESSAGE_REACTION_ADD),
         ("MESSAGE_REACTION_REMOVE", MESSAGE_REACTION_REMOVE),
         ("MESSAGE_REACTION_REMOVE_ALL", MESSAGE_REACTION_REMOVE_ALL),
         ("CHANNEL_PINS_UPDATE", CHANNEL_PINS_UPDATE),
         ("MESSAGE_ACK", MESSAGE_ACK),
+        ("READ_STATE_UPDATE", READ_STATE_UPDATE),
         ("USER_UPDATE", USER_UPDATE),
         ("USER_SETTINGS_UPDATE", USER_SETTINGS_UPDATE),
         ("USER_GUILD_SETTINGS_UPDATE", USER_GUILD_SETTINGS_UPDATE),
@@ -706,6 +746,7 @@ pub mod event_topics {
         ("AUDIT_LOG_ENTRY_CREATE", AUDIT_LOG_ENTRY_CREATE),
         ("VOICE_MEMBER_MOVE", VOICE_MEMBER_MOVE),
         ("BAN_MESSAGE_PURGE", BAN_MESSAGE_PURGE),
+        ("SESSION_REVOKE", SESSION_REVOKE),
         ("VOICE_QUALITY", VOICE_QUALITY),
         ("USAGE_TICK", USAGE_TICK),
     ];
@@ -858,17 +899,19 @@ pub mod message_type {
     ];
 }
 
-/// Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications.
+/// Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.
 pub mod message_flags {
     pub const SUPPRESS_EMBEDS: u16 = 4;
     pub const SUPPRESS_NOTIFICATIONS: u16 = 4096;
     pub const EPHEMERAL: u16 = 64;
+    pub const IS_VOICE_MESSAGE: u16 = 8192;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u16)] = &[
         ("SUPPRESS_EMBEDS", SUPPRESS_EMBEDS),
         ("SUPPRESS_NOTIFICATIONS", SUPPRESS_NOTIFICATIONS),
         ("EPHEMERAL", EPHEMERAL),
+        ("IS_VOICE_MESSAGE", IS_VOICE_MESSAGE),
     ];
 }
 
@@ -1087,7 +1130,7 @@ pub mod activity_type {
     ];
 }
 
-/// Audit log action types (Discord values) used by Discordy.
+/// Audit log action types used by Discordy, including Voics extensions.
 pub mod audit_log_event {
     pub const GUILD_UPDATE: u8 = 1;
     pub const CHANNEL_CREATE: u8 = 10;
@@ -1125,6 +1168,8 @@ pub mod audit_log_event {
     pub const THREAD_UPDATE: u8 = 111;
     pub const THREAD_DELETE: u8 = 112;
     pub const APPLICATION_COMMAND_PERMISSION_UPDATE: u8 = 121;
+    pub const BAN_APPEAL_ACCEPT: u8 = 200;
+    pub const BAN_APPEAL_DENY: u8 = 201;
 
     /// Every entry of this group as (name, value).
     pub const ALL_ENTRIES: &[(&str, u8)] = &[
@@ -1167,6 +1212,8 @@ pub mod audit_log_event {
             "APPLICATION_COMMAND_PERMISSION_UPDATE",
             APPLICATION_COMMAND_PERMISSION_UPDATE,
         ),
+        ("BAN_APPEAL_ACCEPT", BAN_APPEAL_ACCEPT),
+        ("BAN_APPEAL_DENY", BAN_APPEAL_DENY),
     ];
 }
 

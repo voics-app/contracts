@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/objects/guild-discovery-settings.json",
   "title": "GuildDiscoverySettings",
-  "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.",
+  "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.",
   "type": "object",
   "required": [
     "enabled",
@@ -44,6 +44,7 @@
       "items": {
         "type": "string",
         "enum": [
+          "COMMUNITY_REQUIRED",
           "DESCRIPTION_REQUIRED",
           "MEMBER_COUNT_TOO_LOW",
           "GUILD_TOO_NEW",

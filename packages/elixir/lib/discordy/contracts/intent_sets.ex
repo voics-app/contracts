@@ -14,14 +14,14 @@ defmodule Discordy.Contracts.IntentSets do
   Every known intent (implicit for user sessions).
   """
   @spec all() :: non_neg_integer()
-  def all, do: 65_535
+  def all, do: 50_397_183
 
   @doc "Every entry of this group, keyed by atom."
   @spec entries() :: %{atom() => non_neg_integer()}
   def entries do
     %{
       privileged: 33_026,
-      all: 65_535
+      all: 50_397_183
     }
   end
 

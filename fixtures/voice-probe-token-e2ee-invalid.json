@@ -1,0 +1,9 @@
+{
+  "schema": "auth/probe-voice-token-claims.json",
+  "valid": false,
+  "data": {
+    "sub": "901", "sid": "probe-fixture-a", "srv": "900", "chn": "900",
+    "node": "fixture-node", "e2ee": true, "iat": 1800000000, "exp": 1800000060,
+    "purpose": "probe", "probe_id": "c5505922-93df-461b-b90c-7adc84da9db6", "node_lease": "9007199254740993"
+  }
+}

@@ -17,6 +17,12 @@ defmodule Discordy.Contracts.SfuEvents do
   def speaking, do: "speaking"
 
   @doc ~S"""
+  The opted-in viewers of a screen share changed; carries the full list.
+  """
+  @spec stream_viewers() :: String.t()
+  def stream_viewers, do: "stream_viewers"
+
+  @doc ~S"""
   Periodic SFU load statistics.
   """
   @spec stats() :: String.t()
@@ -28,6 +34,7 @@ defmodule Discordy.Contracts.SfuEvents do
     %{
       session_created: "session_created",
       speaking: "speaking",
+      stream_viewers: "stream_viewers",
       stats: "stats"
     }
   end

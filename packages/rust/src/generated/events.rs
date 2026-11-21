@@ -67,6 +67,8 @@ pub enum DispatchEvent {
     ThreadCreate(Channel),
     #[serde(rename = "THREAD_UPDATE")]
     ThreadUpdate(Channel),
+    #[serde(rename = "THREAD_MEMBERS_UPDATE")]
+    ThreadMembersUpdate(ThreadMembersUpdate),
     #[serde(rename = "THREAD_DELETE")]
     ThreadDelete(Channel),
     #[serde(rename = "APPLICATION_COMMAND_PERMISSIONS_UPDATE")]
@@ -79,6 +81,10 @@ pub enum DispatchEvent {
     MessageDelete(MessageDeleteEvent),
     #[serde(rename = "MESSAGE_DELETE_BULK")]
     MessageDeleteBulk(MessageDeleteBulkEvent),
+    #[serde(rename = "MESSAGE_POLL_VOTE_ADD")]
+    MessagePollVoteAdd(MessagePollVoteAddEvent),
+    #[serde(rename = "MESSAGE_POLL_VOTE_REMOVE")]
+    MessagePollVoteRemove(MessagePollVoteRemoveEvent),
     #[serde(rename = "MESSAGE_REACTION_ADD")]
     MessageReactionAdd(MessageReactionAddEvent),
     #[serde(rename = "MESSAGE_REACTION_REMOVE")]
@@ -89,6 +95,10 @@ pub enum DispatchEvent {
     ChannelPinsUpdate(ChannelPinsUpdateEvent),
     #[serde(rename = "MESSAGE_ACK")]
     MessageAck(MessageAckEvent),
+    #[serde(rename = "READ_STATE_UPDATE")]
+    ReadStateUpdate(ReadStateUpdateEvent),
+    #[serde(rename = "READ_STATE_SYNC")]
+    ReadStateSync(ReadStateSyncEvent),
     #[serde(rename = "USER_UPDATE")]
     UserUpdate(User),
     #[serde(rename = "USER_SETTINGS_UPDATE")]
@@ -146,6 +156,7 @@ impl DispatchEvent {
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",
             Self::ThreadUpdate(_) => "THREAD_UPDATE",
+            Self::ThreadMembersUpdate(_) => "THREAD_MEMBERS_UPDATE",
             Self::ThreadDelete(_) => "THREAD_DELETE",
             Self::ApplicationCommandPermissionsUpdate(_) => {
                 "APPLICATION_COMMAND_PERMISSIONS_UPDATE"
@@ -154,11 +165,15 @@ impl DispatchEvent {
             Self::MessageUpdate(_) => "MESSAGE_UPDATE",
             Self::MessageDelete(_) => "MESSAGE_DELETE",
             Self::MessageDeleteBulk(_) => "MESSAGE_DELETE_BULK",
+            Self::MessagePollVoteAdd(_) => "MESSAGE_POLL_VOTE_ADD",
+            Self::MessagePollVoteRemove(_) => "MESSAGE_POLL_VOTE_REMOVE",
             Self::MessageReactionAdd(_) => "MESSAGE_REACTION_ADD",
             Self::MessageReactionRemove(_) => "MESSAGE_REACTION_REMOVE",
             Self::MessageReactionRemoveAll(_) => "MESSAGE_REACTION_REMOVE_ALL",
             Self::ChannelPinsUpdate(_) => "CHANNEL_PINS_UPDATE",
             Self::MessageAck(_) => "MESSAGE_ACK",
+            Self::ReadStateUpdate(_) => "READ_STATE_UPDATE",
+            Self::ReadStateSync(_) => "READ_STATE_SYNC",
             Self::UserUpdate(_) => "USER_UPDATE",
             Self::UserSettingsUpdate(_) => "USER_SETTINGS_UPDATE",
             Self::UserGuildSettingsUpdate(_) => "USER_GUILD_SETTINGS_UPDATE",
@@ -219,6 +234,8 @@ pub enum BusEvent {
     ThreadCreate(Channel),
     #[serde(rename = "THREAD_UPDATE")]
     ThreadUpdate(Channel),
+    #[serde(rename = "THREAD_MEMBERS_UPDATE")]
+    ThreadMembersUpdate(ThreadMembersUpdate),
     #[serde(rename = "THREAD_DELETE")]
     ThreadDelete(Channel),
     #[serde(rename = "APPLICATION_COMMAND_PERMISSIONS_UPDATE")]
@@ -231,6 +248,10 @@ pub enum BusEvent {
     MessageDelete(MessageDeleteEvent),
     #[serde(rename = "MESSAGE_DELETE_BULK")]
     MessageDeleteBulk(MessageDeleteBulkEvent),
+    #[serde(rename = "MESSAGE_POLL_VOTE_ADD")]
+    MessagePollVoteAdd(MessagePollVoteAddEvent),
+    #[serde(rename = "MESSAGE_POLL_VOTE_REMOVE")]
+    MessagePollVoteRemove(MessagePollVoteRemoveEvent),
     #[serde(rename = "MESSAGE_REACTION_ADD")]
     MessageReactionAdd(MessageReactionAddEvent),
     #[serde(rename = "MESSAGE_REACTION_REMOVE")]
@@ -241,6 +262,8 @@ pub enum BusEvent {
     ChannelPinsUpdate(ChannelPinsUpdateEvent),
     #[serde(rename = "MESSAGE_ACK")]
     MessageAck(MessageAckEvent),
+    #[serde(rename = "READ_STATE_UPDATE")]
+    ReadStateUpdate(ReadStateUpdateEvent),
     #[serde(rename = "USER_UPDATE")]
     UserUpdate(User),
     #[serde(rename = "USER_SETTINGS_UPDATE")]
@@ -267,6 +290,8 @@ pub enum BusEvent {
     VoiceMemberMove(VoiceMemberMoveEvent),
     #[serde(rename = "BAN_MESSAGE_PURGE")]
     BanMessagePurge(BanMessagePurgeEvent),
+    #[serde(rename = "SESSION_REVOKE")]
+    SessionRevoke(SessionRevokeEvent),
     #[serde(rename = "VOICE_QUALITY")]
     VoiceQuality(VoiceQualityEvent),
     #[serde(rename = "USAGE_TICK")]
@@ -297,6 +322,7 @@ impl BusEvent {
             Self::InviteDelete(_) => "INVITE_DELETE",
             Self::ThreadCreate(_) => "THREAD_CREATE",
             Self::ThreadUpdate(_) => "THREAD_UPDATE",
+            Self::ThreadMembersUpdate(_) => "THREAD_MEMBERS_UPDATE",
             Self::ThreadDelete(_) => "THREAD_DELETE",
             Self::ApplicationCommandPermissionsUpdate(_) => {
                 "APPLICATION_COMMAND_PERMISSIONS_UPDATE"
@@ -305,11 +331,14 @@ impl BusEvent {
             Self::MessageUpdate(_) => "MESSAGE_UPDATE",
             Self::MessageDelete(_) => "MESSAGE_DELETE",
             Self::MessageDeleteBulk(_) => "MESSAGE_DELETE_BULK",
+            Self::MessagePollVoteAdd(_) => "MESSAGE_POLL_VOTE_ADD",
+            Self::MessagePollVoteRemove(_) => "MESSAGE_POLL_VOTE_REMOVE",
             Self::MessageReactionAdd(_) => "MESSAGE_REACTION_ADD",
             Self::MessageReactionRemove(_) => "MESSAGE_REACTION_REMOVE",
             Self::MessageReactionRemoveAll(_) => "MESSAGE_REACTION_REMOVE_ALL",
             Self::ChannelPinsUpdate(_) => "CHANNEL_PINS_UPDATE",
             Self::MessageAck(_) => "MESSAGE_ACK",
+            Self::ReadStateUpdate(_) => "READ_STATE_UPDATE",
             Self::UserUpdate(_) => "USER_UPDATE",
             Self::UserSettingsUpdate(_) => "USER_SETTINGS_UPDATE",
             Self::UserGuildSettingsUpdate(_) => "USER_GUILD_SETTINGS_UPDATE",
@@ -323,6 +352,7 @@ impl BusEvent {
             Self::AuditLogEntryCreate(_) => "AUDIT_LOG_ENTRY_CREATE",
             Self::VoiceMemberMove(_) => "VOICE_MEMBER_MOVE",
             Self::BanMessagePurge(_) => "BAN_MESSAGE_PURGE",
+            Self::SessionRevoke(_) => "SESSION_REVOKE",
             Self::VoiceQuality(_) => "VOICE_QUALITY",
             Self::UsageTick(_) => "USAGE_TICK",
         }

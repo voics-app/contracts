@@ -14,17 +14,102 @@ export type PermissionBitset = string;
  */
 export type DeliveryMode = "standard" | "ephemeral" | "p2p";
 /**
+ * Opaque installation precondition from the selected guild in GET /oauth2/authorize. Echo it unchanged in POST. It distinguishes an active installation, initial absence and absence after removal. Missing or null is invalid; a changed revision returns 409 without writes and requires a fresh preview and consent.
+ */
+export type BotInstallationRevision = string;
+/**
+ * File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
+ */
+export type CreateReportRequest = CreateReportRequest1;
+/**
+ * Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.
+ */
+export type ScheduledMessageId = string;
+/**
+ * Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.
+ */
+export type ScheduledMessageRevision = number;
+/**
  * Op 1 HEARTBEAT: the last sequence number received, or null.
  */
 export type HeartbeatPayload = number | null;
+/**
+ * One request per process owner. A fresh process always chooses a fresh UUID; owner IDs must never be shared or restored. The HTTP endpoint accepts service messages only; API uses its database adapter directly. Workers0 and64 remain permanently reserved for legacy issuers.
+ */
+export type IdReservationRequest =
+  | {
+      action: "acquire";
+      service: "messages";
+      owner_id: string;
+      preferred_worker: number;
+    }
+  | {
+      action: "renew";
+      service: "messages";
+      owner_id: string;
+      worker_id: number;
+    };
+/**
+ * Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed.
+ */
+export type PollVersion = string;
 /**
  * Op 9 INVALID_SESSION: whether the session can be resumed.
  */
 export type InvalidSessionPayload = boolean;
 /**
+ * Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
+ */
+export type ReadStateVersion = string;
+/**
+ * A bounded page of currently permitted Standard-channel recipients, excluding author_id. Permissions and preferences are resolved per request, not a historical or cross-page snapshot. A filtered page may be empty with a non-null next_after; continue until null. Private delivery modes return no recipients and no continuation.
+ */
+export type NotificationRecipientPage =
+  | {
+      channel_id: Snowflake;
+      guild_id: Snowflake | null;
+      delivery_mode: "standard";
+      evaluated_at: string;
+      /**
+       * @maxItems 200
+       */
+      recipients: NotificationRecipient[];
+      /**
+       * Last examined candidate ID when more candidates remain. May refer to an excluded author or hidden member. Pass as after to continue.
+       */
+      next_after: Snowflake | null;
+    }
+  | {
+      channel_id: Snowflake;
+      guild_id: Snowflake | null;
+      delivery_mode: "ephemeral" | "p2p";
+      evaluated_at: string;
+      /**
+       * @maxItems 0
+       */
+      recipients: [];
+      next_after: null;
+    };
+/**
+ * READY: the internal ready state plus session details.
+ */
+export type ReadyEvent = ReadyEvent1;
+/**
+ * Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
+ */
+export type ScheduledMessage = ScheduledMessage1;
+/**
  * SESSIONS_REPLACE dispatch: every active session of the user.
  */
 export type SessionsReplaceEvent = Session[];
+/**
+ * A thread member's Snowflake or @me for the authenticated user.
+ */
+export type ThreadMemberTarget = string;
+/**
+ * Messages-owned read-state snapshots. Header X-Read-State-Versioned: 1 certifies that every entry is versioned and the writer publishes authoritative updates, including for an empty array. Gateway must reject malformed certified entries and duplicate channel IDs.
+ */
+export type UserReadStates = ReadState[];
 
 /**
  * Claims of a user access JWT (EdDSA, 15 minutes).
@@ -55,19 +140,33 @@ export interface AckRequest {
   mention_count?: number;
 }
 /**
- * A user activity.
+ * A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.
  */
 export interface Activity {
+  /**
+   * Required, non-empty, at most 128 characters.
+   */
   name: string;
   /**
-   * ActivityType.
+   * ActivityType, 0..5. At most one activity per presence may be type 4 (custom status).
    */
   type: number;
+  /**
+   * At most 512 characters.
+   */
   url?: string | null;
+  /**
+   * Unix milliseconds.
+   */
   created_at?: number;
   timestamps?: ActivityTimestamps;
-  application_id?: Snowflake;
+  /**
+   * At most 128 characters.
+   */
   details?: string | null;
+  /**
+   * At most 128 characters.
+   */
   state?: string | null;
   emoji?: ActivityEmoji | null;
 }
@@ -177,9 +276,16 @@ export interface User {
    * Avatar hash.
    */
   avatar: string | null;
+  /**
+   * Profile About me text, at most 300 characters.
+   */
+  bio?: string | null;
   bot?: boolean;
   system?: boolean;
   mfa_enabled?: boolean;
+  /**
+   * Profile banner hash.
+   */
   banner?: string | null;
   accent_color?: number | null;
   locale?: string;
@@ -190,6 +296,17 @@ export interface User {
   email?: string | null;
   flags?: number;
   public_flags?: number;
+  /**
+   * Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+   */
+  pronouns?: string | null;
+  /**
+   * Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  theme_colors?: [number, number] | null;
 }
 /**
  * Default scopes and permissions for the bot invite.
@@ -197,6 +314,30 @@ export interface User {
 export interface InstallParams {
   scopes: string[];
   permissions: PermissionBitset;
+}
+/**
+ * One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.
+ */
+export interface ApplicationAuthorization {
+  id: Snowflake;
+  application: Application;
+  guild: AuthorizationGuild;
+  /**
+   * @minItems 1
+   * @maxItems 2
+   */
+  scopes: ["bot" | "applications.commands"] | ["bot" | "applications.commands", "bot" | "applications.commands"];
+  permissions: PermissionBitset;
+  created_at: string;
+  authorized_at: string;
+}
+/**
+ * The server of a recorded bot authorization.
+ */
+export interface AuthorizationGuild {
+  id: Snowflake;
+  name: string;
+  icon: string | null;
 }
 /**
  * A slash, user or message command.
@@ -313,7 +454,21 @@ export interface Attachment {
   duration_secs?: number;
   waveform?: string;
   /**
-   * AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler.
+   * AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent.
+   */
+  flags?: number;
+}
+/**
+ * Updates metadata of one attachment already owned by this message. Omitted properties are unchanged; description null or blank clears alt text. Files, filenames, IDs and URLs are immutable. Only the author may edit attachment metadata.
+ */
+export interface AttachmentMetadataEdit {
+  id: Snowflake;
+  /**
+   * Trimmed alt text; null or blank clears it.
+   */
+  description?: string | null;
+  /**
+   * Only IS_SPOILER (8) is applied; other stored bits are preserved. Explicit 0 clears the spoiler even for a SPOILER_ filename.
    */
   flags?: number;
 }
@@ -331,6 +486,14 @@ export interface AttachmentReference {
    * Alt text shown to screen readers and as the image tooltip.
    */
   description?: string;
+  /**
+   * Duration of a recorded voice message in seconds.
+   */
+  duration_secs?: number;
+  /**
+   * Base64-encoded amplitude samples for a recorded voice message.
+   */
+  waveform?: string;
   /**
    * AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too.
    */
@@ -438,6 +601,10 @@ export interface Channel {
   video_quality_mode?: number;
   message_count?: number;
   member_count?: number;
+  /**
+   * Voics: whether the requesting user has joined this thread; omitted from shared events.
+   */
+  is_thread_member?: boolean;
   thread_metadata?: ThreadMetadata;
   member?: ThreadMember;
   default_auto_archive_duration?: number;
@@ -499,7 +666,13 @@ export interface ThreadMember {
 export interface GuildMember {
   user?: User;
   nick?: string | null;
+  /**
+   * Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif).
+   */
   avatar?: string | null;
+  /**
+   * Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif).
+   */
   banner?: string | null;
   roles: Snowflake[];
   joined_at: string;
@@ -510,6 +683,10 @@ export interface GuildMember {
   pending?: boolean;
   permissions?: PermissionBitset;
   communication_disabled_until?: string | null;
+  /**
+   * Server-specific About me; trimmed, null or blank restores the global bio.
+   */
+  bio?: string | null;
 }
 /**
  * A tag that can be applied to forum threads.
@@ -542,8 +719,14 @@ export interface Webhook {
   user?: User;
   name: string | null;
   avatar: string | null;
+  /**
+   * Execution credential returned only by create and reset-token; never stored in list/get/edit responses.
+   */
   token?: string;
   application_id: Snowflake | null;
+  /**
+   * Execution URL returned only by create and reset-token. Treat as a secret.
+   */
   url?: string;
 }
 /**
@@ -577,6 +760,40 @@ export interface AuthResponse {
   user: User;
 }
 /**
+ * A login session of the current user (one refresh-token family), as listed by GET /users/@me/sessions. Not to be confused with the gateway Session of SESSIONS_REPLACE.
+ */
+export interface AuthSession {
+  /**
+   * Session ID; the `sid` claim of its access tokens.
+   */
+  id: string;
+  /**
+   * The client that opened the session, derived from its User-Agent (for example `Desktop app` (the desktop client; clients show it with the brand name), `Firefox`).
+   */
+  client: string;
+  /**
+   * Operating system derived from the User-Agent (for example `Windows`), or `Unknown`.
+   */
+  os: string;
+  /**
+   * Name of the registered end-to-end encrypted device bound to the session, if any.
+   */
+  device_name: string | null;
+  /**
+   * Approximate location (an ISO 3166-1 country code from the edge), or null when the edge does not provide one.
+   */
+  location: string | null;
+  created_at: string;
+  /**
+   * When the session last logged in or refreshed its tokens.
+   */
+  last_used_at: string;
+  /**
+   * Whether this is the session making the request.
+   */
+  current: boolean;
+}
+/**
  * Backup codes. Codes are stored hashed, so plaintext appears only when generated or regenerated.
  */
 export interface BackupCodesResponse {
@@ -597,6 +814,12 @@ export interface BackupCodesVerificationRequest {
    * Replaces every backup code and returns the new plaintext codes once.
    */
   regenerate?: boolean;
+}
+/**
+ * Change visibility of an existing badge grant owned by the caller.
+ */
+export interface BadgeVisibilityRequest {
+  visible: boolean;
 }
 /**
  * A guild ban.
@@ -688,7 +911,30 @@ export interface CallDeleteEvent {
   message_id: null;
 }
 /**
- * GET /internal/v1/channels/{channel_id}/access/{user_id}.
+ * Op 26 CALL_RING. Rings the listed members of a DM channel for a call the sender is in.
+ */
+export interface CallRingPayload {
+  channel_id: Snowflake;
+  /**
+   * Users to ring, 1 to 10.
+   *
+   * @minItems 1
+   * @maxItems 10
+   */
+  user_ids:
+    | [Snowflake]
+    | [Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake]
+    | [Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake, Snowflake];
+}
+/**
+ * GET /internal/v1/channels/{channel_id}/access/{user_id}. Current account eligibility is required: missing, disabled, pending-deletion or currently suspended users receive 403. Eligible bots and expired suspensions keep existing membership/permission behavior. No user session is required; fresh scheduled dispatch checks bypass caches and older in-flight requests. The response shape is unchanged, and the check/write race remains cross-service.
  */
 export interface ChannelAccess {
   permissions: PermissionBitset;
@@ -959,11 +1205,14 @@ export interface CreateInviteRequest {
   unique?: boolean;
 }
 /**
- * POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
+ * POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160). A poll requires fresh SEND_POLLS in addition to normal send permissions. Its definition cannot be edited or forwarded; public bots use the same permissions, and internal/webhook/interaction poll creation is rejected. Poll-only messages are valid. Private delivery never stores polls.
  */
 export interface CreateMessageRequest {
   content?: string;
   nonce?: string;
+  /**
+   * Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events.
+   */
   tts?: boolean;
   /**
    * @maxItems 10
@@ -985,9 +1234,10 @@ export interface CreateMessageRequest {
   components?: MessageComponent[];
   attachments?: AttachmentReference[];
   /**
-   * MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped.
+   * MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components.
    */
   flags?: number;
+  poll?: PollCreate;
 }
 /**
  * Rich embed content.
@@ -1052,7 +1302,7 @@ export interface EmbedField {
   inline?: boolean;
 }
 /**
- * Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
+ * Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.
  */
 export interface MessageReference {
   /**
@@ -1111,6 +1361,271 @@ export interface SelectOption {
   description?: string;
   emoji?: Emoji;
   default?: boolean;
+}
+/**
+ * Immutable poll definition for a Standard public message. Answer IDs and expiry are server assigned. Unsupported internal/webhook/interaction, scheduled and forward creation is rejected.
+ */
+export interface PollCreate {
+  question: PollQuestion;
+  /**
+   * @minItems 2
+   * @maxItems 10
+   */
+  answers:
+    | [
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        }
+      ]
+    | [
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        }
+      ]
+    | [
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        }
+      ]
+    | [
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        }
+      ]
+    | [
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        }
+      ]
+    | [
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        }
+      ]
+    | [
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        }
+      ]
+    | [
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        }
+      ]
+    | [
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        },
+        {
+          poll_media: PollMedia;
+        }
+      ];
+  /**
+   * Whole hours from server acceptance.
+   */
+  duration?: number;
+  allow_multiselect?: boolean;
+  layout_type?: 1;
+}
+/**
+ * Plain text. Does not produce mentions or embeds.
+ */
+export interface PollQuestion {
+  text: string;
+}
+/**
+ * An answer label, optionally decorated with a Unicode emoji.
+ */
+export interface PollMedia {
+  text: string;
+  emoji?: PollEmoji;
+}
+/**
+ * Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names.
+ */
+export interface PollEmoji {
+  name: string;
+}
+export interface CreateReportRequest1 {
+  target: "message" | "user" | "channel";
+  category:
+    | "spam"
+    | "harassment"
+    | "hate_speech"
+    | "violence"
+    | "sexual_content"
+    | "self_harm"
+    | "illegal"
+    | "impersonation"
+    | "other";
+  note?: string | null;
+  channel_id?: Snowflake;
+  message_id?: Snowflake;
+  user_id?: Snowflake;
+  author_id?: Snowflake;
+  content?: string | null;
+}
+/**
+ * POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.
+ */
+export interface CreateScheduledMessageRequest {
+  request_id: ScheduledMessageId;
+  scheduled_at: string;
+  message: ScheduledMessageDraft;
+}
+/**
+ * Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.
+ */
+export interface ScheduledMessageDraft {
+  content: string;
+  /**
+   * Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch.
+   */
+  tts?: boolean;
+  /**
+   * Same-channel reply target, revalidated at dispatch.
+   */
+  reply_to?: Snowflake | null;
+  /**
+   * Whether a reply mentions its target author; ignored when reply_to is absent.
+   */
+  replied_user?: boolean;
+  /**
+   * Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics.
+   */
+  silent?: boolean;
 }
 /**
  * POST /channels/{id}/threads body. Forum channels require `message`.
@@ -1331,7 +1846,74 @@ export interface EditMessageRequest {
   flags?: number | null;
   allowed_mentions?: AllowedMentions | null;
   components?: MessageComponent[] | null;
-  attachments?: AttachmentReference[];
+  /**
+   * Partial metadata edits of existing attachments. Unlisted files remain unchanged and an empty array does nothing. Unknown or duplicate attachment IDs reject the complete edit. This field cannot add or remove files.
+   *
+   * @maxItems 10
+   */
+  attachments?:
+    | []
+    | [AttachmentMetadataEdit]
+    | [AttachmentMetadataEdit, AttachmentMetadataEdit]
+    | [AttachmentMetadataEdit, AttachmentMetadataEdit, AttachmentMetadataEdit]
+    | [AttachmentMetadataEdit, AttachmentMetadataEdit, AttachmentMetadataEdit, AttachmentMetadataEdit]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ]
+    | [
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit,
+        AttachmentMetadataEdit
+      ];
 }
 /**
  * PUT /channels/{id}/permissions/{overwrite_id} body.
@@ -1343,6 +1925,14 @@ export interface EditOverwriteRequest {
    * OverwriteType.
    */
   type: number;
+}
+/**
+ * PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.
+ */
+export interface EditScheduledMessageRequest {
+  expected_revision: ScheduledMessageRevision;
+  scheduled_at?: string;
+  message?: ScheduledMessageDraft;
 }
 /**
  * PATCH /webhooks/{app_id}/{token}/messages/@original body.
@@ -1444,6 +2034,14 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 /**
+ * Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.
+ */
+export interface FriendSourceFlags {
+  all: boolean;
+  mutual_friends: boolean;
+  mutual_guilds: boolean;
+}
+/**
  * GET /internal/v1/admin/stats on gateway.
  */
 export interface GatewayAdminStats {
@@ -1478,12 +2076,15 @@ export interface GatewayFrame {
   t?: string | null;
 }
 /**
- * A guild (server). `voice_region` is a Discordy extra.
+ * Internal gateway seed. Thread membership state must not be sent to clients.
  */
-export interface Guild {
+export interface GatewayGuildState {
   id: Snowflake;
   name: string;
   icon: string | null;
+  /**
+   * Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
+   */
   splash?: string | null;
   discovery_splash?: string | null;
   /**
@@ -1503,11 +2104,17 @@ export interface Guild {
   mfa_level: number;
   application_id?: Snowflake | null;
   system_channel_id: Snowflake | null;
+  /**
+   * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+   */
   system_channel_flags: number;
   rules_channel_id?: Snowflake | null;
   max_members?: number;
   vanity_url_code?: string | null;
   description?: string | null;
+  /**
+   * Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
+   */
   banner?: string | null;
   preferred_locale: string;
   public_updates_channel_id?: Snowflake | null;
@@ -1518,6 +2125,35 @@ export interface Guild {
    * Discordy: voice region ID used to allocate voice nodes.
    */
   voice_region: string;
+  /**
+   * Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+   */
+  audit_log_enabled?: boolean;
+  /**
+   * Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+   */
+  audit_log_retention_days?: 30 | 90 | 365;
+  /**
+   * Discordy: when true, only administrators may prune inactive members.
+   */
+  prune_admin_only?: boolean;
+  joined_at?: string;
+  large?: boolean;
+  unavailable?: boolean;
+  member_count: number;
+  members: GuildMember[];
+  channels: Channel[];
+  threads: Channel[];
+  presences?: PresenceUpdateEvent[];
+  voice_states: VoiceState[];
+  thread_members: {
+    [k: string]:
+      | {
+          version: number;
+          user_ids: Snowflake[];
+        }
+      | undefined;
+  };
 }
 /**
  * A guild role.
@@ -1544,6 +2180,89 @@ export interface RoleTags {
   integration_id?: Snowflake;
 }
 /**
+ * PRESENCE_UPDATE dispatch.
+ */
+export interface PresenceUpdateEvent {
+  user: PartialUser;
+  guild_id?: Snowflake;
+  status: "online" | "idle" | "dnd" | "offline";
+  activities: Activity[];
+  client_status: ClientStatus;
+}
+/**
+ * A user reference that only guarantees the ID (presence updates, audit logs).
+ */
+export interface PartialUser {
+  id: Snowflake;
+  username?: string;
+  global_name?: string | null;
+  avatar?: string | null;
+  bot?: boolean;
+}
+/**
+ * A guild (server). `voice_region` is a Discordy extra.
+ */
+export interface Guild {
+  id: Snowflake;
+  name: string;
+  icon: string | null;
+  /**
+   * Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
+   */
+  splash?: string | null;
+  discovery_splash?: string | null;
+  /**
+   * True if the current user owns the guild.
+   */
+  owner?: boolean;
+  owner_id: Snowflake;
+  permissions?: PermissionBitset;
+  afk_channel_id: Snowflake | null;
+  afk_timeout: number;
+  verification_level: number;
+  default_message_notifications: number;
+  explicit_content_filter: number;
+  roles: Role[];
+  emojis: Emoji[];
+  features: string[];
+  mfa_level: number;
+  application_id?: Snowflake | null;
+  system_channel_id: Snowflake | null;
+  /**
+   * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+   */
+  system_channel_flags: number;
+  rules_channel_id?: Snowflake | null;
+  max_members?: number;
+  vanity_url_code?: string | null;
+  description?: string | null;
+  /**
+   * Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
+   */
+  banner?: string | null;
+  preferred_locale: string;
+  public_updates_channel_id?: Snowflake | null;
+  nsfw_level?: number;
+  approximate_member_count?: number;
+  approximate_presence_count?: number;
+  /**
+   * Discordy: voice region ID used to allocate voice nodes.
+   */
+  voice_region: string;
+  /**
+   * Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+   */
+  audit_log_enabled?: boolean;
+  /**
+   * Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+   */
+  audit_log_retention_days?: 30 | 90 | 365;
+  /**
+   * Discordy: when true, only administrators may prune inactive members.
+   */
+  prune_admin_only?: boolean;
+}
+/**
  * Permissions of an application's command(s) in a guild.
  */
 export interface GuildApplicationCommandPermissions {
@@ -1560,7 +2279,7 @@ export interface GuildBanEvent {
   user: User;
 }
 /**
- * A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+ * A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
  */
 export interface GuildDiscoverySettings {
   enabled: boolean;
@@ -1577,7 +2296,9 @@ export interface GuildDiscoverySettings {
     | [string, string, string, string, string];
   listed_at: string | null;
   member_count: number;
-  blockers: ("DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED")[];
+  blockers: (
+    "COMMUNITY_REQUIRED" | "DESCRIPTION_REQUIRED" | "MEMBER_COUNT_TOO_LOW" | "GUILD_TOO_NEW" | "NSFW_NOT_ALLOWED"
+  )[];
 }
 /**
  * GUILD_EMOJIS_UPDATE dispatch.
@@ -1611,6 +2332,9 @@ export interface GuildFull {
   id: Snowflake;
   name: string;
   icon: string | null;
+  /**
+   * Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null.
+   */
   splash?: string | null;
   discovery_splash?: string | null;
   /**
@@ -1630,11 +2354,17 @@ export interface GuildFull {
   mfa_level: number;
   application_id?: Snowflake | null;
   system_channel_id: Snowflake | null;
+  /**
+   * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+   */
   system_channel_flags: number;
   rules_channel_id?: Snowflake | null;
   max_members?: number;
   vanity_url_code?: string | null;
   description?: string | null;
+  /**
+   * Banner image hash (CDN path banners/{guild_id}/{hash}), or null.
+   */
   banner?: string | null;
   preferred_locale: string;
   public_updates_channel_id?: Snowflake | null;
@@ -1645,6 +2375,18 @@ export interface GuildFull {
    * Discordy: voice region ID used to allocate voice nodes.
    */
   voice_region: string;
+  /**
+   * Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention.
+   */
+  audit_log_enabled?: boolean;
+  /**
+   * Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job.
+   */
+  audit_log_retention_days?: 30 | 90 | 365;
+  /**
+   * Discordy: when true, only administrators may prune inactive members.
+   */
+  prune_admin_only?: boolean;
   joined_at?: string;
   large?: boolean;
   unavailable?: boolean;
@@ -1656,24 +2398,12 @@ export interface GuildFull {
   voice_states: VoiceState[];
 }
 /**
- * PRESENCE_UPDATE dispatch.
+ * An application whose bot is currently installed in this server.
  */
-export interface PresenceUpdateEvent {
-  user: PartialUser;
-  guild_id?: Snowflake;
-  status: "online" | "idle" | "dnd" | "offline";
-  activities: Activity[];
-  client_status: ClientStatus;
-}
-/**
- * A user reference that only guarantees the ID (presence updates, audit logs).
- */
-export interface PartialUser {
-  id: Snowflake;
-  username?: string;
-  global_name?: string | null;
-  avatar?: string | null;
-  bot?: boolean;
+export interface GuildIntegration {
+  application: Application;
+  permissions: PermissionBitset;
+  installed_at: string;
 }
 /**
  * GUILD_MEMBER_ADD / GUILD_MEMBER_UPDATE dispatch: a guild member plus guild_id.
@@ -1681,7 +2411,13 @@ export interface PartialUser {
 export interface GuildMemberEvent {
   user?: User;
   nick?: string | null;
+  /**
+   * Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif).
+   */
   avatar?: string | null;
+  /**
+   * Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif).
+   */
   banner?: string | null;
   roles: Snowflake[];
   joined_at: string;
@@ -1692,6 +2428,10 @@ export interface GuildMemberEvent {
   pending?: boolean;
   permissions?: PermissionBitset;
   communication_disabled_until?: string | null;
+  /**
+   * Server-specific About me; trimmed, null or blank restores the global bio.
+   */
+  bio?: string | null;
   guild_id: Snowflake;
 }
 /**
@@ -1773,7 +2513,7 @@ export interface GuildTemplate {
   source_guild_id: Snowflake | null;
   serialized_source_guild: TemplateSourceGuild;
   /**
-   * Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
+   * Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`).
    */
   is_dirty: boolean;
 }
@@ -1861,6 +2601,16 @@ export interface IceCandidate {
   protocol: "udp";
 }
 /**
+ * Committed exclusive-end millisecond interval for one process. Generation must fail outside this range or after end_ms-issued_at_ms measured monotonically from request START, including network time. Renewal must retain owner, worker and start and never shorten the end. Only a database commit grants a usable interval; failure grants nothing.
+ */
+export interface IdReservation {
+  worker_id: number;
+  owner_id: string;
+  start_ms: number;
+  end_ms: number;
+  issued_at_ms: number;
+}
+/**
  * Op 2 IDENTIFY.
  */
 export interface IdentifyPayload {
@@ -1888,12 +2638,27 @@ export interface IdentifyProperties {
   version: string;
 }
 /**
- * Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY).
+ * Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY). `activities` are sanitised by the gateway: at most 5 entries and at most one of type 4 (custom status); text fields at most 128 characters, `url` at most 512; unknown fields are dropped. Any violation closes the socket with 4002 DECODE_ERROR.
  */
 export interface PresenceUpdatePayload {
   status: "online" | "idle" | "dnd" | "invisible";
-  activities: Activity[];
+  /**
+   * At most 5 activities, at most one with type 4. Violations close the socket with 4002.
+   *
+   * @maxItems 5
+   */
+  activities:
+    | []
+    | [Activity]
+    | [Activity, Activity]
+    | [Activity, Activity, Activity]
+    | [Activity, Activity, Activity, Activity]
+    | [Activity, Activity, Activity, Activity, Activity];
   afk: boolean;
+  /**
+   * Mobile lifecycle hint. True means this app entered the background; false (also the default when omitted) means foreground. Only authenticated mobile user sessions may retain their effective presence after transport suspension, for a bounded server-configured lease (24 hours by default). This does not prove the app is still running. Logout or session revocation removes it immediately, and foreground/resume cancels the lease. Clients send their chosen effective status: automatic background idle must not replace explicitly selected Online, Idle, DND or Invisible. Desktop and bot sessions do not gain a background lease.
+   */
+  background?: boolean;
   /**
    * Unix ms since the client went idle.
    */
@@ -1978,6 +2743,10 @@ export interface Message {
   edited_timestamp: string | null;
   tts: boolean;
   mention_everyone: boolean;
+  /**
+   * Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise.
+   */
+  mention_here?: boolean;
   mentions: User[];
   mention_roles: Snowflake[];
   mention_channels?: ChannelMention[];
@@ -1995,12 +2764,13 @@ export interface Message {
   hit?: boolean;
   webhook_id?: Snowflake;
   /**
-   * MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
+   * MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
    */
   type: number;
   application_id?: Snowflake;
   flags?: number;
   message_reference?: MessageReference;
+  call?: MessageCall;
   referenced_message?: Message | null;
   interaction_metadata?: MessageInteractionMetadata;
   thread?: Channel;
@@ -2010,6 +2780,7 @@ export interface Message {
    * Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.
    */
   message_snapshots?: MessageSnapshot[];
+  poll?: Poll;
 }
 /**
  * Reactions of one emoji on a message.
@@ -2028,6 +2799,16 @@ export interface Reaction {
 export interface ReactionCountDetails {
   burst: number;
   normal: number;
+}
+/**
+ * Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.
+ */
+export interface MessageCall {
+  /**
+   * IDs of the users who took part in the call.
+   */
+  participants: Snowflake[];
+  ended_timestamp?: string | null;
 }
 /**
  * The interaction a message responds to.
@@ -2053,6 +2834,123 @@ export interface MessageSnapshot {
     type: number;
     flags?: number;
   };
+}
+/**
+ * A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit.
+ */
+export interface Poll {
+  question: PollQuestion;
+  /**
+   * @minItems 2
+   * @maxItems 10
+   */
+  answers:
+    | [PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer
+      ];
+  expiry: string;
+  allow_multiselect: boolean;
+  layout_type: 1;
+  results?: PollResults;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "PollAnswer".
+ */
+export interface PollAnswer {
+  answer_id: number;
+  poll_media: PollMedia;
+}
+/**
+ * Authoritative counts. Replace by results version; never add/subtract event deltas.
+ */
+export interface PollResults {
+  version: PollVersion;
+  is_finalized: boolean;
+  /**
+   * Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer.
+   *
+   * @minItems 2
+   * @maxItems 10
+   */
+  answer_counts:
+    | [PollAnswerCount, PollAnswerCount]
+    | [PollAnswerCount, PollAnswerCount, PollAnswerCount]
+    | [PollAnswerCount, PollAnswerCount, PollAnswerCount, PollAnswerCount]
+    | [PollAnswerCount, PollAnswerCount, PollAnswerCount, PollAnswerCount, PollAnswerCount]
+    | [PollAnswerCount, PollAnswerCount, PollAnswerCount, PollAnswerCount, PollAnswerCount, PollAnswerCount]
+    | [
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount
+      ]
+    | [
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount
+      ]
+    | [
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount
+      ]
+    | [
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount,
+        PollAnswerCount
+      ];
+  vote_version?: PollVersion;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "PollAnswerCount".
+ */
+export interface PollAnswerCount {
+  id: number;
+  count: number;
+  /**
+   * Absent in public events: unknown, not false.
+   */
+  me_voted?: boolean;
 }
 /**
  * A filled-in command option.
@@ -2110,6 +3008,40 @@ export interface InteractionResponse {
    */
   type: number;
   data?: InteractionCallbackData;
+}
+/**
+ * POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.
+ */
+export interface InternalCreateMessageRequest {
+  author_id: Snowflake;
+  webhook_id?: Snowflake;
+  username?: string;
+  avatar_url?: string;
+  interaction_id?: Snowflake;
+  application_id?: Snowflake;
+  content?: string;
+  /**
+   * The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false.
+   */
+  tts?: boolean;
+  embeds?: Embed[];
+  components?: MessageComponent[];
+  /**
+   * 64 (ephemeral) sends only to target_user_ids and stores nothing.
+   */
+  flags?: number;
+  message_reference?: MessageReference;
+  /**
+   * Recipients of an ephemeral message.
+   */
+  target_user_ids?: Snowflake[];
+  /**
+   * System message type (see description); omit or 0 for a normal message.
+   */
+  type?: number;
+  target_user_id?: Snowflake;
+  call?: MessageCall;
+  thread_id?: Snowflake;
 }
 /**
  * POST /internal/v1/auth/introspect body.
@@ -2211,7 +3143,7 @@ export interface LoginRequest {
   totp?: string;
 }
 /**
- * Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100.
+ * Voice op 15 MEDIA_SINK_WANTS: keys are SSRCs as decimal strings, values the wanted quality 0-100. Selects the simulcast layer. Screen-share packets are opt-in: a subscriber receives a publisher's screen (the SSRC announced with `type: screen` in VIDEO) only after listing that SSRC with quality > 0; otherwise the SFU skips the packets. Opting in also makes the streamer's op 40 STREAM_VIEWERS list include the subscriber.
  */
 export interface MediaSinkWantsPayload {
   [k: string]: number | undefined;
@@ -2224,6 +3156,7 @@ export interface MessageAckEvent {
   message_id: Snowflake;
   mention_count: number;
   version?: number;
+  read_state_version?: ReadStateVersion;
 }
 /**
  * MESSAGE_DELETE_BULK dispatch.
@@ -2253,6 +3186,10 @@ export interface MessageEvent {
   edited_timestamp: string | null;
   tts: boolean;
   mention_everyone: boolean;
+  /**
+   * Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise.
+   */
+  mention_here?: boolean;
   mentions: User[];
   mention_roles: Snowflake[];
   mention_channels?: ChannelMention[];
@@ -2270,12 +3207,13 @@ export interface MessageEvent {
   hit?: boolean;
   webhook_id?: Snowflake;
   /**
-   * MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
+   * MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics).
    */
   type: number;
   application_id?: Snowflake;
   flags?: number;
   message_reference?: MessageReference;
+  call?: MessageCall;
   referenced_message?: Message | null;
   interaction_metadata?: MessageInteractionMetadata;
   thread?: Channel;
@@ -2285,8 +3223,69 @@ export interface MessageEvent {
    * Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time.
    */
   message_snapshots?: MessageSnapshot[];
+  poll?: Poll;
   guild_id?: Snowflake;
   member?: GuildMember;
+}
+/**
+ * Complete authoritative post-mutation counts and actor selection. Single-choice replacement can emit REMOVE and ADD with identical versions/results. Apply snapshots, never deltas.
+ */
+export interface MessagePollVoteAddEvent {
+  user_id: Snowflake;
+  channel_id: Snowflake;
+  message_id: Snowflake;
+  guild_id?: Snowflake;
+  answer_id: number;
+  /**
+   * Complete post-mutation selection of user_id, including empty after the last removal.
+   *
+   * @minItems 0
+   * @maxItems 10
+   */
+  answer_ids:
+    | []
+    | [number]
+    | [number, number]
+    | [number, number, number]
+    | [number, number, number, number]
+    | [number, number, number, number, number]
+    | [number, number, number, number, number, number]
+    | [number, number, number, number, number, number, number]
+    | [number, number, number, number, number, number, number, number]
+    | [number, number, number, number, number, number, number, number, number]
+    | [number, number, number, number, number, number, number, number, number, number];
+  vote_version: PollVersion;
+  results: PollResults;
+}
+/**
+ * Complete authoritative post-mutation counts and actor selection. Single-choice replacement can emit REMOVE and ADD with identical versions/results. Apply snapshots, never deltas.
+ */
+export interface MessagePollVoteRemoveEvent {
+  user_id: Snowflake;
+  channel_id: Snowflake;
+  message_id: Snowflake;
+  guild_id?: Snowflake;
+  answer_id: number;
+  /**
+   * Complete post-mutation selection of user_id, including empty after the last removal.
+   *
+   * @minItems 0
+   * @maxItems 10
+   */
+  answer_ids:
+    | []
+    | [number]
+    | [number, number]
+    | [number, number, number]
+    | [number, number, number, number]
+    | [number, number, number, number, number]
+    | [number, number, number, number, number, number]
+    | [number, number, number, number, number, number, number]
+    | [number, number, number, number, number, number, number, number]
+    | [number, number, number, number, number, number, number, number, number]
+    | [number, number, number, number, number, number, number, number, number, number];
+  vote_version: PollVersion;
+  results: PollResults;
 }
 /**
  * MESSAGE_REACTION_ADD dispatch.
@@ -2377,9 +3376,13 @@ export interface MfaRequiredResponse {
   code: 60008;
   message: string;
   /**
-   * Present to POST /auth/mfa/totp together with a code.
+   * Present to /auth/mfa/totp with a TOTP/recovery code or to /auth/mfa/webauthn/start.
    */
   ticket: string;
+  /**
+   * Registered factors available for this ticket; older servers may omit it.
+   */
+  methods?: ("totp" | "webauthn" | "backup_code")[];
 }
 /**
  * PATCH /applications/{id} body.
@@ -2435,6 +3438,13 @@ export interface ModifyCurrentUserRequest {
    * Data URI image.
    */
   avatar?: string | null;
+  /**
+   * About me text; null or blank clears it. Trimmed, at most 300 characters.
+   */
+  bio?: string | null;
+  /**
+   * PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it.
+   */
   banner?: string | null;
   accent_color?: number | null;
   /**
@@ -2443,6 +3453,17 @@ export interface ModifyCurrentUserRequest {
   password?: string;
   new_password?: string;
   email?: string;
+  /**
+   * Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters.
+   */
+  pronouns?: string | null;
+  /**
+   * Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  theme_colors?: [number, number] | null;
 }
 /**
  * PATCH /guilds/{id}/emojis/{eid} body.
@@ -2493,23 +3514,54 @@ export interface ModifyGuildNotificationSettingsRequest {
  * PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
  */
 export interface ModifyGuildRequest {
+  /**
+   * MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting.
+   */
+  features?: "COMMUNITY"[];
   name?: string;
   icon?: string | null;
+  /**
+   * Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it.
+   */
   banner?: string | null;
+  /**
+   * Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it.
+   */
   splash?: string | null;
   description?: string | null;
   owner_id?: Snowflake;
   afk_channel_id?: Snowflake | null;
   afk_timeout?: number;
   system_channel_id?: Snowflake | null;
+  /**
+   * Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear.
+   */
   system_channel_flags?: number;
+  /**
+   * Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id.
+   */
   rules_channel_id?: Snowflake | null;
+  /**
+   * Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id.
+   */
   public_updates_channel_id?: Snowflake | null;
   preferred_locale?: string;
   verification_level?: number;
   default_message_notifications?: number;
   explicit_content_filter?: number;
   voice_region?: string;
+  /**
+   * Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves.
+   */
+  audit_log_enabled?: boolean;
+  /**
+   * Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job.
+   */
+  audit_log_retention_days?: 30 | 90 | 365;
+  /**
+   * Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD.
+   */
+  prune_admin_only?: boolean;
 }
 /**
  * PATCH /guilds/{guild_id}/templates/{code} body.
@@ -2519,7 +3571,7 @@ export interface ModifyGuildTemplateRequest {
   description?: string | null;
 }
 /**
- * PATCH /guilds/{id}/members/{uid} body.
+ * PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.
  */
 export interface ModifyMemberRequest {
   nick?: string | null;
@@ -2532,6 +3584,18 @@ export interface ModifyMemberRequest {
   channel_id?: Snowflake | null;
   communication_disabled_until?: string | null;
   flags?: number;
+  /**
+   * Server-specific About me; trimmed, null or blank restores the global bio.
+   */
+  bio?: string | null;
+  /**
+   * Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image.
+   */
+  avatar?: string | null;
+  /**
+   * Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image.
+   */
+  banner?: string | null;
 }
 /**
  * PATCH /users/@me/settings body (partial).
@@ -2561,12 +3625,44 @@ export interface ModifyUserSettingsRequest {
    * @maxItems 200
    */
   guild_positions?: Snowflake[];
+  /**
+   * DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.
+   */
+  pinned_dm_channel_ids?: Snowflake[];
+  /**
+   * Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.
+   */
+  pinned_channel_ids?: {
+    [k: string]: Snowflake[] | undefined;
+  };
   preferences?: UserPreferences;
+  /**
+   * Partial friend-request source update; omitted flags retain their values.
+   */
+  friend_source_flags?: {
+    all?: boolean;
+    mutual_friends?: boolean;
+    mutual_guilds?: boolean;
+  };
 }
 /**
  * Client preferences that follow the account across devices (client#123). Sparse: a key is present only once the user (or a first-run migration) set it; clients fall back to their defaults for missing keys. As a PATCH value the object is merged key by key. Device-specific settings (audio and video devices, volumes, keybinds, window state, desktop notification toggle, taskbar flash) are not stored here.
  */
 export interface UserPreferences {
+  /**
+   * Default restriction on new guild-related DMs; missing means false.
+   */
+  default_guilds_restricted?: boolean;
+  /**
+   * Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior.
+   */
+  guild_dm_restrictions?: {
+    [k: string]: boolean | null | undefined;
+  };
+  /**
+   * Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization.
+   */
+  hide_age_restricted_channels?: boolean;
   /**
    * Accent colour preset.
    */
@@ -2649,6 +3745,12 @@ export interface UserPreferences {
   }[];
 }
 /**
+ * Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.
+ */
+export interface ModifyVanityUrlRequest {
+  code: string | null;
+}
+/**
  * PATCH /webhooks/{id} body.
  */
 export interface ModifyWebhookRequest {
@@ -2657,7 +3759,28 @@ export interface ModifyWebhookRequest {
   channel_id?: Snowflake;
 }
 /**
- * GET /oauth2/authorize response: what the bot invite screen shows.
+ * A current channel viewer and their resolved notification policy. Independent of push-token ownership; includes desktop-only users. These are policy facts, not an instruction to increment a badge for every message.
+ */
+export interface NotificationRecipient {
+  user_id: Snowflake;
+  role_ids: Snowflake[];
+  /**
+   * Whether a live gateway session was observed for this page. This is not proof that a mobile app is in the foreground.
+   */
+  online: boolean;
+  /**
+   * Resolved channel, parent, guild or server-default level: 0 all messages, 1 mentions, 2 nothing.
+   */
+  level: 0 | 1 | 2;
+  /**
+   * A guild, channel or parent mute is active at evaluated_at. An end_time equal to or before that time is expired.
+   */
+  muted: boolean;
+  suppress_everyone: boolean;
+  suppress_roles: boolean;
+}
+/**
+ * Bot-install consent information. Only bot and applications.commands are supported.
  */
 export interface OAuth2AuthorizeInfo {
   application: Application;
@@ -2665,7 +3788,11 @@ export interface OAuth2AuthorizeInfo {
   user: User;
   guilds: OAuth2Guild[];
   permissions: PermissionBitset;
-  scopes: string[];
+  /**
+   * @minItems 1
+   * @maxItems 2
+   */
+  scopes: ["bot" | "applications.commands"] | ["bot" | "applications.commands", "bot" | "applications.commands"];
 }
 /**
  * A guild the user can add the bot to.
@@ -2675,16 +3802,22 @@ export interface OAuth2Guild {
   name: string;
   icon: string | null;
   permissions: PermissionBitset;
+  installation_revision: BotInstallationRevision;
+  /**
+   * Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation.
+   */
+  bot_permissions: PermissionBitset | null;
 }
 /**
- * POST /oauth2/authorize body: add a bot to a guild.
+ * Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.
  */
 export interface OAuth2AuthorizeRequest {
   client_id: Snowflake;
   guild_id: Snowflake;
+  installation_revision: BotInstallationRevision;
   permissions: PermissionBitset;
   /**
-   * Space-separated scopes, e.g. "bot applications.commands".
+   * Space-separated bot and optionally applications.commands. bot is required.
    */
   scope: string;
 }
@@ -2693,7 +3826,7 @@ export interface OAuth2AuthorizeRequest {
  */
 export interface OAuth2AuthorizeResponse {
   /**
-   * Where the client should navigate next.
+   * Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI.
    */
   location: string;
 }
@@ -2717,10 +3850,235 @@ export interface P2pSignalPayload {
   identity_sig_b64: string;
 }
 /**
+ * Registered second factor metadata. Credential public keys and challenges are never included.
+ */
+export interface Passkey {
+  id: string;
+  name: string;
+  created_at: string;
+  last_used_at: string | null;
+}
+/**
+ * Removing a passkey needs the password and a valid TOTP or one-time recovery code. Removing the last factor turns MFA off.
+ */
+export interface PasskeyDeleteRequest {
+  password: string;
+  code: string;
+}
+/**
+ * Finish the registration using navigator.credentials.create, serializing binary fields as unpadded base64url.
+ */
+export interface PasskeyRegisterFinishRequest {
+  challenge_id: string;
+  credential: {
+    id: string;
+    rawId: string;
+    type: "public-key";
+    response: {};
+    [k: string]: unknown | undefined;
+  };
+}
+/**
+ * The enrolled passkey. First-factor enrollment generates recovery codes; existing codes are retained when another factor is added.
+ */
+export interface PasskeyRegisterResponse {
+  passkey: Passkey;
+  backup_codes?: {
+    /**
+     * Plaintext code; omitted when only the consumed state is listed.
+     */
+    code?: string;
+    consumed: boolean;
+  }[];
+}
+/**
+ * Reauthenticate with the password before creating a passkey registration challenge.
+ */
+export interface PasskeyRegisterStartRequest {
+  password: string;
+  name: string;
+}
+/**
+ * Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.
+ */
+export interface PasskeyRenameRequest {
+  name: string;
+}
+/**
  * Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enable: the current password re-authenticates the caller.
  */
 export interface PasswordConfirmationRequest {
   password: string;
+}
+/**
+ * Viewer-authorized poll snapshot. GET is side-effect-free. Refresh visible polls on foreground/reconnect to repair missed publication.
+ */
+export interface PollSnapshot {
+  question: PollQuestion;
+  /**
+   * @minItems 2
+   * @maxItems 10
+   */
+  answers:
+    | [PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer, PollAnswer]
+    | [
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer,
+        PollAnswer
+      ];
+  expiry: string;
+  allow_multiselect: boolean;
+  layout_type: 1;
+  results: PollViewerResults;
+}
+/**
+ * Authenticated snapshot with explicit selection for every answer and the viewer revision, including zero for a first-time viewer.
+ */
+export interface PollViewerResults {
+  version: PollVersion;
+  is_finalized: boolean;
+  /**
+   * Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer.
+   *
+   * @minItems 2
+   * @maxItems 10
+   */
+  answer_counts:
+    | [PollViewerAnswerCount, PollViewerAnswerCount]
+    | [PollViewerAnswerCount, PollViewerAnswerCount, PollViewerAnswerCount]
+    | [PollViewerAnswerCount, PollViewerAnswerCount, PollViewerAnswerCount, PollViewerAnswerCount]
+    | [
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount
+      ]
+    | [
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount
+      ]
+    | [
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount
+      ]
+    | [
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount
+      ]
+    | [
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount
+      ]
+    | [
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount,
+        PollViewerAnswerCount
+      ];
+  vote_version: PollVersion;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "PollViewerAnswerCount".
+ */
+export interface PollViewerAnswerCount {
+  id: number;
+  count: number;
+  /**
+   * Absent in public events: unknown, not false.
+   */
+  me_voted: boolean;
+}
+/**
+ * The revision of your own vote, not the global results. An already-satisfied retry is a no-op; any stale request that changes your selection conflicts.
+ */
+export interface PollVoteRequest {
+  expected_vote_version: PollVersion;
+}
+/**
+ * Mandatory additional validation for a voice token signed with VOICE_PROBE_TOKEN_SECRET and purpose=probe. The call-signing key must not authorize probe tokens, nor the probe key call tokens. The live node lease must match, video must be disabled, and the server derives an isolated room from node_lease plus probe_id. Never authorize an ordinary user room from a probe token's srv/chn values.
+ */
+export interface ProbeVoiceTokenClaims {
+  sub: Snowflake;
+  /**
+   * Gateway session ID.
+   */
+  sid: string;
+  srv: Snowflake;
+  chn: Snowflake;
+  /**
+   * Allocated voice node ID.
+   */
+  node: string;
+  e2ee: false;
+  iat: number;
+  exp: number;
+  purpose: "probe";
+  node_lease: string;
+  probe_id: string;
+}
+/**
+ * An earned badge and the owner-selected visibility.
+ */
+export interface ProfileBadge {
+  id: string;
+  visible: boolean;
+}
+/**
+ * POST /guilds/{id}/prune body.
+ */
+export interface PruneRequest {
+  days?: number;
+  include_roles?: Snowflake[];
+}
+/**
+ * GET /guilds/{id}/prune (members that would be removed) and POST /guilds/{id}/prune (members removed).
+ */
+export interface PruneResult {
+  pruned: number;
 }
 /**
  * A device's public identity, as listed by GET /users/{id}/devices.
@@ -2745,18 +4103,42 @@ export interface PutRelationshipRequest {
   type?: number;
 }
 /**
+ * One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.
+ */
+export interface ReadState {
+  id: Snowflake;
+  last_message_id: Snowflake | null;
+  mention_count: number;
+  read_state_version?: ReadStateVersion;
+}
+/**
+ * Certified snapshot fetched during resume, after subscription and before RESUMED. Merge each channel by version with replayed updates; an absent channel is not a deletion. An equal version may restore the known authoritative snapshot over local optimistic state, but conflicting equal-version data and older versions are ignored. A fresh READY, not this event, starts a new version history.
+ */
+export interface ReadStateSyncEvent {
+  read_state_versioned: true;
+  read_state: (ReadState & {
+    read_state_version: ReadStateVersion;
+  })[];
+}
+/**
+ * Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
+ */
+export interface ReadStateUpdateEvent {
+  channel_id: Snowflake;
+  last_message_id: Snowflake | null;
+  mention_count: number;
+  read_state_version: ReadStateVersion;
+}
+/**
  * The bot's application.
  */
 export interface ReadyApplication {
   id: Snowflake;
   flags: number;
 }
-/**
- * READY: the internal ready state plus session details.
- */
-export interface ReadyEvent {
+export interface ReadyEvent1 {
   user: User;
-  guilds: GuildFull[];
+  guilds: GatewayGuildState[];
   private_channels: Channel[];
   relationships: Relationship[];
   user_settings: UserSettings;
@@ -2777,6 +4159,11 @@ export interface ReadyEvent {
   session_id: string;
   resume_gateway_url: string;
   application?: ReadyApplication;
+  read_state?: ReadState[];
+  /**
+   * Present only after successful certified messages hydration. Standard counts use authoritative snapshots rather than CREATE increments; private decrypted traffic stays local. Absent means legacy behavior.
+   */
+  read_state_versioned?: true;
 }
 /**
  * A relationship with another user.
@@ -2814,12 +4201,23 @@ export interface UserSettings {
    */
   guild_folders: GuildFolder[];
   /**
+   * DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices.
+   */
+  pinned_dm_channel_ids: Snowflake[];
+  /**
+   * Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices.
+   */
+  pinned_channel_ids: {
+    [k: string]: Snowflake[] | undefined;
+  };
+  /**
    * Flat server order (legacy mirror of guild_folders).
    *
    * @maxItems 200
    */
   guild_positions: Snowflake[];
   preferences: UserPreferences;
+  friend_source_flags?: FriendSourceFlags;
 }
 /**
  * POST /auth/refresh body.
@@ -2829,6 +4227,10 @@ export interface RefreshRequest {
    * Opaque 256-bit token, base64url.
    */
   refresh_token: string;
+  /**
+   * Optional random UUID saved durably with the current refresh token before sending. Retrying this exact pair for up to five minutes recovers its immediate unused, unexpired successor in a live session without extending expiry. Keep the UUID until successor credentials are saved, then generate a new UUID for the next rotation. Omission retains strict single-use rotation.
+   */
+  request_id?: string;
 }
 /**
  * POST /auth/register body.
@@ -2844,6 +4246,22 @@ export interface RegisterRequest {
 export interface RelationshipRemoveEvent {
   id: Snowflake;
   type: number;
+}
+/**
+ * Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.
+ */
+export interface ReportListingRequest {
+  category:
+    | "spam"
+    | "harassment"
+    | "hate_speech"
+    | "violence"
+    | "sexual_content"
+    | "self_harm"
+    | "illegal"
+    | "impersonation"
+    | "other";
+  note?: string | null;
 }
 /**
  * Op 8 REQUEST_GUILD_MEMBERS.
@@ -2896,6 +4314,36 @@ export interface RoleRequest {
    */
   position?: number;
 }
+export interface ScheduledMessage1 {
+  id: ScheduledMessageId;
+  channel_id: Snowflake;
+  author_id: Snowflake;
+  revision: ScheduledMessageRevision;
+  status: "pending" | "dispatching" | "sent" | "failed" | "cancelled" | "delivery_unknown";
+  scheduled_at: string;
+  created_at: string;
+  updated_at: string;
+  message: ScheduledMessageDraft | null;
+  message_id: Snowflake | null;
+  failure:
+    | "access_denied"
+    | "channel_missing"
+    | "delivery_mode_changed"
+    | "invalid_message"
+    | "dependency_unavailable"
+    | "delivery_unknown"
+    | null;
+}
+/**
+ * Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.
+ */
+export interface ScheduledMessageList {
+  /**
+   * @maxItems 100
+   */
+  items: ScheduledMessage[];
+  next_after: ScheduledMessageId | null;
+}
 /**
  * Client ICE/DTLS parameters.
  */
@@ -2914,10 +4362,10 @@ export interface SelectProtocolPayload {
   codecs: VoiceCodec[];
 }
 /**
- * A codec offered by the client.
+ * A codec offered by the client. Shipped desktop and mobile clients prefer VP8 for interoperable camera and screen video. The SFU forwards encoded payloads unchanged; peers must negotiate a common video codec. Older desktop builds preferring VP9 require an update for mobile video.
  */
 export interface VoiceCodec {
-  name: "opus" | "VP9" | "AV1" | "H264";
+  name: "opus" | "VP8" | "VP9" | "AV1" | "H264";
   type: "audio" | "video";
   priority: number;
   payload_type: number;
@@ -2957,6 +4405,15 @@ export interface SessionDescriptionPayload {
  */
 export interface VoiceE2ee {
   protocol_version: number;
+}
+/**
+ * SESSION_REVOKE bus event (discordy.user.v1, routed to the user in target_user_ids). Login sessions were revoked (DELETE /users/@me/sessions/{id}, POST /users/@me/sessions/logout-all). The gateway closes every live connection whose authenticated session id is listed, with close code 4004, and never dispatches it to clients.
+ */
+export interface SessionRevokeEvent {
+  /**
+   * The revoked session ids.
+   */
+  session_ids: string[];
 }
 /**
  * PUT /users/@me/channels/{id}/delivery-mode body.
@@ -3025,6 +4482,21 @@ export interface SfuStats {
   packets_lost?: number;
 }
 /**
+ * SFU control event: the set of subscribers opted in to a screen share changed. Carries the full viewer list; signalling forwards it to the streamer as voice op 40.
+ */
+export interface SfuStreamViewers {
+  evt: "stream_viewers";
+  session_id: string;
+  /**
+   * The streamer's screen SSRC.
+   */
+  ssrc: number;
+  /**
+   * User ids of every opted-in viewer.
+   */
+  viewers: string[];
+}
+/**
  * Voice op 5 SPEAKING.
  */
 export interface SpeakingPayload {
@@ -3036,6 +4508,19 @@ export interface SpeakingPayload {
   user_id?: Snowflake;
 }
 /**
+ * Voice op 40 STREAM_VIEWERS. Server to streamer only: the users currently watching the streamer's screen share. Always the full list (empty means nobody); it is re-sent whenever the set changes.
+ */
+export interface StreamViewersPayload {
+  /**
+   * The streamer's screen SSRC.
+   */
+  ssrc: number;
+  /**
+   * Every current viewer.
+   */
+  user_ids: Snowflake[];
+}
+/**
  * POST /internal/v1/admin/users/{id}/suspend body.
  */
 export interface SuspendUserRequest {
@@ -3044,6 +4529,18 @@ export interface SuspendUserRequest {
    * Null suspends indefinitely.
    */
   until: string | null;
+}
+/**
+ * A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.
+ */
+export interface ThreadMembersUpdate {
+  id: Snowflake;
+  guild_id: Snowflake;
+  member_count: number;
+  added_members: ThreadMember[];
+  removed_member_ids: Snowflake[];
+  _membership_version?: number;
+  _member_ids?: Snowflake[];
 }
 /**
  * A pending TOTP secret; 2FA is not active until POST /users/@me/mfa/totp/verify.
@@ -3077,6 +4574,13 @@ export interface TypingStartEvent {
 export interface UnavailableGuild {
   id: Snowflake;
   unavailable?: boolean;
+}
+/**
+ * PATCH /internal/v1/channels/{id}/messages/{id}/call on messages. Records the end of a call on its type 3 message; omitted fields stay unchanged. Answers the updated Message and publishes MESSAGE_UPDATE. 400 when the message is not a call.
+ */
+export interface UpdateCallRequest {
+  participants?: Snowflake[];
+  ended_timestamp?: string;
 }
 /**
  * PUT /guilds/{guild_id}/discovery body. `enabled: false` removes the listing; otherwise `category` is required.
@@ -3157,7 +4661,7 @@ export interface UserProfile {
  */
 export interface UserReadyState {
   user: User;
-  guilds: GuildFull[];
+  guilds: GatewayGuildState[];
   private_channels: Channel[];
   relationships: Relationship[];
   user_settings: UserSettings;
@@ -3171,6 +4675,16 @@ export interface UserReadyState {
   notes: {
     [k: string]: string | undefined;
   };
+}
+/**
+ * A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.
+ */
+export interface VanityUrl {
+  code: string | null;
+  /**
+   * Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count.
+   */
+  uses: number;
 }
 /**
  * POST /auth/verify-email body.
@@ -3255,6 +4769,35 @@ export interface VoiceMemberMoveEvent {
   channel_id: Snowflake | null;
 }
 /**
+ * Persistent operator exclusion at /discordy/voice/blacklist/nodes/<node_id> or /discordy/voice/blacklist/regions/<region>. Key presence excludes new allocations regardless of probe success, including malformed values. Probers must never modify or delete it. Clearing the exact key removes only the manual exclusion; required health, draining and identity checks still apply. Existing calls continue.
+ */
+export interface VoiceNodeBlacklist {
+  reason: string;
+  operator: string;
+  created_at_ms: number;
+}
+/**
+ * Leased etcd value at /discordy/voice/health/<node_id>. A writer must atomically compare both the node registration lease and its exclusive /discordy/voice/probers/<node_id> claim before writing. The health value shares the prober claim's lease, expiring within two probe intervals if not renewed. Readers match registration_lease; a previous incarnation's result must never authorize or exclude its successor.
+ */
+export interface VoiceNodeHealth {
+  node_id: string;
+  registration_lease: string;
+  prober_id: string;
+  /**
+   * Unknown until M consecutive passes or N consecutive failures. Defaults N=2, M=2. A healthy node survives fewer than N failures; an unhealthy node remains excluded until M passes.
+   */
+  status: "unknown" | "healthy" | "unhealthy";
+  consecutive_failures: number;
+  consecutive_passes: number;
+  /**
+   * Unix time for diagnostics only; freshness follows the etcd lease, not synchronized wall clocks.
+   */
+  checked_at_ms: number;
+  loss_pct?: number;
+  rtt_ms?: number;
+  failure?: "signaling" | "transport" | "rtp_loss" | "rtt" | "timeout" | "registration_changed";
+}
+/**
  * etcd value at `/discordy/voice/nodes/<region>/<node_id>` (10 s lease, refreshed every 3 s).
  */
 export interface VoiceNodeRegistration {
@@ -3268,6 +4811,10 @@ export interface VoiceNodeRegistration {
   egress_bps: number;
   draining: boolean;
   version: string;
+  /**
+   * When true, new allocation requires a fresh healthy probe record for this registration's etcd lease. Omitted/false preserves legacy rollout behavior; an explicit matching unhealthy result or manual blacklist still excludes the node.
+   */
+  probe_required?: boolean;
 }
 /**
  * VOICE_QUALITY telemetry sample (discordy.telemetry.v1).
@@ -3342,7 +4889,7 @@ export interface VoiceTelemetryPayload {
   bitrate_kbps: number;
 }
 /**
- * Claims of a voice JWT (HS256 with VOICE_TOKEN_SECRET, 60 seconds).
+ * Shared claims of a voice JWT (HS256, 60 seconds). Call tokens use VOICE_TOKEN_SECRET. A verifier that sees purpose=probe MUST verify with the separate VOICE_PROBE_TOKEN_SECRET, additionally validate ProbeVoiceTokenClaims and compare the receiving node's live registration lease before admitting it. No configured probe key means probe admission is disabled.
  */
 export interface VoiceTokenClaims {
   sub: Snowflake;
@@ -3359,6 +4906,18 @@ export interface VoiceTokenClaims {
   e2ee: boolean;
   iat: number;
   exp: number;
+  /**
+   * Absent means call. A probe token is restricted to an isolated synthetic room, never an ordinary user channel. It may bypass draining, but never node identity or registration ownership checks.
+   */
+  purpose?: "call" | "probe";
+  /**
+   * Required for probes: exact current etcd registration lease ID as a decimal string. The receiving node must compare it to its live registration before admitting the probe.
+   */
+  node_lease?: string;
+  /**
+   * Required for probes: random UUID shared by the two synthetic peers of one run. The server derives the isolated room from node_lease and probe_id, not from the caller's channel ID.
+   */
+  probe_id?: string;
 }
 /**
  * Op 24 WATCH_TOGETHER.
@@ -3372,4 +4931,34 @@ export interface WatchTogetherPayload {
    * Server clock (unix ms) the position refers to.
    */
   at_server_ms: number;
+}
+/**
+ * A five-minute, single-use server-side ceremony. Finish requires the same account/session or password-authenticated login ticket.
+ */
+export interface WebauthnChallenge {
+  challenge_id: string;
+  /**
+   * WebAuthn PublicKeyCredentialCreationOptionsJSON or PublicKeyCredentialRequestOptionsJSON. Binary members use unpadded base64url.
+   */
+  publicKey: {};
+}
+/**
+ * Complete a passkey assertion. The assertion challenge and login ticket are single use, and the credential signature counter is checked.
+ */
+export interface WebauthnLoginFinishRequest {
+  ticket: string;
+  challenge_id: string;
+  credential: {
+    id: string;
+    rawId: string;
+    type: "public-key";
+    response: {};
+    [k: string]: unknown | undefined;
+  };
+}
+/**
+ * Begin passkey assertion after the password login returned MFA_REQUIRED.
+ */
+export interface WebauthnLoginStartRequest {
+  ticket: string;
 }

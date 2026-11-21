@@ -106,6 +106,12 @@ defmodule Discordy.Contracts.GatewayOpcodes do
   @spec call_decline() :: non_neg_integer()
   def call_decline, do: 25
 
+  @doc ~S"""
+  Rings 1 to 10 members of a DM channel for a call the sender is in.
+  """
+  @spec call_ring() :: non_neg_integer()
+  def call_ring, do: 26
+
   @doc "Every entry of this group, keyed by atom."
   @spec entries() :: %{atom() => non_neg_integer()}
   def entries do
@@ -126,7 +132,8 @@ defmodule Discordy.Contracts.GatewayOpcodes do
       p2p_signal: 22,
       voice_telemetry: 23,
       watch_together: 24,
-      call_decline: 25
+      call_decline: 25,
+      call_ring: 26
     }
   end
 

@@ -1,0 +1,1 @@
+{ "schema": "gateway/opcodes/presence-update.json", "data": { "status": "online", "activities": [], "afk": false } }

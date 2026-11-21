@@ -1,0 +1,8 @@
+{
+  "schema": "rest/modify-member-request.json",
+  "data": {
+    "avatar": null,
+    "banner": null,
+    "bio": "Server introduction"
+  }
+}

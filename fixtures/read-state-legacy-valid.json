@@ -1,0 +1,8 @@
+{
+  "schema": "objects/read-state.json",
+  "data": {
+    "id": "200",
+    "last_message_id": null,
+    "mention_count": 0
+  }
+}

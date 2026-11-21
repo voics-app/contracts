@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/report-listing-request.json",
+  "title": "ReportListingRequest",
+  "description": "Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.",
+  "type": "object",
+  "required": ["category"],
+  "additionalProperties": false,
+  "properties": {
+    "category": {
+      "type": "string",
+      "enum": ["spam", "harassment", "hate_speech", "violence", "sexual_content", "self_harm", "illegal", "impersonation", "other"]
+    },
+    "note": { "type": ["string", "null"], "maxLength": 500 }
+  }
+}

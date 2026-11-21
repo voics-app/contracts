@@ -3,7 +3,7 @@ name: ci
 on:
   workflow_dispatch:
   push:
-    branches: [develop, "release/**", "hotfix/**"]
+    branches: [main, develop, "release/**", "hotfix/**"]
   pull_request:
     branches: [develop, main]
 
@@ -23,7 +23,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
+          # The VM runner keeps its pnpm store. Uploading that shared store stalled
+          # a job after all validations passed; hosted runners still cache.
+          cache: ${{ vars.CI_RUNNER != 'vm-runner' && 'pnpm' || '' }}
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt

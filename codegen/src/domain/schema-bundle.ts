@@ -97,14 +97,26 @@ function flattenAllOf(defs: Record<string, JsonSchema>): Record<string, JsonSche
 
 function mergeAllOf(def: JsonSchema, flatten: (title: string) => JsonSchema): JsonSchema {
   const { allOf, ...outer } = def;
-  const properties: Record<string, JsonValue> = {};
-  const required: string[] = [];
-  for (const member of allOf as JsonValue[]) {
-    const resolved = isObject(member) && typeof member.$ref === "string" ? flatten(member.$ref.slice(BUNDLE_REF_PREFIX.length)) : (member as JsonSchema);
+  const members = (allOf as JsonValue[]).map((member) =>
+    isObject(member) && typeof member.$ref === "string" ? flatten(member.$ref.slice(BUNDLE_REF_PREFIX.length)) : member);
+  const mergeable = new Set(["title", "description", "type", "properties", "required", "if", "then", "else"]);
+  if (members.some((member) => !isObject(member) || (member.type !== undefined && member.type !== "object")
+    || Object.keys(member).some((key) => !mergeable.has(key)))) return def;
+  const properties: Record<string, JsonValue> = isObject(outer.properties) ? { ...outer.properties } : {};
+  const required = (Array.isArray(outer.required) ? outer.required : []).filter((name): name is string => typeof name === "string");
+  const constraints: JsonValue[] = [];
+  for (const resolved of members as JsonSchema[]) {
     if (isObject(resolved.properties)) Object.assign(properties, resolved.properties);
     for (const name of Array.isArray(resolved.required) ? resolved.required : []) {
       if (typeof name === "string" && !required.includes(name)) required.push(name);
     }
+    // Keep conditional validation separate from the merged object shape.
+    const conditional: Record<string, JsonValue> = {};
+    for (const key of ["if", "then", "else"]) {
+      const value = resolved[key];
+      if (value !== undefined) conditional[key] = value;
+    }
+    if (Object.keys(conditional).length) constraints.push(conditional);
   }
-  return { ...outer, type: "object", ...(required.length ? { required } : {}), properties };
+  return { ...outer, type: "object", ...(required.length ? { required } : {}), properties, ...(constraints.length ? { allOf: constraints } : {}) };
 }

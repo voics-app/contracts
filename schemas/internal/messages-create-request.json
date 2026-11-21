@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/internal/messages-create-request.json",
+  "title": "InternalCreateMessageRequest",
+  "description": "POST /internal/v1/channels/{id}/messages on messages. Bot, webhook, interaction and system messages; the user permission check is skipped, non-standard delivery modes still answer 409 (50160). `type` selects a system message: 1 RECIPIENT_ADD and 2 RECIPIENT_REMOVE (target_user_id), 3 CALL (call; author_id is the caller), 4 CHANNEL_NAME_CHANGE (content is the name), 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference), 7 GUILD_MEMBER_JOIN (author_id is the member who joined; the caller picks the guild system channel), 18 THREAD_CREATED (thread_id, content is the thread name). Pinning through the public API already posts type 6 from messages.",
+  "type": "object",
+  "required": [
+    "author_id"
+  ],
+  "properties": {
+    "author_id": {
+      "description": "The bot user, the webhook id for webhook posts, or the author of a system message.",
+      "$ref": "../objects/snowflake.json"
+    },
+    "webhook_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "username": {
+      "type": "string"
+    },
+    "avatar_url": {
+      "type": "string"
+    },
+    "interaction_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "application_id": {
+      "$ref": "../objects/snowflake.json"
+    },
+    "content": {
+      "type": "string"
+    },
+    "tts": {
+      "type": "boolean",
+      "default": false,
+      "description": "The calling service enforces SEND_TTS_MESSAGES. Stored for ordinary messages; system messages always have tts false."
+    },
+    "embeds": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/embed.json"
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/message-component.json"
+      }
+    },
+    "flags": {
+      "type": "integer",
+      "description": "64 (ephemeral) sends only to target_user_ids and stores nothing."
+    },
+    "message_reference": {
+      "$ref": "../objects/message-reference.json"
+    },
+    "target_user_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "../objects/snowflake.json"
+      },
+      "description": "Recipients of an ephemeral message."
+    },
+    "type": {
+      "type": "integer",
+      "description": "System message type (see description); omit or 0 for a normal message."
+    },
+    "target_user_id": {
+      "description": "The user a type 1 or 2 message is about.",
+      "$ref": "../objects/snowflake.json"
+    },
+    "call": {
+      "$ref": "../objects/message.json#/$defs/MessageCall"
+    },
+    "thread_id": {
+      "description": "The thread a type 18 message announces (required for type 18).",
+      "$ref": "../objects/snowflake.json"
+    }
+  }
+}

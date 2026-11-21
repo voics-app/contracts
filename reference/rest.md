@@ -52,33 +52,11 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 
 ## Endpoints
 
-### Auth
-
-| Method | Path | Service | Request | Response | Summary |
-| --- | --- | --- | --- | --- | --- |
-| `POST` | `/auth/register` | api | `RegisterRequest` | `AuthResponse` | Register a new account |
-| `POST` | `/auth/login` | api | `LoginRequest` | `AuthResponse` | Log in with email and password (and TOTP when 2FA is enabled) |
-| `POST` | `/auth/refresh` | api | `RefreshRequest` | `AuthResponse` | Rotate a refresh token |
-| `POST` | `/auth/logout` | api | — | 204 No Content | Revoke the current session |
-| `POST` | `/auth/mfa/totp` | api | `MfaLoginRequest` | `AuthResponse` | Complete a login with a TOTP or backup code |
-| `POST` | `/auth/forgot-password` | api | `ForgotPasswordRequest` | 204 No Content | Email a password reset token |
-| `POST` | `/auth/reset-password` | api | `ResetPasswordRequest` | 204 No Content | Set a new password with a reset token |
-| `POST` | `/auth/verify-email` | api | `VerifyEmailRequest` | 204 No Content | Verify an email address with an emailed token |
-| `POST` | `/auth/resend-verification` | api | — | 204 No Content | Resend the verification email |
-
-### Devices
-
-| Method | Path | Service | Request | Response | Summary |
-| --- | --- | --- | --- | --- | --- |
-| `POST` | `/devices` | api | `CreateDeviceRequest` | `CreateDeviceResponse` | Register a device and its identity key |
-| `POST` | `/devices/{device_id}/key-packages` | api | `UploadKeyPackagesRequest` | 204 No Content | Upload MLS key packages for a device |
-| `GET` | `/users/{user_id}/devices` | api | — | `array of PublicDevice` | List a user's devices and identity keys |
-| `POST` | `/users/{user_id}/devices/{device_id}/key-packages/claim` | api | — | `ClaimKeyPackageResponse` | Claim one MLS key package of a device |
-
 ### Users
 
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
+| `POST` | `/reports` | api | `CreateReportRequest` | 204 No Content | Report a message, user or visible guild channel |
 | `GET` | `/users/@me` | api | — | `User` | Get the current user |
 | `PATCH` | `/users/@me` | api | `ModifyCurrentUserRequest` | `User` | Modify the current user |
 | `POST` | `/users/@me/disable` | api | `PasswordConfirmationRequest` | 204 No Content | Disable the account |
@@ -89,6 +67,12 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/users/@me/mfa/codes-verification` | api | `BackupCodesVerificationRequest` | `BackupCodesResponse` | List or regenerate backup codes |
 | `GET` | `/users/{user_id}` | api | — | `User` | Get a user |
 | `GET` | `/users/{user_id}/profile` | api | — | `UserProfile` | Get a user's profile with mutual servers and mutual friends |
+| `GET` | `/users/@me/sessions` | api | — | `array of AuthSession` | List the current user's login sessions |
+| `POST` | `/users/@me/sessions/logout-all` | api | — | 204 No Content | Log out every other session |
+| `DELETE` | `/users/@me/sessions/{session_id}` | api | — | 204 No Content | Log out one session |
+| `GET` | `/users/@me/badges` | api | — | `array of ProfileBadge` | List the owner's badge grants and visibility |
+| `PUT` | `/users/@me/badges/{badge_id}` | api | `BadgeVisibilityRequest` | 204 No Content | Change visibility of an existing owned badge |
+| `GET` | `/users/{user_id}/badges` | api | — | `array of string` | List publicly visible badges on a profile |
 | `GET` | `/users/@me/settings` | api | — | `UserSettings` | Get the current user's settings |
 | `PATCH` | `/users/@me/settings` | api | `ModifyUserSettingsRequest` | `UserSettings` | Modify the current user's settings (including default_delivery_mode) |
 | `GET` | `/users/@me/guilds/{guild_id}/settings` | api | — | `GuildNotificationSettings` | Get the current user's notification settings for a guild (or `@me` for DMs) |
@@ -103,6 +87,36 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PUT` | `/users/@me/relationships/{user_id}` | api | `PutRelationshipRequest` | 204 No Content | Send or accept a friend request, or block a user |
 | `DELETE` | `/users/@me/relationships/{user_id}` | api | — | 204 No Content | Remove a friend, cancel a request or unblock |
 | `PUT` | `/users/@me/channels/{channel_id}/delivery-mode` | api | `SetDeliveryModeRequest` | `DeliveryModeOverride` | Set the caller's per-chat delivery-mode override |
+
+### Auth
+
+| Method | Path | Service | Request | Response | Summary |
+| --- | --- | --- | --- | --- | --- |
+| `POST` | `/auth/register` | api | `RegisterRequest` | `AuthResponse` | Register a new account |
+| `POST` | `/auth/login` | api | `LoginRequest` | `AuthResponse` | Log in with email and password (and TOTP when 2FA is enabled) |
+| `POST` | `/auth/refresh` | api | `RefreshRequest` | `AuthResponse` | Rotate a refresh token |
+| `POST` | `/auth/logout` | api | — | 204 No Content | Revoke the current session |
+| `POST` | `/auth/mfa/totp` | api | `MfaLoginRequest` | `AuthResponse` | Complete a login with a TOTP or backup code |
+| `POST` | `/auth/forgot-password` | api | `ForgotPasswordRequest` | 204 No Content | Email a password reset token |
+| `POST` | `/auth/reset-password` | api | `ResetPasswordRequest` | 204 No Content | Set a new password with a reset token |
+| `POST` | `/auth/verify-email` | api | `VerifyEmailRequest` | 204 No Content | Verify an email address with an emailed token |
+| `POST` | `/auth/resend-verification` | api | — | 204 No Content | Resend the verification email |
+| `GET` | `/users/@me/mfa/passkeys` | api | — | `array of Passkey` | List registered passkey second factors |
+| `POST` | `/users/@me/mfa/passkeys/register/start` | api | `PasskeyRegisterStartRequest` | `WebauthnChallenge` | Start passkey registration |
+| `POST` | `/users/@me/mfa/passkeys/register/finish` | api | `PasskeyRegisterFinishRequest` | `PasskeyRegisterResponse` | Verify and save a passkey second factor |
+| `PATCH` | `/users/@me/mfa/passkeys/{id}` | api | `PasskeyRenameRequest` | `Passkey` | Rename a passkey owned by the current account |
+| `DELETE` | `/users/@me/mfa/passkeys/{id}` | api | `PasskeyDeleteRequest` | 204 No Content | Remove a passkey after password and second-factor confirmation |
+| `POST` | `/auth/mfa/webauthn/start` | api | `WebauthnLoginStartRequest` | `WebauthnChallenge` | Start passkey assertion after the password step |
+| `POST` | `/auth/mfa/webauthn/finish` | api | `WebauthnLoginFinishRequest` | `AuthResponse` | Exchange a verified passkey assertion for login tokens |
+
+### Devices
+
+| Method | Path | Service | Request | Response | Summary |
+| --- | --- | --- | --- | --- | --- |
+| `POST` | `/devices` | api | `CreateDeviceRequest` | `CreateDeviceResponse` | Register a device and its identity key |
+| `POST` | `/devices/{device_id}/key-packages` | api | `UploadKeyPackagesRequest` | 204 No Content | Upload MLS key packages for a device |
+| `GET` | `/users/{user_id}/devices` | api | — | `array of PublicDevice` | List a user's devices and identity keys |
+| `POST` | `/users/{user_id}/devices/{device_id}/key-packages/claim` | api | — | `ClaimKeyPackageResponse` | Claim one MLS key package of a device |
 
 ### Guilds
 
@@ -119,12 +133,20 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/guilds/{guild_id}/roles` | api | `RoleRequest` | `Role` | Create a role |
 | `PATCH` | `/guilds/{guild_id}/roles/{role_id}` | api | `RoleRequest` | `Role` | Modify a role |
 | `DELETE` | `/guilds/{guild_id}/roles/{role_id}` | api | — | 204 No Content | Delete a role |
+| `POST` | `/guilds/{guild_id}/roles/{role_id}/duplicate` | api | — | `Role` | Duplicate a role |
 | `GET` | `/guilds/{guild_id}/members` | api | — | `array of GuildMember` | List guild members |
 | `GET` | `/guilds/{guild_id}/members/{user_id}` | api | — | `GuildMember` | Get a guild member |
 | `PATCH` | `/guilds/{guild_id}/members/{user_id}` | api | `ModifyMemberRequest` | `GuildMember` | Modify a member (nick, roles, mute, deafen, move, timeout) |
 | `DELETE` | `/guilds/{guild_id}/members/{user_id}` | api | — | 204 No Content | Kick a member |
 | `PUT` | `/guilds/{guild_id}/members/{user_id}/roles/{role_id}` | api | — | 204 No Content | Add a role to a member |
 | `DELETE` | `/guilds/{guild_id}/members/{user_id}/roles/{role_id}` | api | — | 204 No Content | Remove a role from a member |
+| `GET` | `/guilds/{guild_id}/prune` | api | — | `PruneResult` | Count members a prune would remove |
+| `POST` | `/guilds/{guild_id}/prune` | api | `PruneRequest` | `PruneResult` | Prune inactive members |
+| `GET` | `/guilds/{guild_id}/ban-appeals/form` | api | — | `object` | Get the appeal question for a banned user or appeal moderator |
+| `PUT` | `/guilds/{guild_id}/ban-appeals/form` | api | `object` | 204 No Content | Set the appeal question (MANAGE_BAN_APPEALS required) |
+| `GET` | `/guilds/{guild_id}/ban-appeals` | api | — | `array of object` | List appeals and decisions (MANAGE_BAN_APPEALS required) |
+| `POST` | `/guilds/{guild_id}/ban-appeals` | api | `object` | `object` | Submit an appeal for the caller's current ban |
+| `POST` | `/guilds/{guild_id}/ban-appeals/{appeal_id}/{decision}` | api | — | 204 No Content | Accept or deny an open appeal (MANAGE_BAN_APPEALS required) |
 | `GET` | `/guilds/{guild_id}/bans` | api | — | `array of Ban` | List bans |
 | `GET` | `/guilds/{guild_id}/bans/{user_id}` | api | — | `Ban` | Get a ban |
 | `PUT` | `/guilds/{guild_id}/bans/{user_id}` | api | `CreateBanRequest` | 204 No Content | Ban a user |
@@ -136,9 +158,12 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PATCH` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | `ModifyEmojiRequest` | `Emoji` | Modify a custom emoji |
 | `DELETE` | `/guilds/{guild_id}/emojis/{emoji_id}` | api | — | 204 No Content | Delete a custom emoji |
 | `GET` | `/guilds/{guild_id}/invites` | api | — | `array of Invite` | List a guild's invites |
+| `GET` | `/guilds/{guild_id}/vanity-url` | api | — | `VanityUrl` | Get a guild's permanent invitation (requires MANAGE_GUILD) |
+| `PATCH` | `/guilds/{guild_id}/vanity-url` | api | `ModifyVanityUrlRequest` | `VanityUrl` | Set or remove a guild's permanent invitation (requires MANAGE_GUILD) |
 | `GET` | `/discovery/guilds` | api | — | `DiscoveryPage` | Browse and search public servers that opted in to discovery |
 | `GET` | `/discovery/categories` | api | — | `DiscoveryCategories` | List discovery categories |
 | `POST` | `/discovery/guilds/{guild_id}/join` | api | — | 204 No Content | Join a publicly listed server |
+| `POST` | `/discovery/guilds/{guild_id}/reports` | api | `ReportListingRequest` | 204 No Content | Report a currently discoverable listing for moderation |
 | `GET` | `/guilds/{guild_id}/discovery` | api | — | `GuildDiscoverySettings` | Get a guild discovery settings (requires MANAGE_GUILD) |
 | `PUT` | `/guilds/{guild_id}/discovery` | api | `UpdateGuildDiscoveryRequest` | `GuildDiscoverySettings` | List or delist a guild in discovery (requires MANAGE_GUILD) |
 | `GET` | `/guilds/templates` | api | — | `array of GuildTemplate` | List the built-in server templates |
@@ -149,6 +174,8 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `PUT` | `/guilds/{guild_id}/templates/{code}` | api | — | `GuildTemplate` | Re-snapshot a template from the guild (requires MANAGE_GUILD) |
 | `PATCH` | `/guilds/{guild_id}/templates/{code}` | api | `ModifyGuildTemplateRequest` | `GuildTemplate` | Modify a template's name or description (requires MANAGE_GUILD) |
 | `DELETE` | `/guilds/{guild_id}/templates/{code}` | api | — | 204 No Content | Delete a template (requires MANAGE_GUILD) |
+| `GET` | `/guilds/{guild_id}/integrations` | api | — | `array of GuildIntegration` | List installed application bots |
+| `DELETE` | `/guilds/{guild_id}/integrations/{application_id}` | api | — | 204 No Content | Remove an installed application bot |
 
 ### Webhooks
 
@@ -157,6 +184,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}/webhooks` | api | — | `array of Webhook` | List a guild's webhooks |
 | `POST` | `/channels/{channel_id}/webhooks` | api | `CreateWebhookRequest` | `Webhook` | Create a webhook |
 | `POST` | `/webhooks/{webhook_id}/{webhook_token}` | api | `ExecuteWebhookRequest` | `Message` | Execute a webhook or send an interaction follow-up |
+| `POST` | `/webhooks/{webhook_id}/reset-token` | api | — | `Webhook` | Regenerate an incoming webhook execution credential |
 | `GET` | `/webhooks/{webhook_id}` | api | — | `Webhook` | Get a webhook |
 | `PATCH` | `/webhooks/{webhook_id}` | api | `ModifyWebhookRequest` | `Webhook` | Modify a webhook |
 | `DELETE` | `/webhooks/{webhook_id}` | api | — | 204 No Content | Delete a webhook |
@@ -173,7 +201,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `POST` | `/channels/{channel_id}/invites` | api | `CreateInviteRequest` | `Invite` | Create an invite |
 | `PUT` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Add a user to a group DM |
 | `DELETE` | `/channels/{channel_id}/recipients/{user_id}` | api | — | 204 No Content | Remove a user from a group DM, or leave with @me |
+| `PUT` | `/channels/{channel_id}/thread-members/{user_id}` | api | — | 204 No Content | Join a thread or invite a guild member |
+| `DELETE` | `/channels/{channel_id}/thread-members/{user_id}` | api | — | 204 No Content | Leave a thread or remove a member |
 | `POST` | `/channels/{channel_id}/typing` | api | — | 204 No Content | Trigger the typing indicator (publishes TYPING_START) |
+| `GET` | `/channels/{channel_id}/threads` | api | — | `array of Channel` | List visible active or archived threads under a channel |
 | `POST` | `/channels/{channel_id}/threads` | api | `CreateThreadRequest` | `Channel` | Start a thread (or forum post) |
 
 ### Invites
@@ -190,6 +221,15 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/channels/{channel_id}/messages` | messages | — | `array of Message` | Get channel message history |
 | `POST` | `/channels/{channel_id}/messages` | messages | `CreateMessageRequest` | `Message` | Send a standard-mode message |
+| `GET` | `/channels/{channel_id}/polls/{message_id}` | messages | — | 200 No Content | Get an authoritative poll snapshot for the current viewer |
+| `PUT` | `/channels/{channel_id}/polls/{message_id}/answers/{answer_id}/@me` | messages | `PollVoteRequest` | 200 No Content | Select a poll answer with your current vote revision |
+| `DELETE` | `/channels/{channel_id}/polls/{message_id}/answers/{answer_id}/@me` | messages | — | 200 No Content | Retract a poll answer with your current vote revision |
+| `POST` | `/channels/{channel_id}/polls/{message_id}/expire` | messages | — | `Message` | End your own poll early |
+| `GET` | `/channels/{channel_id}/messages/scheduled` | messages | — | `ScheduledMessageList` | List your scheduled messages in a channel |
+| `POST` | `/channels/{channel_id}/messages/scheduled` | messages | `CreateScheduledMessageRequest` | 200 No Content | Schedule a Standard text message |
+| `GET` | `/channels/{channel_id}/messages/scheduled/{schedule_id}` | messages | — | 200 No Content | Read one of your scheduled messages |
+| `PATCH` | `/channels/{channel_id}/messages/scheduled/{schedule_id}` | messages | `EditScheduledMessageRequest` | 200 No Content | Edit your pending scheduled message |
+| `DELETE` | `/channels/{channel_id}/messages/scheduled/{schedule_id}` | messages | — | 200 No Content | Cancel your pending scheduled message |
 | `GET` | `/guilds/{guild_id}/messages/search` | messages | — | `MessageSearchResponse` | Search guild messages |
 | `GET` | `/channels/{channel_id}/messages/search` | messages | — | `MessageSearchResponse` | Search channel messages |
 | `GET` | `/channels/{channel_id}/messages/{message_id}` | messages | — | `Message` | Get a message |
@@ -246,8 +286,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
+| `GET` | `/oauth2/tokens` | api | — | `array of ApplicationAuthorization` | List the current user's recorded bot consents |
+| `DELETE` | `/oauth2/tokens/{authorization_id}` | api | — | 204 No Content | Revoke the current user's recorded consent |
 | `GET` | `/oauth2/authorize` | api | — | `OAuth2AuthorizeInfo` | Get bot invite information |
-| `POST` | `/oauth2/authorize` | api | `OAuth2AuthorizeRequest` | `OAuth2AuthorizeResponse` | Add a bot to a guild |
+| `POST` | `/oauth2/authorize` | api | `OAuth2AuthorizeRequest` | `OAuth2AuthorizeResponse` | Install a bot and record explicit consent |
 
 ### Voice
 
@@ -259,18 +301,17 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 
 ### Activity
 
-A user activity.
+A user activity as stored and fanned out. The gateway sanitises client activities (PRESENCE_UPDATE): only the fields below are kept, unknown fields (including `application_id`) are dropped, and a violation closes the socket with 4002.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `name` | `string` |  |
-| `type` | `integer` | ActivityType. |
-| `url?` | `?string` |  |
-| `created_at?` | `integer` |  |
+| `name` | `string` | Required, non-empty, at most 128 characters. |
+| `type` | `integer` | ActivityType, 0..5. At most one activity per presence may be type 4 (custom status). |
+| `url?` | `?string` | At most 512 characters. |
+| `created_at?` | `integer` | Unix milliseconds. |
 | `timestamps?` | `ActivityTimestamps` |  |
-| `application_id?` | `Snowflake` |  |
-| `details?` | `?string` |  |
-| `state?` | `?string` |  |
+| `details?` | `?string` | At most 128 characters. |
+| `state?` | `?string` | At most 128 characters. |
 | `emoji?` | `?ActivityEmoji` |  |
 
 ### ActivityEmoji
@@ -280,7 +321,7 @@ Emoji of a custom status.
 | Field | Type | Description |
 | --- | --- | --- |
 | `name` | `string` |  |
-| `id?` | `Snowflake` |  |
+| `id?` | `Snowflake` | Custom emoji id. |
 | `animated?` | `boolean` |  |
 
 ### ActivityTimestamps
@@ -325,6 +366,20 @@ An application (bot).
 | `redirect_uris?` | `array of string` |  |
 | `tags?` | `array of string` |  |
 | `custom_install_url?` | `string` |  |
+
+### ApplicationAuthorization
+
+One user's explicit consent to a bot installation. Contains no access token. Revoking consent does not remove the shared server bot.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `application` | `Application` |  |
+| `guild` | `AuthorizationGuild` |  |
+| `scopes` | `array of "bot" or "applications.commands"` |  |
+| `permissions` | `PermissionBitset` | Effective server permissions acknowledged at the last authorization, not a live permission grant. |
+| `created_at` | `string (date-time)` |  |
+| `authorized_at` | `string (date-time)` |  |
 
 ### ApplicationCommand
 
@@ -408,7 +463,7 @@ A file attached to a message.
 | `ephemeral?` | `boolean` |  |
 | `duration_secs?` | `number` |  |
 | `waveform?` | `string` |  |
-| `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. |
+| `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks a spoiler. When present, flags are authoritative: 0 clears a spoiler even for a SPOILER_ filename. Infer the filename prefix only when flags are absent. |
 
 ### AuditEntryInfo
 
@@ -461,6 +516,31 @@ An audit log entry.
 | `options?` | `AuditEntryInfo` |  |
 | `reason?` | `string` |  |
 
+### AuthSession
+
+A login session of the current user (one refresh-token family), as listed by GET /users/@me/sessions. Not to be confused with the gateway Session of SESSIONS_REPLACE.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string (uuid)` | Session ID; the `sid` claim of its access tokens. |
+| `client` | `string` | The client that opened the session, derived from its User-Agent (for example `Desktop app` (the desktop client; clients show it with the brand name), `Firefox`). |
+| `os` | `string` | Operating system derived from the User-Agent (for example `Windows`), or `Unknown`. |
+| `device_name` | `?string` | Name of the registered end-to-end encrypted device bound to the session, if any. |
+| `location` | `?string` | Approximate location (an ISO 3166-1 country code from the edge), or null when the edge does not provide one. |
+| `created_at` | `string (date-time)` |  |
+| `last_used_at` | `string (date-time)` | When the session last logged in or refreshed its tokens. |
+| `current` | `boolean` | Whether this is the session making the request. |
+
+### AuthorizationGuild
+
+The server of a recorded bot authorization.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `icon` | `?string` |  |
+
 ### Ban
 
 A guild ban.
@@ -469,6 +549,12 @@ A guild ban.
 | --- | --- | --- |
 | `reason` | `?string` |  |
 | `user` | `User` |  |
+
+### BotInstallationRevision
+
+Opaque installation precondition from the selected guild in GET /oauth2/authorize. Echo it unchanged in POST. It distinguishes an active installation, initial absence and absence after removal. Missing or null is invalid; a changed revision returns 409 without writes and requires a fresh preview and consent.
+
+Type: `string`
 
 ### Call
 
@@ -512,6 +598,7 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `video_quality_mode?` | `integer` |  |
 | `message_count?` | `integer` |  |
 | `member_count?` | `integer` |  |
+| `is_thread_member?` | `boolean` | Voics: whether the requesting user has joined this thread; omitted from shared events. |
 | `thread_metadata?` | `ThreadMetadata` |  |
 | `member?` | `ThreadMember` |  |
 | `default_auto_archive_duration?` | `integer` |  |
@@ -727,6 +814,16 @@ A tag that can be applied to forum threads.
 | `emoji_id` | `?Snowflake` |  |
 | `emoji_name` | `?string` |  |
 
+### FriendSourceFlags
+
+Sources allowed to initiate a new friend request. All defaults to true; when all is false, either matching enabled source permits the request. Existing friendships and pending requests remain usable; blocks take precedence.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `all` | `boolean` |  |
+| `mutual_friends` | `boolean` |  |
+| `mutual_guilds` | `boolean` |  |
+
 ### Guild
 
 A guild (server). `voice_region` is a Discordy extra.
@@ -736,7 +833,7 @@ A guild (server). `voice_region` is a Discordy extra.
 | `id` | `Snowflake` |  |
 | `name` | `string` |  |
 | `icon` | `?string` |  |
-| `splash?` | `?string` |  |
+| `splash?` | `?string` | Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null. |
 | `discovery_splash?` | `?string` |  |
 | `owner?` | `boolean` | True if the current user owns the guild. |
 | `owner_id` | `Snowflake` |  |
@@ -752,18 +849,21 @@ A guild (server). `voice_region` is a Discordy extra.
 | `mfa_level` | `integer` |  |
 | `application_id?` | `?Snowflake` |  |
 | `system_channel_id` | `?Snowflake` |  |
-| `system_channel_flags` | `integer` |  |
+| `system_channel_flags` | `integer` | Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. |
 | `rules_channel_id?` | `?Snowflake` |  |
 | `max_members?` | `integer` |  |
 | `vanity_url_code?` | `?string` |  |
 | `description?` | `?string` |  |
-| `banner?` | `?string` |  |
+| `banner?` | `?string` | Banner image hash (CDN path banners/{guild_id}/{hash}), or null. |
 | `preferred_locale` | `string` |  |
 | `public_updates_channel_id?` | `?Snowflake` |  |
 | `nsfw_level?` | `integer` |  |
 | `approximate_member_count?` | `integer` |  |
 | `approximate_presence_count?` | `integer` |  |
 | `voice_region` | `string` | Discordy: voice region ID used to allocate voice nodes. |
+| `audit_log_enabled?` | `boolean` | Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention. |
+| `audit_log_retention_days?` | `30 or 90 or 365` | Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job. |
+| `prune_admin_only?` | `boolean` | Discordy: when true, only administrators may prune inactive members. |
 
 ### GuildApplicationCommandPermissions
 
@@ -778,7 +878,7 @@ Permissions of an application's command(s) in a guild.
 
 ### GuildDiscoverySettings
 
-A guild opt-in discovery listing and the rules that currently block listing it. Listing needs a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel.
+A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -787,7 +887,7 @@ A guild opt-in discovery listing and the rules that currently block listing it. 
 | `tags` | `array of string` |  |
 | `listed_at` | `?string (date-time)` |  |
 | `member_count` | `integer` |  |
-| `blockers` | `array of "DESCRIPTION_REQUIRED" or "MEMBER_COUNT_TOO_LOW" or "GUILD_TOO_NEW" or "NSFW_NOT_ALLOWED"` |  |
+| `blockers` | `array of "COMMUNITY_REQUIRED" or "DESCRIPTION_REQUIRED" or "MEMBER_COUNT_TOO_LOW" or "GUILD_TOO_NEW" or "NSFW_NOT_ALLOWED"` |  |
 
 ### GuildFolder
 
@@ -809,7 +909,7 @@ A guild with its full state (GUILD_CREATE payload and the internal guild state e
 | `id` | `Snowflake` |  |
 | `name` | `string` |  |
 | `icon` | `?string` |  |
-| `splash?` | `?string` |  |
+| `splash?` | `?string` | Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null. |
 | `discovery_splash?` | `?string` |  |
 | `owner?` | `boolean` | True if the current user owns the guild. |
 | `owner_id` | `Snowflake` |  |
@@ -825,18 +925,21 @@ A guild with its full state (GUILD_CREATE payload and the internal guild state e
 | `mfa_level` | `integer` |  |
 | `application_id?` | `?Snowflake` |  |
 | `system_channel_id` | `?Snowflake` |  |
-| `system_channel_flags` | `integer` |  |
+| `system_channel_flags` | `integer` | Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. |
 | `rules_channel_id?` | `?Snowflake` |  |
 | `max_members?` | `integer` |  |
 | `vanity_url_code?` | `?string` |  |
 | `description?` | `?string` |  |
-| `banner?` | `?string` |  |
+| `banner?` | `?string` | Banner image hash (CDN path banners/{guild_id}/{hash}), or null. |
 | `preferred_locale` | `string` |  |
 | `public_updates_channel_id?` | `?Snowflake` |  |
 | `nsfw_level?` | `integer` |  |
 | `approximate_member_count?` | `integer` |  |
 | `approximate_presence_count?` | `integer` |  |
 | `voice_region` | `string` | Discordy: voice region ID used to allocate voice nodes. |
+| `audit_log_enabled?` | `boolean` | Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention. |
+| `audit_log_retention_days?` | `30 or 90 or 365` | Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job. |
+| `prune_admin_only?` | `boolean` | Discordy: when true, only administrators may prune inactive members. |
 | `joined_at?` | `string (date-time)` |  |
 | `large?` | `boolean` |  |
 | `unavailable?` | `boolean` |  |
@@ -847,6 +950,16 @@ A guild with its full state (GUILD_CREATE payload and the internal guild state e
 | `presences?` | `array of PresenceUpdateEvent` |  |
 | `voice_states` | `array of VoiceState` |  |
 
+### GuildIntegration
+
+An application whose bot is currently installed in this server.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `application` | `Application` |  |
+| `permissions` | `PermissionBitset` | Current effective server permissions, including the everyone role. |
+| `installed_at` | `string (date-time)` |  |
+
 ### GuildMember
 
 A member of a guild.
@@ -855,8 +968,8 @@ A member of a guild.
 | --- | --- | --- |
 | `user?` | `User` |  |
 | `nick?` | `?string` |  |
-| `avatar?` | `?string` |  |
-| `banner?` | `?string` |  |
+| `avatar?` | `?string` | Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif). |
+| `banner?` | `?string` | Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif). |
 | `roles` | `array of Snowflake` |  |
 | `joined_at` | `string (date-time)` |  |
 | `premium_since?` | `?string (date-time)` |  |
@@ -866,6 +979,7 @@ A member of a guild.
 | `pending?` | `boolean` |  |
 | `permissions?` | `PermissionBitset` | Total permissions in the interaction channel; only in interaction payloads. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
+| `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |
 
 ### GuildNotificationSettings
 
@@ -898,7 +1012,7 @@ A server template: a shareable snapshot of a guild's roles and channels (Discord
 | `updated_at` | `string (date-time)` |  |
 | `source_guild_id` | `any` |  |
 | `serialized_source_guild` | `TemplateSourceGuild` |  |
-| `is_dirty` | `boolean` | Always false: syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`). |
+| `is_dirty` | `boolean` | Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`). |
 
 ### InstallParams
 
@@ -1025,6 +1139,7 @@ A standard-mode message.
 | `edited_timestamp` | `?string (date-time)` |  |
 | `tts` | `boolean` |  |
 | `mention_everyone` | `boolean` |  |
+| `mention_here?` | `boolean` | Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise. |
 | `mentions` | `array of User` |  |
 | `mention_roles` | `array of Snowflake` |  |
 | `mention_channels?` | `array of ChannelMention` |  |
@@ -1035,16 +1150,27 @@ A standard-mode message.
 | `pinned` | `boolean` |  |
 | `hit?` | `boolean` | Only in message search results: true for the matching message, absent for its context messages. |
 | `webhook_id?` | `Snowflake` |  |
-| `type` | `integer` | MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). |
+| `type` | `integer` | MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). |
 | `application_id?` | `Snowflake` |  |
 | `flags?` | `integer` |  |
 | `message_reference?` | `MessageReference` |  |
+| `call?` | `MessageCall` |  |
 | `referenced_message?` | `?Message` |  |
 | `interaction_metadata?` | `MessageInteractionMetadata` |  |
 | `thread?` | `Channel` |  |
 | `components?` | `array of MessageComponent` |  |
 | `position?` | `integer` |  |
 | `message_snapshots?` | `array of MessageSnapshot` | Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. |
+| `poll?` | `Poll` |  |
+
+### MessageCall
+
+Payload of a type 3 (CALL) message. ended_timestamp is null while the call is running and is set when it ends.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `participants` | `array of Snowflake` | IDs of the users who took part in the call. |
+| `ended_timestamp?` | `?string (date-time)` |  |
 
 ### MessageComponent
 
@@ -1083,7 +1209,7 @@ The interaction a message responds to.
 
 ### MessageReference
 
-Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel).
+Reference to another message (reply, forward, crosspost). type 0 = DEFAULT (reply), 1 = FORWARD. A FORWARD reference requires message_id and channel_id; the server copies the source message into message_snapshots at send time and the reference is informational afterwards (the viewer may lack access to the source channel). On a PIN (type 6) message, message_id is the pinned message. On a THREAD_CREATED (type 18) message, message_id is absent and channel_id is the created thread.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -1158,6 +1284,108 @@ A channel permission overwrite for a role or member.
 | `allow` | `PermissionBitset` |  |
 | `deny` | `PermissionBitset` |  |
 
+### Poll
+
+A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `question` | `PollQuestion` |  |
+| `answers` | `array of PollAnswer` |  |
+| `expiry` | `string (date-time)` |  |
+| `allow_multiselect` | `boolean` |  |
+| `layout_type` | `1` |  |
+| `results?` | `PollResults` |  |
+
+### PollAnswer
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `answer_id` | `integer` |  |
+| `poll_media` | `PollMedia` |  |
+
+### PollAnswerCount
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `integer` |  |
+| `count` | `integer` |  |
+| `me_voted?` | `boolean` | Absent in public events: unknown, not false. |
+
+### PollEmoji
+
+Unicode emoji decoration only. Custom IDs are rejected until fresh custom-emoji authorization exists. Runtime also rejects whitespace and ASCII-only names.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
+
+### PollMedia
+
+An answer label, optionally decorated with a Unicode emoji.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `text` | `string` |  |
+| `emoji?` | `PollEmoji` |  |
+
+### PollQuestion
+
+Plain text. Does not produce mentions or embeds.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `text` | `string` |  |
+
+### PollResults
+
+Authoritative counts. Replace by results version; never add/subtract event deltas.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `version` | `PollVersion` |  |
+| `is_finalized` | `boolean` |  |
+| `answer_counts` | `array of PollAnswerCount` | Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer. |
+| `vote_version?` | `PollVersion` | Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts. |
+
+### PollSnapshot
+
+Viewer-authorized poll snapshot. GET is side-effect-free. Refresh visible polls on foreground/reconnect to repair missed publication.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `question` | `PollQuestion` |  |
+| `answers` | `array of PollAnswer` |  |
+| `expiry` | `string (date-time)` |  |
+| `allow_multiselect` | `boolean` |  |
+| `layout_type` | `1` |  |
+| `results` | `PollViewerResults` |  |
+
+### PollVersion
+
+Monotonic decimal revision, bounded by signed 64-bit storage at runtime. Results versions are scoped to a poll; vote versions to a poll and voter. Compare numerically; exhaustion fails closed.
+
+Type: `string`
+
+### PollViewerAnswerCount
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `integer` |  |
+| `count` | `integer` |  |
+| `me_voted` | `boolean` | Absent in public events: unknown, not false. |
+
+### PollViewerResults
+
+Authenticated snapshot with explicit selection for every answer and the viewer revision, including zero for a first-time viewer.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `version` | `PollVersion` |  |
+| `is_finalized` | `boolean` |  |
+| `answer_counts` | `array of PollViewerAnswerCount` | Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer. |
+| `vote_version` | `PollVersion` | Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts. |
+
 ### Reaction
 
 Reactions of one emoji on a message.
@@ -1179,6 +1407,23 @@ Normal and burst reaction counts.
 | --- | --- | --- |
 | `burst` | `integer` |  |
 | `normal` | `integer` |  |
+
+### ReadState
+
+One channel's read snapshot. Version is optional only for legacy servers; a certified response requires it on every entry.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `last_message_id` | `any` |  |
+| `mention_count` | `integer` |  |
+| `read_state_version?` | `ReadStateVersion` |  |
+
+### ReadStateVersion
+
+Per-user/channel authoritative mutation sequence, encoded as a decimal string to avoid JavaScript rounding. Range 0..9223372036854775807; producers fail closed at exhaustion. Compare numerically within a session, never against message IDs or gateway sequence.
+
+Type: `string`
 
 ### Relationship
 
@@ -1232,6 +1477,48 @@ Tags of a managed role.
 | --- | --- | --- |
 | `bot_id?` | `Snowflake` |  |
 | `integration_id?` | `Snowflake` |  |
+
+### ScheduledMessage
+
+Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `ScheduledMessageId` |  |
+| `channel_id` | `Snowflake` |  |
+| `author_id` | `Snowflake` |  |
+| `revision` | `ScheduledMessageRevision` |  |
+| `status` | `"pending" or "dispatching" or "sent" or "failed" or "cancelled" or "delivery_unknown"` |  |
+| `scheduled_at` | `string (date-time)` |  |
+| `created_at` | `string (date-time)` |  |
+| `updated_at` | `string (date-time)` |  |
+| `message` | `?ScheduledMessageDraft` |  |
+| `message_id` | `?Snowflake` |  |
+| `failure` | `"access_denied" or "channel_missing" or "delivery_mode_changed" or "invalid_message" or "dependency_unavailable" or "delivery_unknown" or null` |  |
+
+### ScheduledMessageDraft
+
+Initial scheduling surface: Standard text, optional TTS/reply and reply-ping/silent options. Full replacement when edited. Attachment, embed, component and forward drafts are unsupported and must not be silently dropped. Normal send permissions and mention policy are re-evaluated at dispatch.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `content` | `string` |  |
+| `tts?` | `boolean` | Requires SEND_TTS_MESSAGES at acceptance/edit and dispatch. |
+| `reply_to?` | `?Snowflake` | Same-channel reply target, revalidated at dispatch. |
+| `replied_user?` | `boolean` | Whether a reply mentions its target author; ignored when reply_to is absent. |
+| `silent?` | `boolean` | Maps to SUPPRESS_NOTIFICATIONS (4096), with the existing silent-message semantics. |
+
+### ScheduledMessageId
+
+Client-generated cryptographically random lowercase UUIDv4. The author/key pair identifies one durable schedule intent across channels. Preserve and replay the exact original request after response loss.
+
+Type: `string (uuid)`
+
+### ScheduledMessageRevision
+
+Monotonic schedule revision. Compare only within the same author/schedule; unrelated to read-state versions or gateway sequence. Mutation fails closed at exhaustion.
+
+Type: `integer`
 
 ### SelectOption
 
@@ -1376,16 +1663,19 @@ A Discordy user (Discord v10 User object).
 | `discriminator` | `string` | Always "0" (unique usernames). |
 | `global_name` | `?string` |  |
 | `avatar` | `?string` | Avatar hash. |
+| `bio?` | `?string` | Profile About me text, at most 300 characters. |
 | `bot?` | `boolean` |  |
 | `system?` | `boolean` |  |
 | `mfa_enabled?` | `boolean` |  |
-| `banner?` | `?string` |  |
+| `banner?` | `?string` | Profile banner hash. |
 | `accent_color?` | `?integer` |  |
 | `locale?` | `string` |  |
 | `verified?` | `boolean` |  |
 | `email?` | `?string` | Only returned for the current user. |
 | `flags?` | `integer` |  |
 | `public_flags?` | `integer` |  |
+| `pronouns?` | `?string` | Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. |
+| `theme_colors?` | `?array of integer` | Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. |
 
 ### UserNote
 
@@ -1403,6 +1693,9 @@ Client preferences that follow the account across devices (client#123). Sparse: 
 
 | Field | Type | Description |
 | --- | --- | --- |
+| `default_guilds_restricted?` | `boolean` | Default restriction on new guild-related DMs; missing means false. |
+| `guild_dm_restrictions?` | `map of ?boolean` | Per-server override of the default. PATCH merges entries, and null removes an override; stored responses contain booleans. Friends and existing one-to-one DMs are exempt. Any permissive shared server permits initiation; no shared server retains existing behavior. |
+| `hide_age_restricted_channels?` | `boolean` | Hide age-restricted channels and block their content in clients. Missing means false: channels remain visible but require explicit confirmation per channel and session before content loads. This is a content preference, not verified age or server authorization. |
 | `accent?` | `"iris" or "aurora" or "ember" or "rose" or "citrine" or "sky"` | Accent colour preset. |
 | `reduce_motion?` | `boolean` |  |
 | `font_scale?` | `number` | Chat font scale. |
@@ -1441,8 +1734,20 @@ Account-wide settings of the current user. `default_delivery_mode` is a Discordy
 | `message_display_compact` | `boolean` |  |
 | `accent_color?` | `?integer` |  |
 | `guild_folders` | `array of GuildFolder` | The user's server rail in order, with folders. Synced across devices. |
+| `pinned_dm_channel_ids` | `array of Snowflake` | DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices. |
+| `pinned_channel_ids` | `map of array of Snowflake` | Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices. |
 | `guild_positions` | `array of Snowflake` | Flat server order (legacy mirror of guild_folders). |
 | `preferences` | `UserPreferences` | Synced client preferences (appearance, chat, notification sounds, emoji). Sparse. |
+| `friend_source_flags?` | `FriendSourceFlags` |  |
+
+### VanityUrl
+
+A guild's permanent invitation. Codes are unique across guilds, case-insensitive and returned lowercase. Resolves through /invites/{code} while the guild has an @everyone-visible text channel.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `code` | `?string` |  |
+| `uses` | `integer` | Successful joins through this code. Existing membership does not increment it. Renaming the code resets this count. |
 
 ### VoiceRegion
 
@@ -1489,9 +1794,9 @@ An incoming or application webhook.
 | `user?` | `User` |  |
 | `name` | `?string` |  |
 | `avatar` | `?string` |  |
-| `token?` | `string` |  |
+| `token?` | `string` | Execution credential returned only by create and reset-token; never stored in list/get/edit responses. |
 | `application_id` | `?Snowflake` |  |
-| `url?` | `string` |  |
+| `url?` | `string` | Execution URL returned only by create and reset-token. Treat as a secret. |
 
 ## Request and response bodies
 
@@ -1522,6 +1827,16 @@ Create, overwrite or edit an application command.
 | `contexts?` | `?array of integer` |  |
 | `integration_types?` | `array of integer` |  |
 
+### AttachmentMetadataEdit
+
+Updates metadata of one attachment already owned by this message. Omitted properties are unchanged; description null or blank clears alt text. Files, filenames, IDs and URLs are immutable. Only the author may edit attachment metadata.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `description?` | `?string` | Trimmed alt text; null or blank clears it. |
+| `flags?` | `integer` | Only IS_SPOILER (8) is applied; other stored bits are preserved. Explicit 0 clears the spoiler even for a SPOILER_ filename. |
+
 ### AttachmentReference
 
 An uploaded attachment referenced when creating or editing a message.
@@ -1532,6 +1847,8 @@ An uploaded attachment referenced when creating or editing a message.
 | `filename?` | `string` |  |
 | `uploaded_filename?` | `string` |  |
 | `description?` | `string` | Alt text shown to screen readers and as the image tooltip. |
+| `duration_secs?` | `number` | Duration of a recorded voice message in seconds. |
+| `waveform?` | `string` | Base64-encoded amplitude samples for a recorded voice message. |
 | `flags?` | `integer` | AttachmentFlags bit set; IS_SPOILER (8) marks the file as a spoiler. A SPOILER_ filename prefix sets it too. |
 
 ### AttachmentUpload
@@ -1580,6 +1897,14 @@ POST /users/@me/mfa/codes-verification body.
 | --- | --- | --- |
 | `password` | `string` |  |
 | `regenerate?` | `boolean` | Replaces every backup code and returns the new plaintext codes once. |
+
+### BadgeVisibilityRequest
+
+Change visibility of an existing badge grant owned by the caller.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `visible` | `boolean` |  |
 
 ### BulkDeleteRequest
 
@@ -1741,19 +2066,45 @@ POST /channels/{id}/invites body.
 
 ### CreateMessageRequest
 
-POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160).
+POST /channels/{id}/messages body. allowed_mentions.replied_user=false replies without pinging the replied-to author. Returns 409 (code 50160) when the effective delivery mode is not standard. A message_reference with type 1 (FORWARD) forwards message_id from channel_id: the caller needs VIEW_CHANNEL + READ_MESSAGE_HISTORY on the source and SEND_MESSAGES (+ ATTACH_FILES when the source has attachments) on the target; content is the optional added comment and may be empty. Forwards from or to non-standard (ephemeral/P2P) channels answer 409 (50160). A poll requires fresh SEND_POLLS in addition to normal send permissions. Its definition cannot be edited or forwarded; public bots use the same permissions, and internal/webhook/interaction poll creation is rejected. Poll-only messages are valid. Private delivery never stores polls.
 
 | Field | Type | Description |
 | --- | --- | --- |
 | `content?` | `string` |  |
 | `nonce?` | `string` |  |
-| `tts?` | `boolean` |  |
+| `tts?` | `boolean` | Read aloud by recipients with TTS enabled. Requires SEND_TTS_MESSAGES in addition to normal send permission; a disallowed true value returns 403. Stored and returned on messages and gateway events. |
 | `embeds?` | `array of Embed` |  |
 | `allowed_mentions?` | `AllowedMentions` |  |
 | `message_reference?` | `MessageReference` |  |
 | `components?` | `array of MessageComponent` |  |
 | `attachments?` | `array of AttachmentReference` |  |
-| `flags?` | `integer` | MessageFlags bit set. Only SUPPRESS_NOTIFICATIONS (4096) is honoured for users; other bits are dropped. |
+| `flags?` | `integer` | MessageFlags bit set. SUPPRESS_NOTIFICATIONS (4096) and IS_VOICE_MESSAGE (8192) are accepted; other user-supplied bits are dropped. Voice messages require SEND_VOICE_MESSAGES and exactly one attachment with duration_secs and waveform, without text, embeds or components. |
+| `poll?` | `PollCreate` |  |
+
+### CreateReportRequest
+
+File a message, user or guild-channel report. A channel report requires current VIEW_CHANNEL access and snapshots only server-owned channel metadata, never messages, members or caller-supplied content. The guild target remains exclusive to the discovery listing report route. Duplicate open reports by the same reporter are accepted without creating another report; all targets share the report rate limit.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `target` | `"message" or "user" or "channel"` |  |
+| `category` | `"spam" or "harassment" or "hate_speech" or "violence" or "sexual_content" or "self_harm" or "illegal" or "impersonation" or "other"` |  |
+| `note?` | `?string` |  |
+| `channel_id?` | `Snowflake` |  |
+| `message_id?` | `Snowflake` |  |
+| `user_id?` | `Snowflake` |  |
+| `author_id?` | `Snowflake` |  |
+| `content?` | `?string` |  |
+
+### CreateScheduledMessageRequest
+
+POST /channels/{channel_id}/messages/scheduled, user Bearer sessions only. New scheduled_at must be 1 minute..30 days ahead of the server clock. Quotas are 100 active intents per author and 25 per channel, including preparing/dispatching reservations; exhaustion returns 409/50035. Same author/request_id and original normalized request returns the current schedule (including terminal states) before rechecking time or current send access; different original content/channel conflicts. An incomplete acceptance returns 503, never a falsely accepted pending job.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `request_id` | `ScheduledMessageId` |  |
+| `scheduled_at` | `string (date-time)` |  |
+| `message` | `ScheduledMessageDraft` |  |
 
 ### CreateThreadRequest
 
@@ -1808,7 +2159,7 @@ PATCH /channels/{id}/messages/{mid} body.
 | `flags?` | `?integer` |  |
 | `allowed_mentions?` | `?AllowedMentions` |  |
 | `components?` | `?array of MessageComponent` |  |
-| `attachments?` | `array of AttachmentReference` |  |
+| `attachments?` | `array of AttachmentMetadataEdit` | Partial metadata edits of existing attachments. Unlisted files remain unchanged and an empty array does nothing. Unknown or duplicate attachment IDs reject the complete edit. This field cannot add or remove files. |
 
 ### EditOverwriteRequest
 
@@ -1819,6 +2170,16 @@ PUT /channels/{id}/permissions/{overwrite_id} body.
 | `allow?` | `?PermissionBitset` |  |
 | `deny?` | `?PermissionBitset` |  |
 | `type` | `integer` | OverwriteType. |
+
+### EditScheduledMessageRequest
+
+PATCH a pending schedule. The expected revision must match; at least one replacement is required. message replaces the whole draft, not individual fields. A new scheduled_at must be 1 minute..30 days ahead of the server clock. Fresh Standard send access is required; already-dispatching or terminal jobs conflict.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `expected_revision` | `ScheduledMessageRevision` |  |
+| `scheduled_at?` | `string (date-time)` |  |
+| `message?` | `ScheduledMessageDraft` |  |
 
 ### EditWebhookMessageRequest
 
@@ -1910,7 +2271,8 @@ POST /auth/mfa/totp body: completes a login that answered 60008.
 | --- | --- | --- |
 | `code` | `60008` |  |
 | `message` | `string` |  |
-| `ticket` | `string` | Present to POST /auth/mfa/totp together with a code. |
+| `ticket` | `string` | Present to /auth/mfa/totp with a TOTP/recovery code or to /auth/mfa/webauthn/start. |
+| `methods?` | `array of "totp" or "webauthn" or "backup_code"` | Registered factors available for this ticket; older servers may omit it. |
 
 ### ModifyApplicationRequest
 
@@ -1963,11 +2325,14 @@ PATCH /users/@me body. `username`, `email` and `new_password` require the curren
 | `username?` | `string` |  |
 | `global_name?` | `?string` |  |
 | `avatar?` | `?string` | Data URI image. |
-| `banner?` | `?string` |  |
+| `bio?` | `?string` | About me text; null or blank clears it. Trimmed, at most 300 characters. |
+| `banner?` | `?string` | PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null removes the banner; omission retains it. |
 | `accent_color?` | `?integer` |  |
 | `password?` | `string` | Current password; required with username, email or new_password. |
 | `new_password?` | `string` |  |
 | `email?` | `string (email)` |  |
+| `pronouns?` | `?string` | Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters. |
+| `theme_colors?` | `?array of integer` | Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme. |
 
 ### ModifyEmojiRequest
 
@@ -1998,23 +2363,27 @@ PATCH /guilds/{id} body (partial). `voice_region` is a Discordy extra.
 
 | Field | Type | Description |
 | --- | --- | --- |
+| `features?` | `array of "COMMUNITY"` | MANAGE_GUILD. [] disables Community, clears its channels and removes the discovery listing. [COMMUNITY] enables it and requires rules_channel_id and public_updates_channel_id. Both must be non-NSFW standard text or announcement channels in this guild. Omission retains the current Community setting. |
 | `name?` | `string` |  |
 | `icon?` | `?string` |  |
-| `banner?` | `?string` |  |
-| `splash?` | `?string` |  |
+| `banner?` | `?string` | Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the banner; null removes it. |
+| `splash?` | `?string` | Image data URI (png, jpeg, gif or webp, at most 10 MiB) to set the invite splash; null removes it. |
 | `description?` | `?string` |  |
 | `owner_id?` | `Snowflake` |  |
 | `afk_channel_id?` | `?Snowflake` |  |
 | `afk_timeout?` | `integer` |  |
 | `system_channel_id?` | `?Snowflake` |  |
-| `system_channel_flags?` | `integer` |  |
-| `rules_channel_id?` | `?Snowflake` |  |
-| `public_updates_channel_id?` | `?Snowflake` |  |
+| `system_channel_flags?` | `integer` | Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. |
+| `rules_channel_id?` | `?Snowflake` | Community rules channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal public_updates_channel_id. |
+| `public_updates_channel_id?` | `?Snowflake` | Community updates channel. Required when enabling Community; cannot be cleared while Community remains enabled. May equal rules_channel_id. |
 | `preferred_locale?` | `string` |  |
 | `verification_level?` | `integer` |  |
 | `default_message_notifications?` | `integer` |  |
 | `explicit_content_filter?` | `integer` |  |
 | `voice_region?` | `string` |  |
+| `audit_log_enabled?` | `boolean` | Owner or ADMINISTRATOR only. Disabling suppresses new audit entries and dispatches, except audit-policy changes themselves. |
+| `audit_log_retention_days?` | `30 or 90 or 365` | Owner or ADMINISTRATOR only. Existing entries older than this window become unreadable immediately and are physically removed by the hourly retention job. |
+| `prune_admin_only?` | `boolean` | Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD. |
 
 ### ModifyGuildTemplateRequest
 
@@ -2027,7 +2396,7 @@ PATCH /guilds/{guild_id}/templates/{code} body.
 
 ### ModifyMemberRequest
 
-PATCH /guilds/{id}/members/{uid} body.
+PATCH /guilds/{id}/members/{uid} body. Avatar, banner and bio may be changed only by the member themself, even if the caller manages the guild. Nickname permissions are unchanged. Omission preserves each field; null restores its global fallback. Emits GUILD_MEMBER_UPDATE.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -2038,6 +2407,9 @@ PATCH /guilds/{id}/members/{uid} body.
 | `channel_id?` | `?Snowflake` | Move to a voice channel of the guild, or null to disconnect. Needs MOVE_MEMBERS (and CONNECT on the target channel); ignored when the member is not in voice. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
 | `flags?` | `integer` |  |
+| `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |
+| `avatar?` | `?string` | Self-only server avatar. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
+| `banner?` | `?string` | Self-only server banner. PNG, JPEG, GIF or WebP data URI; maximum 10 MiB decoded. Null restores the global image. |
 
 ### ModifyUserSettingsRequest
 
@@ -2056,7 +2428,18 @@ PATCH /users/@me/settings body (partial).
 | `accent_color?` | `?integer` |  |
 | `guild_folders?` | `array of GuildFolder` | The user's server rail in order, with folders. Synced across devices. |
 | `guild_positions?` | `array of Snowflake` | Flat server order (legacy mirror of guild_folders). |
+| `pinned_dm_channel_ids?` | `array of Snowflake` | DM and group DM channels pinned to the top of the DM list (at most 5), most recently pinned last. Synced across devices. |
+| `pinned_channel_ids?` | `map of array of Snowflake` | Personal pinned channels per server, at most 10 per server (guild id to channel ids, most recently pinned last), shown at the top of that server's channel list. Visible only to the user. Synced across devices. |
 | `preferences?` | `UserPreferences` | Merged key by key into the stored preferences. |
+| `friend_source_flags?` | `object` | Partial friend-request source update; omitted flags retain their values. |
+
+### ModifyVanityUrlRequest
+
+Requires MANAGE_GUILD. Set a permanent invitation code or remove it with null. Codes cannot conflict with ordinary invites, ignoring case.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `code` | `?string` |  |
 
 ### ModifyWebhookRequest
 
@@ -2070,7 +2453,7 @@ PATCH /webhooks/{id} body.
 
 ### OAuth2AuthorizeInfo
 
-GET /oauth2/authorize response: what the bot invite screen shows.
+Bot-install consent information. Only bot and applications.commands are supported.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -2079,18 +2462,19 @@ GET /oauth2/authorize response: what the bot invite screen shows.
 | `user` | `User` |  |
 | `guilds` | `array of OAuth2Guild` |  |
 | `permissions` | `PermissionBitset` | Permissions requested by the invite URL. |
-| `scopes` | `array of string` |  |
+| `scopes` | `array of "bot" or "applications.commands"` |  |
 
 ### OAuth2AuthorizeRequest
 
-POST /oauth2/authorize body: add a bot to a guild.
+Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.
 
 | Field | Type | Description |
 | --- | --- | --- |
 | `client_id` | `Snowflake` |  |
 | `guild_id` | `Snowflake` |  |
-| `permissions` | `PermissionBitset` |  |
-| `scope` | `string` | Space-separated scopes, e.g. "bot applications.commands". |
+| `installation_revision` | `BotInstallationRevision` |  |
+| `permissions` | `PermissionBitset` | For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review. |
+| `scope` | `string` | Space-separated bot and optionally applications.commands. bot is required. |
 
 ### OAuth2AuthorizeResponse
 
@@ -2098,7 +2482,7 @@ POST /oauth2/authorize response.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `location` | `string` | Where the client should navigate next. |
+| `location` | `string` | Relative in-app /channels/{guild_id} destination. Never an externally supplied redirect URI. |
 
 ### OAuth2Guild
 
@@ -2110,6 +2494,63 @@ A guild the user can add the bot to.
 | `name` | `string` |  |
 | `icon` | `?string` |  |
 | `permissions` | `PermissionBitset` |  |
+| `installation_revision` | `BotInstallationRevision` |  |
+| `bot_permissions` | `?PermissionBitset` | Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation. |
+
+### Passkey
+
+Registered second factor metadata. Credential public keys and challenges are never included.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string (uuid)` |  |
+| `name` | `string` |  |
+| `created_at` | `string (date-time)` |  |
+| `last_used_at` | `?string (date-time)` |  |
+
+### PasskeyDeleteRequest
+
+Removing a passkey needs the password and a valid TOTP or one-time recovery code. Removing the last factor turns MFA off.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `password` | `string` |  |
+| `code` | `string` |  |
+
+### PasskeyRegisterFinishRequest
+
+Finish the registration using navigator.credentials.create, serializing binary fields as unpadded base64url.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `challenge_id` | `string (uuid)` |  |
+| `credential` | `object` |  |
+
+### PasskeyRegisterResponse
+
+The enrolled passkey. First-factor enrollment generates recovery codes; existing codes are retained when another factor is added.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `passkey` | `Passkey` |  |
+| `backup_codes?` | `array of object` |  |
+
+### PasskeyRegisterStartRequest
+
+Reauthenticate with the password before creating a passkey registration challenge.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `password` | `string` |  |
+| `name` | `string` |  |
+
+### PasskeyRenameRequest
+
+Rename one of the authenticated user's passkeys. The name is trimmed and must contain 1–64 Unicode characters without control characters. Credential material and MFA state are unchanged.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `string` |  |
 
 ### PasswordConfirmationRequest
 
@@ -2118,6 +2559,52 @@ Body of POST /users/@me/disable, /users/@me/delete and /users/@me/mfa/totp/enabl
 | Field | Type | Description |
 | --- | --- | --- |
 | `password` | `string` |  |
+
+### PollCreate
+
+Immutable poll definition for a Standard public message. Answer IDs and expiry are server assigned. Unsupported internal/webhook/interaction, scheduled and forward creation is rejected.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `question` | `PollQuestion` |  |
+| `answers` | `array of object` |  |
+| `duration?` | `integer` | Whole hours from server acceptance. |
+| `allow_multiselect?` | `boolean` |  |
+| `layout_type?` | `1` |  |
+
+### PollVoteRequest
+
+The revision of your own vote, not the global results. An already-satisfied retry is a no-op; any stale request that changes your selection conflicts.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `expected_vote_version` | `PollVersion` |  |
+
+### ProfileBadge
+
+An earned badge and the owner-selected visibility.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` |  |
+| `visible` | `boolean` |  |
+
+### PruneRequest
+
+POST /guilds/{id}/prune body.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `days?` | `integer` |  |
+| `include_roles?` | `array of Snowflake` |  |
+
+### PruneResult
+
+GET /guilds/{id}/prune (members that would be removed) and POST /guilds/{id}/prune (members removed).
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `pruned` | `integer` |  |
 
 ### PublicDevice
 
@@ -2151,6 +2638,7 @@ POST /auth/refresh body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `refresh_token` | `string` | Opaque 256-bit token, base64url. |
+| `request_id?` | `string (uuid)` | Optional random UUID saved durably with the current refresh token before sending. Retrying this exact pair for up to five minutes recovers its immediate unused, unexpired successor in a live session without extending expiry. Keep the UUID until successor credentials are saved, then generate a new UUID for the next rotation. Omission retains strict single-use rotation. |
 
 ### RegisterRequest
 
@@ -2161,6 +2649,15 @@ POST /auth/register body.
 | `email` | `string (email)` |  |
 | `username` | `string` |  |
 | `password` | `string` |  |
+
+### ReportListingRequest
+
+Report a currently discoverable guild listing. The server captures only the public listing as evidence. Shares the reporter's 10-per-hour report limit; an existing open report from the same user is idempotent. Filing a report does not automatically remove a listing.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `category` | `"spam" or "harassment" or "hate_speech" or "violence" or "sexual_content" or "self_harm" or "illegal" or "impersonation" or "other"` |  |
+| `note?` | `?string` |  |
 
 ### ResetBotTokenResponse
 
@@ -2194,6 +2691,15 @@ POST /guilds/{id}/roles and PATCH /guilds/{id}/roles/{rid} body.
 | `mentionable?` | `boolean` |  |
 | `position?` | `integer` | Only honoured on PATCH. |
 
+### ScheduledMessageList
+
+Author/channel page in schedule UUID order, including active/unknown jobs and terminal jobs from the last seven days. Follow non-null next_after even after an empty page filtered by journal state. Exact author lookup retains content-free idempotency records after list expiry.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `items` | `array of ScheduledMessage` |  |
+| `next_after` | `?ScheduledMessageId` |  |
+
 ### SetDeliveryModeRequest
 
 PUT /users/@me/channels/{id}/delivery-mode body.
@@ -2201,6 +2707,12 @@ PUT /users/@me/channels/{id}/delivery-mode body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `mode` | `?DeliveryMode` | Null clears the per-chat override. |
+
+### ThreadMemberTarget
+
+A thread member's Snowflake or @me for the authenticated user.
+
+Type: `string`
 
 ### TotpEnrollmentResponse
 
@@ -2254,3 +2766,30 @@ POST /users/@me/mfa/totp/verify body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `code` | `string` |  |
+
+### WebauthnChallenge
+
+A five-minute, single-use server-side ceremony. Finish requires the same account/session or password-authenticated login ticket.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `challenge_id` | `string (uuid)` |  |
+| `publicKey` | `object` | WebAuthn PublicKeyCredentialCreationOptionsJSON or PublicKeyCredentialRequestOptionsJSON. Binary members use unpadded base64url. |
+
+### WebauthnLoginFinishRequest
+
+Complete a passkey assertion. The assertion challenge and login ticket are single use, and the credential signature counter is checked.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `ticket` | `string` |  |
+| `challenge_id` | `string (uuid)` |  |
+| `credential` | `object` |  |
+
+### WebauthnLoginStartRequest
+
+Begin passkey assertion after the password login returned MFA_REQUIRED.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `ticket` | `string` |  |

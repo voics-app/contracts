@@ -35,6 +35,14 @@
       ],
       "description": "Avatar hash."
     },
+    "bio": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 300,
+      "description": "Profile About me text, at most 300 characters."
+    },
     "bot": {
       "type": "boolean"
     },
@@ -48,13 +56,16 @@
       "type": [
         "string",
         "null"
-      ]
+      ],
+      "description": "Profile banner hash."
     },
     "accent_color": {
       "type": [
         "integer",
         "null"
-      ]
+      ],
+      "minimum": 0,
+      "maximum": 16777215
     },
     "locale": {
       "type": "string"
@@ -74,6 +85,28 @@
     },
     "public_flags": {
       "type": "integer"
+    },
+    "pronouns": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 40,
+      "description": "Optional public pronouns; trimmed, null or blank clears them. At most 40 Unicode characters."
+    },
+    "theme_colors": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 16777215
+      },
+      "description": "Exactly two RGB colors (0..16777215) for the profile theme. Null resets to the default theme."
     }
   }
 }

@@ -1,0 +1,7 @@
+{
+  "schema": "rest/modify-vanity-url-request.json",
+  "valid": false,
+  "data": {
+    "code": "foo/bar"
+  }
+}

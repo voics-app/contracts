@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/webauthn-login-finish-request.json",
+  "title": "WebauthnLoginFinishRequest",
+  "description": "Complete a passkey assertion. The assertion challenge and login ticket are single use, and the credential signature counter is checked.",
+  "type": "object",
+  "required": [
+    "ticket",
+    "challenge_id",
+    "credential"
+  ],
+  "properties": {
+    "ticket": {
+      "type": "string",
+      "minLength": 1
+    },
+    "challenge_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "credential": {
+      "type": "object",
+      "required": [
+        "id",
+        "rawId",
+        "type",
+        "response"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rawId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "const": "public-key"
+        },
+        "response": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

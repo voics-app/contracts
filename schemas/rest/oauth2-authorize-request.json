@@ -2,11 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/rest/oauth2-authorize-request.json",
   "title": "OAuth2AuthorizeRequest",
-  "description": "POST /oauth2/authorize body: add a bot to a guild.",
+  "description": "Install a bot and record explicit consent, or acknowledge the current permissions of an existing installation. Unsupported scopes, permission bits and authorization-code parameters are rejected.",
   "type": "object",
   "required": [
     "client_id",
     "guild_id",
+    "installation_revision",
     "permissions",
     "scope"
   ],
@@ -17,12 +18,17 @@
     "guild_id": {
       "$ref": "../objects/snowflake.json"
     },
+    "installation_revision": {
+      "$ref": "../objects/bot-installation-revision.json"
+    },
     "permissions": {
-      "$ref": "../objects/permission-bitset.json"
+      "$ref": "../objects/permission-bitset.json",
+      "description": "For a new installation, requested bot role permissions. For an existing installation, the exact effective bot_permissions displayed by GET /oauth2/authorize; a changed set returns 409 and requires a fresh review."
     },
     "scope": {
       "type": "string",
-      "description": "Space-separated scopes, e.g. \"bot applications.commands\"."
+      "description": "Space-separated bot and optionally applications.commands. bot is required."
     }
-  }
+  },
+  "additionalProperties": false
 }

@@ -4,6 +4,8 @@
 
 Clients connect to `wss://<gateway>/gateway?v=1&encoding=json`. The server sends HELLO with a heartbeat interval of 41250 ms. Sessions can be resumed for 120 s (up to 1000 buffered dispatches). Clients may send 120 frames per 60 s; exceeding it closes with 4008. Objects referenced below (User, Channel, ...) are described in rest.md.
 
+Add `&compress=zstd-stream` to receive binary frames containing one continuous zstd stream per WebSocket connection. Each event is flushed for immediate decoding. Client-to-server frames stay JSON text. A reconnect, including RESUME, starts a fresh stream. Without the parameter server frames are JSON text; unknown compression values are rejected.
+
 ## Frame
 
 ### GatewayFrame
@@ -38,6 +40,7 @@ Every gateway frame (both directions). `s` and `t` are only set on DISPATCH (op 
 | 23 | `VOICE_TELEMETRY` | send | `VoiceTelemetryPayload` | Client voice quality sample, published to discordy.telemetry.v1. |
 | 24 | `WATCH_TOGETHER` | both | `WatchTogetherPayload` | Watch Together playback synchronisation. |
 | 25 | `CALL_DECLINE` | send | `CallDeclinePayload` | Declines the DM call ringing in a channel. The caller's call stops ringing for this user. |
+| 26 | `CALL_RING` | send | `CallRingPayload` | Rings 1 to 10 members of a DM channel for a call the sender is in. |
 
 ## Opcode payloads
 
@@ -61,13 +64,14 @@ Op 2 IDENTIFY.
 
 ### PresenceUpdatePayload
 
-Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY).
+Op 3 PRESENCE_UPDATE (also the optional `presence` of IDENTIFY). `activities` are sanitised by the gateway: at most 5 entries and at most one of type 4 (custom status); text fields at most 128 characters, `url` at most 512; unknown fields are dropped. Any violation closes the socket with 4002 DECODE_ERROR.
 
 | Field | Type | Description |
 | --- | --- | --- |
 | `status` | `"online" or "idle" or "dnd" or "invisible"` |  |
-| `activities` | `array of Activity` |  |
+| `activities` | `array of Activity` | At most 5 activities, at most one with type 4. Violations close the socket with 4002. |
 | `afk` | `boolean` |  |
+| `background?` | `boolean` | Mobile lifecycle hint. True means this app entered the background; false (also the default when omitted) means foreground. Only authenticated mobile user sessions may retain their effective presence after transport suspension, for a bounded server-configured lease (24 hours by default). This does not prove the app is still running. Logout or session revocation removes it immediately, and foreground/resume cancels the lease. Clients send their chosen effective status: automatic background idle must not replace explicitly selected Online, Idle, DND or Invisible. Desktop and bot sessions do not gain a background lease. |
 | `since?` | `?integer` | Unix ms since the client went idle. |
 
 ### VoiceStateUpdatePayload
@@ -188,6 +192,15 @@ Op 25 CALL_DECLINE. Declines the call ringing in a DM channel; a no-op when the 
 | --- | --- | --- |
 | `channel_id` | `Snowflake` |  |
 
+### CallRingPayload
+
+Op 26 CALL_RING. Rings the listed members of a DM channel for a call the sender is in.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `channel_id` | `Snowflake` |  |
+| `user_ids` | `array of Snowflake` | Users to ring, 1 to 10. |
+
 ## Close codes
 
 | Code | Name | Description | Reconnect |
@@ -203,6 +216,7 @@ Op 25 CALL_DECLINE. Declines the call ringing in a DM channel; a no-op when the 
 | 4009 | `SESSION_TIMED_OUT` | The session timed out. | yes |
 | 4013 | `INVALID_INTENTS` | An invalid intent bitfield was sent. | no |
 | 4014 | `DISALLOWED_INTENTS` | A privileged intent was requested that the application is not approved for. | no |
+| 4015 | `SERVER_OVERLOADED` | The gateway is short of memory and refuses new connections. Reconnect with backoff. | yes |
 
 ## Intents
 
@@ -225,6 +239,8 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | 1 << 12 | 4096 | `DIRECT_MESSAGES` | no | MESSAGE_CREATE, MESSAGE_UPDATE, MESSAGE_DELETE, CHANNEL_PINS_UPDATE |
 | 1 << 13 | 8192 | `DIRECT_MESSAGE_REACTIONS` | no | MESSAGE_REACTION_ADD, MESSAGE_REACTION_REMOVE, MESSAGE_REACTION_REMOVE_ALL |
 | 1 << 14 | 16384 | `DIRECT_MESSAGE_TYPING` | no | TYPING_START |
+| 1 << 24 | 16777216 | `GUILD_MESSAGE_POLLS` | no | MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE |
+| 1 << 25 | 33554432 | `DIRECT_MESSAGE_POLLS` | no | MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE |
 | 1 << 15 | 32768 | `MESSAGE_CONTENT` | yes | — |
 
 ## Dispatch events
@@ -260,17 +276,22 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `INVITE_DELETE` | `InviteDeleteEvent` | api | `discordy.guild.v1` | An invite was deleted. |
 | `THREAD_CREATE` | `Channel` | api | `discordy.guild.v1` | A thread was created. |
 | `THREAD_UPDATE` | `Channel` | api | `discordy.guild.v1` | A thread was updated. |
+| `THREAD_MEMBERS_UPDATE` | `ThreadMembersUpdate` | api | `discordy.guild.v1` | Thread membership changed; underscore-prefixed bus state is private to the gateway. |
 | `THREAD_DELETE` | `Channel` | api | `discordy.guild.v1` | A thread was deleted. |
 | `APPLICATION_COMMAND_PERMISSIONS_UPDATE` | `GuildApplicationCommandPermissions` | api | `discordy.guild.v1` | Application command permissions were updated. |
 | `MESSAGE_CREATE` | `MessageEvent` | messages | `discordy.message.v1` | A message was created. |
 | `MESSAGE_UPDATE` | `MessageEvent` | messages | `discordy.message.v1` | A message was edited. |
 | `MESSAGE_DELETE` | `MessageDeleteEvent` | messages | `discordy.message.v1` | A message was deleted. |
 | `MESSAGE_DELETE_BULK` | `MessageDeleteBulkEvent` | messages | `discordy.message.v1` | Several messages were deleted at once. |
+| `MESSAGE_POLL_VOTE_ADD` | `MessagePollVoteAddEvent` | messages | `discordy.message.v1` | Authoritative poll counts and complete actor selection after a vote add. |
+| `MESSAGE_POLL_VOTE_REMOVE` | `MessagePollVoteRemoveEvent` | messages | `discordy.message.v1` | Authoritative poll counts and complete actor selection after a vote remove. |
 | `MESSAGE_REACTION_ADD` | `MessageReactionAddEvent` | messages | `discordy.message.v1` | A user reacted to a message. |
 | `MESSAGE_REACTION_REMOVE` | `MessageReactionRemoveEvent` | messages | `discordy.message.v1` | A user removed a reaction. |
 | `MESSAGE_REACTION_REMOVE_ALL` | `MessageReactionRemoveAllEvent` | messages | `discordy.message.v1` | All reactions were removed from a message. |
 | `CHANNEL_PINS_UPDATE` | `ChannelPinsUpdateEvent` | messages | `discordy.message.v1` | A message was pinned or unpinned. |
 | `MESSAGE_ACK` | `MessageAckEvent` | messages | `discordy.message.v1` | The user's read state advanced on another device. |
+| `READ_STATE_UPDATE` | `ReadStateUpdateEvent` | messages | `discordy.message.v1` | Complete versioned read-state snapshot targeted to the owning user's sessions; compare channel versions, never increment from this event. |
+| `READ_STATE_SYNC` | `ReadStateSyncEvent` | gateway | — | Fresh certified read-state snapshots after resume replay and before RESUMED; merge by version to recover lost publication. |
 | `USER_UPDATE` | `User` | api | `discordy.user.v1` | The current user was updated. |
 | `USER_SETTINGS_UPDATE` | `UserSettings` | api | `discordy.user.v1` | The current user's settings changed. |
 | `USER_GUILD_SETTINGS_UPDATE` | `GuildNotificationSettings` | api | `discordy.user.v1` | The current user's notification settings for a guild or their DMs changed (sent to that user only). |
@@ -292,7 +313,7 @@ READY: the internal ready state plus session details.
 | Field | Type | Description |
 | --- | --- | --- |
 | `user` | `User` |  |
-| `guilds` | `array of GuildFull` |  |
+| `guilds` | `array of GatewayGuildState` |  |
 | `private_channels` | `array of Channel` |  |
 | `relationships` | `array of Relationship` |  |
 | `user_settings` | `UserSettings` |  |
@@ -302,6 +323,8 @@ READY: the internal ready state plus session details.
 | `session_id` | `string` |  |
 | `resume_gateway_url` | `string` |  |
 | `application?` | `ReadyApplication` |  |
+| `read_state?` | `array of ReadState` |  |
+| `read_state_versioned?` | `true` | Present only after successful certified messages hydration. Standard counts use authoritative snapshots rather than CREATE increments; private decrypted traffic stays local. Absent means legacy behavior. |
 
 ### PresenceUpdateEvent
 
@@ -388,8 +411,8 @@ GUILD_MEMBER_ADD / GUILD_MEMBER_UPDATE dispatch: a guild member plus guild_id.
 | --- | --- | --- |
 | `user?` | `User` |  |
 | `nick?` | `?string` |  |
-| `avatar?` | `?string` |  |
-| `banner?` | `?string` |  |
+| `avatar?` | `?string` | Server avatar hash; null uses the global avatar. CDN: /guilds/{guild_id}/users/{user_id}/avatars/{hash}.png (animated a_ hashes use .gif). |
+| `banner?` | `?string` | Server banner hash; null uses the global banner. CDN: /guilds/{guild_id}/users/{user_id}/banners/{hash}.png (animated a_ hashes use .gif). |
 | `roles` | `array of Snowflake` |  |
 | `joined_at` | `string (date-time)` |  |
 | `premium_since?` | `?string (date-time)` |  |
@@ -399,6 +422,7 @@ GUILD_MEMBER_ADD / GUILD_MEMBER_UPDATE dispatch: a guild member plus guild_id.
 | `pending?` | `boolean` |  |
 | `permissions?` | `PermissionBitset` | Total permissions in the interaction channel; only in interaction payloads. |
 | `communication_disabled_until?` | `?string (date-time)` |  |
+| `bio?` | `?string` | Server-specific About me; trimmed, null or blank restores the global bio. |
 | `guild_id` | `Snowflake` |  |
 
 ### GuildMemberRemoveEvent
@@ -454,6 +478,20 @@ INVITE_DELETE dispatch.
 | `guild_id?` | `Snowflake` |  |
 | `code` | `string` |  |
 
+### ThreadMembersUpdate
+
+A thread membership change. The underscore-prefixed fields are internal bus state and must never be dispatched to clients.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `guild_id` | `Snowflake` |  |
+| `member_count` | `integer` |  |
+| `added_members` | `array of ThreadMember` |  |
+| `removed_member_ids` | `array of Snowflake` |  |
+| `_membership_version?` | `integer` |  |
+| `_member_ids?` | `array of Snowflake` |  |
+
 ### MessageEvent
 
 MESSAGE_CREATE / MESSAGE_UPDATE dispatch: a message plus guild context.
@@ -468,6 +506,7 @@ MESSAGE_CREATE / MESSAGE_UPDATE dispatch: a message plus guild context.
 | `edited_timestamp` | `?string (date-time)` |  |
 | `tts` | `boolean` |  |
 | `mention_everyone` | `boolean` |  |
+| `mention_here?` | `boolean` | Extension. With mention_everyone: the message pings with @here only (no @everyone), so only members who are online at send time are notified. Absent or false otherwise. |
 | `mentions` | `array of User` |  |
 | `mention_roles` | `array of Snowflake` |  |
 | `mention_channels?` | `array of ChannelMention` |  |
@@ -478,16 +517,18 @@ MESSAGE_CREATE / MESSAGE_UPDATE dispatch: a message plus guild context.
 | `pinned` | `boolean` |  |
 | `hit?` | `boolean` | Only in message search results: true for the matching message, absent for its context messages. |
 | `webhook_id?` | `Snowflake` |  |
-| `type` | `integer` | MessageType. 0 DEFAULT, 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). |
+| `type` | `integer` | MessageType. 0 DEFAULT, 1 RECIPIENT_ADD, 2 RECIPIENT_REMOVE, 3 CALL (see call), 4 CHANNEL_NAME_CHANGE, 5 CHANNEL_ICON_CHANGE, 6 CHANNEL_PINNED_MESSAGE (message_reference is the pinned message), 7 GUILD_MEMBER_JOIN (author is the member who joined; posted in the guild system channel when one is set), 18 THREAD_CREATED (content is the thread name, message_reference.channel_id the thread), 19 REPLY. A forwarded message keeps type 0 and is identified by message_reference.type = 1 plus message_snapshots (Discord semantics). |
 | `application_id?` | `Snowflake` |  |
 | `flags?` | `integer` |  |
 | `message_reference?` | `MessageReference` |  |
+| `call?` | `MessageCall` |  |
 | `referenced_message?` | `?Message` |  |
 | `interaction_metadata?` | `MessageInteractionMetadata` |  |
 | `thread?` | `Channel` |  |
 | `components?` | `array of MessageComponent` |  |
 | `position?` | `integer` |  |
 | `message_snapshots?` | `array of MessageSnapshot` | Present on messages with message_reference.type = 1 (FORWARD): a frozen copy of the forwarded message taken at forward time. |
+| `poll?` | `Poll` |  |
 | `guild_id?` | `Snowflake` |  |
 | `member?` | `GuildMember` |  |
 
@@ -510,6 +551,36 @@ MESSAGE_DELETE_BULK dispatch.
 | `ids` | `array of Snowflake` |  |
 | `channel_id` | `Snowflake` |  |
 | `guild_id?` | `Snowflake` |  |
+
+### MessagePollVoteAddEvent
+
+Complete authoritative post-mutation counts and actor selection. Single-choice replacement can emit REMOVE and ADD with identical versions/results. Apply snapshots, never deltas.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `user_id` | `Snowflake` |  |
+| `channel_id` | `Snowflake` |  |
+| `message_id` | `Snowflake` |  |
+| `guild_id?` | `Snowflake` |  |
+| `answer_id` | `integer` |  |
+| `answer_ids` | `array of integer` | Complete post-mutation selection of user_id, including empty after the last removal. |
+| `vote_version` | `PollVersion` |  |
+| `results` | `PollResults` |  |
+
+### MessagePollVoteRemoveEvent
+
+Complete authoritative post-mutation counts and actor selection. Single-choice replacement can emit REMOVE and ADD with identical versions/results. Apply snapshots, never deltas.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `user_id` | `Snowflake` |  |
+| `channel_id` | `Snowflake` |  |
+| `message_id` | `Snowflake` |  |
+| `guild_id?` | `Snowflake` |  |
+| `answer_id` | `integer` |  |
+| `answer_ids` | `array of integer` | Complete post-mutation selection of user_id, including empty after the last removal. |
+| `vote_version` | `PollVersion` |  |
+| `results` | `PollResults` |  |
 
 ### MessageReactionAddEvent
 
@@ -571,6 +642,27 @@ MESSAGE_ACK dispatch (read-state sync across the user's devices).
 | `message_id` | `Snowflake` |  |
 | `mention_count` | `integer` |  |
 | `version?` | `integer` |  |
+| `read_state_version?` | `ReadStateVersion` | Optional for legacy compatibility. Certified clients accept only a newer per-channel version, even for a backwards manual marker; this is independent of the legacy version field. |
+
+### ReadStateUpdateEvent
+
+Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `channel_id` | `Snowflake` |  |
+| `last_message_id` | `any` |  |
+| `mention_count` | `integer` |  |
+| `read_state_version` | `ReadStateVersion` |  |
+
+### ReadStateSyncEvent
+
+Certified snapshot fetched during resume, after subscription and before RESUMED. Merge each channel by version with replayed updates; an absent channel is not a deletion. An equal version may restore the known authoritative snapshot over local optimistic state, but conflicting equal-version data and older versions are ignored. A fresh READY, not this event, starts a new version history.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `read_state_versioned` | `true` |  |
+| `read_state` | `array of any` |  |
 
 ### UserNoteUpdateEvent
 
@@ -641,6 +733,57 @@ Ciphertext for one recipient device.
 | `user_id` | `Snowflake` |  |
 | `device_id` | `Snowflake` |  |
 | `ciphertext_b64` | `string` |  |
+
+### GatewayGuildState
+
+Internal gateway seed. Thread membership state must not be sent to clients.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `Snowflake` |  |
+| `name` | `string` |  |
+| `icon` | `?string` |  |
+| `splash?` | `?string` | Invite splash image hash (CDN path splashes/{guild_id}/{hash}), or null. |
+| `discovery_splash?` | `?string` |  |
+| `owner?` | `boolean` | True if the current user owns the guild. |
+| `owner_id` | `Snowflake` |  |
+| `permissions?` | `PermissionBitset` |  |
+| `afk_channel_id` | `?Snowflake` |  |
+| `afk_timeout` | `integer` |  |
+| `verification_level` | `integer` |  |
+| `default_message_notifications` | `integer` |  |
+| `explicit_content_filter` | `integer` |  |
+| `roles` | `array of Role` |  |
+| `emojis` | `array of Emoji` |  |
+| `features` | `array of string` |  |
+| `mfa_level` | `integer` |  |
+| `application_id?` | `?Snowflake` |  |
+| `system_channel_id` | `?Snowflake` |  |
+| `system_channel_flags` | `integer` | Bit set of system message suppressions: 1 join notifications, 2 server boosts, 4 setup tips, 8 join reply buttons, 16 role subscription purchases, 32 their reply buttons. A set bit turns that message off; 0 keeps all on. Join messages are posted to system_channel_id when it is set and bit 1 is clear. |
+| `rules_channel_id?` | `?Snowflake` |  |
+| `max_members?` | `integer` |  |
+| `vanity_url_code?` | `?string` |  |
+| `description?` | `?string` |  |
+| `banner?` | `?string` | Banner image hash (CDN path banners/{guild_id}/{hash}), or null. |
+| `preferred_locale` | `string` |  |
+| `public_updates_channel_id?` | `?Snowflake` |  |
+| `nsfw_level?` | `integer` |  |
+| `approximate_member_count?` | `integer` |  |
+| `approximate_presence_count?` | `integer` |  |
+| `voice_region` | `string` | Discordy: voice region ID used to allocate voice nodes. |
+| `audit_log_enabled?` | `boolean` | Whether new audit entries are recorded. Audit-policy changes are always recorded. Existing entries remain readable within retention. |
+| `audit_log_retention_days?` | `30 or 90 or 365` | Retention for audit entries, including policy changes. Expired entries are excluded immediately and removed by the hourly retention job. |
+| `prune_admin_only?` | `boolean` | Discordy: when true, only administrators may prune inactive members. |
+| `joined_at?` | `string (date-time)` |  |
+| `large?` | `boolean` |  |
+| `unavailable?` | `boolean` |  |
+| `member_count` | `integer` |  |
+| `members` | `array of GuildMember` |  |
+| `channels` | `array of Channel` |  |
+| `threads` | `array of Channel` |  |
+| `presences?` | `array of PresenceUpdateEvent` |  |
+| `voice_states` | `array of VoiceState` |  |
+| `thread_members` | `map of object` |  |
 
 ### IdentifyProperties
 

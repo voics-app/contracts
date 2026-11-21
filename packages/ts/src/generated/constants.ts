@@ -106,13 +106,15 @@ export const Permissions = {
   PIN_MESSAGES: 1n << 51n,
   /** Allows bypassing slowmode restrictions */
   BYPASS_SLOWMODE: 1n << 52n,
+  /** Allows configuring and reviewing ban appeals */
+  MANAGE_BAN_APPEALS: 1n << 53n,
 } as const;
 export type PermissionsKey = keyof typeof Permissions;
 
 /** Derived permission sets. */
 export const PermissionSets = {
   /** Every known permission. */
-  ALL: 8866461766385663n,
+  ALL: 17873661021126655n,
 } as const;
 export type PermissionSetsKey = keyof typeof PermissionSets;
 
@@ -148,6 +150,10 @@ export const Intents = {
   DIRECT_MESSAGE_REACTIONS: 1 << 13,
   /** Events: TYPING_START. */
   DIRECT_MESSAGE_TYPING: 1 << 14,
+  /** Events: MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE. */
+  GUILD_MESSAGE_POLLS: 1 << 24,
+  /** Events: MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE. */
+  DIRECT_MESSAGE_POLLS: 1 << 25,
   /** Privileged. Events: none (gates data, not events). */
   MESSAGE_CONTENT: 1 << 15,
 } as const;
@@ -158,7 +164,7 @@ export const IntentSets = {
   /** Intents that require approval for bots. */
   PRIVILEGED: 33026,
   /** Every known intent (implicit for user sessions). */
-  ALL: 65535,
+  ALL: 50397183,
 } as const;
 export type IntentSetsKey = keyof typeof IntentSets;
 
@@ -198,6 +204,8 @@ export const GatewayOpcodes = {
   WATCH_TOGETHER: 24,
   /** Declines the DM call ringing in a channel. The caller's call stops ringing for this user. */
   CALL_DECLINE: 25,
+  /** Rings 1 to 10 members of a DM channel for a call the sender is in. */
+  CALL_RING: 26,
 } as const;
 export type GatewayOpcodesKey = keyof typeof GatewayOpcodes;
 
@@ -225,6 +233,8 @@ export const GatewayCloseCodes = {
   INVALID_INTENTS: 4013,
   /** A privileged intent was requested that the application is not approved for. Reconnect: no. */
   DISALLOWED_INTENTS: 4014,
+  /** The gateway is short of memory and refuses new connections. Reconnect with backoff. Reconnect: yes. */
+  SERVER_OVERLOADED: 4015,
 } as const;
 export type GatewayCloseCodesKey = keyof typeof GatewayCloseCodes;
 
@@ -259,17 +269,22 @@ export const DispatchEvents = {
   INVITE_DELETE: "INVITE_DELETE",
   THREAD_CREATE: "THREAD_CREATE",
   THREAD_UPDATE: "THREAD_UPDATE",
+  THREAD_MEMBERS_UPDATE: "THREAD_MEMBERS_UPDATE",
   THREAD_DELETE: "THREAD_DELETE",
   APPLICATION_COMMAND_PERMISSIONS_UPDATE: "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
   MESSAGE_CREATE: "MESSAGE_CREATE",
   MESSAGE_UPDATE: "MESSAGE_UPDATE",
   MESSAGE_DELETE: "MESSAGE_DELETE",
   MESSAGE_DELETE_BULK: "MESSAGE_DELETE_BULK",
+  MESSAGE_POLL_VOTE_ADD: "MESSAGE_POLL_VOTE_ADD",
+  MESSAGE_POLL_VOTE_REMOVE: "MESSAGE_POLL_VOTE_REMOVE",
   MESSAGE_REACTION_ADD: "MESSAGE_REACTION_ADD",
   MESSAGE_REACTION_REMOVE: "MESSAGE_REACTION_REMOVE",
   MESSAGE_REACTION_REMOVE_ALL: "MESSAGE_REACTION_REMOVE_ALL",
   CHANNEL_PINS_UPDATE: "CHANNEL_PINS_UPDATE",
   MESSAGE_ACK: "MESSAGE_ACK",
+  READ_STATE_UPDATE: "READ_STATE_UPDATE",
+  READ_STATE_SYNC: "READ_STATE_SYNC",
   USER_UPDATE: "USER_UPDATE",
   USER_SETTINGS_UPDATE: "USER_SETTINGS_UPDATE",
   USER_GUILD_SETTINGS_UPDATE: "USER_GUILD_SETTINGS_UPDATE",
@@ -308,7 +323,7 @@ export const VoiceOpcodes = {
   VIDEO: 12,
   /** A user left the call. */
   CLIENT_DISCONNECT: 13,
-  /** Requested quality (0-100) per SSRC; selects the simulcast layer. */
+  /** Requested quality (0-100) per SSRC; selects the simulcast layer. Screen shares are delivered only after opting in with the screen SSRC at quality > 0. */
   MEDIA_SINK_WANTS: 15,
   /** A DAVE protocol transition is about to happen. */
   DAVE_PREPARE_TRANSITION: 21,
@@ -332,6 +347,8 @@ export const VoiceOpcodes = {
   DAVE_MLS_WELCOME: 30,
   /** The received commit or welcome was invalid; the client asks to be re-added. */
   DAVE_MLS_INVALID_COMMIT: 31,
+  /** Sent to the streamer only: the full list of users watching their screen share, re-sent on every change. */
+  STREAM_VIEWERS: 40,
 } as const;
 export type VoiceOpcodesKey = keyof typeof VoiceOpcodes;
 
@@ -360,6 +377,8 @@ export const SfuEvents = {
   SESSION_CREATED: "session_created",
   /** Voice activity detected on an SSRC. */
   SPEAKING: "speaking",
+  /** The opted-in viewers of a screen share changed; carries the full list. */
+  STREAM_VIEWERS: "stream_viewers",
   /** Periodic SFU load statistics. */
   STATS: "stats",
 } as const;
@@ -404,17 +423,21 @@ export const EventTopics = {
   INVITE_DELETE: "discordy.guild.v1",
   THREAD_CREATE: "discordy.guild.v1",
   THREAD_UPDATE: "discordy.guild.v1",
+  THREAD_MEMBERS_UPDATE: "discordy.guild.v1",
   THREAD_DELETE: "discordy.guild.v1",
   APPLICATION_COMMAND_PERMISSIONS_UPDATE: "discordy.guild.v1",
   MESSAGE_CREATE: "discordy.message.v1",
   MESSAGE_UPDATE: "discordy.message.v1",
   MESSAGE_DELETE: "discordy.message.v1",
   MESSAGE_DELETE_BULK: "discordy.message.v1",
+  MESSAGE_POLL_VOTE_ADD: "discordy.message.v1",
+  MESSAGE_POLL_VOTE_REMOVE: "discordy.message.v1",
   MESSAGE_REACTION_ADD: "discordy.message.v1",
   MESSAGE_REACTION_REMOVE: "discordy.message.v1",
   MESSAGE_REACTION_REMOVE_ALL: "discordy.message.v1",
   CHANNEL_PINS_UPDATE: "discordy.message.v1",
   MESSAGE_ACK: "discordy.message.v1",
+  READ_STATE_UPDATE: "discordy.message.v1",
   USER_UPDATE: "discordy.user.v1",
   USER_SETTINGS_UPDATE: "discordy.user.v1",
   USER_GUILD_SETTINGS_UPDATE: "discordy.user.v1",
@@ -428,6 +451,7 @@ export const EventTopics = {
   AUDIT_LOG_ENTRY_CREATE: "discordy.audit.v1",
   VOICE_MEMBER_MOVE: "discordy.guild.v1",
   BAN_MESSAGE_PURGE: "discordy.guild.v1",
+  SESSION_REVOKE: "discordy.user.v1",
   VOICE_QUALITY: "discordy.telemetry.v1",
   USAGE_TICK: "discordy.telemetry.v1",
 } as const;
@@ -523,11 +547,12 @@ export const MessageType = {
 } as const;
 export type MessageTypeKey = keyof typeof MessageType;
 
-/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications. */
+/** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording. */
 export const MessageFlags = {
   SUPPRESS_EMBEDS: 4,
   SUPPRESS_NOTIFICATIONS: 4096,
   EPHEMERAL: 64,
+  IS_VOICE_MESSAGE: 8192,
 } as const;
 export type MessageFlagsKey = keyof typeof MessageFlags;
 
@@ -649,7 +674,7 @@ export const ActivityType = {
 } as const;
 export type ActivityTypeKey = keyof typeof ActivityType;
 
-/** Audit log action types (Discord values) used by Discordy. */
+/** Audit log action types used by Discordy, including Voics extensions. */
 export const AuditLogEvent = {
   GUILD_UPDATE: 1,
   CHANNEL_CREATE: 10,
@@ -687,6 +712,8 @@ export const AuditLogEvent = {
   THREAD_UPDATE: 111,
   THREAD_DELETE: 112,
   APPLICATION_COMMAND_PERMISSION_UPDATE: 121,
+  BAN_APPEAL_ACCEPT: 200,
+  BAN_APPEAL_DENY: 201,
 } as const;
 export type AuditLogEventKey = keyof typeof AuditLogEvent;
 

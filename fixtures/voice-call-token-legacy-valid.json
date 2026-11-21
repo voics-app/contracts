@@ -1,0 +1,7 @@
+{
+  "schema": "auth/voice-token-claims.json",
+  "data": {
+    "sub": "901", "sid": "call-fixture", "srv": "900", "chn": "900",
+    "node": "fixture-node", "e2ee": true, "iat": 1800000000, "exp": 1800000060
+  }
+}

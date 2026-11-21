@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://discordy.voics.nl/contracts/schemas/auth/voice-token-claims.json",
   "title": "VoiceTokenClaims",
-  "description": "Claims of a voice JWT (HS256 with VOICE_TOKEN_SECRET, 60 seconds).",
+  "description": "Shared claims of a voice JWT (HS256, 60 seconds). Call tokens use VOICE_TOKEN_SECRET. A verifier that sees purpose=probe MUST verify with the separate VOICE_PROBE_TOKEN_SECRET, additionally validate ProbeVoiceTokenClaims and compare the receiving node's live registration lease before admitting it. No configured probe key means probe admission is disabled.",
   "type": "object",
   "required": [
     "sub",
@@ -43,6 +43,21 @@
     },
     "exp": {
       "type": "integer"
+    },
+    "purpose": {
+      "type": "string",
+      "enum": ["call", "probe"],
+      "description": "Absent means call. A probe token is restricted to an isolated synthetic room, never an ordinary user channel. It may bypass draining, but never node identity or registration ownership checks."
+    },
+    "node_lease": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*$",
+      "description": "Required for probes: exact current etcd registration lease ID as a decimal string. The receiving node must compare it to its live registration before admitting the probe."
+    },
+    "probe_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Required for probes: random UUID shared by the two synthetic peers of one run. The server derives the isolated room from node_lease and probe_id, not from the caller's channel ID."
     }
   }
 }
