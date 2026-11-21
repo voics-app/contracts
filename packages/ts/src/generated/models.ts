@@ -3212,6 +3212,154 @@ export interface MediaSinkWantsPayload {
   [k: string]: number | undefined;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "MemberVerification".
+ */
+export interface MemberVerification {
+  enabled: boolean;
+  /**
+   * @maxItems 20
+   */
+  rules:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
+  revision: number;
+  /**
+   * Whether the caller must accept the rules.
+   */
+  pending: boolean;
+}
+/**
  * MESSAGE_ACK dispatch (read-state sync across the user's devices).
  */
 export interface MessageAckEvent {
@@ -3905,6 +4053,100 @@ export interface OAuth2AuthorizeResponse {
   location: string;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingConfig".
+ */
+export interface OnboardingConfig {
+  enabled: boolean;
+  /**
+   * @maxItems 5
+   */
+  questions:
+    | []
+    | [OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion, OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion, OnboardingQuestion, OnboardingQuestion]
+    | [OnboardingQuestion, OnboardingQuestion, OnboardingQuestion, OnboardingQuestion, OnboardingQuestion];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingQuestion".
+ */
+export interface OnboardingQuestion {
+  title: string;
+  /**
+   * @minItems 1
+   * @maxItems 10
+   */
+  options:
+    | [OnboardingOption]
+    | [OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption]
+    | [OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption, OnboardingOption]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ]
+    | [
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption,
+        OnboardingOption
+      ];
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingOption".
+ */
+export interface OnboardingOption {
+  label: string;
+  role_id: Snowflake | null;
+  channel_id: Snowflake | null;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "OnboardingResponse".
+ */
+export interface OnboardingResponse {
+  config: OnboardingConfig;
+  revision: number;
+}
+/**
  * Op 22 P2P_SIGNAL. Relayed only, never persisted.
  */
 export interface P2pSignalPayload {
@@ -4522,6 +4764,149 @@ export interface SetDeliveryModeRequest {
   mode: DeliveryMode | null;
 }
 /**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "SetMemberVerificationRequest".
+ */
+export interface SetMemberVerificationRequest {
+  enabled: boolean;
+  /**
+   * @maxItems 20
+   */
+  rules:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
+}
+/**
  * SFU control command: close a media session.
  */
 export interface SfuCloseSession {
@@ -5058,4 +5443,87 @@ export interface WebauthnLoginFinishRequest {
  */
 export interface WebauthnLoginStartRequest {
   ticket: string;
+}
+/**
+ * This interface was referenced by `DiscordyContractsRoot`'s JSON-Schema
+ * via the `definition` "WelcomeScreen".
+ */
+export interface WelcomeScreen {
+  enabled: boolean;
+  description: string;
+  /**
+   * @maxItems 5
+   */
+  channels:
+    | []
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ]
+    | [
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        },
+        {
+          channel_id: Snowflake;
+          description: string;
+        }
+      ];
 }

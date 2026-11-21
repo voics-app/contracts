@@ -3922,6 +3922,349 @@
         }
       }
     },
+    "/guilds/{guild_id}/member-verification": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "get": {
+        "operationId": "getMemberVerification",
+        "summary": "Get current rules and the caller's pending status",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Current screening configuration and revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberVerification"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putMemberVerification",
+        "summary": "Replace rules screening configuration (MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetMemberVerificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved configuration with new revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberVerification"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/member-verification/accept": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "post": {
+        "operationId": "acceptMemberVerification",
+        "summary": "Accept the current version of the server rules",
+        "description": "A stale revision returns 409; fetch and display the current rules before retrying.",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "revision"
+                ],
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Accepted."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "description": "The rules changed."
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/onboarding": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "get": {
+        "operationId": "getGuildOnboarding",
+        "summary": "Get onboarding questions and their revision",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Configuration and revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putGuildOnboarding",
+        "summary": "Replace onboarding questions (MANAGE_GUILD; roles also require MANAGE_ROLES)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnboardingConfig"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved configuration and revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/onboarding/complete": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "post": {
+        "operationId": "completeGuildOnboarding",
+        "summary": "Apply one choice per question once, after accepting the rules",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "revision",
+                  "choices"
+                ],
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "choices": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Suggested channel IDs from the selected options.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "channel_ids"
+                  ],
+                  "properties": {
+                    "channel_ids": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Snowflake"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "description": "Configuration changed, an eligible role changed, or onboarding was already completed."
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/welcome-screen": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/guild_id"
+        }
+      ],
+      "get": {
+        "operationId": "getWelcomeScreen",
+        "summary": "Get the welcome screen, filtered to channels the caller can view",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "responses": {
+          "200": {
+            "description": "Welcome screen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelcomeScreen"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putWelcomeScreen",
+        "summary": "Replace the welcome screen (MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WelcomeScreen"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved welcome screen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelcomeScreen"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/vanity-url": {
       "parameters": [
         {
@@ -13214,6 +13557,38 @@
           }
         }
       },
+      "MemberVerification": {
+        "title": "MemberVerification",
+        "type": "object",
+        "required": [
+          "enabled",
+          "rules",
+          "revision",
+          "pending"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "rules": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            }
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pending": {
+            "type": "boolean",
+            "description": "Whether the caller must accept the rules."
+          }
+        }
+      },
       "Message": {
         "title": "Message",
         "description": "A standard-mode message.",
@@ -14713,6 +15088,102 @@
           }
         }
       },
+      "OnboardingConfig": {
+        "title": "OnboardingConfig",
+        "type": "object",
+        "required": [
+          "enabled",
+          "questions"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "questions": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/OnboardingQuestion"
+            }
+          }
+        }
+      },
+      "OnboardingOption": {
+        "title": "OnboardingOption",
+        "type": "object",
+        "required": [
+          "label",
+          "role_id",
+          "channel_id"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "role_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "channel_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "OnboardingQuestion": {
+        "title": "OnboardingQuestion",
+        "type": "object",
+        "required": [
+          "title",
+          "options"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "options": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/OnboardingOption"
+            }
+          }
+        }
+      },
+      "OnboardingResponse": {
+        "title": "OnboardingResponse",
+        "type": "object",
+        "required": [
+          "config",
+          "revision"
+        ],
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/OnboardingConfig"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
       "PartialChannel": {
         "title": "PartialChannel",
         "description": "A minimal channel reference.",
@@ -16119,6 +16590,28 @@
           }
         }
       },
+      "SetMemberVerificationRequest": {
+        "title": "SetMemberVerificationRequest",
+        "type": "object",
+        "required": [
+          "enabled",
+          "rules"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "rules": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            }
+          }
+        }
+      },
       "Snowflake": {
         "title": "Snowflake",
         "description": "A 64-bit Discordy Snowflake ID serialized as a decimal string (42 bits ms since 2026-01-01T00:00:00Z, 10 bits worker, 12 bits sequence).",
@@ -17137,6 +17630,45 @@
           "url": {
             "type": "string",
             "description": "Execution URL returned only by create and reset-token. Treat as a secret."
+          }
+        }
+      },
+      "WelcomeScreen": {
+        "title": "WelcomeScreen",
+        "type": "object",
+        "required": [
+          "enabled",
+          "description",
+          "channels"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "channels": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "type": "object",
+              "required": [
+                "channel_id",
+                "description"
+              ],
+              "properties": {
+                "channel_id": {
+                  "$ref": "#/components/schemas/Snowflake"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                }
+              }
+            }
           }
         }
       }

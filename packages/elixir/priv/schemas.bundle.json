@@ -6047,6 +6047,38 @@
         "maximum": 100
       }
     },
+    "MemberVerification": {
+      "title": "MemberVerification",
+      "type": "object",
+      "required": [
+        "enabled",
+        "rules",
+        "revision",
+        "pending"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "rules": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pending": {
+          "type": "boolean",
+          "description": "Whether the caller must accept the rules."
+        }
+      }
+    },
     "Message": {
       "title": "Message",
       "description": "A standard-mode message.",
@@ -8181,6 +8213,102 @@
             }
           ],
           "description": "Null if the bot is absent; otherwise its current effective permissions. Reauthorization acknowledges these permissions without changing the shared installation."
+        }
+      }
+    },
+    "OnboardingConfig": {
+      "title": "OnboardingConfig",
+      "type": "object",
+      "required": [
+        "enabled",
+        "questions"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "questions": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/$defs/OnboardingQuestion"
+          }
+        }
+      }
+    },
+    "OnboardingOption": {
+      "title": "OnboardingOption",
+      "type": "object",
+      "required": [
+        "label",
+        "role_id",
+        "channel_id"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "role_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "channel_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "OnboardingQuestion": {
+      "title": "OnboardingQuestion",
+      "type": "object",
+      "required": [
+        "title",
+        "options"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/OnboardingOption"
+          }
+        }
+      }
+    },
+    "OnboardingResponse": {
+      "title": "OnboardingResponse",
+      "type": "object",
+      "required": [
+        "config",
+        "revision"
+      ],
+      "properties": {
+        "config": {
+          "$ref": "#/$defs/OnboardingConfig"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -10379,6 +10507,28 @@
             }
           ],
           "description": "Null clears the per-chat override."
+        }
+      }
+    },
+    "SetMemberVerificationRequest": {
+      "title": "SetMemberVerificationRequest",
+      "type": "object",
+      "required": [
+        "enabled",
+        "rules"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "rules": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
         }
       }
     },
@@ -12667,6 +12817,45 @@
         "url": {
           "type": "string",
           "description": "Execution URL returned only by create and reset-token. Treat as a secret."
+        }
+      }
+    },
+    "WelcomeScreen": {
+      "title": "WelcomeScreen",
+      "type": "object",
+      "required": [
+        "enabled",
+        "description",
+        "channels"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "channels": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "required": [
+              "channel_id",
+              "description"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              }
+            }
+          }
         }
       }
     }

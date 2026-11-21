@@ -2304,6 +2304,169 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/member-verification:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    get:
+      operationId: getMemberVerification
+      summary: Get current rules and the caller's pending status
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Current screening configuration and revision.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/member-verification.json
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      operationId: putMemberVerification
+      summary: Replace rules screening configuration (MANAGE_GUILD)
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/member-verification-request.json
+      responses:
+        "200":
+          description: Saved configuration with new revision.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/objects/member-verification.json
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /guilds/{guild_id}/member-verification/accept:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    post:
+      operationId: acceptMemberVerification
+      summary: Accept the current version of the server rules
+      description: A stale revision returns 409; fetch and display the current rules before retrying.
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [revision]
+              properties:
+                revision: { type: integer, minimum: 0 }
+      responses:
+        "204": { description: Accepted. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { description: The rules changed. }
+  /guilds/{guild_id}/onboarding:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    get:
+      operationId: getGuildOnboarding
+      summary: Get onboarding questions and their revision
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Configuration and revision.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/onboarding-response.json }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      operationId: putGuildOnboarding
+      summary: Replace onboarding questions (MANAGE_GUILD; roles also require MANAGE_ROLES)
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: ../schemas/objects/onboarding-config.json }
+      responses:
+        "200":
+          description: Saved configuration and revision.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/onboarding-response.json }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /guilds/{guild_id}/onboarding/complete:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    post:
+      operationId: completeGuildOnboarding
+      summary: Apply one choice per question once, after accepting the rules
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [revision, choices]
+              properties:
+                revision: { type: integer, minimum: 0 }
+                choices: { type: array, maxItems: 5, items: { type: integer, minimum: 0 } }
+      responses:
+        "200":
+          description: Suggested channel IDs from the selected options.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [channel_ids]
+                properties:
+                  channel_ids: { type: array, items: { $ref: ../schemas/objects/snowflake.json } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { description: "Configuration changed, an eligible role changed, or onboarding was already completed." }
+  /guilds/{guild_id}/welcome-screen:
+    parameters:
+      - $ref: "#/components/parameters/guild_id"
+    get:
+      operationId: getWelcomeScreen
+      summary: Get the welcome screen, filtered to channels the caller can view
+      tags: [Guilds]
+      x-discordy-service: api
+      responses:
+        "200":
+          description: Welcome screen.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/welcome-screen.json }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      operationId: putWelcomeScreen
+      summary: Replace the welcome screen (MANAGE_GUILD)
+      tags: [Guilds]
+      x-discordy-service: api
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: ../schemas/objects/welcome-screen.json }
+      responses:
+        "200":
+          description: Saved welcome screen.
+          content:
+            application/json:
+              schema: { $ref: ../schemas/objects/welcome-screen.json }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
   /guilds/{guild_id}/vanity-url:
     parameters:
       - $ref: "#/components/parameters/guild_id"

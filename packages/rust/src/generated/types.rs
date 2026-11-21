@@ -4994,6 +4994,68 @@ impl ::std::convert::From<::std::collections::HashMap<::std::string::String, i64
         Self(value)
     }
 }
+///`MemberVerification`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct MemberVerification {
+    pub enabled: bool,
+    ///Whether the caller must accept the rules.
+    pub pending: bool,
+    pub revision: u64,
+    pub rules: ::std::vec::Vec<MemberVerificationRulesItem>,
+}
+///`MemberVerificationRulesItem`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct MemberVerificationRulesItem(::std::string::String);
+impl ::std::ops::Deref for MemberVerificationRulesItem {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<MemberVerificationRulesItem> for ::std::string::String {
+    fn from(value: MemberVerificationRulesItem) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for MemberVerificationRulesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for MemberVerificationRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for MemberVerificationRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for MemberVerificationRulesItem {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///A standard-mode message.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct Message {
@@ -7052,6 +7114,139 @@ pub struct OAuth2Guild {
     pub installation_revision: BotInstallationRevision,
     pub name: ::std::string::String,
     pub permissions: PermissionBitset,
+}
+///`OnboardingConfig`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingConfig {
+    pub enabled: bool,
+    pub questions: ::std::vec::Vec<OnboardingQuestion>,
+}
+///`OnboardingOption`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingOption {
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub channel_id: ::std::option::Option<Snowflake>,
+    pub label: OnboardingOptionLabel,
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub role_id: ::std::option::Option<Snowflake>,
+}
+///`OnboardingOptionLabel`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct OnboardingOptionLabel(::std::string::String);
+impl ::std::ops::Deref for OnboardingOptionLabel {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<OnboardingOptionLabel> for ::std::string::String {
+    fn from(value: OnboardingOptionLabel) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for OnboardingOptionLabel {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for OnboardingOptionLabel {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for OnboardingOptionLabel {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for OnboardingOptionLabel {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`OnboardingQuestion`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingQuestion {
+    pub options: ::std::vec::Vec<OnboardingOption>,
+    pub title: OnboardingQuestionTitle,
+}
+///`OnboardingQuestionTitle`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct OnboardingQuestionTitle(::std::string::String);
+impl ::std::ops::Deref for OnboardingQuestionTitle {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<OnboardingQuestionTitle> for ::std::string::String {
+    fn from(value: OnboardingQuestionTitle) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for OnboardingQuestionTitle {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for OnboardingQuestionTitle {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for OnboardingQuestionTitle {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for OnboardingQuestionTitle {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`OnboardingResponse`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OnboardingResponse {
+    pub config: OnboardingConfig,
+    pub revision: u64,
 }
 ///Op 22 P2P_SIGNAL. Relayed only, never persisted.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
@@ -9939,6 +10134,65 @@ pub struct SetDeliveryModeRequest {
     #[serde(deserialize_with = "::std::option::Option::deserialize")]
     pub mode: ::std::option::Option<DeliveryMode>,
 }
+///`SetMemberVerificationRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SetMemberVerificationRequest {
+    pub enabled: bool,
+    pub rules: ::std::vec::Vec<SetMemberVerificationRequestRulesItem>,
+}
+///`SetMemberVerificationRequestRulesItem`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct SetMemberVerificationRequestRulesItem(::std::string::String);
+impl ::std::ops::Deref for SetMemberVerificationRequestRulesItem {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<SetMemberVerificationRequestRulesItem> for ::std::string::String {
+    fn from(value: SetMemberVerificationRequestRulesItem) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for SetMemberVerificationRequestRulesItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for SetMemberVerificationRequestRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for SetMemberVerificationRequestRulesItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for SetMemberVerificationRequestRulesItem {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 ///SFU control command: close a media session.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
 pub struct SfuCloseSession {
@@ -12663,6 +12917,122 @@ pub struct Webhook {
     pub url: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub user: ::std::option::Option<User>,
+}
+///`WelcomeScreen`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WelcomeScreen {
+    pub channels: ::std::vec::Vec<WelcomeScreenChannelsItem>,
+    pub description: WelcomeScreenDescription,
+    pub enabled: bool,
+}
+///`WelcomeScreenChannelsItem`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, PartialEq)]
+pub struct WelcomeScreenChannelsItem {
+    pub channel_id: Snowflake,
+    pub description: WelcomeScreenChannelsItemDescription,
+}
+///`WelcomeScreenChannelsItemDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WelcomeScreenChannelsItemDescription(::std::string::String);
+impl ::std::ops::Deref for WelcomeScreenChannelsItemDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WelcomeScreenChannelsItemDescription> for ::std::string::String {
+    fn from(value: WelcomeScreenChannelsItemDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WelcomeScreenChannelsItemDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 100usize {
+            return Err("longer than 100 characters".into());
+        }
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WelcomeScreenChannelsItemDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WelcomeScreenChannelsItemDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WelcomeScreenChannelsItemDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+///`WelcomeScreenDescription`
+#[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct WelcomeScreenDescription(::std::string::String);
+impl ::std::ops::Deref for WelcomeScreenDescription {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<WelcomeScreenDescription> for ::std::string::String {
+    fn from(value: WelcomeScreenDescription) -> Self {
+        value.0
+    }
+}
+impl ::std::str::FromStr for WelcomeScreenDescription {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 300usize {
+            return Err("longer than 300 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for WelcomeScreenDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WelcomeScreenDescription {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for WelcomeScreenDescription {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
 }
 /// Generation of default values for serde.
 pub mod defaults {
