@@ -11,6 +11,8 @@ use crate::types::*;
 pub enum DispatchEvent {
     #[serde(rename = "READY")]
     Ready(ReadyEvent),
+    #[serde(rename = "PASSIVE_UPDATE_V2")]
+    PassiveUpdateV2(PassiveUpdateV2Event),
     #[serde(rename = "RESUMED")]
     Resumed(Option<serde_json::Value>),
     #[serde(rename = "PRESENCE_UPDATE")]
@@ -31,6 +33,16 @@ pub enum DispatchEvent {
     GuildMembersChunk(GuildMembersChunkEvent),
     #[serde(rename = "GUILD_CREATE")]
     GuildCreate(GuildFull),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_CREATE")]
+    GuildScheduledEventCreate(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_UPDATE")]
+    GuildScheduledEventUpdate(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_DELETE")]
+    GuildScheduledEventDelete(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_USER_ADD")]
+    GuildScheduledEventUserAdd(GuildScheduledEventUser),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_USER_REMOVE")]
+    GuildScheduledEventUserRemove(GuildScheduledEventUser),
     #[serde(rename = "GUILD_UPDATE")]
     GuildUpdate(Guild),
     #[serde(rename = "GUILD_DELETE")]
@@ -107,6 +119,8 @@ pub enum DispatchEvent {
     ReadStateSync(ReadStateSyncEvent),
     #[serde(rename = "USER_UPDATE")]
     UserUpdate(User),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_START")]
+    GuildScheduledEventStart(GuildScheduledEventStart),
     #[serde(rename = "USER_SETTINGS_UPDATE")]
     UserSettingsUpdate(UserSettings),
     #[serde(rename = "USER_GUILD_SETTINGS_UPDATE")]
@@ -134,6 +148,7 @@ impl DispatchEvent {
     pub fn name(&self) -> &'static str {
         match self {
             Self::Ready(_) => "READY",
+            Self::PassiveUpdateV2(_) => "PASSIVE_UPDATE_V2",
             Self::Resumed(_) => "RESUMED",
             Self::PresenceUpdate(_) => "PRESENCE_UPDATE",
             Self::TypingStart(_) => "TYPING_START",
@@ -144,6 +159,11 @@ impl DispatchEvent {
             Self::CallDelete(_) => "CALL_DELETE",
             Self::GuildMembersChunk(_) => "GUILD_MEMBERS_CHUNK",
             Self::GuildCreate(_) => "GUILD_CREATE",
+            Self::GuildScheduledEventCreate(_) => "GUILD_SCHEDULED_EVENT_CREATE",
+            Self::GuildScheduledEventUpdate(_) => "GUILD_SCHEDULED_EVENT_UPDATE",
+            Self::GuildScheduledEventDelete(_) => "GUILD_SCHEDULED_EVENT_DELETE",
+            Self::GuildScheduledEventUserAdd(_) => "GUILD_SCHEDULED_EVENT_USER_ADD",
+            Self::GuildScheduledEventUserRemove(_) => "GUILD_SCHEDULED_EVENT_USER_REMOVE",
             Self::GuildUpdate(_) => "GUILD_UPDATE",
             Self::GuildDelete(_) => "GUILD_DELETE",
             Self::ChannelCreate(_) => "CHANNEL_CREATE",
@@ -184,6 +204,7 @@ impl DispatchEvent {
             Self::ReadStateUpdate(_) => "READ_STATE_UPDATE",
             Self::ReadStateSync(_) => "READ_STATE_SYNC",
             Self::UserUpdate(_) => "USER_UPDATE",
+            Self::GuildScheduledEventStart(_) => "GUILD_SCHEDULED_EVENT_START",
             Self::UserSettingsUpdate(_) => "USER_SETTINGS_UPDATE",
             Self::UserGuildSettingsUpdate(_) => "USER_GUILD_SETTINGS_UPDATE",
             Self::UserNoteUpdate(_) => "USER_NOTE_UPDATE",
@@ -207,6 +228,16 @@ pub enum BusEvent {
     TypingStart(TypingStartEvent),
     #[serde(rename = "GUILD_CREATE")]
     GuildCreate(GuildFull),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_CREATE")]
+    GuildScheduledEventCreate(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_UPDATE")]
+    GuildScheduledEventUpdate(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_DELETE")]
+    GuildScheduledEventDelete(GuildScheduledEvent),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_USER_ADD")]
+    GuildScheduledEventUserAdd(GuildScheduledEventUser),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_USER_REMOVE")]
+    GuildScheduledEventUserRemove(GuildScheduledEventUser),
     #[serde(rename = "GUILD_UPDATE")]
     GuildUpdate(Guild),
     #[serde(rename = "GUILD_DELETE")]
@@ -281,6 +312,8 @@ pub enum BusEvent {
     ReadStateUpdate(ReadStateUpdateEvent),
     #[serde(rename = "USER_UPDATE")]
     UserUpdate(User),
+    #[serde(rename = "GUILD_SCHEDULED_EVENT_START")]
+    GuildScheduledEventStart(GuildScheduledEventStart),
     #[serde(rename = "USER_SETTINGS_UPDATE")]
     UserSettingsUpdate(UserSettings),
     #[serde(rename = "USER_GUILD_SETTINGS_UPDATE")]
@@ -319,6 +352,11 @@ impl BusEvent {
         match self {
             Self::TypingStart(_) => "TYPING_START",
             Self::GuildCreate(_) => "GUILD_CREATE",
+            Self::GuildScheduledEventCreate(_) => "GUILD_SCHEDULED_EVENT_CREATE",
+            Self::GuildScheduledEventUpdate(_) => "GUILD_SCHEDULED_EVENT_UPDATE",
+            Self::GuildScheduledEventDelete(_) => "GUILD_SCHEDULED_EVENT_DELETE",
+            Self::GuildScheduledEventUserAdd(_) => "GUILD_SCHEDULED_EVENT_USER_ADD",
+            Self::GuildScheduledEventUserRemove(_) => "GUILD_SCHEDULED_EVENT_USER_REMOVE",
             Self::GuildUpdate(_) => "GUILD_UPDATE",
             Self::GuildDelete(_) => "GUILD_DELETE",
             Self::ChannelCreate(_) => "CHANNEL_CREATE",
@@ -358,6 +396,7 @@ impl BusEvent {
             Self::MessageAck(_) => "MESSAGE_ACK",
             Self::ReadStateUpdate(_) => "READ_STATE_UPDATE",
             Self::UserUpdate(_) => "USER_UPDATE",
+            Self::GuildScheduledEventStart(_) => "GUILD_SCHEDULED_EVENT_START",
             Self::UserSettingsUpdate(_) => "USER_SETTINGS_UPDATE",
             Self::UserGuildSettingsUpdate(_) => "USER_GUILD_SETTINGS_UPDATE",
             Self::UserNoteUpdate(_) => "USER_NOTE_UPDATE",

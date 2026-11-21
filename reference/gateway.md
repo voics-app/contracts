@@ -41,6 +41,7 @@ Every gateway frame (both directions). `s` and `t` are only set on DISPATCH (op 
 | 24 | `WATCH_TOGETHER` | both | `WatchTogetherPayload` | Watch Together playback synchronisation. |
 | 25 | `CALL_DECLINE` | send | `CallDeclinePayload` | Declines the DM call ringing in a channel. The caller's call stops ringing for this user. |
 | 26 | `CALL_RING` | send | `CallRingPayload` | Rings 1 to 10 members of a DM channel for a call the sender is in. |
+| 27 | `SESSION_MODE` | send | `SessionModePayload` | Switch the session between passive and active; activation requests a full refresh. |
 
 ## Opcode payloads
 
@@ -61,6 +62,7 @@ Op 2 IDENTIFY.
 | `intents` | `integer` | Intent bitfield (intents.json). User sessions implicitly get all intents. |
 | `properties` | `IdentifyProperties` |  |
 | `presence?` | `PresenceUpdatePayload` |  |
+| `passive?` | `boolean` | Opt into passive updates. Omitted means active. Requires certified versioned read states; otherwise identification closes with retryable 4000. A session that has used passive mode cannot resume and must identify again. |
 
 ### PresenceUpdatePayload
 
@@ -201,6 +203,14 @@ Op 26 CALL_RING. Rings the listed members of a DM channel for a call the sender 
 | `channel_id` | `Snowflake` |  |
 | `user_ids` | `array of Snowflake` | Users to ring, 1 to 10. |
 
+### SessionModePayload
+
+Op 27 SESSION_MODE. Switching to passive requires certified read states. Switching active fetches read states and refreshes guild snapshots before that guild resumes full dispatch.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `passive` | `boolean` |  |
+
 ## Close codes
 
 | Code | Name | Description | Reconnect |
@@ -239,15 +249,17 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | 1 << 12 | 4096 | `DIRECT_MESSAGES` | no | MESSAGE_CREATE, MESSAGE_UPDATE, MESSAGE_DELETE, CHANNEL_PINS_UPDATE |
 | 1 << 13 | 8192 | `DIRECT_MESSAGE_REACTIONS` | no | MESSAGE_REACTION_ADD, MESSAGE_REACTION_REMOVE, MESSAGE_REACTION_REMOVE_ALL |
 | 1 << 14 | 16384 | `DIRECT_MESSAGE_TYPING` | no | TYPING_START |
+| 1 << 15 | 32768 | `MESSAGE_CONTENT` | yes | — |
+| 1 << 16 | 65536 | `GUILD_SCHEDULED_EVENTS` | no | GUILD_SCHEDULED_EVENT_CREATE, GUILD_SCHEDULED_EVENT_UPDATE, GUILD_SCHEDULED_EVENT_DELETE, GUILD_SCHEDULED_EVENT_USER_ADD, GUILD_SCHEDULED_EVENT_USER_REMOVE |
 | 1 << 24 | 16777216 | `GUILD_MESSAGE_POLLS` | no | MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE |
 | 1 << 25 | 33554432 | `DIRECT_MESSAGE_POLLS` | no | MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE |
-| 1 << 15 | 32768 | `MESSAGE_CONTENT` | yes | — |
 
 ## Dispatch events
 
 | Event (`t`) | Payload (`d`) | Source | Topic | Description |
 | --- | --- | --- | --- | --- |
 | `READY` | `ReadyEvent` | gateway | — | Initial state after IDENTIFY. |
+| `PASSIVE_UPDATE_V2` | `PassiveUpdateV2Event` | gateway | — | Coalesced passive session changes. |
 | `RESUMED` | `null` | gateway | — | Replay after RESUME has finished. `d` is null. |
 | `PRESENCE_UPDATE` | `PresenceUpdateEvent` | gateway | — | A user's presence changed. |
 | `TYPING_START` | `TypingStartEvent` | api | `discordy.message.v1` | A user started typing. |
@@ -258,6 +270,11 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `CALL_DELETE` | `CallDeleteEvent` | gateway | — | The last participant left the DM call. |
 | `GUILD_MEMBERS_CHUNK` | `GuildMembersChunkEvent` | gateway | — | Response to REQUEST_GUILD_MEMBERS. |
 | `GUILD_CREATE` | `GuildFull` | api | `discordy.guild.v1` | A guild became available or the user joined one. |
+| `GUILD_SCHEDULED_EVENT_CREATE` | `GuildScheduledEvent` | api | `discordy.guild.v1` | A guild event was created. |
+| `GUILD_SCHEDULED_EVENT_UPDATE` | `GuildScheduledEvent` | api | `discordy.guild.v1` | A guild event changed. |
+| `GUILD_SCHEDULED_EVENT_DELETE` | `GuildScheduledEvent` | api | `discordy.guild.v1` | A guild event was deleted. |
+| `GUILD_SCHEDULED_EVENT_USER_ADD` | `GuildScheduledEventUser` | api | `discordy.guild.v1` | A member became interested in an event. |
+| `GUILD_SCHEDULED_EVENT_USER_REMOVE` | `GuildScheduledEventUser` | api | `discordy.guild.v1` | A member removed their interest in an event. |
 | `GUILD_UPDATE` | `Guild` | api | `discordy.guild.v1` | A guild was updated. |
 | `GUILD_DELETE` | `UnavailableGuild` | api | `discordy.guild.v1` | A guild became unavailable or the user left it. |
 | `CHANNEL_CREATE` | `Channel` | api | `discordy.guild.v1` | A channel was created. DM channels are published on discordy.user.v1 with target_user_ids. |
@@ -296,6 +313,7 @@ Discord bit values. User sessions implicitly receive every intent; privileged in
 | `READ_STATE_UPDATE` | `ReadStateUpdateEvent` | messages | `discordy.message.v1` | Complete versioned read-state snapshot targeted to the owning user's sessions; compare channel versions, never increment from this event. |
 | `READ_STATE_SYNC` | `ReadStateSyncEvent` | gateway | — | Fresh certified read-state snapshots after resume replay and before RESUMED; merge by version to recover lost publication. |
 | `USER_UPDATE` | `User` | api | `discordy.user.v1` | The current user was updated. |
+| `GUILD_SCHEDULED_EVENT_START` | `GuildScheduledEventStart` | api | `discordy.user.v1` | A scheduled event start reminder targeted to one interested user; recheck access before showing details. |
 | `USER_SETTINGS_UPDATE` | `UserSettings` | api | `discordy.user.v1` | The current user's settings changed. |
 | `USER_GUILD_SETTINGS_UPDATE` | `GuildNotificationSettings` | api | `discordy.user.v1` | The current user's notification settings for a guild or their DMs changed (sent to that user only). |
 | `USER_NOTE_UPDATE` | `UserNoteUpdateEvent` | api | `discordy.user.v1` | The current user's private note about a user changed (sent to the author only). |
@@ -328,6 +346,16 @@ READY: the internal ready state plus session details.
 | `application?` | `ReadyApplication` |  |
 | `read_state?` | `array of ReadState` |  |
 | `read_state_versioned?` | `true` | Present only after successful certified messages hydration. Standard counts use authoritative snapshots rather than CREATE increments; private decrypted traffic stays local. Absent means legacy behavior. |
+
+### PassiveUpdateV2Event
+
+At most one coalesced update every five seconds when values changed; absent fields are unchanged. Unread is the existing count of unread channels, derived by clients from channel latest-message and read markers, not a message count. Guild channels and voice updates are filtered by current view permissions.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `channels?` | `array of object` |  |
+| `read_states?` | `array of ReadStateUpdateEvent` |  |
+| `voice_states?` | `array of VoiceState` |  |
 
 ### PresenceUpdateEvent
 
@@ -387,6 +415,16 @@ GUILD_MEMBERS_CHUNK dispatch.
 | `not_found?` | `array of Snowflake` |  |
 | `presences?` | `array of PresenceUpdateEvent` |  |
 | `nonce?` | `string` |  |
+
+### GuildScheduledEventUser
+
+A user's interest in a guild event changed.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `guild_scheduled_event_id` | `Snowflake` |  |
+| `user_id` | `Snowflake` |  |
+| `guild_id` | `Snowflake` |  |
 
 ### GuildRoleEvent
 
@@ -666,6 +704,18 @@ Certified snapshot fetched during resume, after subscription and before RESUMED.
 | --- | --- | --- |
 | `read_state_versioned` | `true` |  |
 | `read_state` | `array of any` |  |
+
+### GuildScheduledEventStart
+
+User-targeted reminder. Resolve the event and current interest again before presenting details; access may have changed after enqueue.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `guild_id` | `Snowflake` |  |
+| `guild_scheduled_event_id` | `Snowflake` |  |
+| `scheduled_start_time` | `string (date-time)` |  |
+| `revision` | `integer` |  |
+| `dedupe_key` | `string` |  |
 
 ### UserNoteUpdateEvent
 

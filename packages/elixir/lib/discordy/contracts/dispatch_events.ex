@@ -7,6 +7,9 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec ready() :: String.t()
   def ready, do: "READY"
 
+  @spec passive_update_v2() :: String.t()
+  def passive_update_v2, do: "PASSIVE_UPDATE_V2"
+
   @spec resumed() :: String.t()
   def resumed, do: "RESUMED"
 
@@ -36,6 +39,21 @@ defmodule Discordy.Contracts.DispatchEvents do
 
   @spec guild_create() :: String.t()
   def guild_create, do: "GUILD_CREATE"
+
+  @spec guild_scheduled_event_create() :: String.t()
+  def guild_scheduled_event_create, do: "GUILD_SCHEDULED_EVENT_CREATE"
+
+  @spec guild_scheduled_event_update() :: String.t()
+  def guild_scheduled_event_update, do: "GUILD_SCHEDULED_EVENT_UPDATE"
+
+  @spec guild_scheduled_event_delete() :: String.t()
+  def guild_scheduled_event_delete, do: "GUILD_SCHEDULED_EVENT_DELETE"
+
+  @spec guild_scheduled_event_user_add() :: String.t()
+  def guild_scheduled_event_user_add, do: "GUILD_SCHEDULED_EVENT_USER_ADD"
+
+  @spec guild_scheduled_event_user_remove() :: String.t()
+  def guild_scheduled_event_user_remove, do: "GUILD_SCHEDULED_EVENT_USER_REMOVE"
 
   @spec guild_update() :: String.t()
   def guild_update, do: "GUILD_UPDATE"
@@ -151,6 +169,9 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec user_update() :: String.t()
   def user_update, do: "USER_UPDATE"
 
+  @spec guild_scheduled_event_start() :: String.t()
+  def guild_scheduled_event_start, do: "GUILD_SCHEDULED_EVENT_START"
+
   @spec user_settings_update() :: String.t()
   def user_settings_update, do: "USER_SETTINGS_UPDATE"
 
@@ -186,6 +207,7 @@ defmodule Discordy.Contracts.DispatchEvents do
   def entries do
     %{
       ready: "READY",
+      passive_update_v2: "PASSIVE_UPDATE_V2",
       resumed: "RESUMED",
       presence_update: "PRESENCE_UPDATE",
       typing_start: "TYPING_START",
@@ -196,6 +218,11 @@ defmodule Discordy.Contracts.DispatchEvents do
       call_delete: "CALL_DELETE",
       guild_members_chunk: "GUILD_MEMBERS_CHUNK",
       guild_create: "GUILD_CREATE",
+      guild_scheduled_event_create: "GUILD_SCHEDULED_EVENT_CREATE",
+      guild_scheduled_event_update: "GUILD_SCHEDULED_EVENT_UPDATE",
+      guild_scheduled_event_delete: "GUILD_SCHEDULED_EVENT_DELETE",
+      guild_scheduled_event_user_add: "GUILD_SCHEDULED_EVENT_USER_ADD",
+      guild_scheduled_event_user_remove: "GUILD_SCHEDULED_EVENT_USER_REMOVE",
       guild_update: "GUILD_UPDATE",
       guild_delete: "GUILD_DELETE",
       channel_create: "CHANNEL_CREATE",
@@ -234,6 +261,7 @@ defmodule Discordy.Contracts.DispatchEvents do
       read_state_update: "READ_STATE_UPDATE",
       read_state_sync: "READ_STATE_SYNC",
       user_update: "USER_UPDATE",
+      guild_scheduled_event_start: "GUILD_SCHEDULED_EVENT_START",
       user_settings_update: "USER_SETTINGS_UPDATE",
       user_guild_settings_update: "USER_GUILD_SETTINGS_UPDATE",
       user_note_update: "USER_NOTE_UPDATE",

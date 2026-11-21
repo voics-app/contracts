@@ -150,12 +150,14 @@ export const Intents = {
   DIRECT_MESSAGE_REACTIONS: 1 << 13,
   /** Events: TYPING_START. */
   DIRECT_MESSAGE_TYPING: 1 << 14,
+  /** Privileged. Events: none (gates data, not events). */
+  MESSAGE_CONTENT: 1 << 15,
+  /** Events: GUILD_SCHEDULED_EVENT_CREATE, GUILD_SCHEDULED_EVENT_UPDATE, GUILD_SCHEDULED_EVENT_DELETE, GUILD_SCHEDULED_EVENT_USER_ADD, GUILD_SCHEDULED_EVENT_USER_REMOVE. */
+  GUILD_SCHEDULED_EVENTS: 1 << 16,
   /** Events: MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE. */
   GUILD_MESSAGE_POLLS: 1 << 24,
   /** Events: MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE. */
   DIRECT_MESSAGE_POLLS: 1 << 25,
-  /** Privileged. Events: none (gates data, not events). */
-  MESSAGE_CONTENT: 1 << 15,
 } as const;
 export type IntentsKey = keyof typeof Intents;
 
@@ -164,7 +166,7 @@ export const IntentSets = {
   /** Intents that require approval for bots. */
   PRIVILEGED: 33026,
   /** Every known intent (implicit for user sessions). */
-  ALL: 50397183,
+  ALL: 50462719,
 } as const;
 export type IntentSetsKey = keyof typeof IntentSets;
 
@@ -206,6 +208,8 @@ export const GatewayOpcodes = {
   CALL_DECLINE: 25,
   /** Rings 1 to 10 members of a DM channel for a call the sender is in. */
   CALL_RING: 26,
+  /** Switch the session between passive and active; activation requests a full refresh. */
+  SESSION_MODE: 27,
 } as const;
 export type GatewayOpcodesKey = keyof typeof GatewayOpcodes;
 
@@ -241,6 +245,7 @@ export type GatewayCloseCodesKey = keyof typeof GatewayCloseCodes;
 /** Gateway dispatch event names (`t`). */
 export const DispatchEvents = {
   READY: "READY",
+  PASSIVE_UPDATE_V2: "PASSIVE_UPDATE_V2",
   RESUMED: "RESUMED",
   PRESENCE_UPDATE: "PRESENCE_UPDATE",
   TYPING_START: "TYPING_START",
@@ -251,6 +256,11 @@ export const DispatchEvents = {
   CALL_DELETE: "CALL_DELETE",
   GUILD_MEMBERS_CHUNK: "GUILD_MEMBERS_CHUNK",
   GUILD_CREATE: "GUILD_CREATE",
+  GUILD_SCHEDULED_EVENT_CREATE: "GUILD_SCHEDULED_EVENT_CREATE",
+  GUILD_SCHEDULED_EVENT_UPDATE: "GUILD_SCHEDULED_EVENT_UPDATE",
+  GUILD_SCHEDULED_EVENT_DELETE: "GUILD_SCHEDULED_EVENT_DELETE",
+  GUILD_SCHEDULED_EVENT_USER_ADD: "GUILD_SCHEDULED_EVENT_USER_ADD",
+  GUILD_SCHEDULED_EVENT_USER_REMOVE: "GUILD_SCHEDULED_EVENT_USER_REMOVE",
   GUILD_UPDATE: "GUILD_UPDATE",
   GUILD_DELETE: "GUILD_DELETE",
   CHANNEL_CREATE: "CHANNEL_CREATE",
@@ -289,6 +299,7 @@ export const DispatchEvents = {
   READ_STATE_UPDATE: "READ_STATE_UPDATE",
   READ_STATE_SYNC: "READ_STATE_SYNC",
   USER_UPDATE: "USER_UPDATE",
+  GUILD_SCHEDULED_EVENT_START: "GUILD_SCHEDULED_EVENT_START",
   USER_SETTINGS_UPDATE: "USER_SETTINGS_UPDATE",
   USER_GUILD_SETTINGS_UPDATE: "USER_GUILD_SETTINGS_UPDATE",
   USER_NOTE_UPDATE: "USER_NOTE_UPDATE",
@@ -416,6 +427,11 @@ export type TopicsKey = keyof typeof Topics;
 export const EventTopics = {
   TYPING_START: "discordy.message.v1",
   GUILD_CREATE: "discordy.guild.v1",
+  GUILD_SCHEDULED_EVENT_CREATE: "discordy.guild.v1",
+  GUILD_SCHEDULED_EVENT_UPDATE: "discordy.guild.v1",
+  GUILD_SCHEDULED_EVENT_DELETE: "discordy.guild.v1",
+  GUILD_SCHEDULED_EVENT_USER_ADD: "discordy.guild.v1",
+  GUILD_SCHEDULED_EVENT_USER_REMOVE: "discordy.guild.v1",
   GUILD_UPDATE: "discordy.guild.v1",
   GUILD_DELETE: "discordy.guild.v1",
   CHANNEL_CREATE: "discordy.guild.v1",
@@ -453,6 +469,7 @@ export const EventTopics = {
   MESSAGE_ACK: "discordy.message.v1",
   READ_STATE_UPDATE: "discordy.message.v1",
   USER_UPDATE: "discordy.user.v1",
+  GUILD_SCHEDULED_EVENT_START: "discordy.user.v1",
   USER_SETTINGS_UPDATE: "discordy.user.v1",
   USER_GUILD_SETTINGS_UPDATE: "discordy.user.v1",
   USER_NOTE_UPDATE: "discordy.user.v1",
@@ -563,6 +580,8 @@ export type MessageTypeKey = keyof typeof MessageType;
 
 /** Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording. */
 export const MessageFlags = {
+  CROSSPOSTED: 1,
+  IS_CROSSPOST: 2,
   SUPPRESS_EMBEDS: 4,
   SUPPRESS_NOTIFICATIONS: 4096,
   EPHEMERAL: 64,

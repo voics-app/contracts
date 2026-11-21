@@ -1659,6 +1659,44 @@
             "null"
           ],
           "description": "Discordy: per-channel voice region override; null uses the guild's voice_region."
+        },
+        "require_tags": {
+          "type": "boolean",
+          "description": "Forum posts must have at least one available tag."
+        },
+        "forum_post_status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "dispatching",
+            "publishing",
+            "published",
+            "failed"
+          ],
+          "description": "Forum post creation status. Non-published posts are returned only to the author on a matching retry."
+        },
+        "forum_first_message": {
+          "type": "object",
+          "description": "First stored message preview for a Standard forum post.",
+          "required": [
+            "id",
+            "content",
+            "attachments"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/Snowflake"
+            },
+            "content": {
+              "type": "string"
+            },
+            "attachments": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Attachment"
+              }
+            }
+          }
         }
       }
     },
@@ -2164,6 +2202,122 @@
         }
       }
     },
+    "CreateGuildScheduledEventRequest": {
+      "title": "CreateGuildScheduledEventRequest",
+      "description": "Create a voice, stage or external guild event. External events require metadata.location and an end time; voice and stage events require a matching guild channel.",
+      "type": "object",
+      "required": [
+        "name",
+        "entity_type",
+        "scheduled_start_time"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "\\S"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "entity_type": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "channel_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entity_metadata": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ScheduledEventMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scheduled_start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scheduled_end_time": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "image": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Image data URI, subject to the standard image upload limits."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": 3
+              }
+            },
+            "required": [
+              "entity_type"
+            ]
+          },
+          "then": {
+            "required": [
+              "scheduled_end_time",
+              "entity_metadata"
+            ],
+            "properties": {
+              "scheduled_end_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "entity_metadata": {
+                "$ref": "#/$defs/ScheduledEventMetadata"
+              },
+              "channel_id": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "required": [
+              "channel_id"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "entity_metadata": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
     "CreateGuildTemplateRequest": {
       "title": "CreateGuildTemplateRequest",
       "description": "POST /guilds/{guild_id}/templates body. A guild has at most one template.",
@@ -2428,7 +2582,7 @@
     },
     "CreateThreadRequest": {
       "title": "CreateThreadRequest",
-      "description": "POST /channels/{id}/threads body. Forum channels require `message`.",
+      "description": "POST /channels/{id}/threads. Standard forum posts require a request_id and a text-only first message; retry the same UUID and body to reconcile.",
       "type": "object",
       "required": [
         "name"
@@ -2467,7 +2621,23 @@
           }
         },
         "message": {
-          "$ref": "#/$defs/CreateMessageRequest"
+          "type": "object",
+          "required": [
+            "content"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          }
+        },
+        "request_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Required for forum posts, scoped to the author and forum."
         }
       }
     },
@@ -4872,6 +5042,167 @@
         }
       }
     },
+    "GuildScheduledEvent": {
+      "title": "GuildScheduledEvent",
+      "description": "A guild event. Entity types are 1 (stage), 2 (voice), and 3 (external); statuses are 1 (scheduled), 2 (active), 3 (completed), and 4 (canceled).",
+      "type": "object",
+      "required": [
+        "id",
+        "guild_id",
+        "channel_id",
+        "creator_id",
+        "name",
+        "description",
+        "scheduled_start_time",
+        "scheduled_end_time",
+        "status",
+        "entity_type",
+        "entity_metadata",
+        "image",
+        "user_count"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "channel_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "creator_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "scheduled_start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scheduled_end_time": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "status": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "entity_type": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "entity_metadata": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ScheduledEventMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "image": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "user_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "GuildScheduledEventStart": {
+      "title": "GuildScheduledEventStart",
+      "description": "User-targeted reminder. Resolve the event and current interest again before presenting details; access may have changed after enqueue.",
+      "type": "object",
+      "required": [
+        "guild_id",
+        "guild_scheduled_event_id",
+        "scheduled_start_time",
+        "revision",
+        "dedupe_key"
+      ],
+      "properties": {
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "guild_scheduled_event_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "scheduled_start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dedupe_key": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "GuildScheduledEventUser": {
+      "title": "GuildScheduledEventUser",
+      "description": "A user's interest in a guild event changed.",
+      "type": "object",
+      "required": [
+        "guild_scheduled_event_id",
+        "user_id",
+        "guild_id"
+      ],
+      "properties": {
+        "guild_scheduled_event_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "user_id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "guild_id": {
+          "$ref": "#/$defs/Snowflake"
+        }
+      }
+    },
     "GuildTemplate": {
       "title": "GuildTemplate",
       "description": "A server template: a shareable snapshot of a guild's roles and channels (Discord guild template). Built-in templates have a `code` starting with `builtin-`, no creator and a null `source_guild_id`.",
@@ -5132,6 +5463,11 @@
         },
         "presence": {
           "$ref": "#/$defs/PresenceUpdatePayload"
+        },
+        "passive": {
+          "type": "boolean",
+          "default": false,
+          "description": "Opt into passive updates. Omitted means active. Requires certified versioned read states; otherwise identification closes with retryable 4000. A session that has used passive mode cannot resume and must identify again."
         }
       }
     },
@@ -5790,6 +6126,38 @@
         "type": "integer",
         "minimum": 0,
         "maximum": 100
+      }
+    },
+    "MemberVerification": {
+      "title": "MemberVerification",
+      "type": "object",
+      "required": [
+        "enabled",
+        "rules",
+        "revision",
+        "pending"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "rules": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pending": {
+          "type": "boolean",
+          "description": "Whether the caller must accept the rules."
+        }
       }
     },
     "Message": {
@@ -6869,6 +7237,88 @@
             "string",
             "null"
           ]
+        },
+        "available_tags": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20
+              },
+              "moderated": {
+                "type": "boolean"
+              },
+              "emoji_id": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/Snowflake"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "emoji_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "applied_tags": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/$defs/Snowflake"
+          }
+        },
+        "default_sort_order": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "enum": [
+            0,
+            1,
+            null
+          ]
+        },
+        "default_forum_layout": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "default_reaction_emoji": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DefaultReaction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "require_tags": {
+          "type": "boolean"
+        },
+        "flags": {
+          "type": "integer",
+          "description": "Forum post flags; bit 1 pins a post and requires MANAGE_THREADS."
         }
       }
     },
@@ -7225,6 +7675,165 @@
           "description": "Discordy: restrict member pruning to administrators. Needs MANAGE_GUILD."
         }
       }
+    },
+    "ModifyGuildScheduledEventRequest": {
+      "title": "ModifyGuildScheduledEventRequest",
+      "description": "Update an event. Omitted properties are unchanged; null clears nullable properties. Changing type or location requires entity_type and its complete matching channel or external metadata.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "\\S"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "entity_type": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "channel_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entity_metadata": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ScheduledEventMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scheduled_start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scheduled_end_time": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "image": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "channel_id": {}
+                },
+                "required": [
+                  "channel_id"
+                ]
+              },
+              {
+                "properties": {
+                  "entity_metadata": {}
+                },
+                "required": [
+                  "entity_metadata"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "entity_type": {}
+            },
+            "required": [
+              "entity_type"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "enum": [
+                  1,
+                  2
+                ]
+              }
+            },
+            "required": [
+              "entity_type"
+            ]
+          },
+          "then": {
+            "required": [
+              "channel_id"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "entity_metadata": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": 3
+              }
+            },
+            "required": [
+              "entity_type"
+            ]
+          },
+          "then": {
+            "required": [
+              "entity_metadata"
+            ],
+            "properties": {
+              "channel_id": {
+                "type": "null"
+              },
+              "entity_metadata": {
+                "$ref": "#/$defs/ScheduledEventMetadata"
+              }
+            }
+          }
+        }
+      ]
     },
     "ModifyGuildTemplateRequest": {
       "title": "ModifyGuildTemplateRequest",
@@ -7792,6 +8401,102 @@
         }
       }
     },
+    "OnboardingConfig": {
+      "title": "OnboardingConfig",
+      "type": "object",
+      "required": [
+        "enabled",
+        "questions"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "questions": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/$defs/OnboardingQuestion"
+          }
+        }
+      }
+    },
+    "OnboardingOption": {
+      "title": "OnboardingOption",
+      "type": "object",
+      "required": [
+        "label",
+        "role_id",
+        "channel_id"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "role_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "channel_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Snowflake"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "OnboardingQuestion": {
+      "title": "OnboardingQuestion",
+      "type": "object",
+      "required": [
+        "title",
+        "options"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/OnboardingOption"
+          }
+        }
+      }
+    },
+    "OnboardingResponse": {
+      "title": "OnboardingResponse",
+      "type": "object",
+      "required": [
+        "config",
+        "revision"
+      ],
+      "properties": {
+        "config": {
+          "$ref": "#/$defs/OnboardingConfig"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
     "P2pSignalPayload": {
       "title": "P2pSignalPayload",
       "description": "Op 22 P2P_SIGNAL. Relayed only, never persisted.",
@@ -7893,6 +8598,47 @@
         },
         "bot": {
           "type": "boolean"
+        }
+      }
+    },
+    "PassiveUpdateV2Event": {
+      "title": "PassiveUpdateV2Event",
+      "description": "At most one coalesced update every five seconds when values changed; absent fields are unchanged. Unread is the existing count of unread channels, derived by clients from channel latest-message and read markers, not a message count. Guild channels and voice updates are filtered by current view permissions.",
+      "type": "object",
+      "properties": {
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "guild_id",
+              "channel_id",
+              "last_message_id"
+            ],
+            "properties": {
+              "guild_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "channel_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "last_message_id": {
+                "$ref": "#/$defs/Snowflake"
+              }
+            }
+          }
+        },
+        "read_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReadStateUpdateEvent"
+          }
+        },
+        "voice_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VoiceState"
+          }
         }
       }
     },
@@ -9351,6 +10097,91 @@
         }
       }
     },
+    "ScheduledEventMetadata": {
+      "title": "ScheduledEventMetadata",
+      "description": "The location of an external event.",
+      "type": "object",
+      "required": [
+        "location"
+      ],
+      "properties": {
+        "location": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "ScheduledEventPushTargets": {
+      "title": "ScheduledEventPushTargets",
+      "description": "Live notification tokens for one currently eligible member. Empty users means do not send. Token values are secret.",
+      "type": "object",
+      "required": [
+        "users",
+        "next_after"
+      ],
+      "properties": {
+        "users": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "user_id",
+              "tokens"
+            ],
+            "properties": {
+              "user_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "tokens": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "platform",
+                    "token",
+                    "environment",
+                    "previews",
+                    "only_mentions"
+                  ],
+                  "properties": {
+                    "platform": {
+                      "type": "string",
+                      "enum": [
+                        "apns",
+                        "fcm"
+                      ]
+                    },
+                    "token": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "environment": {
+                      "type": "string",
+                      "enum": [
+                        "production",
+                        "sandbox"
+                      ]
+                    },
+                    "previews": {
+                      "type": "boolean"
+                    },
+                    "only_mentions": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "next_after": {
+          "type": "null"
+        }
+      }
+    },
     "ScheduledMessage": {
       "title": "ScheduledMessage",
       "description": "Author-private durable schedule. A sent outcome certifies storage, not event/push delivery. An unknown outcome may have stored a message; its selected ID is not proof of delivery. Terminal/unknown states clear the draft and release active quota exactly once. Only the original dispatch attempt may later certify unknown as sent; automatic redispatch is forbidden. Pre-dispatch dependency retries expire after 24 hours overdue. Unresolved dispatches become eligible for unknown recovery after 2 minutes; this is not a deadline during an outage.",
@@ -9858,6 +10689,19 @@
         }
       }
     },
+    "SessionModePayload": {
+      "title": "SessionModePayload",
+      "description": "Op 27 SESSION_MODE. Switching to passive requires certified read states. Switching active fetches read states and refreshes guild snapshots before that guild resumes full dispatch.",
+      "type": "object",
+      "required": [
+        "passive"
+      ],
+      "properties": {
+        "passive": {
+          "type": "boolean"
+        }
+      }
+    },
     "SessionRevokeEvent": {
       "title": "SessionRevokeEvent",
       "description": "SESSION_REVOKE bus event (discordy.user.v1, routed to the user in target_user_ids). Login sessions were revoked (DELETE /users/@me/sessions/{id}, POST /users/@me/sessions/logout-all). The gateway closes every live connection whose authenticated session id is listed, with close code 4004, and never dispatches it to clients.",
@@ -9902,6 +10746,28 @@
             }
           ],
           "description": "Null clears the per-chat override."
+        }
+      }
+    },
+    "SetMemberVerificationRequest": {
+      "title": "SetMemberVerificationRequest",
+      "type": "object",
+      "required": [
+        "enabled",
+        "rules"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "rules": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
         }
       }
     },
@@ -11072,6 +11938,16 @@
           "type": "string",
           "maxLength": 16,
           "description": "Skin tone modifier of the emoji picker; empty for the default."
+        },
+        "favorite_gifs": {
+          "type": "array",
+          "maxItems": 100,
+          "description": "Favorite GIF media links, synced across devices.",
+          "items": {
+            "type": "string",
+            "maxLength": 2048,
+            "pattern": "^https://"
+          }
         },
         "recent_reactions": {
           "type": "array",
@@ -12265,7 +13141,7 @@
     },
     "Webhook": {
       "title": "Webhook",
-      "description": "An incoming or application webhook.",
+      "description": "An incoming, channel-follower or application webhook.",
       "type": "object",
       "required": [
         "id",
@@ -12335,6 +13211,45 @@
         "url": {
           "type": "string",
           "description": "Execution URL returned only by create and reset-token. Treat as a secret."
+        }
+      }
+    },
+    "WelcomeScreen": {
+      "title": "WelcomeScreen",
+      "type": "object",
+      "required": [
+        "enabled",
+        "description",
+        "channels"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "channels": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "required": [
+              "channel_id",
+              "description"
+            ],
+            "properties": {
+              "channel_id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              }
+            }
+          }
         }
       }
     }

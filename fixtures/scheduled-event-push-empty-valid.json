@@ -1,0 +1,4 @@
+{
+  "schema": "internal/scheduled-event-push-targets.json",
+  "data": { "users": [], "next_after": null }
+}
