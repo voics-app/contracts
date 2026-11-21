@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/poll.json",
+  "title": "Poll",
+  "type": "object",
+  "required": [
+    "question",
+    "answers",
+    "expiry",
+    "allow_multiselect",
+    "layout_type"
+  ],
+  "properties": {
+    "question": {
+      "$ref": "./poll-question.json"
+    },
+    "answers": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 10,
+      "items": {
+        "$ref": "./poll-answer.json"
+      }
+    },
+    "expiry": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "allow_multiselect": {
+      "type": "boolean"
+    },
+    "layout_type": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "results": {
+      "$ref": "./poll-results.json"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A Standard message poll. Absent results mean unknown. The immutable definition is never reset by a message edit."
+}
