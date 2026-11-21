@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/badge-visibility-request.json",
+  "title": "BadgeVisibilityRequest",
+  "description": "Change visibility of an existing badge grant owned by the caller.",
+  "type": "object",
+  "properties": {
+    "visible": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "visible"
+  ],
+  "additionalProperties": false
+}

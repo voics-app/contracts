@@ -1,0 +1,11 @@
+{
+  "schema": "objects/poll-media.json",
+  "valid": false,
+  "data": {
+    "text": "Custom",
+    "emoji": {
+      "id": "123",
+      "name": "party"
+    }
+  }
+}

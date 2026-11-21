@@ -95,12 +95,15 @@
       { "name": "INVITE_DELETE", "payload": "gateway/dispatch/invite-delete.json", "source": "api", "topic": "discordy.guild.v1", "description": "An invite was deleted." },
       { "name": "THREAD_CREATE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A thread was created." },
       { "name": "THREAD_UPDATE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A thread was updated." },
+      { "name": "THREAD_MEMBERS_UPDATE", "payload": "events/thread-members-update.json", "source": "api", "topic": "discordy.guild.v1", "description": "Thread membership changed; underscore-prefixed bus state is private to the gateway." },
       { "name": "THREAD_DELETE", "payload": "objects/channel.json", "source": "api", "topic": "discordy.guild.v1", "description": "A thread was deleted." },
       { "name": "APPLICATION_COMMAND_PERMISSIONS_UPDATE", "payload": "objects/guild-application-command-permissions.json", "source": "api", "topic": "discordy.guild.v1", "description": "Application command permissions were updated." },
       { "name": "MESSAGE_CREATE", "payload": "gateway/dispatch/message-event.json", "source": "messages", "topic": "discordy.message.v1", "description": "A message was created." },
       { "name": "MESSAGE_UPDATE", "payload": "gateway/dispatch/message-event.json", "source": "messages", "topic": "discordy.message.v1", "description": "A message was edited." },
       { "name": "MESSAGE_DELETE", "payload": "gateway/dispatch/message-delete.json", "source": "messages", "topic": "discordy.message.v1", "description": "A message was deleted." },
       { "name": "MESSAGE_DELETE_BULK", "payload": "gateway/dispatch/message-delete-bulk.json", "source": "messages", "topic": "discordy.message.v1", "description": "Several messages were deleted at once." },
+      {"name":"MESSAGE_POLL_VOTE_ADD","payload":"gateway/dispatch/message-poll-vote-add.json","source":"messages","topic":"discordy.message.v1","description":"Authoritative poll counts and complete actor selection after a vote add."},
+      {"name":"MESSAGE_POLL_VOTE_REMOVE","payload":"gateway/dispatch/message-poll-vote-remove.json","source":"messages","topic":"discordy.message.v1","description":"Authoritative poll counts and complete actor selection after a vote remove."},
       { "name": "MESSAGE_REACTION_ADD", "payload": "gateway/dispatch/message-reaction-add.json", "source": "messages", "topic": "discordy.message.v1", "description": "A user reacted to a message." },
       { "name": "MESSAGE_REACTION_REMOVE", "payload": "gateway/dispatch/message-reaction-remove.json", "source": "messages", "topic": "discordy.message.v1", "description": "A user removed a reaction." },
       { "name": "MESSAGE_REACTION_REMOVE_ALL", "payload": "gateway/dispatch/message-reaction-remove-all.json", "source": "messages", "topic": "discordy.message.v1", "description": "All reactions were removed from a message." },
@@ -267,13 +270,14 @@
       ]
     },
     "MessageFlags": {
-      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides the link previews of a message; SUPPRESS_NOTIFICATIONS (@silent) sends the message without push, desktop or mention notifications.",
+      "description": "Message flags (Discord values) used by Discordy. SUPPRESS_EMBEDS hides link previews; SUPPRESS_NOTIFICATIONS (@silent) sends without push, desktop or mention notifications; IS_VOICE_MESSAGE identifies a voice recording.",
       "values": [
         { "name": "CROSSPOSTED", "value": 1 },
         { "name": "IS_CROSSPOST", "value": 2 },
         { "name": "SUPPRESS_EMBEDS", "value": 4 },
         { "name": "SUPPRESS_NOTIFICATIONS", "value": 4096 },
-        { "name": "EPHEMERAL", "value": 64 }
+        { "name": "EPHEMERAL", "value": 64 },
+        { "name": "IS_VOICE_MESSAGE", "value": 8192 }
       ]
     },
     "AttachmentFlags": {
@@ -395,7 +399,7 @@
       ]
     },
     "AuditLogEvent": {
-      "description": "Audit log action types (Discord values) used by Discordy.",
+      "description": "Audit log action types used by Discordy, including Voics extensions.",
       "values": [
         { "name": "GUILD_UPDATE", "value": 1 },
         { "name": "CHANNEL_CREATE", "value": 10 },
@@ -432,7 +436,9 @@
         { "name": "THREAD_CREATE", "value": 110 },
         { "name": "THREAD_UPDATE", "value": 111 },
         { "name": "THREAD_DELETE", "value": 112 },
-        { "name": "APPLICATION_COMMAND_PERMISSION_UPDATE", "value": 121 }
+        { "name": "APPLICATION_COMMAND_PERMISSION_UPDATE", "value": 121 },
+        { "name": "BAN_APPEAL_ACCEPT", "value": 200 },
+        { "name": "BAN_APPEAL_DENY", "value": 201 }
       ]
     }
   }

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/thread-member-target.json",
+  "title": "ThreadMemberTarget",
+  "description": "A thread member's Snowflake or @me for the authenticated user.",
+  "type": "string",
+  "pattern": "^(@me|[0-9]{1,20})$"
+}
