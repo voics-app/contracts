@@ -2691,6 +2691,10 @@ export interface IdentifyPayload {
   intents: number;
   properties: IdentifyProperties;
   presence?: PresenceUpdatePayload;
+  /**
+   * Opt into passive updates. Omitted means active. Requires certified versioned read states; otherwise identification closes with retryable 4000. A session that has used passive mode cannot resume and must identify again.
+   */
+  passive?: boolean;
 }
 /**
  * Client connection properties.
@@ -4166,6 +4170,27 @@ export interface P2pSignalPayload {
   identity_sig_b64: string;
 }
 /**
+ * At most one coalesced update every five seconds when values changed; absent fields are unchanged. Unread is the existing count of unread channels, derived by clients from channel latest-message and read markers, not a message count. Guild channels and voice updates are filtered by current view permissions.
+ */
+export interface PassiveUpdateV2Event {
+  channels?: {
+    guild_id: Snowflake;
+    channel_id: Snowflake;
+    last_message_id: Snowflake;
+  }[];
+  read_states?: ReadStateUpdateEvent[];
+  voice_states?: VoiceState[];
+}
+/**
+ * Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
+ */
+export interface ReadStateUpdateEvent {
+  channel_id: Snowflake;
+  last_message_id: Snowflake | null;
+  mention_count: number;
+  read_state_version: ReadStateVersion;
+}
+/**
  * Registered second factor metadata. Credential public keys and challenges are never included.
  */
 export interface Passkey {
@@ -4435,15 +4460,6 @@ export interface ReadStateSyncEvent {
   read_state: (ReadState & {
     read_state_version: ReadStateVersion;
   })[];
-}
-/**
- * Full authoritative snapshot targeted only to the owning user's sessions. Accept only a newer channel version; duplicate and reordered events do not add counts. Message IDs do not describe count membership.
- */
-export interface ReadStateUpdateEvent {
-  channel_id: Snowflake;
-  last_message_id: Snowflake | null;
-  mention_count: number;
-  read_state_version: ReadStateVersion;
 }
 /**
  * The bot's application.
@@ -4744,6 +4760,12 @@ export interface SessionDescriptionPayload {
  */
 export interface VoiceE2ee {
   protocol_version: number;
+}
+/**
+ * Op 27 SESSION_MODE. Switching to passive requires certified read states. Switching active fetches read states and refreshes guild snapshots before that guild resumes full dispatch.
+ */
+export interface SessionModePayload {
+  passive: boolean;
 }
 /**
  * SESSION_REVOKE bus event (discordy.user.v1, routed to the user in target_user_ids). Login sessions were revoked (DELETE /users/@me/sessions/{id}, POST /users/@me/sessions/logout-all). The gateway closes every live connection whose authenticated session id is listed, with close code 4004, and never dispatches it to clients.

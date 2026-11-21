@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/gateway/dispatch/passive-update-v2.json",
+  "title": "PassiveUpdateV2Event",
+  "description": "At most one coalesced update every five seconds when values changed; absent fields are unchanged. Unread is the existing count of unread channels, derived by clients from channel latest-message and read markers, not a message count. Guild channels and voice updates are filtered by current view permissions.",
+  "type": "object",
+  "properties": {
+    "channels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "guild_id",
+          "channel_id",
+          "last_message_id"
+        ],
+        "properties": {
+          "guild_id": {
+            "$ref": "../../objects/snowflake.json"
+          },
+          "channel_id": {
+            "$ref": "../../objects/snowflake.json"
+          },
+          "last_message_id": {
+            "$ref": "../../objects/snowflake.json"
+          }
+        }
+      }
+    },
+    "read_states": {
+      "type": "array",
+      "items": {
+        "$ref": "./read-state-update.json"
+      }
+    },
+    "voice_states": {
+      "type": "array",
+      "items": {
+        "$ref": "../../objects/voice-state.json"
+      }
+    }
+  }
+}

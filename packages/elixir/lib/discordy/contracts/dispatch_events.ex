@@ -7,6 +7,9 @@ defmodule Discordy.Contracts.DispatchEvents do
   @spec ready() :: String.t()
   def ready, do: "READY"
 
+  @spec passive_update_v2() :: String.t()
+  def passive_update_v2, do: "PASSIVE_UPDATE_V2"
+
   @spec resumed() :: String.t()
   def resumed, do: "RESUMED"
 
@@ -195,6 +198,7 @@ defmodule Discordy.Contracts.DispatchEvents do
   def entries do
     %{
       ready: "READY",
+      passive_update_v2: "PASSIVE_UPDATE_V2",
       resumed: "RESUMED",
       presence_update: "PRESENCE_UPDATE",
       typing_start: "TYPING_START",

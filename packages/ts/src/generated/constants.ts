@@ -208,6 +208,8 @@ export const GatewayOpcodes = {
   CALL_DECLINE: 25,
   /** Rings 1 to 10 members of a DM channel for a call the sender is in. */
   CALL_RING: 26,
+  /** Switch the session between passive and active; activation requests a full refresh. */
+  SESSION_MODE: 27,
 } as const;
 export type GatewayOpcodesKey = keyof typeof GatewayOpcodes;
 
@@ -243,6 +245,7 @@ export type GatewayCloseCodesKey = keyof typeof GatewayCloseCodes;
 /** Gateway dispatch event names (`t`). */
 export const DispatchEvents = {
   READY: "READY",
+  PASSIVE_UPDATE_V2: "PASSIVE_UPDATE_V2",
   RESUMED: "RESUMED",
   PRESENCE_UPDATE: "PRESENCE_UPDATE",
   TYPING_START: "TYPING_START",
