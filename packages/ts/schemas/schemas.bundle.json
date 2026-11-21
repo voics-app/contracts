@@ -5519,6 +5519,70 @@
         }
       }
     },
+    "GuildWidget": {
+      "title": "GuildWidget",
+      "description": "Public view of a guild with its widget enabled. Anonymous callers see only what the @everyone role can see.",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "icon",
+        "instant_invite",
+        "presence_count",
+        "channels"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Snowflake"
+        },
+        "name": {
+          "type": "string"
+        },
+        "icon": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "instant_invite": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Code of a usable, non-temporary invite to the widget channel; null when there is none."
+        },
+        "presence_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "description": "Members online now; null when presence is unavailable."
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "position"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/Snowflake"
+              },
+              "name": {
+                "type": "string"
+              },
+              "position": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
     "GuildWidgetPatch": {
       "title": "GuildWidgetPatch",
       "type": "object",
