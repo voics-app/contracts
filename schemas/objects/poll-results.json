@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/poll-results.json",
+  "title": "PollResults",
+  "type": "object",
+  "required": [
+    "version",
+    "is_finalized",
+    "answer_counts"
+  ],
+  "properties": {
+    "version": {
+      "$ref": "./poll-version.json"
+    },
+    "is_finalized": {
+      "type": "boolean"
+    },
+    "answer_counts": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 10,
+      "items": {
+        "$ref": "./poll-answer-count.json"
+      },
+      "description": "Complete counts, one per immutable answer, including zeros. Unique IDs are checked by the producer."
+    },
+    "vote_version": {
+      "$ref": "./poll-version.json",
+      "description": "Present only when the current viewer is known. Never overwrite a newer viewer version with absent or older facts."
+    }
+  },
+  "additionalProperties": false,
+  "description": "Authoritative counts. Replace by results version; never add/subtract event deltas."
+}

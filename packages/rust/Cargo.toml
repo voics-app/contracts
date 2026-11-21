@@ -6,7 +6,7 @@ rust-version = "1.85"
 license = "UNLICENSED"
 publish = false
 description = "Discordy wire contracts: REST, gateway, event-bus and voice types plus permission/intent constants."
-repository = "https://github.com/discordy-voics/contracts"
+repository = "https://github.com/voics-app/contracts"
 
 [dependencies]
 chrono = { version = "0.4", default-features = false, features = ["serde", "std"] }

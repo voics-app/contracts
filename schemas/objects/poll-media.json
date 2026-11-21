@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/objects/poll-media.json",
+  "title": "PollMedia",
+  "type": "object",
+  "required": [
+    "text"
+  ],
+  "properties": {
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 55,
+      "pattern": "\\S"
+    },
+    "emoji": {
+      "$ref": "./poll-emoji.json"
+    }
+  },
+  "additionalProperties": false,
+  "description": "An answer label, optionally decorated with a Unicode emoji."
+}

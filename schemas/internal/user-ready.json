@@ -20,7 +20,7 @@
     "guilds": {
       "type": "array",
       "items": {
-        "$ref": "../objects/guild-full.json"
+        "$ref": "./gateway-guild-state.json"
       }
     },
     "private_channels": {
