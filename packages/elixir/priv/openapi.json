@@ -2622,6 +2622,193 @@
         }
       }
     },
+    "/guilds/{guild_id}/insights": {
+      "get": {
+        "operationId": "getGuildInsights",
+        "summary": "Get daily server activity (MANAGE_GUILD)",
+        "description": "UTC days include today. Null means unavailable. A false completeness flag means a count may omit activity. Voice collection is not yet implemented.",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                7,
+                30
+              ],
+              "default": 7
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daily activity and coverage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildInsights"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/widget.json": {
+      "get": {
+        "operationId": "getPublicGuildWidget",
+        "summary": "Get an enabled guild's public widget",
+        "description": "Disabled widgets return 404. The response deliberately omits channels, members and invites.",
+        "security": [],
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public guild identity.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "icon"
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/Snowflake"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "icon": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/guilds/{guild_id}/widget": {
+      "get": {
+        "operationId": "getGuildWidgetSettings",
+        "summary": "Get widget settings (MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Widget settings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildWidgetSettings"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateGuildWidgetSettings",
+        "summary": "Update widget settings (MANAGE_GUILD)",
+        "tags": [
+          "Guilds"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/guild_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuildWidgetPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated widget settings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildWidgetSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/guilds/{guild_id}/channels": {
       "get": {
         "operationId": "listGuildChannels",
@@ -4913,6 +5100,55 @@
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/channels/{channel_id}/voice-status": {
+      "put": {
+        "operationId": "setVoiceChannelStatus",
+        "summary": "Set or clear a voice channel status",
+        "description": "Requires channel visibility and SET_VOICE_CHANNEL_STATUS or current connection to that channel. Dispatches CHANNEL_UPDATE.",
+        "tags": [
+          "Channels"
+        ],
+        "x-discordy-service": "api",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/channel_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Status saved."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "description": "The gateway voice-state lookup is unavailable."
           }
         }
       }
@@ -11562,6 +11798,15 @@
               "null"
             ]
           },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 500,
+            "pattern": "^[^\\u0000]*$",
+            "description": "Voice-channel status text, or null when unset."
+          },
           "nsfw": {
             "type": "boolean"
           },
@@ -13519,6 +13764,44 @@
           }
         }
       },
+      "Guild Insights Coverage State": {
+        "type": "string",
+        "enum": [
+          "complete",
+          "partial",
+          "unavailable"
+        ],
+        "description": "Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.",
+        "title": "Guild Insights Coverage State"
+      },
+      "Guild Insights Coverage Summary": {
+        "type": "object",
+        "required": [
+          "status",
+          "complete_days",
+          "partial_days",
+          "unavailable_days"
+        ],
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/Guild Insights Coverage State"
+          },
+          "complete_days": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "partial_days": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unavailable_days": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "description": "Period status and the number of days in each coverage state for this source.",
+        "title": "Guild Insights Coverage Summary"
+      },
       "GuildDiscoverySettings": {
         "title": "GuildDiscoverySettings",
         "description": "A guild opt-in discovery listing and the rules that currently block listing it. Listing requires Community with configured rules and updates channels, a description of at least 10 characters, the configured minimum member count and guild age, and no age-restricted (nsfw) channel. enabled means opted in; blockers must also be empty for public visibility.",
@@ -13611,6 +13894,141 @@
               "$ref": "#/components/schemas/Snowflake"
             },
             "maxItems": 200
+          }
+        }
+      },
+      "GuildInsights": {
+        "title": "GuildInsights",
+        "type": "object",
+        "required": [
+          "period",
+          "days",
+          "coverage",
+          "message_coverage",
+          "voice_coverage"
+        ],
+        "properties": {
+          "period": {
+            "type": "integer",
+            "enum": [
+              7,
+              30
+            ]
+          },
+          "message_coverage": {
+            "type": "boolean"
+          },
+          "voice_coverage": {
+            "type": "boolean"
+          },
+          "coverage": {
+            "type": "object",
+            "required": [
+              "membership",
+              "messages",
+              "voice"
+            ],
+            "properties": {
+              "membership": {
+                "$ref": "#/components/schemas/Guild Insights Coverage Summary"
+              },
+              "messages": {
+                "$ref": "#/components/schemas/Guild Insights Coverage Summary"
+              },
+              "voice": {
+                "$ref": "#/components/schemas/Guild Insights Coverage Summary"
+              }
+            }
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "date",
+                "new_members",
+                "leavers",
+                "membership_complete",
+                "messages",
+                "message_complete",
+                "message_source_initialized_at_ms",
+                "activity_source_initialized_at_ms",
+                "voice_minutes",
+                "coverage"
+              ],
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "new_members": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "leavers": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "membership_complete": {
+                  "type": "boolean"
+                },
+                "messages": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "message_complete": {
+                  "type": "boolean",
+                  "description": "False means the observed count may omit writes."
+                },
+                "message_source_initialized_at_ms": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "description": "Marker schema initialization, not proof of full producer coverage."
+                },
+                "activity_source_initialized_at_ms": {
+                  "type": "integer",
+                  "description": "API activity schema initialization, not proof of complete voice coverage."
+                },
+                "voice_minutes": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "coverage": {
+                  "type": "object",
+                  "required": [
+                    "membership",
+                    "messages",
+                    "voice"
+                  ],
+                  "properties": {
+                    "membership": {
+                      "$ref": "#/components/schemas/Guild Insights Coverage State"
+                    },
+                    "messages": {
+                      "$ref": "#/components/schemas/Guild Insights Coverage State"
+                    },
+                    "voice": {
+                      "$ref": "#/components/schemas/Guild Insights Coverage State"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
@@ -13982,6 +14400,49 @@
           "is_dirty": {
             "type": "boolean",
             "description": "Whether the source guild's current template-visible structure differs from the saved snapshot. Built-ins are always false. Syncing is explicit (`PUT /guilds/{guild_id}/templates/{code}`)."
+          }
+        }
+      },
+      "GuildWidgetPatch": {
+        "title": "GuildWidgetPatch",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "channel_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "GuildWidgetSettings": {
+        "title": "GuildWidgetSettings",
+        "type": "object",
+        "required": [
+          "enabled",
+          "channel_id"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "channel_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snowflake"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       },
@@ -18241,6 +18702,24 @@
           },
           "custom": {
             "type": "boolean"
+          }
+        }
+      },
+      "VoiceStatusRequest": {
+        "title": "VoiceStatusRequest",
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 500,
+            "pattern": "^[^\\u0000]*$",
+            "description": "Text to display, or null to clear."
           }
         }
       },

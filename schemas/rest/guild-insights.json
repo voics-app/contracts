@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://discordy.voics.nl/contracts/schemas/rest/guild-insights.json",
+  "title": "GuildInsights",
+  "type": "object",
+  "required": [
+    "period",
+    "days",
+    "coverage",
+    "message_coverage",
+    "voice_coverage"
+  ],
+  "properties": {
+    "period": {
+      "type": "integer",
+      "enum": [
+        7,
+        30
+      ]
+    },
+    "message_coverage": {
+      "type": "boolean"
+    },
+    "voice_coverage": {
+      "type": "boolean"
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "membership",
+        "messages",
+        "voice"
+      ],
+      "properties": {
+        "membership": {
+          "$ref": "#/$defs/coverageSummary"
+        },
+        "messages": {
+          "$ref": "#/$defs/coverageSummary"
+        },
+        "voice": {
+          "$ref": "#/$defs/coverageSummary"
+        }
+      }
+    },
+    "days": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "date",
+          "new_members",
+          "leavers",
+          "membership_complete",
+          "messages",
+          "message_complete",
+          "message_source_initialized_at_ms",
+          "activity_source_initialized_at_ms",
+          "voice_minutes",
+          "coverage"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "new_members": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "leavers": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "membership_complete": {
+            "type": "boolean"
+          },
+          "messages": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "message_complete": {
+            "type": "boolean",
+            "description": "False means the observed count may omit writes."
+          },
+          "message_source_initialized_at_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Marker schema initialization, not proof of full producer coverage."
+          },
+          "activity_source_initialized_at_ms": {
+            "type": "integer",
+            "description": "API activity schema initialization, not proof of complete voice coverage."
+          },
+          "voice_minutes": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "coverage": {
+            "type": "object",
+            "required": [
+              "membership",
+              "messages",
+              "voice"
+            ],
+            "properties": {
+              "membership": {
+                "$ref": "#/$defs/coverageState"
+              },
+              "messages": {
+                "$ref": "#/$defs/coverageState"
+              },
+              "voice": {
+                "$ref": "#/$defs/coverageState"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "coverageState": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "partial",
+        "unavailable"
+      ],
+      "description": "Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.",
+      "title": "Guild Insights Coverage State"
+    },
+    "coverageSummary": {
+      "type": "object",
+      "required": [
+        "status",
+        "complete_days",
+        "partial_days",
+        "unavailable_days"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/coverageState"
+        },
+        "complete_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "partial_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unavailable_days": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "description": "Period status and the number of days in each coverage state for this source.",
+      "title": "Guild Insights Coverage Summary"
+    }
+  }
+}

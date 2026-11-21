@@ -144,6 +144,10 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/guilds/{guild_id}` | api | — | `Guild` | Get a guild |
 | `PATCH` | `/guilds/{guild_id}` | api | `ModifyGuildRequest` | `Guild` | Modify a guild (including voice_region) |
 | `DELETE` | `/guilds/{guild_id}` | api | — | 204 No Content | Delete a guild (owner only) |
+| `GET` | `/guilds/{guild_id}/insights` | api | — | `GuildInsights` | Get daily server activity (MANAGE_GUILD) |
+| `GET` | `/guilds/{guild_id}/widget.json` | api | — | `object` | Get an enabled guild's public widget |
+| `GET` | `/guilds/{guild_id}/widget` | api | — | `GuildWidgetSettings` | Get widget settings (MANAGE_GUILD) |
+| `PATCH` | `/guilds/{guild_id}/widget` | api | `GuildWidgetPatch` | `GuildWidgetSettings` | Update widget settings (MANAGE_GUILD) |
 | `GET` | `/guilds/{guild_id}/channels` | api | — | `array of Channel` | List a guild's channels |
 | `POST` | `/guilds/{guild_id}/channels` | api | `CreateChannelRequest` | `Channel` | Create a guild channel |
 | `PATCH` | `/guilds/{guild_id}/channels` | api | `array of ChannelPosition` | 204 No Content | Reorder guild channels |
@@ -232,6 +236,7 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | `GET` | `/channels/{channel_id}` | api | — | `Channel` | Get a channel |
 | `PATCH` | `/channels/{channel_id}` | api | `ModifyChannelRequest` | `Channel` | Modify a channel (including delivery_mode and voice_region) |
 | `DELETE` | `/channels/{channel_id}` | api | — | `Channel` | Delete a channel, leave a group DM or close a DM |
+| `PUT` | `/channels/{channel_id}/voice-status` | api | `VoiceStatusRequest` | 204 No Content | Set or clear a voice channel status |
 | `PUT` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | `EditOverwriteRequest` | 204 No Content | Create or edit a permission overwrite |
 | `DELETE` | `/channels/{channel_id}/permissions/{overwrite_id}` | api | — | 204 No Content | Delete a permission overwrite |
 | `POST` | `/channels/{channel_id}/invites` | api | `CreateInviteRequest` | `Invite` | Create an invite |
@@ -618,6 +623,7 @@ A guild channel, DM, group DM or thread. `delivery_mode` and `voice_region` are 
 | `permission_overwrites?` | `array of PermissionOverwrite` |  |
 | `name?` | `?string` |  |
 | `topic?` | `?string` |  |
+| `status?` | `?string` | Voice-channel status text, or null when unset. |
 | `nsfw?` | `boolean` |  |
 | `text_chat_enabled?` | `boolean` | Voice channels only: whether members can send messages to the channel chat. Defaults to true. |
 | `last_message_id?` | `?Snowflake` |  |
@@ -2358,6 +2364,47 @@ POST /auth/forgot-password body.
 | --- | --- | --- |
 | `email` | `string (email)` |  |
 
+### Guild Insights Coverage State
+
+Complete covers the full UTC day; partial is an observation that may omit activity; unavailable has no reliable observation. The current day cannot be complete.
+
+Type: `"complete" or "partial" or "unavailable"`
+
+### Guild Insights Coverage Summary
+
+Period status and the number of days in each coverage state for this source.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | `Guild Insights Coverage State` |  |
+| `complete_days` | `integer` |  |
+| `partial_days` | `integer` |  |
+| `unavailable_days` | `integer` |  |
+
+### GuildInsights
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `period` | `7 or 30` |  |
+| `message_coverage` | `boolean` |  |
+| `voice_coverage` | `boolean` |  |
+| `coverage` | `object` |  |
+| `days` | `array of object` |  |
+
+### GuildWidgetPatch
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled?` | `boolean` |  |
+| `channel_id?` | `?Snowflake` |  |
+
+### GuildWidgetSettings
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `enabled` | `boolean` |  |
+| `channel_id` | `?Snowflake` |  |
+
 ### InteractionCallbackData
 
 Message, autocomplete or modal data.
@@ -2944,6 +2991,12 @@ POST /users/@me/mfa/totp/verify body.
 | Field | Type | Description |
 | --- | --- | --- |
 | `code` | `string` |  |
+
+### VoiceStatusRequest
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | `?string` | Text to display, or null to clear. |
 
 ### WebauthnChallenge
 

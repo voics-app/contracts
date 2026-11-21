@@ -1574,6 +1574,113 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /guilds/{guild_id}/insights:
+    get:
+      operationId: getGuildInsights
+      summary: Get daily server activity (MANAGE_GUILD)
+      description: UTC days include today. Null means unavailable. A false completeness flag means a count may omit activity. Voice collection is not yet implemented.
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+        - name: period
+          in: query
+          required: false
+          schema:
+            type: integer
+            enum: [7, 30]
+            default: 7
+      responses:
+        "200":
+          description: Daily activity and coverage.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/guild-insights.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /guilds/{guild_id}/widget.json:
+    get:
+      operationId: getPublicGuildWidget
+      summary: Get an enabled guild's public widget
+      description: Disabled widgets return 404. The response deliberately omits channels, members and invites.
+      security: []
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Public guild identity.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, name, icon]
+                properties:
+                  id:
+                    $ref: ../schemas/objects/snowflake.json
+                  name:
+                    type: string
+                  icon:
+                    type: [string, "null"]
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /guilds/{guild_id}/widget:
+    get:
+      operationId: getGuildWidgetSettings
+      summary: Get widget settings (MANAGE_GUILD)
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      responses:
+        "200":
+          description: Widget settings.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/guild-widget-settings.json
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateGuildWidgetSettings
+      summary: Update widget settings (MANAGE_GUILD)
+      tags: [Guilds]
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/guild_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/guild-widget-patch.json
+      responses:
+        "200":
+          description: Updated widget settings.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/rest/guild-widget-settings.json
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /guilds/{guild_id}/channels:
     get:
       operationId: listGuildChannels
@@ -2866,6 +2973,37 @@ paths:
           $ref: "#/components/responses/NotFound"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /channels/{channel_id}/voice-status:
+    put:
+      operationId: setVoiceChannelStatus
+      summary: Set or clear a voice channel status
+      description: Requires channel visibility and SET_VOICE_CHANNEL_STATUS or current connection to that channel. Dispatches CHANNEL_UPDATE.
+      tags:
+        - Channels
+      x-discordy-service: api
+      parameters:
+        - $ref: "#/components/parameters/channel_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/rest/voice-status-request.json
+      responses:
+        "204":
+          description: Status saved.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          description: The gateway voice-state lookup is unavailable.
   /channels/{channel_id}/permissions/{overwrite_id}:
     put:
       operationId: editChannelPermissions
