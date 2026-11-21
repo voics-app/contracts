@@ -833,6 +833,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/connections/github/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Complete a GitHub authorization */
+        get: operations["githubConnectionCallback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/devices": {
         parameters: {
             query?: never;
@@ -1629,6 +1646,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{user_id}/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        /** List a user's visible linked accounts */
+        get: operations["listUserConnections"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/devices": {
         parameters: {
             query?: never;
@@ -1764,6 +1800,62 @@ export interface paths {
          */
         put: operations["setChannelDeliveryMode"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the current user's linked accounts */
+        get: operations["listConnections"];
+        /** Set a linked account's profile visibility */
+        put: operations["updateConnection"];
+        post?: never;
+        /** Remove a linked account */
+        delete: operations["removeConnection"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/connections/{provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: "github";
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** Set profile visibility of a linked account */
+        put: operations["setConnectionVisibility"];
+        post?: never;
+        /** Remove a linked account */
+        delete: operations["deleteConnection"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/connections/github/authorize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Begin GitHub authorization in the browser */
+        post: operations["authorizeGithubConnection"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6826,6 +6918,31 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    githubConnectionCallback: {
+        parameters: {
+            query: {
+                /** @description Present on approval. */
+                code?: string;
+                /** @description Present when the user declines. */
+                error?: "access_denied";
+                state: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Account linked or authorization cancelled; browser may be closed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+        };
+    };
     createDevice: {
         parameters: {
             query?: never;
@@ -8964,6 +9081,35 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    listUserConnections: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Visible connections. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        account_id: string;
+                        name: string;
+                        /** @enum {string} */
+                        provider: "github";
+                        visible: boolean;
+                    }[];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
     listUserDevices: {
         parameters: {
             query?: never;
@@ -9223,6 +9369,167 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    listConnections: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Connections including hidden accounts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        account_id: string;
+                        name: string;
+                        /** @enum {string} */
+                        provider: "github";
+                        visible: boolean;
+                    }[];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    updateConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    provider: "github";
+                    visible: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Visibility updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    removeConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    provider: "github";
+                };
+            };
+        };
+        responses: {
+            /** @description Connection removed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    setConnectionVisibility: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: "github";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    visible: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Visibility updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    deleteConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: "github";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Connection removed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    authorizeGithubConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Provider authorization URL. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uri */
+                        url: string;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            /** @description Provider disabled or unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     deleteAccount: {

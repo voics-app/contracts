@@ -57,6 +57,14 @@ Errors use the envelope `{ "code": int, "message": string, "errors"?: object }`.
 | Method | Path | Service | Request | Response | Summary |
 | --- | --- | --- | --- | --- | --- |
 | `POST` | `/reports` | api | `CreateReportRequest` | 204 No Content | Report a message, user or visible guild channel |
+| `GET` | `/users/@me/connections` | api | — | `array of object` | List the current user's linked accounts |
+| `PUT` | `/users/@me/connections` | api | `object` | 204 No Content | Set a linked account's profile visibility |
+| `DELETE` | `/users/@me/connections` | api | `object` | 204 No Content | Remove a linked account |
+| `POST` | `/users/@me/connections/github/authorize` | api | — | `object` | Begin GitHub authorization in the browser |
+| `PUT` | `/users/@me/connections/{provider}` | api | `object` | 204 No Content | Set profile visibility of a linked account |
+| `DELETE` | `/users/@me/connections/{provider}` | api | — | 204 No Content | Remove a linked account |
+| `GET` | `/users/{user_id}/connections` | api | — | `array of object` | List a user's visible linked accounts |
+| `GET` | `/connections/github/callback` | api | — | 200 No Content | Complete a GitHub authorization |
 | `GET` | `/users/@me` | api | — | `User` | Get the current user |
 | `PATCH` | `/users/@me` | api | `ModifyCurrentUserRequest` | `User` | Modify the current user |
 | `POST` | `/users/@me/disable` | api | `PasswordConfirmationRequest` | 204 No Content | Disable the account |
